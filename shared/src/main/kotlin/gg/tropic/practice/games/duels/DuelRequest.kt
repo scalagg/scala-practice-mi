@@ -13,5 +13,7 @@ data class DuelRequest(
     val requestee: UUID,
     val region: Region,
     val kitID: String,
-    val mapID: String? = null
+    val mapID: String? = null,
+    val configuration: PvPConfiguration? = null
 )
+

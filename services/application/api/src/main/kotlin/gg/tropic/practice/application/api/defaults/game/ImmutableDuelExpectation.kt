@@ -1,5 +1,6 @@
 package gg.tropic.practice.application.api.defaults.game
 
+import gg.tropic.practice.games.duels.PvPConfiguration
 import gg.tropic.practice.queue.QueueType
 import java.util.*
 
@@ -17,5 +18,6 @@ data class GameExpectation(
      * Null queue types mean it is a private duel.
      */
     val queueType: QueueType? = null,
-    val queueId: String? = null
+    val queueId: String? = null,
+    val configuration: PvPConfiguration? = null
 )

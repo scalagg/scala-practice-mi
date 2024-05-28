@@ -425,7 +425,8 @@ object GameQueueManager
                                     GameTeamSide.B to GameTeam(GameTeamSide.B, listOf(request.requestee))
                                 ),
                                 kitId = request.kitID,
-                                mapId = map.name
+                                mapId = map.name,
+                                configuration = request.configuration
                             ),
                             region = request.region
                         ) {

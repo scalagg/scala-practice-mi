@@ -813,6 +813,7 @@ object GameService
                     }
                 }
             }
+            .bindWith(plugin)
 
         Events.subscribe(EntityDamageByEntityEvent::class.java)
             .filter { it.damager is Arrow && ((it.damager as Arrow).shooter) is Player && it.entity is Player }
@@ -860,6 +861,7 @@ object GameService
                     }
                 }
             }
+            .bindWith(plugin)
 
         Events
             .subscribe(PlayerBlockedHitEvent::class.java)
@@ -869,8 +871,8 @@ object GameService
 
                 game.counter(it.player)
                     .apply {
-                        // TODO: configurable
-                        if (valueOf("blockedHits") >= 10)
+                        val blockedHitLimit = game.expectationModel.configuration?.blockHitLimit ?: 10
+                        if (valueOf("blockedHits") >= blockedHitLimit)
                         {
                             it.isCancelled = true
                             return@handler
@@ -879,8 +881,40 @@ object GameService
                         increment("blockedHits")
                     }
             }
+            .bindWith(plugin)
 
-        configureMetadataProvidingEventHandler<PlayerCriticalHitEvent>("criticalHits")
+        Events
+            .subscribe(PlayerCriticalHitEvent::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                game.counter(it.player)
+                    .apply {
+                        val criticalHitLimit = game.expectationModel.configuration?.criticalHitLimit
+                        if (criticalHitLimit != null)
+                        {
+                            if (valueOf("criticalHits") >= criticalHitLimit)
+                            {
+                                it.isCancelled = true
+                                return@handler
+                            }
+                        }
+
+                        increment("criticalHits")
+                    }
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(PlayerRunAndEatAttemptEvent::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                it.isCancelled = !(game.expectationModel.configuration?.runningAndEating ?: false)
+            }
+            .bindWith(plugin)
 
         Events.subscribe(EntityDamageByEntityEvent::class.java)
             .filter {
@@ -1010,6 +1044,7 @@ object GameService
                     it.isCancelled = true
                 }
             }
+            .bindWith(plugin)
 
         Events.subscribe(BlockBreakEvent::class.java)
             .handler {

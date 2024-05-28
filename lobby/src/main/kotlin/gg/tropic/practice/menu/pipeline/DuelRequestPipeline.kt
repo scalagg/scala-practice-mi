@@ -3,6 +3,7 @@ package gg.tropic.practice.menu.pipeline
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.duel.DuelRequestUtilities
+import gg.tropic.practice.games.duels.PvPConfiguration
 import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
@@ -16,6 +17,7 @@ import gg.tropic.practice.region.Region
 import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
+import net.evilblock.cubed.menu.buttons.NumberButton
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -71,7 +73,8 @@ object DuelRequestPipeline
         target: UUID,
         kit: Kit,
         map: Map,
-        selectedRegion: Region?
+        selectedRegion: Region?,
+        pvpConfiguration: PvPConfiguration? = null
     )
     {
         player.closeInventory()
@@ -84,7 +87,8 @@ object DuelRequestPipeline
                     requestee = target,
                     region = selectedRegion ?: it,
                     kitID = kit.id,
-                    mapID = map.name
+                    mapID = map.name,
+                    configuration = pvpConfiguration
                 )
 
                 stage4PublishDuelRequest(request)
@@ -133,6 +137,89 @@ object DuelRequestPipeline
         }
     }
 
+    private fun stage3AEditDuelConfiguration(
+        player: Player,
+        target: UUID,
+        kit: Kit,
+        previous: Menu?,
+        selectedRegion: Region?,
+        map: Map
+    ) = object : Menu("Duel Settings (close to reset)")
+    {
+        private var _criticalHitCap = -1
+        private var _blockHitCap = -1
+        private var _runningAndEating = false
+
+        init
+        {
+            placeholder = true
+            updateAfterClick = true
+        }
+
+        override fun size(buttons: kotlin.collections.Map<Int, Button>) = 27
+        override fun getButtons(player: Player) = mutableMapOf<Int, Button>()
+            .apply {
+                this[10] = object : NumberButton(
+                    number = _criticalHitCap,
+                    range = -1..80
+                )
+                {
+                    override fun getName(player: Player) = "${CC.WHITE}Critical Hits: ${CC.PRI}$_criticalHitCap"
+                    override fun onChange(number: Int)
+                    {
+                        _criticalHitCap = number
+                    }
+                }
+
+                this[11] = object : NumberButton(
+                    number = _blockHitCap,
+                    range = -1..80
+                )
+                {
+                    override fun getName(player: Player) = "${CC.WHITE}Block Hits: ${CC.PRI}$_blockHitCap"
+                    override fun onChange(number: Int)
+                    {
+                        _blockHitCap = number
+                    }
+                }
+
+                this[12] = ItemBuilder
+                    .of(Material.HAY_BLOCK)
+                    .name("${CC.WHITE}Running and Eating")
+                    .addToLore(
+                        if (_runningAndEating) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+                    )
+                    .toButton { _, _ ->
+                        _runningAndEating = !_runningAndEating
+                    }
+
+                this[15] = ItemBuilder
+                    .of(Material.EMERALD_BLOCK)
+                    .name("${CC.GREEN}Finalize")
+                    .toButton { _, _ ->
+                        player.closeInventory()
+                        stage3SendDuelRequest(
+                            player, target, kit, map, selectedRegion,
+                            PvPConfiguration(
+                                blockHitLimit = _blockHitCap,
+                                runningAndEating = _runningAndEating,
+                                criticalHitLimit = _criticalHitCap
+                            )
+                        )
+                    }
+            }
+
+        override fun onClose(player: Player, manualClose: Boolean)
+        {
+            if (manualClose)
+            {
+                Tasks.delayed(1L) {
+                    previous?.openMenu(player)
+                }
+            }
+        }
+    }.openMenu(player)
+
     private fun stage2BSendDuelRequestCustomMap(
         target: UUID,
         kit: Kit,
@@ -151,11 +238,20 @@ object DuelRequestPipeline
         override fun itemTitleFor(player: Player, map: Map) = "${CC.B_GREEN}${map.displayName}"
         override fun itemDescriptionOf(player: Player, map: Map) = listOf(
             "",
-            "${CC.GREEN}Click to select!"
+            "${CC.GREEN}Click to select!",
+            "${CC.AQUA}Right-click to set PvP",
+            "${CC.AQUA}settings!"
         )
 
         override fun itemClicked(player: Player, map: Map, type: ClickType)
         {
+            if (type == ClickType.RIGHT)
+            {
+                Button.playNeutral(player)
+                stage3AEditDuelConfiguration(player, target, kit, previous, selectedRegion, map)
+                return
+            }
+
             Button.playNeutral(player)
             stage3SendDuelRequest(player, target, kit, map, selectedRegion)
         }
