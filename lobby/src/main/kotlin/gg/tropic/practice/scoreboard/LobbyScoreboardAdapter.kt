@@ -91,18 +91,15 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
         } else if (profile.isInParty())
         {
-            board += ""
+            board += " "
             board += "${CC.PRI}Party:"
 
             with(profile.partyOf().delegate) {
-                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Leader: ${CC.PRI}${
+                board += "${CC.GRAY} ${CC.WHITE}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Members: ${CC.PRI}${
-                    "${includedMembers().size}/${
-                        if (limit == -1) "${CC.B}∞" else "$limit"
-                    }"
-                }"
+                board += "${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${includedMembersOnline().size} / ${limit}"
+                board += "${CC.GRAY} Privacy is " + status.capitalized + "..."
             }
         } else
         {
