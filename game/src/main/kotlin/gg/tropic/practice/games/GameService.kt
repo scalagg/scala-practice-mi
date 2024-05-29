@@ -850,6 +850,23 @@ object GameService
                 {
                     val shooter = arrow.shooter as Player
 
+                    val minYOffsetForHeadShot = if (entity.isSneaking) 1.25 else 1.5
+
+                    if (arrow.location.y >= entity.location.y + minYOffsetForHeadShot)
+                    {
+                        game.counter(shooter).increment("headshots")
+
+                        val multiplier = game.kit
+                            .featureConfig(FeatureFlag.HeadshotMultiplier, "multiplier")
+                            .toDouble()
+
+                        if (multiplier != 1.0)
+                        {
+                            event.damage *= multiplier
+                            shooter.sendMessage("${CC.B_RED}HEADSHOT! ${CC.GREEN}You've hit ${CC.YELLOW}${entity.displayName}${CC.GREEN} with ${CC.BOLD}${multiplier}x${CC.GREEN} the damage.")
+                        }
+                    }
+
                     if (entity.name != shooter.name && event.damage != 0.0)
                     {
                         val health = ceil(entity.health - event.finalDamage) / 2.0

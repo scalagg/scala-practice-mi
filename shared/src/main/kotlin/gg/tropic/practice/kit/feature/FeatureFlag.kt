@@ -22,6 +22,11 @@ enum class FeatureFlag(
     DoNotTakeHunger,
     DoNotRemoveArmor,
     RequiresBuildMap,
+    HeadshotMultiplier(
+        schema = mutableMapOf(
+            "multiplier" to "1.0"
+        )
+    ),
     DeathBelowYAxis(
         schema = mutableMapOf(
             "level" to "95"
