@@ -26,14 +26,14 @@ import java.util.concurrent.TimeUnit
 @Service
 object MapRatingService
 {
-    private val mapRatings = mutableMapOf<String, Double>()
+    val averageRatings = mutableMapOf<String, Double>()
 
     @Configure
     fun configure()
     {
-        Tasks.asyncTimer(0L, 60 * 20L) {
+        Tasks.asyncTimer(0L, 30 * 20L) {
             MapService.cached().maps.values.forEach {
-                mapRatings[it.name] = loadAverageRating(it)
+                averageRatings[it.name] = loadAverageRating(it)
             }
         }
     }

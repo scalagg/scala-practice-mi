@@ -1,6 +1,9 @@
 package gg.tropic.practice.menu.template
 
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.map.rating.MapRating
+import gg.tropic.practice.map.rating.MapRatingService
+import gg.tropic.practice.map.rating.StarRating
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
@@ -8,6 +11,7 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemFlag
+import kotlin.math.floor
 
 /**
  * @author GrowlyX
@@ -26,7 +30,10 @@ abstract class TemplateMapMenu : PaginatedMenu()
 
     open fun itemTitleFor(player: Player, map: gg.tropic.practice.map.Map): String
     {
-        return "${CC.GREEN}${map.displayName}"
+        val averageRating = MapRatingService.averageRatings[map.name] ?: 0.0
+        return "${CC.B_GREEN}${map.displayName}${
+            if (averageRating != 0.0) " ${StarRating.entries.getOrNull(floor(averageRating).toInt() - 1)?.format ?: ""}" else ""
+        }"
     }
 
     override fun size(buttons: Map<Int, Button>) = 45

@@ -199,9 +199,6 @@ class PartyPlayTVTFights(private val onlinePlayerList: List<UUID>) : PaginatedMe
                     )
                     .isNotEmpty()
 
-                override fun itemTitleFor(player: Player, map: gg.tropic.practice.map.Map) =
-                    "${CC.B_GREEN}${map.displayName}"
-
                 override fun itemDescriptionOf(player: Player, map: gg.tropic.practice.map.Map) = listOf(
                     "",
                     "${CC.GREEN}Click to select!"

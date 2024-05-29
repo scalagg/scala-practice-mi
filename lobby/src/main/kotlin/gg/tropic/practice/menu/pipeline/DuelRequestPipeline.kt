@@ -235,7 +235,6 @@ object DuelRequestPipeline
             .intersect(kitGroups)
             .isNotEmpty()
 
-        override fun itemTitleFor(player: Player, map: Map) = "${CC.B_GREEN}${map.displayName}"
         override fun itemDescriptionOf(player: Player, map: Map) = listOf(
             "",
             "${CC.GREEN}Click to select!",
