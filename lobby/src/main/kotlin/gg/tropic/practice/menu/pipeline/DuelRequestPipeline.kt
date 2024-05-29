@@ -161,7 +161,7 @@ object DuelRequestPipeline
             .apply {
                 this[10] = object : NumberButton(
                     number = _criticalHitCap,
-                    range = -1..80
+                    range = 0..80
                 )
                 {
                     override fun getName(player: Player) = "${CC.WHITE}Critical Hits: ${CC.PRI}$_criticalHitCap"
@@ -173,7 +173,7 @@ object DuelRequestPipeline
 
                 this[11] = object : NumberButton(
                     number = _blockHitCap,
-                    range = -1..80
+                    range = 0..80
                 )
                 {
                     override fun getName(player: Player) = "${CC.WHITE}Block Hits: ${CC.PRI}$_blockHitCap"

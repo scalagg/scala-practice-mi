@@ -46,11 +46,12 @@ object MapRatingService
                 {
                     val message = FancyMessage()
                         .withMessage(
-                            " ${CC.AQUA}Give us feedback on ${CC.SEC}${map.name}${CC.AQUA} by clicking"
+                            " ${CC.AQUA}Give us feedback on ${CC.SEC}${map.displayName}${CC.AQUA} by clicking"
                         )
 
                     val secondMessage = FancyMessage()
-                        .withMessage(" one of the stars: ")
+                        .withMessage("${CC.AQUA} one of the stars: ")
+
                     for (entry in StarRating.entries)
                     {
                         with(secondMessage) {
@@ -78,7 +79,7 @@ object MapRatingService
         .loadWithFilter(
             Filters.and(
                 Filters.eq("mapID", map.name),
-                Filters.eq("rater", player)
+                Filters.eq("rater", player.toString())
             )
         )
 

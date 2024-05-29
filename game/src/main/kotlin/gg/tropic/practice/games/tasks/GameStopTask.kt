@@ -246,6 +246,12 @@ class GameStopTask(
                 )
             }
 
+            game.toBukkitPlayers()
+                .filterNotNull()
+                .forEach {
+                    MapRatingService.sendMapRatingRequest(it, game.map)
+                }
+
             Tasks.delayed(10L) {
                 playerFeedback.forEach { (user, feedback) ->
                     val player = Bukkit.getPlayer(user)
@@ -256,12 +262,6 @@ class GameStopTask(
                         feedback.forEach(player::sendMessage)
                     }
                 }
-
-                game.toBukkitPlayers()
-                    .filterNotNull()
-                    .forEach {
-                        MapRatingService.sendMapRatingRequest(it, game.map)
-                    }
             }
         }
 
