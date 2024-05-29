@@ -27,7 +27,7 @@ class MapRatingOverviewMenu : PaginatedMenu()
                 buttons[buttons.size] = ItemBuilder.of(it.displayIcon.type)
                     .name(Color.translate(it.displayName))
                     .addToLore(
-                        "${CC.GRAY}Average Rating: ${CC.WHITE}${MapRatingService.ratingMap[it.name] ?: 1}"
+                        "${CC.GRAY}Average Rating: ${CC.WHITE}${MapRatingService.mapRatings[it.name] ?: 1}"
                     )
                     .toButton()
             }

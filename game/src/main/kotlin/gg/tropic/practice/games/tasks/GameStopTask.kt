@@ -4,6 +4,7 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.leaderboards.ScoreUpdates
+import gg.tropic.practice.map.rating.MapRatingService
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.settings.isASilentSpectator
 import me.lucko.helper.Events
@@ -255,6 +256,12 @@ class GameStopTask(
                         feedback.forEach(player::sendMessage)
                     }
                 }
+
+                game.toBukkitPlayers()
+                    .filterNotNull()
+                    .forEach {
+                        MapRatingService.sendMapRatingRequest(it, game.map)
+                    }
             }
         }
 

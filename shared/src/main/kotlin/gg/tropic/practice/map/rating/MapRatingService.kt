@@ -6,8 +6,15 @@ import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
+import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.jodah.expiringmap.ExpiringMap
+import net.md_5.bungee.api.chat.ClickEvent
 import org.bson.Document
+import org.bukkit.entity.Player
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 /**
  * Class created on 1/12/2024
@@ -19,17 +26,56 @@ import org.bson.Document
 @Service
 object MapRatingService
 {
-    val ratingMap: MutableMap<String, Double> = mutableMapOf()
+    private val mapRatings = mutableMapOf<String, Double>()
 
     @Configure
     fun configure()
     {
         Tasks.asyncTimer(0L, 60 * 20L) {
             MapService.cached().maps.values.forEach {
-                ratingMap[it.name] = loadAverageRating(it)
+                mapRatings[it.name] = loadAverageRating(it)
             }
         }
     }
+
+    val pendingRatings = ExpiringMap.builder()
+        .expiration(1L, TimeUnit.MINUTES)
+        .build<UUID, String>()
+
+    fun sendMapRatingRequest(player: Player, map: Map)
+    {
+        findExistingMapRating(player.uniqueId, map)
+            .thenAccept { rating ->
+                if (rating == null)
+                {
+                    val message = FancyMessage()
+                        .withMessage(
+                            "${CC.AQUA}Rate the ${CC.BOLD}${map.name}${CC.AQUA} map:"
+                        )
+
+                    for (entry in StarRating.entries)
+                    {
+                        with(message) {
+                            withMessage("${entry.color}[${entry.ordinal + 1}] ")
+                            andCommandOf(ClickEvent.Action.RUN_COMMAND, "rate ${map.name} ${entry.name}")
+                        }
+                    }
+
+                    pendingRatings[player.uniqueId] = map.name
+                    message.sendToPlayer(player)
+                }
+            }
+    }
+
+    fun findExistingMapRating(player: UUID, map: Map) = DataStoreObjectControllerCache
+        .findNotNull<MapRating>()
+        .mongo()
+        .loadWithFilter(
+            Filters.and(
+                Filters.eq("mapID", map.name),
+                Filters.eq("rater", player)
+            )
+        )
 
     fun loadAverageRating(map: Map) = DataStoreObjectControllerCache
         .findNotNull<MapRating>()
@@ -58,13 +104,6 @@ object MapRatingService
         .first()
         ?.getDouble("average")
         ?: 0.0
-
-    fun getRatingCount(map: Map) = DataStoreObjectControllerCache
-        .findNotNull<MapRating>()
-        .mongo()
-        .loadWithFilter(
-            Filters.eq("mapID", map.name)
-        )
 
     fun create(rating: MapRating) = DataStoreObjectControllerCache
         .findNotNull<MapRating>()

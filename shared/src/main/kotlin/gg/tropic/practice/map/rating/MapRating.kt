@@ -14,8 +14,8 @@ import java.util.*
  */
 @Model
 data class MapRating(
-    override val identifier: UUID,
-    @Indexed val rating: Int,
+    override val identifier: UUID = UUID.randomUUID(),
+    val rating: Int,
     @Indexed val rater: UUID,
     @Indexed val mapID: String
 ) : IDataStoreObject
