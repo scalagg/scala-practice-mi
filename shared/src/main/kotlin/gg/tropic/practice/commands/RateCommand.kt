@@ -10,6 +10,8 @@ import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.rating.MapRating
 import gg.tropic.practice.map.rating.MapRatingService
 import gg.tropic.practice.map.rating.StarRating
+import gg.tropic.practice.namespace
+import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.CC
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -23,41 +25,40 @@ import java.util.concurrent.CompletableFuture
 object RateCommand : ScalaCommand()
 {
     @CommandAlias("rate")
-    fun rate(player: Player, map: Map, rating: StarRating): CompletableFuture<Void>
-    {
-        val pending = MapRatingService.pendingRatings[player.uniqueId]
-            ?: throw ConditionFailedException(
-                "You cannot rate this map right now!"
-            )
-
-        if (pending != map.name)
-        {
-            throw ConditionFailedException(
-                "You cannot rate this map right now!"
-            )
+    fun rate(player: Player, map: Map, rating: StarRating) = CompletableFuture
+        .supplyAsync {
+            ScalaCommonsSpigot.instance.kvConnection.sync()
+                .get("${namespace()}:ratings:${player.uniqueId}")
         }
-
-        return MapRatingService
-            .findExistingMapRating(player.uniqueId, map)
-            .thenCompose { existing ->
-                if (existing != null)
-                {
-                    throw ConditionFailedException("You have already rated this map!")
-                }
-
-                val newRating = MapRating(
-                    rater = player.uniqueId,
-                    mapID = map.name,
-                    rating = rating.ordinal + 1
+        .thenComposeAsync { pending ->
+            if (pending != map.name)
+            {
+                throw ConditionFailedException(
+                    "You cannot rate this map right now!"
                 )
+            }
 
-                DataStoreObjectControllerCache
-                    .findNotNull<MapRating>()
-                    .save(newRating)
-            }
-            .thenRunAsync {
-                player.playSound(player.location, Sound.LEVEL_UP, 1.0f, 1.0f)
-                player.sendMessage("${CC.GREEN}Thank you for providing feedback for the map ${CC.YELLOW}${map.name}${CC.GREEN}!")
-            }
-    }
+            MapRatingService
+                .findExistingMapRating(player.uniqueId, map)
+                .thenCompose { existing ->
+                    if (existing != null)
+                    {
+                        throw ConditionFailedException("You have already rated this map!")
+                    }
+
+                    val newRating = MapRating(
+                        rater = player.uniqueId,
+                        mapID = map.name,
+                        rating = rating.ordinal + 1
+                    )
+
+                    DataStoreObjectControllerCache
+                        .findNotNull<MapRating>()
+                        .save(newRating)
+                }
+                .thenRunAsync {
+                    player.playSound(player.location, Sound.LEVEL_UP, 1.0f, 1.0f)
+                    player.sendMessage("${CC.GREEN}Thank you for providing feedback for the map ${CC.YELLOW}${map.name}${CC.GREEN}!")
+                }
+        }
 }

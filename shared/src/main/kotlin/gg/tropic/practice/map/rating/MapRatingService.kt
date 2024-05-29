@@ -6,15 +6,15 @@ import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.namespace
+import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.Tasks
-import net.jodah.expiringmap.ExpiringMap
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bson.Document
 import org.bukkit.entity.Player
-import java.util.UUID
-import java.util.concurrent.TimeUnit
+import java.util.*
 
 /**
  * Class created on 1/12/2024
@@ -38,10 +38,6 @@ object MapRatingService
         }
     }
 
-    val pendingRatings = ExpiringMap.builder()
-        .expiration(1L, TimeUnit.MINUTES)
-        .build<UUID, String>()
-
     fun sendMapRatingRequest(player: Player, map: Map)
     {
         findExistingMapRating(player.uniqueId, map)
@@ -50,19 +46,28 @@ object MapRatingService
                 {
                     val message = FancyMessage()
                         .withMessage(
-                            "${CC.AQUA}Rate the ${CC.BOLD}${map.name}${CC.AQUA} map:"
+                            " ${CC.AQUA}Give us feedback on ${CC.SEC}${map.name}${CC.AQUA} by clicking"
                         )
 
+                    val secondMessage = FancyMessage()
+                        .withMessage(" one of the stars: ")
                     for (entry in StarRating.entries)
                     {
-                        with(message) {
-                            withMessage("${entry.color}[${entry.ordinal + 1}] ")
-                            andCommandOf(ClickEvent.Action.RUN_COMMAND, "rate ${map.name} ${entry.name}")
+                        with(secondMessage) {
+                            withMessage("${entry.format} ")
+                            andHoverOf("${CC.GRAY}Rate ${entry.format}${CC.GRAY}!")
+                            andCommandOf(ClickEvent.Action.RUN_COMMAND, "/rate ${map.name} ${entry.name}")
                         }
                     }
 
-                    pendingRatings[player.uniqueId] = map.name
+                    with(ScalaCommonsSpigot.instance.kvConnection.sync()) {
+                        psetex("${namespace()}:ratings:${player.uniqueId}", 1000L * 60L, map.name)
+                    }
+
                     message.sendToPlayer(player)
+                    secondMessage.sendToPlayer(player)
+
+                    player.sendMessage("")
                 }
             }
     }
