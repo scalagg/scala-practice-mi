@@ -166,7 +166,7 @@ object LeaderboardManagerService
                             .join()
                     }${
                         if (guildName != null) " ${CC.GRAY}[$guildName]${CC.RESET}" else ""
-                    } ${CC.GRAY}- ${CC.PRI}${
+                    } ${CC.GRAY}- ${CC.WHITE}${
                         Numbers.format(entry.value)
                     }"
                 }

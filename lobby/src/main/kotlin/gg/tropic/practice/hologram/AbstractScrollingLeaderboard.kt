@@ -89,7 +89,7 @@ abstract class AbstractScrollingLeaderboard(
 
         val cacheValue = cache!!.get(player.uniqueId to currentRef)
         lines += ""
-        lines += "${CC.SEC}You: ${CC.PRI}${
+        lines += "${CC.SEC}You: ${CC.WHITE}${
             cacheValue.second
                 ?.let(Numbers::format) ?: "???"
         } ${CC.GRAY}(#${
@@ -103,9 +103,9 @@ abstract class AbstractScrollingLeaderboard(
             .getCachedFormattedLeaderboards(currentRef)
 
         lines += ""
-        lines += "${CC.SEC}Switches in ${CC.PRI}${
+        lines += "${CC.GRAY}Switches in ${CC.WHITE}${
             TimeUtil.formatIntoMMSS(secondsUntilRefresh ?: 10)
-        }${CC.SEC}..."
+        }${CC.GRAY}..."
 
         return lines
     }
