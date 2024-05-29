@@ -5,7 +5,7 @@ package gg.tropic.practice.games.duels
  * @since 5/28/2024
  */
 data class PvPConfiguration(
-    val blockHitLimit: Int = -1,
+    val blockHitLimit: Int = 0,
     val runningAndEating: Boolean = false,
-    val criticalHitLimit: Int = -1
+    val criticalHitLimit: Int = 0
 )
