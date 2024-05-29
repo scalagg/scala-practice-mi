@@ -64,7 +64,7 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on a random map. ${CC.GRAY}(${(selectedRegion ?: region).name} Region)")
+                player.sendMessage("${CC.SEC}Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on a random map. ${CC.GRAY}(${(selectedRegion ?: region).name} Region)")
             }
     }
 
@@ -101,7 +101,7 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${(selectedRegion ?: region).name} Region)")
+                player.sendMessage("${CC.SEC}Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${(selectedRegion ?: region).name} Region)")
             }
     }
 
