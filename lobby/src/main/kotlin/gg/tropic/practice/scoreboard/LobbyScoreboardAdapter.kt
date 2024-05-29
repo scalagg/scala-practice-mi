@@ -98,7 +98,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 board += "${CC.GRAY} ${CC.WHITE}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${includedMembersOnline().size} / ${limit}"
+                board += "${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
                 board += "${CC.GRAY} Privacy is " + status.capitalized + "..."
             }
         } else

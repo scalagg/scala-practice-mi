@@ -178,9 +178,9 @@ class GameStopTask(
                             val player = Bukkit.getPlayer(it.first)
                                 ?: return@thenAcceptAsync
 
-                            player.sendMessage(" ${CC.PRI}Leaderboards:")
+                            player.sendMessage(" ${CC.D_AQUA}Leaderboards:")
                             player.sendMessage(
-                                " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Moved: ${
+                                " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Moved: ${
                                     when (true)
                                     {
                                         (updates.newPosition == updates.oldPosition) -> CC.GRAY
@@ -248,21 +248,18 @@ class GameStopTask(
 
             game.toBukkitPlayers()
                 .filterNotNull()
-                .forEach {
-                    MapRatingService.sendMapRatingRequest(it, game.map)
-                }
+                .forEach { player ->
+                    MapRatingService.sendMapRatingRequest(player, game.map)
+                        .thenRun {
+                            val feedback = playerFeedback[player.uniqueId]
+                                ?: return@thenRun
 
-            Tasks.delayed(10L) {
-                playerFeedback.forEach { (user, feedback) ->
-                    val player = Bukkit.getPlayer(user)
-                        ?: return@forEach
-
-                    if (feedback.isNotEmpty())
-                    {
-                        feedback.forEach(player::sendMessage)
-                    }
+                            if (feedback.isNotEmpty())
+                            {
+                                feedback.forEach(player::sendMessage)
+                            }
+                        }
                 }
-            }
         }
 
         if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueId != "party")

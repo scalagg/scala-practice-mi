@@ -12,9 +12,11 @@ import java.util.concurrent.CompletableFuture
  */
 data class WParty(var delegate: Party)
 {
+    var currentPlayers = 0
     fun update(party: Party)
     {
         this.delegate = party
+        currentPlayers = onlinePracticePlayersInLobby().join().size
     }
 
     fun isInParty() = delegate

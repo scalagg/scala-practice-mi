@@ -15,6 +15,7 @@ import net.md_5.bungee.api.chat.ClickEvent
 import org.bson.Document
 import org.bukkit.entity.Player
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  * Class created on 1/12/2024
@@ -38,9 +39,9 @@ object MapRatingService
         }
     }
 
-    fun sendMapRatingRequest(player: Player, map: Map)
+    fun sendMapRatingRequest(player: Player, map: Map): CompletableFuture<Void>
     {
-        findExistingMapRating(player.uniqueId, map)
+        return findExistingMapRating(player.uniqueId, map)
             .thenAccept { rating ->
                 if (rating == null)
                 {
