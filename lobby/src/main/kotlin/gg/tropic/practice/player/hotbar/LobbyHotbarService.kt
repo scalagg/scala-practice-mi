@@ -231,7 +231,7 @@ object LobbyHotbarService
             0,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.IRON_SWORD)
-                    .name("${CC.GREEN}Play Casual ${CC.GRAY}(Right Click)")
+                    .name("${CC.SEC}Play Casual ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
@@ -250,7 +250,7 @@ object LobbyHotbarService
             1,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.DIAMOND_SWORD)
-                    .name("${CC.AQUA}Play Ranked ${CC.GRAY}(Right Click)")
+                    .name("${CC.PRI}Play Ranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
@@ -297,9 +297,9 @@ object LobbyHotbarService
         )
 
         idlePreset.addSlot(
-            5,
+            4,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.NAME_TAG)
+                ItemBuilder(Material.NETHER_STAR)
                     .name("${CC.PINK}Create a Party ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = scope@{ player ->

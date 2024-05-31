@@ -46,8 +46,8 @@ class JoinQueueMenu(
             it.first == teamSize && queueType in it.second
         }
 
-    override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_PRI}${kit.displayName}${
-        if (kit.features(FeatureFlag.NewlyCreated)) " ${CC.B_YELLOW}NEW!" else ""
+    override fun itemTitleFor(player: Player, kit: Kit) = "${CC.PRI}${kit.displayName}${
+        if (kit.features(FeatureFlag.NewlyCreated)) " ${CC.B_AQUA}NEW!" else ""
     }"
 
     override fun itemDescriptionOf(player: Player, kit: Kit): List<String>

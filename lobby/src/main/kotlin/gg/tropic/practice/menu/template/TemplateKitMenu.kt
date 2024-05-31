@@ -33,7 +33,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
     {
         return "${CC.GREEN}${kit.displayName}${
             if (kit.features(FeatureFlag.NewlyCreated))
-                " ${CC.B_YELLOW}NEW!" else ""
+                " ${CC.B_AQUA}NEW!" else ""
         }"
     }
 

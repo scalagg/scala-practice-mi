@@ -235,11 +235,10 @@ object DuelRequestPipeline
             .intersect(kitGroups)
             .isNotEmpty()
 
-        override fun itemDescriptionOf(player: Player, map: Map) = listOf(
+        override fun itemDescriptionOf(player: Player, map: Map) = listOf("",
+            "${CC.AQUA}Right-click to edit Match Configuration",
             "",
             "${CC.GREEN}Click to select!",
-            "${CC.AQUA}Right-click to set PvP",
-            "${CC.AQUA}settings!"
         )
 
         override fun itemClicked(player: Player, map: Map, type: ClickType)
