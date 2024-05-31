@@ -7,6 +7,7 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.namespace
 import gg.tropic.practice.party.WParty
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
+import gg.tropic.practice.player.hotbar.LobbyHotbarService.get
 import gg.tropic.practice.queue.QueueEntry
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueState
@@ -32,8 +33,7 @@ data class LobbyPlayer(
             if (field != PlayerState.None)
             {
                 val bukkit = Bukkit.getPlayer(uniqueId)!!
-                LobbyHotbarService
-                    .get(value)
+                get(value)
                     .applyToPlayer(bukkit)
             }
         }
@@ -101,6 +101,7 @@ data class LobbyPlayer(
                 }
                 PlayerState.InParty
             }
+
             userInTournament -> PlayerState.InTournament
             (queueState != null) -> PlayerState.InQueue
             else -> PlayerState.Idle
@@ -135,6 +136,8 @@ data class LobbyPlayer(
         if (newState == PlayerState.InParty)
         {
             party = WParty(userParty!!)
+            party!!.currentPlayers = party!!
+                .onlinePracticePlayersInLobby().join().size
 
             when (true)
             {
@@ -142,10 +145,14 @@ data class LobbyPlayer(
                     .leaveQueue(
                         player, true
                     )
+
                 userInTournament -> TournamentCommand.onLeave(
                     ScalaPlayer(player, LobbyPlayerService.audiences, LobbyPlayerService.plugin)
                 )
-                else -> { }
+
+                else ->
+                {
+                }
             }
         } else
         {

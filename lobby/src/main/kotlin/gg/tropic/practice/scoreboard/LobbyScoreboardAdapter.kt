@@ -40,8 +40,6 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
 {
     override fun getLines(board: LinkedList<String>, player: Player)
     {
-
-
         val layout: ScoreboardStyle = layout(player)
         val profile = LobbyPlayerService.find(player.uniqueId)
             ?: return
@@ -95,11 +93,11 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.PRI}Party:"
 
             with(profile.partyOf().delegate) {
-                board += "${CC.GRAY} ${CC.WHITE}Leader: ${CC.PRI}${
+                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
-                board += "${CC.GRAY} Privacy is " + status.capitalized + "..."
+                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
+                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Party is " + status.capitalized + "..."
             }
         } else
         {

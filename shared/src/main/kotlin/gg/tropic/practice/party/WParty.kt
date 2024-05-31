@@ -16,7 +16,6 @@ data class WParty(var delegate: Party)
     fun update(party: Party)
     {
         this.delegate = party
-        currentPlayers = onlinePracticePlayersInLobby().join().size
     }
 
     fun isInParty() = delegate

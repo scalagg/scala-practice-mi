@@ -12,6 +12,7 @@ import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.scala.lemon.util.QuickAccess.username
+import gg.scala.parties.command.PartyCommand
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.PracticeConfigurationService
@@ -321,7 +322,7 @@ object LobbyHotbarService
                                 get(PlayerState.InParty)
                                     .applyToPlayer(player)
                             }
-                        }, 10L)
+                        }, 5L)
                 }
             }
         )
