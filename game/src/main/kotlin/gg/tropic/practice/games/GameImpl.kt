@@ -118,6 +118,8 @@ class GameImpl(
             )
     }
 
+    private var endTimestamp: Long = 0L
+
     fun complete(winner: GameTeam?, reason: String = "")
     {
         if (state == GameState.Completed)
@@ -133,6 +135,8 @@ class GameImpl(
         toBukkitPlayers()
             .filterNotNull()
             .forEach(::takeSnapshotIfNotAlreadyExists)
+
+        endTimestamp = System.currentTimeMillis()
 
         if (winner == null)
         {
@@ -419,6 +423,14 @@ class GameImpl(
             // This will return a capitalized name state which
             // makes sense in the context this function will be used in.
             return this.state.name
+        }
+
+        if (state(GameState.Completed))
+        {
+            return DurationFormatUtils.formatDuration(
+                endTimestamp - startTimestamp,
+                "mm:ss"
+            )
         }
 
         return DurationFormatUtils.formatDuration(
