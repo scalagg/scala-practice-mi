@@ -1,6 +1,7 @@
 package gg.tropic.practice.games
 
 import gg.tropic.practice.expectation.GameExpectation
+import gg.tropic.practice.games.multiround.MultiRoundGame
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
@@ -22,4 +23,5 @@ abstract class AbstractGame(
 
     var report: GameReport? = null
     var startTimestamp = -1L
+    val multiRoundGame = MultiRoundGame()
 }

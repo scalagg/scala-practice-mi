@@ -1,8 +1,19 @@
 package gg.tropic.practice.games
 
+import dev.iiahmed.disguise.Disguise
+import gg.scala.basics.plugin.disguise.DisguiseService
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.statistics.KitStatistics
+import net.evilblock.cubed.nametag.NametagHandler
+import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.visibility.VisibilityHandler
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
+import org.bukkit.scoreboard.DisplaySlot
 
 /**
  * @author GrowlyX
@@ -22,4 +33,41 @@ fun PracticeProfile.useKitStatistics(
         )
         null -> {}
     }
+}
+
+fun GameImpl.resetPlayerForFight(player: Player)
+{
+    VisibilityHandler.update(player)
+    NametagHandler.reloadPlayer(player)
+
+    if (flag(FeatureFlag.HeartsBelowNameTag))
+    {
+        val objective = player.scoreboard
+            .getObjective("commonsHealth")
+            ?: player.scoreboard
+                .registerNewObjective(
+                    "commonsHealth", "health"
+                )
+
+        objective.displaySlot = DisplaySlot.BELOW_NAME
+        objective.displayName = "${CC.D_RED}${Constants.HEART_SYMBOL}"
+    }
+
+    if (flag(FeatureFlag.EntityDisguise))
+    {
+        val type = flagMetaData(FeatureFlag.EntityDisguise, "type")
+            ?: "PLAYER"
+
+        DisguiseService.provider().disguise(
+            player,
+            Disguise
+                .builder()
+                .setEntityType(
+                    EntityType.valueOf(type)
+                )
+                .build()
+        )
+    }
+
+    player.resetAttributes()
 }

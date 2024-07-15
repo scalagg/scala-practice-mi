@@ -13,6 +13,7 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.games.event.GameStartEvent
+import gg.tropic.practice.games.resetPlayerForFight
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
@@ -54,40 +55,7 @@ class GameStartTask(
             this.game.toBukkitPlayers()
                 .filterNotNull()
                 .forEach { player ->
-                    VisibilityHandler.update(player)
-                    NametagHandler.reloadPlayer(player)
-
-                    if (game.flag(FeatureFlag.HeartsBelowNameTag))
-                    {
-                        val objective = player.scoreboard
-                            .getObjective("commonsHealth")
-                            ?: player.scoreboard
-                                .registerNewObjective(
-                                    "commonsHealth", "health"
-                                )
-
-                        objective.displaySlot = DisplaySlot.BELOW_NAME
-                        objective.displayName = "${CC.D_RED}${Constants.HEART_SYMBOL}"
-                    }
-
-                    if (game.flag(FeatureFlag.EntityDisguise))
-                    {
-                        val type = game
-                            .flagMetaData(FeatureFlag.EntityDisguise, "type")
-                            ?: "PLAYER"
-
-                        DisguiseService.provider().disguise(
-                            player,
-                            Disguise
-                                .builder()
-                                .setEntityType(
-                                    EntityType.valueOf(type)
-                                )
-                                .build()
-                        )
-                    }
-
-                    player.resetAttributes()
+                    game.resetPlayerForFight(player)
                     game.enterLoadoutSelection(player)
                 }
 

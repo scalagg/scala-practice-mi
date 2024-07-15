@@ -360,6 +360,7 @@ object GameService
 
             if (noAlive)
             {
+                // TODO: Lifecycle based actions
                 game.complete(killer)
             }
         }
@@ -593,7 +594,7 @@ object GameService
 
                 if (
                     game.state(GameState.Starting) &&
-                    game.flag(FeatureFlag.FrozenOnGameStart)
+                    (game.flag(FeatureFlag.FrozenOnGameStart) || game.flag(FeatureFlag.FrozenOnRoundStart))
                 )
                 {
                     it.player.teleport(it.from)

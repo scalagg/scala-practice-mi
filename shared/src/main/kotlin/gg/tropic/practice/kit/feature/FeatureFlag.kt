@@ -73,9 +73,14 @@ enum class FeatureFlag(
     EntityDisguise(
         schema = mutableMapOf("type" to "IRON_GOLEM")
     ),
+    CountDownTimeBeforeRoundStart(
+        schema = mutableMapOf("value" to "5")
+    ),
 
     // multi-round
-    MultiRound,
+    GameLifecycleType(
+        schema = mutableMapOf("type" to GameLifecycle.SoulBound.toString())
+    ),
     ImmediateRespawnOnDeath(
         incompatibleWith = { setOf(StartNewRoundOnDeath) }
     ),
@@ -85,12 +90,13 @@ enum class FeatureFlag(
     RoundsRequiredToCompleteGame(
         schema = mutableMapOf("value" to "2")
     ),
+
+    SpectateAfterDeath,
     TimeUserSpectatesAfterDeath(
-        schema = mutableMapOf("value" to "3")
+        schema = mutableMapOf("value" to "3"),
+        requires = setOf(SpectateAfterDeath)
     ),
-    CountDownTimeBeforeRoundStart(
-        schema = mutableMapOf("value" to "5")
-    ),
+
     FrozenOnRoundStart(
         // game start freeze is implied with round start
         incompatibleWith = { setOf(FrozenOnGameStart) }

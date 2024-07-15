@@ -16,6 +16,7 @@ import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import gg.tropic.practice.leaderboards.ScoreUpdates
@@ -83,6 +84,10 @@ class GameImpl(
 
     private fun durationMillis() =
         System.currentTimeMillis() - this.startTimestamp
+
+    private val inferredLifecycleType = GameLifecycle.valueOf(
+        flagMetaData(FeatureFlag.GameLifecycleType, "type") ?: "SoulBound"
+    )
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
