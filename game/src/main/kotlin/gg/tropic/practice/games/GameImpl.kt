@@ -44,6 +44,7 @@ import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.util.Vector
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -87,6 +88,7 @@ class GameImpl(
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
+    val placedBlocks = mutableSetOf<Vector>()
 
     fun takeSnapshot(player: Player)
     {

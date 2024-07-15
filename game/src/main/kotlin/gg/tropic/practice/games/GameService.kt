@@ -1208,6 +1208,11 @@ object GameService
                     FixedMetadataValue(plugin, true)
                 )
 
+                if (game.flag(FeatureFlag.RemovePlacedBlocksOnRoundStart))
+                {
+                    game.placedBlocks += it.blockPlaced.location.toVector()
+                }
+
                 val blockExpiration = game
                     .flagMetaData(
                         FeatureFlag.ExpirePlacedBlocksAfterNSeconds,

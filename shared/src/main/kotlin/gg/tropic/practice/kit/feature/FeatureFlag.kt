@@ -70,6 +70,10 @@ enum class FeatureFlag(
     WinWhenNHitsReached(
         schema = mutableMapOf("hits" to "100")
     ),
+    EntityDisguise(
+        schema = mutableMapOf("type" to "IRON_GOLEM")
+    ),
+
     // multi-round
     MultiRound,
     ImmediateRespawnOnDeath(
@@ -86,9 +90,6 @@ enum class FeatureFlag(
     ),
     CountDownTimeBeforeRoundStart(
         schema = mutableMapOf("value" to "5")
-    ),
-    EntityDisguise(
-        schema = mutableMapOf("type" to "IRON_GOLEM")
     ),
     FrozenOnRoundStart(
         // game start freeze is implied with round start
