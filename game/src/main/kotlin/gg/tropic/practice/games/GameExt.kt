@@ -2,6 +2,7 @@ package gg.tropic.practice.games
 
 import dev.iiahmed.disguise.Disguise
 import gg.scala.basics.plugin.disguise.DisguiseService
+import gg.tropic.practice.games.GameService.plugin
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.queue.QueueType
@@ -13,6 +14,7 @@ import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.scoreboard.DisplaySlot
 
 /**
@@ -39,6 +41,12 @@ fun GameImpl.resetPlayerForFight(player: Player)
 {
     VisibilityHandler.update(player)
     NametagHandler.reloadPlayer(player)
+
+    player.apply {
+        isFlying = false
+        allowFlight = false
+        resetAttributes()
+    }
 
     if (flag(FeatureFlag.HeartsBelowNameTag))
     {
@@ -68,8 +76,36 @@ fun GameImpl.resetPlayerForFight(player: Player)
                 .build()
         )
     }
+}
 
-    player.resetAttributes()
+fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
+{
+    player.apply {
+        if (flag(FeatureFlag.EntityDisguise))
+        {
+            DisguiseService.provider().undisguise(player)
+        }
+
+        resetAttributes()
+        scoreboard
+            .getObjective("commonsHealth")
+            ?.apply {
+                displaySlot = null
+            }
+
+        setMetadata(
+            "spectator", FixedMetadataValue(plugin, true)
+        )
+    }
+}
+
+fun GameImpl.prepareForNewLife(player: Player)
+{
+    player.removeMetadata("spectator", plugin)
+
+    resetPlayerForFight(player)
+    teleportToSpawnLocation(player)
+    applyPreSelectedLoadouts(player)
 }
 
 fun GameImpl.teleportToSpawnLocation(player: Player)
