@@ -8,7 +8,6 @@ enum class GameLifecycle
 {
     ObjectiveBound,
     ObjectivePlusSoulBound,
-    InverseObjectivePlusSoulBound,
     SoulBound,
     RoundBound
 }

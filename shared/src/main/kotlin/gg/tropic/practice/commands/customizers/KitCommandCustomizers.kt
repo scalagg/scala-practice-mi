@@ -91,6 +91,9 @@ object KitCommandCustomizers
                 val kit = it.getContextValue(Kit::class.java)
 
                 FeatureFlag.entries
+                    .filter { flag ->
+                        kit.lifecycle() in flag.availableLifecycles
+                    }
                     .filterNot { flag ->
                         flag in kit.features
                     }

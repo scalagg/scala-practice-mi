@@ -7,7 +7,8 @@ package gg.tropic.practice.kit.feature
 enum class FeatureFlag(
     val schema: MutableMap<String, String> = mutableMapOf(),
     val incompatibleWith: () -> Set<FeatureFlag> = { emptySet() },
-    val requires: Set<FeatureFlag> = setOf()
+    val requires: Set<FeatureFlag> = setOf(),
+    val availableLifecycles: Set<GameLifecycle> = GameLifecycle.entries.toSet()
 )
 {
     Ranked,
@@ -68,7 +69,8 @@ enum class FeatureFlag(
     ),
     DeathOnLiquidInteraction,
     WinWhenNHitsReached(
-        schema = mutableMapOf("hits" to "100")
+        schema = mutableMapOf("hits" to "100"),
+        availableLifecycles = setOf(GameLifecycle.ObjectiveBound)
     ),
     EntityDisguise(
         schema = mutableMapOf("type" to "IRON_GOLEM")
@@ -78,31 +80,62 @@ enum class FeatureFlag(
     ),
 
     // multi-round
-    GameLifecycleType(
-        schema = mutableMapOf("type" to GameLifecycle.SoulBound.toString())
-    ),
     ImmediateRespawnOnDeath(
-        incompatibleWith = { setOf(StartNewRoundOnDeath) }
+        incompatibleWith = { setOf(StartNewRoundOnDeath) },
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound,
+            GameLifecycle.ObjectivePlusSoulBound,
+            GameLifecycle.ObjectiveBound
+        )
     ),
     StartNewRoundOnDeath(
-        incompatibleWith = { setOf(ImmediateRespawnOnDeath) }
+        incompatibleWith = { setOf(ImmediateRespawnOnDeath) },
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound
+        )
     ),
     RoundsRequiredToCompleteGame(
-        schema = mutableMapOf("value" to "2")
+        schema = mutableMapOf("value" to "2"),
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound
+        )
     ),
 
-    SpectateAfterDeath,
+    SpectateAfterDeath(
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound,
+            GameLifecycle.ObjectivePlusSoulBound,
+            GameLifecycle.ObjectiveBound
+        )
+    ),
     TimeUserSpectatesAfterDeath(
         schema = mutableMapOf("value" to "3"),
-        requires = setOf(SpectateAfterDeath)
+        requires = setOf(SpectateAfterDeath),
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound,
+            GameLifecycle.ObjectivePlusSoulBound,
+            GameLifecycle.ObjectiveBound
+        )
     ),
 
     FrozenOnRoundStart(
         // game start freeze is implied with round start
-        incompatibleWith = { setOf(FrozenOnGameStart) }
+        incompatibleWith = { setOf(FrozenOnGameStart) },
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound,
+            GameLifecycle.ObjectivePlusSoulBound,
+            GameLifecycle.ObjectiveBound
+        )
     ),
     StartNewRoundOnPortalEnter(
-        incompatibleWith = { setOf(StartNewRoundOnDeath) }
+        incompatibleWith = { setOf(StartNewRoundOnDeath) },
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound
+        )
     ),
-    RemovePlacedBlocksOnRoundStart
+    RemovePlacedBlocksOnRoundStart(
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound
+        )
+    )
 }

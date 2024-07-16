@@ -3,6 +3,7 @@ package gg.tropic.practice.kit
 import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.kit.feature.GameLifecycle
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -78,6 +79,10 @@ data class Kit(
 
             return backingQueueSizes!!
         }
+
+    var lifecycleType: GameLifecycle? = GameLifecycle.SoulBound
+
+    fun lifecycle() = lifecycleType ?: GameLifecycle.SoulBound
 
     fun features(flag: FeatureFlag) = features.containsKey(flag)
     fun featureConfig(flag: FeatureFlag, key: String) =

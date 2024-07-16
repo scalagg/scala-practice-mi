@@ -12,6 +12,7 @@ import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
@@ -112,6 +113,44 @@ object KitCommands : ScalaCommand()
         player.sendMessage(
             "${CC.GREEN}You have ${if (kit.enabled) "${CC.B_GREEN}enabled" else "${CC.RED}disabled"} ${CC.GREEN}the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
         )
+    }
+
+    @AssignPermission
+    @Subcommand("lifecycle")
+    @CommandCompletion("@kits")
+    @Description("Change the game lifecycle of a kit.")
+    fun onGameLifecycle(player: ScalaPlayer, kit: Kit, newLifecycle: GameLifecycle)
+    {
+        val oldLifecycle = kit.lifecycle()
+        kit.lifecycleType = newLifecycle
+
+        val removedFlags = mutableSetOf<FeatureFlag>()
+        for (key in kit.features.keys)
+        {
+            if (newLifecycle !in key.availableLifecycles)
+            {
+                kit.features.remove(key)
+                removedFlags += key
+            }
+        }
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have updated the lifecycle type of the ${CC.YELLOW}${kit.displayName}${CC.GREEN} kit from ${CC.PRI}$oldLifecycle${CC.GREEN} to ${CC.PRI}$newLifecycle${CC.GREEN}."
+        )
+
+        if (removedFlags.isNotEmpty())
+        {
+            player.sendMessage(" ${CC.GRAY}As a result, ${removedFlags.size} incompatible feature flags were removed.")
+            for (removedFlag in removedFlags)
+            {
+                player.sendMessage("  - $removedFlag")
+            }
+        }
     }
 
     @AssignPermission
