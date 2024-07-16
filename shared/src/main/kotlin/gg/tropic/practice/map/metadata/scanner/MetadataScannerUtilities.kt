@@ -1,5 +1,6 @@
 package gg.tropic.practice.map.metadata.scanner
 
+import gg.tropic.practice.map.metadata.scanner.impl.MapBedMetadataScanner
 import gg.tropic.practice.map.metadata.scanner.impl.MapLevelMetadataScanner
 import gg.tropic.practice.map.metadata.scanner.impl.MapSpawnMetadataScanner
 import gg.tropic.practice.map.metadata.scanner.impl.MapZoneMetadataScanner
@@ -14,7 +15,8 @@ object MetadataScannerUtilities
         // TODO: dynamic scan with @Service please
         MapZoneMetadataScanner,
         MapSpawnMetadataScanner,
-        MapLevelMetadataScanner
+        MapLevelMetadataScanner,
+        MapBedMetadataScanner
     )
 
     fun matches(type: String) =
