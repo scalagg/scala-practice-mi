@@ -23,8 +23,10 @@ import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEf
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
+import gg.tropic.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
@@ -39,12 +41,17 @@ import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
@@ -322,13 +329,11 @@ object GameService
                 game.getTeamOf(killerPlayer)
             }
 
-            game.sendMessage(
-                "${CC.RED}$name${CC.GRAY} was ${
-                    if (killerPlayer == null || killerPlayer == this) "killed" else "${
-                        getMessageBundlePhrase(killerPlayer as Player)
-                    } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
-                }!"
-            )
+            val deathMessage = "${CC.RED}$name${CC.GRAY} was ${
+                if (killerPlayer == null || killerPlayer == this) "killed" else "${
+                    getMessageBundlePhrase(killerPlayer as Player)
+                } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
+            }!"
 
             if (killerPlayer is Player)
             {
@@ -342,6 +347,23 @@ object GameService
                         globalStatistics.userKilledOpponent().apply()
                         save()
                     }
+                }
+
+                audiences.player(killerPlayer).apply {
+                    sendActionBar(Component.text {
+                        it.append(
+                            Component
+                                .text("KILL! ")
+                                .color(NamedTextColor.RED)
+                                .decorate(TextDecoration.BOLD)
+                        )
+
+                        it.append(
+                            Component
+                                .text(player.name)
+                                .color(NamedTextColor.YELLOW)
+                        )
+                    })
                 }
             }
 
@@ -357,15 +379,76 @@ object GameService
                 }
             }
 
-            if (noAlive)
+            when (game.lifecycle())
             {
-                if (killerPlayer is Player)
+                GameLifecycle.SoulBound ->
                 {
-                    runFinalDeathEffectsFor(killerPlayer, this, game)
-                }
+                    if (killerPlayer is Player)
+                    {
+                        runFinalDeathEffectsFor(killerPlayer, this, game)
+                    }
 
-                // TODO: Lifecycle based actions
-                game.complete(killer)
+                    game.sendMessage(deathMessage)
+
+                    if (noAlive)
+                    {
+                        game.complete(killer)
+                    }
+                }
+                GameLifecycle.RoundBound ->
+                {
+                    if (game.flag(FeatureFlag.StartNewRoundOnDeath))
+                    {
+                        game.multiRoundGame.roundNumber += 1
+                        // TODO: write the task for this
+                        return
+                    }
+
+                    if (game.flag(FeatureFlag.SpectateAfterDeath))
+                    {
+                        game.startDelayedRespawn(player)
+                        return
+                    }
+
+                    game.prepareForNewLife(player)
+                }
+                GameLifecycle.ObjectiveBound ->
+                {
+                    if (game.flag(FeatureFlag.SpectateAfterDeath))
+                    {
+                        game.startDelayedRespawn(player)
+                        return
+                    }
+
+                    game.prepareForNewLife(player)
+                }
+                GameLifecycle.ObjectivePlusSoulBound ->
+                {
+                    val opposingTeam = game.getOpponent(team)!!
+                    if (opposingTeam.gameLifecycleObjectiveMet)
+                    {
+                        if (killerPlayer is Player)
+                        {
+                            runFinalDeathEffectsFor(killerPlayer, this, game)
+                        }
+
+                        game.sendMessage("$deathMessage ${CC.B_AQUA}FINAL!")
+
+                        if (noAlive)
+                        {
+                            game.complete(killer)
+                        }
+                        return
+                    }
+
+                    if (game.flag(FeatureFlag.SpectateAfterDeath))
+                    {
+                        game.startDelayedRespawn(player)
+                        return
+                    }
+
+                    game.prepareForNewLife(player)
+                }
             }
         }
 
@@ -593,6 +676,12 @@ object GameService
                         return@handler
                     }
 
+                    return@handler
+                }
+
+                if (game.multiRoundGame.switchingRounds)
+                {
+                    it.player.teleport(it.from)
                     return@handler
                 }
 
@@ -1060,6 +1149,25 @@ object GameService
             }
             .bindWith(plugin)
 
+        Events.subscribe(BlockExplodeEvent::class.java)
+            .handler {
+                val game = byWorld(it.block.world)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (game.flag(FeatureFlag.ExplodePlacedBlocks))
+                {
+                    return@handler
+                }
+
+                it.blockList()
+                    .removeIf { block ->
+                        !block.hasMetadata("placed")
+                    }
+            }
+            .bindWith(plugin)
+
         Events.subscribe(BlockBreakEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)
@@ -1236,6 +1344,8 @@ object GameService
 
     fun byPlayer(player: UUID) =
         playerToGameMappings[player]
+
+    fun byWorld(world: World) = gameMappings.values.firstOrNull { world.name == it.arenaWorldName }
 
     fun bySpectator(player: UUID) =
         spectatorToGameMappings[player]

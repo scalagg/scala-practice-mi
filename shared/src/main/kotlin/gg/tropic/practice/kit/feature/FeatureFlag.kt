@@ -17,6 +17,7 @@ enum class FeatureFlag(
         schema = mutableMapOf("sizes" to "1:Casual+Ranked")
     ),
     HeartsBelowNameTag,
+    ExplodePlacedBlocks,
     DoNotTakeDamage(
         schema = mutableMapOf("doDamageTick" to "false")
     ),
@@ -80,6 +81,8 @@ enum class FeatureFlag(
     ),
 
     // multi-round
+
+    // ImmediateRespawnOnDeath may be implied in game logic!
     ImmediateRespawnOnDeath(
         incompatibleWith = { setOf(StartNewRoundOnDeath) },
         availableLifecycles = setOf(
@@ -89,7 +92,7 @@ enum class FeatureFlag(
         )
     ),
     StartNewRoundOnDeath(
-        incompatibleWith = { setOf(ImmediateRespawnOnDeath) },
+        incompatibleWith = { setOf(ImmediateRespawnOnDeath, SpectateAfterDeath) },
         availableLifecycles = setOf(
             GameLifecycle.RoundBound
         )
@@ -102,6 +105,7 @@ enum class FeatureFlag(
     ),
 
     SpectateAfterDeath(
+        incompatibleWith = { setOf(ImmediateRespawnOnDeath) },
         availableLifecycles = setOf(
             GameLifecycle.RoundBound,
             GameLifecycle.ObjectivePlusSoulBound,
