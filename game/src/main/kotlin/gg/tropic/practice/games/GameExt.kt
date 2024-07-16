@@ -71,3 +71,19 @@ fun GameImpl.resetPlayerForFight(player: Player)
 
     player.resetAttributes()
 }
+
+fun GameImpl.teleportToSpawnLocation(player: Player)
+{
+    val spawnLocation = map
+        .findSpawnLocationMatchingTeam(
+            getTeamOf(player).side
+        )!!
+        .toLocation(arenaWorld!!)
+
+    player.teleport(spawnLocation)
+}
+
+fun GameImpl.applyPreSelectedLoadouts(player: Player)
+{
+    loadout(player).apply(player)
+}

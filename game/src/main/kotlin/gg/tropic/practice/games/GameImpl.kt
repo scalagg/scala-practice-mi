@@ -85,15 +85,15 @@ class GameImpl(
     private fun durationMillis() =
         System.currentTimeMillis() - this.startTimestamp
 
-    private val inferredLifecycleType = GameLifecycle.valueOf(
-        flagMetaData(FeatureFlag.GameLifecycleType, "type") ?: "SoulBound"
-    )
+    private lateinit var defaultLoadout: DefaultLoadout
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
+
+    fun loadout(player: Player) = selectedKitLoadouts[player.uniqueId] ?: defaultLoadout
 
     fun takeSnapshot(player: Player)
     {
@@ -611,7 +611,7 @@ class GameImpl(
 
     fun enterLoadoutSelection(player: Player)
     {
-        val defaultLoadout = DefaultLoadout(kit)
+        this.defaultLoadout = DefaultLoadout(kit)
 
         val profile = PracticeProfileService
             .find(player)
@@ -699,6 +699,8 @@ class GameImpl(
 
         loadoutSelection[player.uniqueId] = terminable
     }
+
+    fun lifecycle() = kit.lifecycle()
 
     fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId) { Counter(player.uniqueId) }
     fun buildResources()

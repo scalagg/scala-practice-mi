@@ -203,8 +203,8 @@ object GameService
             return null
         }
 
-        fun runDeathEffectsFor(
-            player: Player, target: Player, game: GameImpl, gameIsFinished: Boolean
+        fun runFinalDeathEffectsFor(
+            player: Player, target: Player, game: GameImpl
         )
         {
             val killerCosmetic = CosmeticRegistry
@@ -222,7 +222,7 @@ object GameService
             )
 
             val configuration = killEffectCosmetic.serveConfiguration(player)
-            if (configuration.flight != false && gameIsFinished)
+            if (configuration.flight != false)
             {
                 player.allowFlight = true
                 player.isFlying = true
@@ -231,7 +231,7 @@ object GameService
             target.allowFlight = true
             target.isFlying = true
 
-            if (configuration.clearInventory != false && gameIsFinished)
+            if (configuration.clearInventory != false)
             {
                 game.takeSnapshot(player)
 
@@ -318,11 +318,6 @@ object GameService
                 game.getTeamOf(killerPlayer)
             }
 
-            if (killerPlayer is Player)
-            {
-                runDeathEffectsFor(killerPlayer, this, game, noAlive)
-            }
-
             game.sendMessage(
                 "${CC.RED}$name${CC.GRAY} was ${
                     if (killerPlayer == null || killerPlayer == this) "killed" else "${
@@ -360,6 +355,11 @@ object GameService
 
             if (noAlive)
             {
+                if (killerPlayer is Player)
+                {
+                    runFinalDeathEffectsFor(killerPlayer, this, game)
+                }
+
                 // TODO: Lifecycle based actions
                 game.complete(killer)
             }
@@ -639,7 +639,6 @@ object GameService
                     entity.hasMetadata("spectator")
                 }
 
-
                 val shooter = it.entity.shooter
                 if (shooter is Player)
                 {
@@ -722,17 +721,10 @@ object GameService
                 if (game.ensurePlaying())
                 {
                     val team = game.getTeamOf(it.player)
-
-                    it.player.setMetadata(
-                        "spectator",
-                        FixedMetadataValue(plugin, true)
-                    )
-
                     val noAlive = if (team.players.size > 1)
                         team.nonSpectators().isEmpty() else true
 
                     game.takeSnapshot(it.player)
-
                     game.sendMessage(
                         "${CC.RED}${it.player.name}${CC.GRAY} left the game."
                     )
@@ -1043,10 +1035,10 @@ object GameService
                 )
                 {
                     // TODO: multiplayer support teams
-                    runDeathEffectsFor(
+                    runFinalDeathEffectsFor(
                         it.damager as Player,
                         it.entity as Player,
-                        game, true
+                        game
                     )
                     game.complete(damagerTeam)
                 }
