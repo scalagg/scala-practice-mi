@@ -106,8 +106,8 @@ fun GameImpl.prepareForNewLife(player: Player)
 {
     player.removeMetadata("spectator", plugin)
 
-    resetPlayerForFight(player)
     teleportToSpawnLocation(player)
+    resetPlayerForFight(player)
     applyPreSelectedLoadouts(player)
 }
 
