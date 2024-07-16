@@ -1,9 +1,6 @@
 package gg.tropic.practice.map.metadata.scanner
 
-import gg.tropic.practice.map.metadata.scanner.impl.MapBedMetadataScanner
-import gg.tropic.practice.map.metadata.scanner.impl.MapLevelMetadataScanner
-import gg.tropic.practice.map.metadata.scanner.impl.MapSpawnMetadataScanner
-import gg.tropic.practice.map.metadata.scanner.impl.MapZoneMetadataScanner
+import gg.tropic.practice.map.metadata.scanner.impl.*
 
 /**
  * @author GrowlyX
@@ -16,6 +13,7 @@ object MetadataScannerUtilities
         MapZoneMetadataScanner,
         MapSpawnMetadataScanner,
         MapLevelMetadataScanner,
+        MapPortalMetadataScanner,
         MapBedMetadataScanner
     )
 
