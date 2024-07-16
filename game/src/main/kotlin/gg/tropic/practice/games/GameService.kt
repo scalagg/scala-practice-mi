@@ -416,8 +416,6 @@ object GameService
                 }
                 GameLifecycle.ObjectiveBound ->
                 {
-
-
                     game.sendMessage(deathMessage)
 
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
@@ -438,7 +436,7 @@ object GameService
                             runFinalDeathEffectsFor(killerPlayer, this, game)
                         }
 
-                        game.sendMessage("$deathMessage ${CC.B_AQUA}FINAL!")
+                        game.sendMessage("$deathMessage ${CC.B_AQUA}FINAL KILL!")
 
                         if (noAlive)
                         {

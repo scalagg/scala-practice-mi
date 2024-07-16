@@ -120,7 +120,10 @@ enum class FeatureFlag(
 
     WinWhenNHitsReached(
         schema = mutableMapOf("hits" to "100"),
-        availableLifecycles = setOf(GameLifecycle.ObjectiveBound)
+        availableLifecycles = setOf(
+            GameLifecycle.ObjectiveBound,
+            GameLifecycle.ObjectivePlusSoulBound
+        )
     ),
 
     FrozenOnRoundStart(
