@@ -174,12 +174,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         {
                             val teamOfPlayer = game.getTeamOf(player)
                             val teamOfOpponent = game.getOpponent(player)!!
-                            val hitsDiff = teamOfPlayer.combinedHits - teamOfOpponent.combinedHits
+                            val hitsDiff = teamOfPlayer.gameLifecycleArbitraryObjectiveProgress - teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
 
                             val playerCombo = teamOfPlayer.playerCombos[player.uniqueId] ?: 0
 
                             board += "${CC.WHITE}Your hits: ${CC.GREEN}${
-                                teamOfPlayer.combinedHits
+                                teamOfPlayer.gameLifecycleArbitraryObjectiveProgress
                             }${
                                 if (hitsDiff == 0)
                                     ""
@@ -200,7 +200,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             }"
 
                             board += "${CC.WHITE}Enemy hits: ${CC.RED}${
-                                teamOfOpponent.combinedHits
+                                teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
                             }"
                         }
                     } else
@@ -233,10 +233,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         {
                             val teamOfPlayer = game.getTeamOf(player)
                             val teamOfOpponent = game.getOpponent(player)!!
-                            val hitsDiff = teamOfPlayer.combinedHits - teamOfOpponent.combinedHits
+                            val hitsDiff = teamOfPlayer.gameLifecycleArbitraryObjectiveProgress - teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
 
                             board += "${CC.WHITE}Team: ${CC.PRI}${
-                                teamOfPlayer.combinedHits
+                                teamOfPlayer.gameLifecycleArbitraryObjectiveProgress
                             }${
                                 if (hitsDiff == 0)
                                     ""
@@ -248,7 +248,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             }"
 
                             board += "${CC.RED}Opponent:"
-                            board += "${teamOfOpponent.combinedHits} hits"
+                            board += "${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress} hits"
 
                             for (other in opponent.players.take(3))
                             {

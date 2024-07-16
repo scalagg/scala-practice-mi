@@ -271,7 +271,8 @@ object GameService
 
         data class GameRemovalEvent(
             val drops: MutableList<ItemStack>,
-            val shouldRespawn: Boolean = true
+            val shouldRespawn: Boolean = true,
+            val killerPlayerOverride: Player? = null
         )
 
         fun Player.gracefullyRemoveFromGame(event: GameRemovalEvent)
@@ -320,7 +321,7 @@ object GameService
                     }
             }
 
-            val killerPlayer = killedBy()
+            val killerPlayer = event.killerPlayerOverride ?: killedBy()
             val killer = if (killerPlayer !is Player || killerPlayer == this)
             {
                 game.getOpponent(this)
@@ -425,7 +426,7 @@ object GameService
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     val opposingTeam = game.getOpponent(team)!!
-                    if (opposingTeam.gameLifecycleObjectiveMet)
+                    if (opposingTeam.gameLifecycleObjectiveMet())
                     {
                         if (killerPlayer is Player)
                         {
@@ -1080,7 +1081,7 @@ object GameService
                     )
                     ?.toBooleanStrictOrNull()
 
-                damagerTeam.combinedHits += 1
+                damagerTeam.gameLifecycleArbitraryObjectiveProgress += 1
                 damagerTeam.playerCombos.compute(
                     it.damager!!.uniqueId
                 ) { _, previous ->
@@ -1124,16 +1125,14 @@ object GameService
 
                 if (
                     winWhenHitsReached != null &&
-                    damagerTeam.combinedHits >= winWhenHitsReached
+                    damagerTeam.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
                 )
                 {
-                    // TODO: multiplayer support teams
-                    runFinalDeathEffectsFor(
-                        it.damager as Player,
-                        it.entity as Player,
-                        game
-                    )
-                    game.complete(damagerTeam)
+                    (it.entity as Player).gracefullyRemoveFromGame(GameRemovalEvent(
+                        killerPlayerOverride = it.damager as Player,
+                        drops = mutableListOf(),
+                        shouldRespawn = false
+                    ))
                 }
 
                 if (doNotTakeDamage != null)

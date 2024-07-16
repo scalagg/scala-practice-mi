@@ -12,9 +12,6 @@ class GameTeam(
     val players: List<UUID>
 )
 {
-    @Volatile
-    var combinedHits = 0
-
     private var backingPlayerCombos: MutableMap<UUID, Int>? = null
         get()
         {
@@ -41,7 +38,7 @@ class GameTeam(
     val highestPlayerCombos: MutableMap<UUID, Int>
         get() = backingHighestPlayerCombos!!
 
-    var gameLifecycleObjectiveMet = false
+    var gameLifecycleObjectiveMet: () -> Boolean = { false }
     var gameLifecycleArbitraryObjectiveProgress = 0
 
     fun nonSpectators() = this.toBukkitPlayers()

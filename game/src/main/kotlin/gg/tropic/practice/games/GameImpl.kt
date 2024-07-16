@@ -16,7 +16,6 @@ import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import gg.tropic.practice.leaderboards.ScoreUpdates
@@ -310,8 +309,29 @@ class GameImpl(
         stopTask.task.bindWith(this)
     }
 
+    fun initializeTeamObjectives()
+    {
+        if (flag(FeatureFlag.WinWhenNHitsReached))
+        {
+            for (value in teams.values)
+            {
+                value.gameLifecycleObjectiveMet = {
+                    val winWhenHitsReached = flagMetaData(
+                        FeatureFlag.WinWhenNHitsReached, "hits"
+                    )
+                        ?.toIntOrNull()
+
+                    winWhenHitsReached != null &&
+                        value.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
+                }
+            }
+        }
+    }
+
     fun initializeAndStart()
     {
+        initializeTeamObjectives()
+
         val startTask = GameStartTask(this)
         startTask.task = Schedulers.sync()
             .runRepeating(

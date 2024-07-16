@@ -69,10 +69,6 @@ enum class FeatureFlag(
         requires = setOf(PlaceBlocks)
     ),
     DeathOnLiquidInteraction,
-    WinWhenNHitsReached(
-        schema = mutableMapOf("hits" to "100"),
-        availableLifecycles = setOf(GameLifecycle.ObjectiveBound)
-    ),
     EntityDisguise(
         schema = mutableMapOf("type" to "IRON_GOLEM")
     ),
@@ -120,6 +116,11 @@ enum class FeatureFlag(
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
         )
+    ),
+
+    WinWhenNHitsReached(
+        schema = mutableMapOf("hits" to "100"),
+        availableLifecycles = setOf(GameLifecycle.ObjectiveBound)
     ),
 
     FrozenOnRoundStart(
