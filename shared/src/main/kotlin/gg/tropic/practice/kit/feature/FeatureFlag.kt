@@ -21,6 +21,7 @@ enum class FeatureFlag(
     DoNotTakeDamage(
         schema = mutableMapOf("doDamageTick" to "false")
     ),
+    DoNotDropInventoryOnDeath,
     DoNotTakeHunger,
     DoNotRemoveArmor,
     RequiresBuildMap,

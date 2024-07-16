@@ -303,8 +303,14 @@ object GameService
                 "spectator", FixedMetadataValue(plugin, true)
             )
 
-            event.drops.removeIf { stack ->
-                stack.type == Material.POTION || stack.type == Material.BOWL
+            if (game.flag(FeatureFlag.DoNotDropInventoryOnDeath))
+            {
+                event.drops.clear()
+            } else
+            {
+                event.drops.removeIf { stack ->
+                    stack.type == Material.POTION || stack.type == Material.BOWL
+                }
             }
 
             val team = game.getTeamOf(this)
