@@ -14,6 +14,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.title.Title
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
@@ -78,13 +79,20 @@ class PlayerRespawnTask(
                         .color(NamedTextColor.RED),
                     LegacyComponentSerializer
                         .legacySection()
-                        .deserialize(respawnMessage)
+                        .deserialize(respawnMessage),
+                    Title.Times.times(
+                        Duration.ofMillis(1L),
+                        Duration.ofMillis(1500L),
+                        Duration.ofMillis(1L)
+                    )
                 )
             )
         }
 
         player.sendMessage(respawnMessage)
         player.playSound(player.location, Sound.NOTE_STICKS, 1.0f, 1.0f)
+
+        tick -= 1
     }
 
     override fun close()

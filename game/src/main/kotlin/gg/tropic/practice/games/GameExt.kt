@@ -81,6 +81,13 @@ fun GameImpl.resetPlayerForFight(player: Player)
 fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
 {
     player.apply {
+        setMetadata(
+            "spectator", FixedMetadataValue(plugin, true)
+        )
+
+        VisibilityHandler.update(player)
+        NametagHandler.reloadPlayer(player)
+
         if (flag(FeatureFlag.EntityDisguise))
         {
             DisguiseService.provider().undisguise(player)
@@ -92,10 +99,6 @@ fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
             ?.apply {
                 displaySlot = null
             }
-
-        setMetadata(
-            "spectator", FixedMetadataValue(plugin, true)
-        )
     }
 }
 
