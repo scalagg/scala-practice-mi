@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 8/5/2022
  */
-fun Player.resetAttributes()
+fun Player.resetAttributes(editFlightAttributes: Boolean = true)
 {
     this.health = this.maxHealth
 
@@ -20,7 +20,12 @@ fun Player.resetAttributes()
     this.exp = 0.0f
     this.walkSpeed = 0.2f
     this.inventory.heldItemSlot = 0
-    this.allowFlight = false
+
+    if (editFlightAttributes)
+    {
+        this.isFlying = false
+        this.allowFlight = false
+    }
 
     this.inventory.clear()
     this.inventory.armorContents = null

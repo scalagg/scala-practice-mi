@@ -38,6 +38,7 @@ import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -66,6 +67,9 @@ object GameService
 {
     @Inject
     lateinit var plugin: PracticeGame
+
+    @Inject
+    lateinit var audiences: BukkitAudiences
 
     @Inject
     lateinit var redirector: ServerAggregateHandler

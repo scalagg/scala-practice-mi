@@ -86,7 +86,7 @@ fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
             DisguiseService.provider().undisguise(player)
         }
 
-        resetAttributes()
+        resetAttributes(editFlightAttributes = false)
         scoreboard
             .getObjective("commonsHealth")
             ?.apply {
