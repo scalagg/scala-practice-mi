@@ -16,6 +16,7 @@ import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.math.Numbers
 import java.time.Instant
 import java.util.*
@@ -156,6 +157,7 @@ object LeaderboardManagerService
                     val guildName = Guilds.guildProvider
                         .provideGuildNameFor(entry.uniqueId)
                         .join()
+
 
                     "${CC.PRI}#${index + 1}. ${CC.WHITE}${
                         QuickAccess

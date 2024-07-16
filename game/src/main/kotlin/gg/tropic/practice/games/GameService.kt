@@ -23,6 +23,7 @@ import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEf
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
+import gg.tropic.practice.games.features.FireballFeature
 import gg.tropic.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
@@ -65,6 +66,7 @@ import java.util.*
 import kotlin.math.ceil
 import kotlin.math.min
 
+
 /**
  * @author GrowlyX
  * @since 8/4/2022
@@ -106,6 +108,8 @@ object GameService
     fun configure()
     {
         CosmeticLocalConfig.enableCosmeticResources = false
+
+        plugin.registerListener(FireballFeature())
 
         Events
             .subscribe(ServerShutdownEvent::class.java)
@@ -1367,7 +1371,6 @@ object GameService
         .find {
             player in it.toPlayers() || player in it.expectedSpectators
         }
-
     private inline fun <reified T : PlayerEvent> configureMetadataProvidingEventHandler(incrementing: String)
     {
         Events
