@@ -2,6 +2,7 @@ package gg.tropic.practice.map.metadata.anonymous
 
 import org.bukkit.Chunk
 import org.bukkit.World
+import org.bukkit.block.Block
 import org.bukkit.block.BlockState
 
 /**
@@ -43,6 +44,24 @@ data class Bounds(
         }
 
         return chunks
+    }
+
+    fun utility(world: World) = iterator<Block> {
+        val minX = lowerLeft.x.toInt()
+        val maxX = upperRight.x.toInt()
+        val minY = lowerLeft.y.toInt()
+        val maxY = upperRight.y.toInt()
+        val minZ = lowerLeft.z.toInt()
+        val maxZ = upperRight.z.toInt()
+
+        for (x in minX..maxX) {
+            for (y in minY..maxY) {
+                for (z in minZ..maxZ) {
+                    val block = world.getBlockAt(x, y, z)
+                    yield(block)
+                }
+            }
+        }
     }
 
     operator fun contains(position: Position): Boolean

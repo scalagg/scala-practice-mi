@@ -9,7 +9,6 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.ComponentBuilder
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.title.Title

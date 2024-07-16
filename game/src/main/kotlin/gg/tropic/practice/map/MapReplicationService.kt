@@ -15,19 +15,26 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.services.ReplicationManagerService
+import gg.tropic.practice.map.metadata.anonymous.toBlockFace
+import gg.tropic.practice.map.metadata.impl.MapBedMetadata
+import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
 import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
+import gg.tropic.practice.services.ReplicationManagerService
 import me.lucko.helper.Schedulers
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.block.BlockFace
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.logging.Level
 import kotlin.concurrent.thread
+
 
 /**
  * @author GrowlyX
@@ -308,6 +315,41 @@ object MapReplicationService
         return future
     }
 
+    private fun Map.prepare(world: World)
+    {
+        metadata.metadata
+            .filterIsInstance<MapBedMetadata>()
+            .forEach {
+                Tasks.sync {
+                    val bedHead = it.position.toLocation(world).block
+                    val bedHeadState = bedHead.state
+                    val bedFoot = bedHead.getRelative(
+                        it.orientation.toBlockFace().oppositeFace
+                    ).state
+
+                    bedFoot.type = Material.BED_BLOCK
+                    bedFoot.rawData = 0x0.toByte()
+
+                    bedHead.type = Material.BED_BLOCK
+                    bedHeadState.rawData = 0x8.toByte()
+
+                    bedFoot.update(true, false)
+                    bedHeadState.update(true, true)
+                }
+            }
+
+        metadata.metadata
+            .filterIsInstance<MapPortalMetadata>()
+            .forEach {
+                Tasks.sync {
+                    it.bounds.utility(world).forEach { block ->
+                        block.type = Material.ENDER_PORTAL
+                        block.state.update()
+                    }
+                }
+            }
+    }
+
     private fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
     {
         val worldName = "${arena.name}-${
@@ -330,6 +372,8 @@ object MapReplicationService
             }
             .thenApply {
                 arena.metadata.clearSignLocations(it)
+                arena.prepare(it)
+
                 BuiltMapReplication(arena, it)
             }
             .exceptionally {

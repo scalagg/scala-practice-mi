@@ -1199,7 +1199,6 @@ object GameService
                     }
                 }
 
-                // TODO: add the vector to a list in GameImpl so we can reset if needed for multi round.
                 it.blockPlaced.setMetadata(
                     "placed",
                     FixedMetadataValue(plugin, true)

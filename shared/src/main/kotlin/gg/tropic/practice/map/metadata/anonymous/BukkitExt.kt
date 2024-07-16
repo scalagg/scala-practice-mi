@@ -1,6 +1,7 @@
 package gg.tropic.practice.map.metadata.anonymous
 
 import org.bukkit.Location
+import org.bukkit.block.BlockFace
 import org.bukkit.util.Vector
 
 /**
@@ -22,3 +23,5 @@ fun Vector.toPosition() = Position(
     yaw = 0f,
     pitch = 0f
 )
+
+fun Orientation.toBlockFace() = BlockFace.valueOf(name)
