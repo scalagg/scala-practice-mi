@@ -28,6 +28,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.BlockFace
+import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -323,9 +324,10 @@ object MapReplicationService
                 Tasks.sync {
                     val bedHead = it.position.toLocation(world).block
                     val bedHeadState = bedHead.state
-                    val bedFoot = bedHead.getRelative(
+                    val bedFootBlock = bedHead.getRelative(
                         it.orientation.toBlockFace().oppositeFace
-                    ).state
+                    )
+                    val bedFoot = bedFootBlock.state
 
                     bedFoot.type = Material.BED_BLOCK
                     bedFoot.rawData = 0x0.toByte()
@@ -335,6 +337,13 @@ object MapReplicationService
 
                     bedFoot.update(true, false)
                     bedHeadState.update(true, true)
+
+                    listOf(bedHead, bedFootBlock).forEach { component ->
+                        component.setMetadata(
+                            "tropicbed",
+                            FixedMetadataValue(plugin, it.id)
+                        )
+                    }
                 }
             }
 
@@ -343,7 +352,12 @@ object MapReplicationService
             .forEach {
                 Tasks.sync {
                     it.bounds.utility(world).forEach { block ->
-                        block.type = Material.ENDER_PORTAL
+                        block.setMetadata(
+                            "tropicportal",
+                            FixedMetadataValue(plugin, it.id)
+                        )
+
+                        block.state.type = Material.ENDER_PORTAL
                         block.state.update()
                     }
                 }
