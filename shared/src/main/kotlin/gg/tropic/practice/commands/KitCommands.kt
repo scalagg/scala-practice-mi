@@ -125,7 +125,7 @@ object KitCommands : ScalaCommand()
         kit.lifecycleType = newLifecycle
 
         val removedFlags = mutableSetOf<FeatureFlag>()
-        for (key in kit.features.keys)
+        for (key in kit.features.keys.toSet())
         {
             if (newLifecycle !in key.availableLifecycles)
             {

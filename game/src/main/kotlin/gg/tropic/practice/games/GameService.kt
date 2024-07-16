@@ -405,6 +405,7 @@ object GameService
                         return
                     }
 
+                    game.sendMessage(deathMessage)
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
                         game.startDelayedRespawn(player)
@@ -415,6 +416,10 @@ object GameService
                 }
                 GameLifecycle.ObjectiveBound ->
                 {
+
+
+                    game.sendMessage(deathMessage)
+
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
                         game.startDelayedRespawn(player)
@@ -442,6 +447,7 @@ object GameService
                         return
                     }
 
+                    game.sendMessage(deathMessage)
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
                         game.startDelayedRespawn(player)
