@@ -8,7 +8,7 @@ import gg.scala.commons.core.plugin.*
  * @since 9/22/2023
  */
 @Plugin(
-    name = "TropicPractice-DevTools",
+    name = "EstaPractice-DevTools",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthor("Tropic")

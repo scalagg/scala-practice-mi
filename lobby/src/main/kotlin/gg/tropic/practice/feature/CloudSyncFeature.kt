@@ -21,7 +21,7 @@ object CloudSyncFeature
     {
         CloudSyncDiscoveryService
             .discoverable.assets.add(
-                "gg.tropic.practice:lobby:TropicPractice-lobby${
+                "land.esta.practice:lobby:EstaPractice-lobby${
                     if ("dev" in ServerSync.getLocalGameServer().groups) ":gradle-dev" else ""
                 }"
             )
