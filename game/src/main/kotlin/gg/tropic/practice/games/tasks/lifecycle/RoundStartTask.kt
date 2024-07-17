@@ -59,18 +59,7 @@ class RoundStartTask(
         game.multiRoundGame.switchingRounds = true
         winner.gameLifecycleArbitraryObjectiveProgress += 1
 
-        if (game.placedBlocks.isNotEmpty())
-        {
-            game.placedBlocks.forEach {
-                game.arenaWorld
-                    ?.getBlockAt(it.toLocation(game.arenaWorld))
-                    ?.apply {
-                        state.type = Material.AIR
-                        state.update()
-                    }
-            }
-        }
-
+        game.cleanupWorld()
         game.toBukkitPlayers().filterNotNull()
             .forEach { player ->
                 // enter a "light" spectator mode, where they can't interact with anything yet
@@ -80,6 +69,11 @@ class RoundStartTask(
                 player.setMetadata(
                     "spectator",
                     FixedMetadataValue(Helper.hostPlugin(), "light")
+                )
+
+                player.setMetadata(
+                    "light-spectator",
+                    FixedMetadataValue(Helper.hostPlugin(), "true")
                 )
             }
 
@@ -121,6 +115,7 @@ class RoundStartTask(
             game.toBukkitPlayers().filterNotNull()
                 .forEach {
                     it.removeMetadata("spectator", Helper.hostPlugin())
+                    it.removeMetadata("light-spectator", Helper.hostPlugin())
                 }
 
             game.audiences {
