@@ -468,6 +468,7 @@ object GameService
                             .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
                             ?.toIntOrNull() ?: 2
 
+                        game.sendMessage(deathMessage)
                         if (team.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
                         {
                             game.complete(team)
@@ -475,7 +476,9 @@ object GameService
                         }
 
                         game.multiRoundGame.roundNumber += 1
-                        game.startNewRound(team)
+                        Tasks.delayed(1L) {
+                            game.startNewRound(team)
+                        }
                         return
                     }
 
