@@ -13,6 +13,7 @@ import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.math.Numbers
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 
@@ -75,10 +76,8 @@ class LeaderboardsMenu : TemplateKitMenu()
             ?.toMutableMap() ?: mutableMapOf()
 
         buttons[5] = ItemBuilder
-            .copyOf(
-                object : TexturedHeadButton(Constants.GLOBE_ICON) {}
-                    .getButtonItem(player)
-            )
+            .of(Material.ENDER_PORTAL_FRAME)
+            .glow()
             .name("${CC.PRI}Toggle View")
             .addToLore(
                 "${CC.GRAY}Select one of the following",
@@ -108,6 +107,7 @@ class LeaderboardsMenu : TemplateKitMenu()
                     menuState.next()
 
                 openMenu(player)
+                player.playSound(player.location, Sound.NOTE_STICKS, 1.0f, 1.0f)
             }
 
         buttons[3] = ItemBuilder

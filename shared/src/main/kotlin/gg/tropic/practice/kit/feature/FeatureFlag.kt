@@ -73,11 +73,12 @@ enum class FeatureFlag(
     EntityDisguise(
         schema = mutableMapOf("type" to "IRON_GOLEM")
     ),
+    RedBlueTeams,
+
+    // multi-round
     CountDownTimeBeforeRoundStart(
         schema = mutableMapOf("value" to "5")
     ),
-
-    // multi-round
 
     // ImmediateRespawnOnDeath may be implied in game logic!
     ImmediateRespawnOnDeath(
@@ -124,16 +125,6 @@ enum class FeatureFlag(
         availableLifecycles = setOf(
             GameLifecycle.ObjectiveBound,
             GameLifecycle.ObjectivePlusSoulBound
-        )
-    ),
-
-    FrozenOnRoundStart(
-        // game start freeze is implied with round start
-        incompatibleWith = { setOf(FrozenOnGameStart) },
-        availableLifecycles = setOf(
-            GameLifecycle.RoundBound,
-            GameLifecycle.ObjectivePlusSoulBound,
-            GameLifecycle.ObjectiveBound
         )
     ),
     StartNewRoundOnPortalEnter(
