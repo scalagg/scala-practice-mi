@@ -28,7 +28,7 @@ import org.bukkit.Bukkit;
 
 @Plugin(
         name = "EstaPractice-SmartBots",
-        version = "%remote%/%branch%/%id%"
+        version = "KProd"
 )
 @PluginAuthorComposite({
         @PluginAuthor("crafticat"),
