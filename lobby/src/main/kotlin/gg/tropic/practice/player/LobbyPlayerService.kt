@@ -199,10 +199,16 @@ object LobbyPlayerService
                 val player = LobbyPlayer(event.player.uniqueId)
                 playerCache[event.player.uniqueId] = player
 
+                event.player.resetAttributes()
+
                 if (event.player.hasPermission("practice.spawn-flight"))
                 {
                     player.player.allowFlight = true
                     player.player.isFlying = true
+                } else
+                {
+                    player.player.isFlying = false
+                    player.player.allowFlight = false
                 }
 
                 CompletableFuture.runAsync(player::syncQueueState)
