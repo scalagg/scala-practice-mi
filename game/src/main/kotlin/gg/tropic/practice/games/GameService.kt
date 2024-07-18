@@ -643,11 +643,12 @@ object GameService
 
                 if (it.item.amount == 1)
                 {
-                    it.player.itemInHand = ItemStack(Material.AIR)
+                    it.player.inventory.removeItem(it.item)
                 } else
                 {
                     it.item.amount -= 1
                 }
+                it.player.updateInventory()
             }
             .bindWith(plugin)
 
