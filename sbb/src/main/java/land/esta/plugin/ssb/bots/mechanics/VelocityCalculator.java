@@ -4,14 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import land.esta.plugin.ssb.bots.setting.VelocitySettings;
+import land.esta.plugin.ssb.bots.setting.impl.VelocitySettings;
 import land.esta.plugin.ssb.utils.MathUtils;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.MathHelper;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Getter

@@ -3,7 +3,7 @@ package land.esta.plugin.ssb.features.imple;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.RodSettings;
+import land.esta.plugin.ssb.bots.setting.impl.RodSettings;
 import land.esta.plugin.ssb.features.Feature;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.npc.nms.FixedEntityFishingHook;

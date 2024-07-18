@@ -95,21 +95,6 @@ public class Setting implements ConfigurationSerializable {
         return setting;
     }
 
-    /*
-    public static Setting deserialize(Map<String, Object> m) {
-        Setting defaultSetting = defaults.get(m.get("name"));
-
-        for (String key : m.keySet()) {
-            Object object = m.get(key);
-            if (key.equals("material") || key.equals("name")) continue;
-
-        });
-
-
-    }
-
-     */
-
     public String toDatabaseString() {
         //Bukkit.broadcastMessage("Before: " + name);
         String[] words = name.replaceAll("\\([^)]*\\)", "").split(" ");

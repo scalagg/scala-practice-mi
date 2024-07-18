@@ -4,7 +4,7 @@ import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import land.esta.plugin.ssb.bots.setting.PlaystyleSettings;
+import land.esta.plugin.ssb.bots.setting.impl.PlaystyleSettings;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.objects.AABB;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;

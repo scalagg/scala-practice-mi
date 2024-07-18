@@ -4,8 +4,6 @@ import lombok.Getter;
 import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.data.presets.PresetType;
 import land.esta.plugin.ssb.SmartBotsBackend;
-import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.Command;
 import land.esta.plugin.ssb.utils.gui.GlobalGui;
 import land.esta.plugin.ssb.utils.gui.imple.SettingGui;
 import org.bukkit.Material;

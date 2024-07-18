@@ -6,7 +6,6 @@ import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.Command;
 import land.esta.plugin.ssb.utils.gui.imple.SettingGui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

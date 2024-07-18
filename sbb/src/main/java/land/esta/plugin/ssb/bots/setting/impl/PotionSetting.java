@@ -1,5 +1,7 @@
-package land.esta.plugin.ssb.bots.setting;
+package land.esta.plugin.ssb.bots.setting.impl;
 
+import land.esta.plugin.ssb.bots.setting.Setting;
+import land.esta.plugin.ssb.bots.setting.SettingObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;

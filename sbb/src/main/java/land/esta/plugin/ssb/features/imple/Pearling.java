@@ -2,7 +2,7 @@ package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.PearlSettings;
+import land.esta.plugin.ssb.bots.setting.impl.PearlSettings;
 import land.esta.plugin.ssb.features.Feature;
 import org.bukkit.Location;
 import org.bukkit.Material;

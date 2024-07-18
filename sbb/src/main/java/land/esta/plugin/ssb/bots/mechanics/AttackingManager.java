@@ -8,7 +8,7 @@ import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.botevents.events.BotAttackEvent;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
-import land.esta.plugin.ssb.bots.setting.AttackSettings;
+import land.esta.plugin.ssb.bots.setting.impl.AttackSettings;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.AABB;
 import land.esta.plugin.ssb.utils.raycast.RayCasting;

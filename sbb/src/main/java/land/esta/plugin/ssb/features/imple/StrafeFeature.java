@@ -5,8 +5,8 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.botevents.events.BotAttackEvent;
-import land.esta.plugin.ssb.bots.setting.FleeSettings;
-import land.esta.plugin.ssb.bots.setting.StrafeSettings;
+import land.esta.plugin.ssb.bots.setting.impl.FleeSettings;
+import land.esta.plugin.ssb.bots.setting.impl.StrafeSettings;
 import land.esta.plugin.ssb.features.Feature;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import org.bukkit.Location;
@@ -14,7 +14,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Getter

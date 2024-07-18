@@ -1,10 +1,12 @@
-package land.esta.plugin.ssb.bots.setting;
+package land.esta.plugin.ssb.bots.setting.impl;
 
+import land.esta.plugin.ssb.bots.setting.Setting;
+import land.esta.plugin.ssb.bots.setting.SettingObject;
 import lombok.Getter;
 import org.bukkit.Material;
 
 @Getter
-public class PearlSettings extends Setting{
+public class PearlSettings extends Setting {
 
     //TODO add pearl chance.
     private SettingObject pearlDelay = new SettingObject("Pearl Delay",Material.ENDER_PEARL,600,5);

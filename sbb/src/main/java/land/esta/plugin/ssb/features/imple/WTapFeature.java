@@ -3,12 +3,11 @@ package land.esta.plugin.ssb.features.imple;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.WTapSetting;
+import land.esta.plugin.ssb.bots.setting.impl.WTapSetting;
 import land.esta.plugin.ssb.features.Feature;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WTapFeature extends Feature {
