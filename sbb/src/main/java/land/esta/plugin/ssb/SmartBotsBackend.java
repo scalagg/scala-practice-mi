@@ -1,10 +1,13 @@
 package land.esta.plugin.ssb;
 
 import gg.scala.commons.ExtendedScalaPlugin;
+import gg.scala.commons.agnostic.sync.ServerSync;
+import gg.scala.commons.agnostic.sync.server.ServerContainer;
 import gg.scala.commons.annotations.container.ContainerDisable;
 import gg.scala.commons.annotations.container.ContainerEnable;
 import gg.scala.commons.core.plugin.*;
 import land.esta.plugin.ssb.utils.BukkitEvents;
+import land.esta.plugin.ssb.utils.GameServer;
 import land.esta.plugin.ssb.utils.PacketListener;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
@@ -101,14 +104,19 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     }
 
     public void registerListeners() {
-        Bukkit.getServer().getPluginManager().registerEvents(new PacketListener(),this);
+        if (GameServer.is()) {
+            Bukkit.getServer().getPluginManager().registerEvents(new PacketListener(),this);
+        }
+
         Bukkit.getServer().getPluginManager().registerEvents(dataManager = new DataManager(), this);
     }
 
     @ContainerDisable
     public void disable() {
-        for (Bot bot : getBotManager().getBots()) {
-            bot.silentKill();
+        if (GameServer.is()) {
+            for (Bot bot : getBotManager().getBots()) {
+                bot.silentKill();
+            }
         }
 
         instance = null;

@@ -248,6 +248,25 @@ object LobbyHotbarService
         )
 
         idlePreset.addSlot(
+            2,
+            StaticHotbarPresetEntry(
+                ItemBuilder(Material.GOLD_SWORD)
+                    .name("${CC.SEC}Play Bot Fights ${CC.GRAY}(Right Click)")
+                    .setUnbreakable(true)
+            ).also {
+                it.onClick = context@{ player ->
+                    if (player.hasMetadata("frozen"))
+                    {
+                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                        return@context
+                    }
+
+
+                }
+            }
+        )
+
+        idlePreset.addSlot(
             1,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.DIAMOND_SWORD)
@@ -340,7 +359,7 @@ object LobbyHotbarService
             }
         )
 
-        idlePreset.addSlot(2, kitEditor)
+        idlePreset.addSlot(6, kitEditor)
         idlePreset.addSlot(8, settings)
 
         HotbarPresetHandler.startTrackingHotbar("idle", idlePreset)

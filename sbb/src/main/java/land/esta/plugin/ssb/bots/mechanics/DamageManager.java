@@ -1,6 +1,5 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import ga.strikepractice.fights.botduel.BotDuel;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
 import lombok.Setter;

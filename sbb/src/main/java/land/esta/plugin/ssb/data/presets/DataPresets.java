@@ -17,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -182,7 +183,7 @@ public class DataPresets {
     //Picks a random preset
     public SettingGui getPreset() {
         if (presets.isEmpty()) return null;
-        Random random = new Random();
+        Random random = ThreadLocalRandom.current();
         int index = random.nextInt(presets.size());
         return presets.get(index);
     }

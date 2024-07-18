@@ -7,6 +7,7 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DamageCalculator extends Manager {
 
@@ -51,7 +52,7 @@ public class DamageCalculator extends Manager {
         double d5 = -Math.max(f - Math.max(f - (double) bot.getHealthManager().getAbsHearts(), 0.0D), 0.0D);
         float absorptionModifier = (float) d5;
 
-        Random random = new Random();
+        Random random = ThreadLocalRandom.current();
 
         if ((damagesource == DamageSource.ANVIL || damagesource == DamageSource.FALLING_BLOCK) && manager.getHelmet() != null) {
             // manager.damageArmor(4,(int)(originalDamage* 4.0D + (double) random.nextFloat() * originalDamage * 2.0D));

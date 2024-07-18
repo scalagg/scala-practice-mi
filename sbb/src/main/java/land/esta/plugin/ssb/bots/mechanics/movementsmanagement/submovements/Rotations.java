@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -77,7 +78,7 @@ public class Rotations extends Manager {
     }
 
     public int generateSize() {
-        Random random = new Random();
+        Random random = ThreadLocalRandom.current();
         int size = random.nextInt(2);
         if (size == 0) return -1;
         return 1;

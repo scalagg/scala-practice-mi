@@ -15,6 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 public class StrafeFeature extends Feature {
@@ -37,7 +38,7 @@ public class StrafeFeature extends Feature {
         }
 
         boolean close = botLocation.distance(targetLocation) < 6;
-        boolean chance = new Random().nextInt(100) <= bot.getSettingManager().getStrafeSettings().getChance().getIntValue();
+        boolean chance = ThreadLocalRandom.current().nextInt(100) <= bot.getSettingManager().getStrafeSettings().getChance().getIntValue();
 
         //Enable & Combo & Close check
         if (!strafeSettings.getEnabled().isBooleanValue() || inCombo && !strafeSettings.getStrafeInCombo().isBooleanValue() || !close || bot.getMovements().isEdge()) {

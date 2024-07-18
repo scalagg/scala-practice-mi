@@ -1,44 +1,46 @@
 package land.esta.plugin.ssb.bots;
 
+import land.esta.plugin.ssb.utils.GameServer;
 import lombok.Getter;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 @Getter
 public class BotManager {
     private final ArrayList<Bot> bots;
-    private final BukkitTask task;
-    private boolean async = false;
+    @Nullable
+    private BukkitTask task;
+    private final boolean async = false;
 
     public BotManager() {
         bots = new ArrayList<>();
 
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                ArrayList<Bot> cloned = new ArrayList<>(bots);
+        if (GameServer.is()) {
+            task = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    ArrayList<Bot> cloned = new ArrayList<>(bots);
+                    for (Bot bot : cloned) {
+                        if (bot == null) {
+                            //Bukkit.broadcastMessage("A problem was found");
+                            continue;
+                        }
 
-                int size = cloned.size();
-                for (int i = 0; i < size; i ++) {
-                    Bot bot = cloned.get(i);
-                    if (bot == null) {
-                        //Bukkit.broadcastMessage("A problem was found");
-                        continue;
+                        // Cannot measure distance between diff words patch
+                        if (bot.getMovements().getLocation().getWorld().equals(bot.getMovements().getTargetLocate().getTarget().getWorld()) && bot.isAlive()) {
+                            bot.tick();
+                            continue;
+                        }
+                        bot.silentKill();
                     }
-
-                    // Cannot measure distance between diff words patch
-                    if (bot.getMovements().getLocation().getWorld().equals(bot.getMovements().getTargetLocate().getTarget().getWorld()) && bot.isAlive()) {
-                        bot.tick();
-                        continue;
-                    }
-                    bot.silentKill();
                 }
-            }
-        }.runTaskTimer(SmartBotsBackend.getInstance(),1,1);
+            }.runTaskTimer(SmartBotsBackend.getInstance(), 1, 1);
+        }
     }
 
     public void addBot(Bot bot) {

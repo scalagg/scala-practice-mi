@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -105,9 +106,8 @@ public class VelocityCalculator extends Manager {
 
         double distanceZ;
 
-        Random random = new Random();
-        for (distanceZ = bot.getMovements().getLocation().getZ() - attacker.locZ; distanceX * distanceX + distanceZ * distanceZ < 1.0E-4D; distanceZ = (random.nextDouble() - random.nextDouble()) * 0.01D) {
-            distanceX = (random.nextDouble() - random.nextDouble()) * 0.01D;
+        for (distanceZ = bot.getMovements().getLocation().getZ() - attacker.locZ; distanceX * distanceX + distanceZ * distanceZ < 1.0E-4D; distanceZ = (ThreadLocalRandom.current().nextDouble() - ThreadLocalRandom.current().nextDouble()) * 0.01D) {
+            distanceX = (ThreadLocalRandom.current().nextDouble() - ThreadLocalRandom.current().nextDouble()) * 0.01D;
         }
 
         if (!bot.getDamageManager().isCombo()) {

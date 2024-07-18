@@ -2,9 +2,7 @@ package land.esta.plugin.ssb.support;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
-import land.esta.plugin.ssb.support.papi.BotPingPlaceHolder;
-import land.esta.plugin.ssb.support.papi.PlaceHolderApiSupport;
-import land.esta.plugin.ssb.support.strikepractice.StrikePracticeSupport;
+import land.esta.plugin.ssb.support.strikepractice.EstaPracticeSupport;
 import land.esta.plugin.ssb.utils.Color;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -20,8 +18,7 @@ public class SupportManager implements Listener {
     private final ArrayList<PluginSupport> pluginSupports = new ArrayList<>();
 
     public SupportManager() {
-        addSupport(new StrikePracticeSupport("aiPractice"));
-        addSupport(new PlaceHolderApiSupport("PlaceHolderAPI"));
+        addSupport(new EstaPracticeSupport("EstaPractice"));
         Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
     }
 
@@ -35,8 +32,6 @@ public class SupportManager implements Listener {
     public void addSupport(PluginSupport plugin) {
         if (Bukkit.getServer().getPluginManager().isPluginEnabled(plugin.getName())) {
             pluginSupports.add(plugin.enable());
-        } else {
-            Bukkit.getLogger().info(Color.code("&f"+ SmartBotsBackend.getInstance().getPluginName()+" were unable to add support for &B&l" + plugin.getName()));
         }
     }
 }
