@@ -200,6 +200,9 @@ object LobbyPlayerService
                 playerCache[event.player.uniqueId] = player
 
                 event.player.resetAttributes()
+                
+                event.player.inventory.heldItemSlot = 0
+                event.player.updateInventory()
 
                 if (event.player.hasPermission("practice.spawn-flight"))
                 {
