@@ -10,7 +10,7 @@ plugins {
 }
 
 allprojects {
-    group = "gg.tropic.practice"
+    group = "land.esta.practice"
     version = "1.0.0"
 
     repositories {
@@ -31,7 +31,11 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        kapt("gg.scala.commons:bukkit:3.5.2")
+        if (project.name == "sbb") {
+            annotationProcessor("gg.scala.commons:bukkit:3.5.2")
+        } else {
+            kapt("gg.scala.commons:bukkit:3.5.2")
+        }
         compileOnly("gg.scala.commons:bukkit:3.5.2")
 
         compileOnly("gg.scala.cgs:parties:1.4.3")
@@ -44,6 +48,10 @@ subprojects {
 
         compileOnly("gg.scala.lemon:bukkit:1.7.0")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
+    }
+
+    kapt {
+        keepJavacAnnotationProcessors = true
     }
 
     tasks.withType<JavaCompile> {
@@ -65,7 +73,7 @@ subprojects {
             )
 
             archiveFileName.set(
-                "TropicPractice-${project.name}.jar"
+                "EstaPractice-${project.name}.jar"
             )
         }
 

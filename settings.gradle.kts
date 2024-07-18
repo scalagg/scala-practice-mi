@@ -9,9 +9,9 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
 
-rootProject.name = "tropic-privatepractice"
+rootProject.name = "esta-practice"
 include(
-    "shared", "game", "lobby", "devtools",
+    "shared", "game", "lobby", "devtools", "sbb",
     "services:application", "services:queue", "services:statistics", "services:tournaments",
     "services:statistics:leaderboards",
     "services:application:api",

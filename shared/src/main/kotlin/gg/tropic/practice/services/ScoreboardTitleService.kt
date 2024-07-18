@@ -17,9 +17,9 @@ object ScoreboardTitleService
 {
     private val titleAnimator = TextAnimator.of(
         TextFadeAnimation(
-            "${CC.BOLD}Practice",
-            ChatColor.GOLD,
-            ChatColor.YELLOW,
+            "${CC.BOLD}PRACTICE",
+            ChatColor.RED,
+            ChatColor.GRAY,
             ChatColor.DARK_GRAY
         )
     )
