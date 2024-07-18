@@ -9,3 +9,6 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.24")
 }
 
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.INHERIT
+}
