@@ -14,6 +14,7 @@ public class Mongo {
     private final MongoCollection<Document> unranked;
     private final MongoCollection<Document> ranked;
     private final MongoCollection<Document> tournament;
+    private final MongoCollection<Document> profiles;
 
     public Mongo() {
         this.database = ScalaDataStoreSpigotImpl.INSTANCE.getNewMongoConnection().getAppliedResource();
@@ -22,6 +23,7 @@ public class Mongo {
         difficulties = database.getCollection("difficulties");
         unranked = database.getCollection("unranked");
         ranked = database.getCollection("ranked");
+        profiles = database.getCollection("profiles");
         tournament = database.getCollection("tournament");
     }
 }
