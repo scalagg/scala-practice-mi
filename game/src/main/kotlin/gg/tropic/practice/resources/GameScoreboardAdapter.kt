@@ -96,6 +96,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                     teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.name else "You"}: $ballID"
 
+                    ballID = ""
                     repeat(them.gameLifecycleArbitraryObjectiveProgress)
                     {
                         ballID += "$theirColor${Constants.DOT_SYMBOL}"
