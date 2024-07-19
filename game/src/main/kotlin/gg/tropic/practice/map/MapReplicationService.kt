@@ -352,18 +352,14 @@ object MapReplicationService
             .forEach {
                 Tasks.sync {
                     it.bounds.utility(world).forEach contextBlock@{ block ->
-                        if (block.type != Material.AIR)
-                        {
-                            return@contextBlock
-                        }
+                        block.type = Material.ENDER_PORTAL
 
                         block.setMetadata(
                             "tropicportal",
                             FixedMetadataValue(plugin, it.id)
                         )
 
-                        block.state.type = Material.ENDER_PORTAL
-                        block.state.update()
+                        Bukkit.broadcastMessage("Added portal: ${world.name}")
                     }
                 }
             }
