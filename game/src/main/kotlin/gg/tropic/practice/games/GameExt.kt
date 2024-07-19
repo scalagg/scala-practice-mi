@@ -12,6 +12,8 @@ import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.visibility.VisibilityHandler
+import org.bukkit.Material
+import org.bukkit.block.BlockFace
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.metadata.FixedMetadataValue
@@ -118,6 +120,18 @@ fun GameImpl.teleportToSpawnLocation(player: Player)
             getTeamOf(player).side
         )!!
         .toLocation(arenaWorld!!)
+
+    if (flag(FeatureFlag.ClearIllegalBlocksOnRespawn))
+    {
+        val block = arenaWorld!!.getBlockAt(spawnLocation)
+        block.state.type = Material.AIR
+        block.state.update()
+
+        block.getRelative(BlockFace.UP).apply {
+            state.type = Material.AIR
+            state.update()
+        }
+    }
 
     player.teleport(spawnLocation)
 }
