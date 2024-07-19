@@ -29,6 +29,7 @@ fun List<String>.parseIntoMetadata(location: Location): MapSignMetadataModel?
         .removePrefix("[")
         .removeSuffix("]")
 
+    println(typeDelimited)
     val scanner = MetadataScannerUtilities
         .matches(typeDelimited)
         ?: return null

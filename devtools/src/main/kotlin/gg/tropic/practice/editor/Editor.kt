@@ -236,7 +236,7 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
             onBuild = {
                 ItemBuilder.of(Material.SLIME_BALL)
                     .glow()
-                    .name("${CC.GOLD}Convert to Slime ${CC.GRAY}(Right Click)")
+                    .name("${CC.D_RED}Update Map World ${CC.GRAY}(Right Click)")
                     .build()
             }
 
@@ -247,12 +247,14 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
                     return@context
                 }
 
-                InputPrompt()
-                    .withText("${CC.B_GOLD}Enter the Slime world name! ${CC.GRAY}(do not prefix with Map!)")
+                player.sendMessage("${CC.RED}Not yet implemented!")
+
+                /*InputPrompt()
+                    .withText("${CC.B_GOLD}Enter the map ID! ${CC.GRAY}(do not prefix with Map!)")
                     .acceptInput { _, newWorldName ->
                         prepareSlimeWorld(newWorldName)
                     }
-                    .start(player)
+                    .start(player)*/
             }
         })
 
