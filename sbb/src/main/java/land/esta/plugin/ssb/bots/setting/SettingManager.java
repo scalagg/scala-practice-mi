@@ -174,7 +174,7 @@ public class SettingManager {
                 settings.forEach(setting -> {
                     setting.getSettings().forEach(settingObject -> {
                         SettingObject sb = updated.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
-                        settingObject.setObjectUpdate(sb.getObject());
+                        settingObject.setObject(sb.getObject());
                     });
                 });
             }
