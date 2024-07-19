@@ -47,6 +47,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.minecraft.server.v1_8_R3.PortalTravelAgent
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -60,6 +61,7 @@ import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.player.*
+import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
@@ -1239,6 +1241,42 @@ object GameService
                 }
             }
             .bindWith(plugin)
+
+        Events
+            .subscribe(PlayerMoveEvent::class.java)
+            .filter {
+                EventUtils.hasPlayerMoved(it)
+            }
+            .handler {
+                if (it.to.block.type != Material.ENDER_PORTAL)
+                {
+                    return@handler
+                }
+
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                val metadata = it.to.block
+                    .getMetadata("tropicportal")
+                    .firstOrNull()
+                    ?: return@handler
+
+                val enteredIntoTeamPortal = GameTeamSide.valueOf(metadata.asString().uppercase())
+                val teamOfSide = game.teams[enteredIntoTeamPortal]
+                    ?: return@handler
+
+                if (!game.flag(FeatureFlag.StartNewRoundOnPortalEnter))
+                {
+                    return@handler
+                }
+
+                if (game.multiRoundGame.switchingRounds)
+                {
+                    return@handler
+                }
+
+
+            }
 
         Events.subscribe(BlockExplodeEvent::class.java)
             .handler {

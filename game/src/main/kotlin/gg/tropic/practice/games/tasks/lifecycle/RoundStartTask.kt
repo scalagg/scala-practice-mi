@@ -87,7 +87,7 @@ class RoundStartTask(
             opponent!!.side.toRBTeamSide().format(opponent.gameLifecycleArbitraryObjectiveProgress.toString())
         }"
 
-        game.sendMessage("", primary, subText, "")
+        game.sendMessage("", primary, "${CC.I}$subText", "")
         game.audiences {
             it.showTitle(
                 Title.title(
@@ -111,7 +111,7 @@ class RoundStartTask(
         {
             game.multiRoundGame.switchingRounds = false
             game.sendMessage("${CC.GREEN}Round started!")
-            game.playSound(Sound.NOTE_PLING, 1.0f)
+            game.playSound(Sound.FIREWORK_BLAST, 1.0f)
 
             game.toBukkitPlayers().filterNotNull()
                 .forEach {
