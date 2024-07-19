@@ -110,6 +110,14 @@ enum class FeatureFlag(
             GameLifecycle.ObjectiveBound
         )
     ),
+    ClearIllegalBlocksOnRespawn(
+        incompatibleWith = { setOf(ImmediateRespawnOnDeath) },
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound,
+            GameLifecycle.ObjectivePlusSoulBound,
+            GameLifecycle.ObjectiveBound
+        )
+    ),
     TimeUserSpectatesAfterDeath(
         schema = mutableMapOf("value" to "3"),
         requires = setOf(SpectateAfterDeath),

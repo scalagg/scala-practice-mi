@@ -86,12 +86,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     var ballID = ""
                     repeat(self.gameLifecycleArbitraryObjectiveProgress)
                     {
-                        ballID += "$selfColor${Constants.DOT_SYMBOL}"
+                        ballID += "$selfColor⬤"
                     }
 
                     repeat(roundsRequiredForCompletion - self.gameLifecycleArbitraryObjectiveProgress)
                     {
-                        ballID += "${CC.GRAY}${Constants.DOT_SYMBOL}"
+                        ballID += "${CC.GRAY}⬤"
                     }
 
                     teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.name else "You"}: $ballID"
@@ -99,12 +99,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     ballID = ""
                     repeat(them.gameLifecycleArbitraryObjectiveProgress)
                     {
-                        ballID += "$theirColor${Constants.DOT_SYMBOL}"
+                        ballID += "$theirColor⬤"
                     }
 
                     repeat(roundsRequiredForCompletion - them.gameLifecycleArbitraryObjectiveProgress)
                     {
-                        ballID += "${CC.GRAY}${Constants.DOT_SYMBOL}"
+                        ballID += "${CC.GRAY}⬤"
                     }
 
                     teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.name else "Them"}: $ballID"
