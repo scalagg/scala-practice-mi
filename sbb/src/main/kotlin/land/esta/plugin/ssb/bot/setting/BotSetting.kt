@@ -14,6 +14,19 @@ data class BotSetting(
     var tier: Int = 1
     val settings: MutableMap<String, MutableMap<String, SettingObject>> = mutableMapOf()
 
+    init
+    {
+        val defaults = SettingManager()
+
+        defaults.settings.forEach { setting ->
+            setting.settings.forEach { so ->
+                settings.putIfAbsent(setting.name, mutableMapOf())
+
+                settings[setting.name]!![so.name] = so
+            }
+        }
+    }
+
     fun save()
     {
         with(BotSettingService.cached()) {
