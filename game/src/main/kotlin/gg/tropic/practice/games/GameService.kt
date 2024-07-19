@@ -41,6 +41,7 @@ import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
+import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
@@ -1261,10 +1262,12 @@ object GameService
                     .firstOrNull()
                     ?: return@handler
 
-                val enteredIntoTeamPortal = GameTeamSide.valueOf(metadata.asString().uppercase())
-                val teamOfSide = game.teams[enteredIntoTeamPortal]
-                    ?: return@handler
+                if (!game.state(GameState.Playing))
+                {
+                    return@handler
+                }
 
+                val enteredIntoTeamPortal = GameTeamSide.valueOf(metadata.asString().uppercase())
                 if (!game.flag(FeatureFlag.StartNewRoundOnPortalEnter))
                 {
                     return@handler
@@ -1275,7 +1278,21 @@ object GameService
                     return@handler
                 }
 
+                val teamOfPlayer = game.getTeamOf(it.player)
+                if (teamOfPlayer.side == enteredIntoTeamPortal)
+                {
+                    it.player.gracefullyRemoveFromGame(GameRemovalEvent(
+                        drops = mutableListOf(),
+                        shouldRespawn = false
+                    ))
+                    return@handler
+                }
 
+                it.player.gracefullyRemoveFromGame(GameRemovalEvent(
+                    drops = mutableListOf(),
+                    shouldRespawn = false,
+                    alternativeDeath = true
+                ))
             }
 
         Events.subscribe(BlockExplodeEvent::class.java)
@@ -1462,11 +1479,27 @@ object GameService
 
                 if (blockExpiration != null)
                 {
+                    val typeToReturn = ItemBuilder
+                        .copyOf(it.itemInHand)
+                        .amount(1)
+                        .build()
+
                     Schedulers
                         .sync()
                         .runLater({
                             if (it.blockPlaced.hasMetadata("placed"))
                             {
+                                val returnBlocks = game
+                                    .flagMetaData(FeatureFlag.ExpirePlacedBlocksAfterNSeconds, "return")
+                                    ?.toBooleanStrictOrNull()
+                                    ?: false
+
+                                if (returnBlocks)
+                                {
+                                    it.player.inventory.addItem(typeToReturn)
+                                    it.player.updateInventory()
+                                }
+
                                 it.blockPlaced.type = Material.AIR
                             }
                         }, blockExpiration * 20L)
