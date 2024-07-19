@@ -351,7 +351,12 @@ object MapReplicationService
             .filterIsInstance<MapPortalMetadata>()
             .forEach {
                 Tasks.sync {
-                    it.bounds.utility(world).forEach { block ->
+                    it.bounds.utility(world).forEach contextBlock@{ block ->
+                        if (block.type != Material.AIR)
+                        {
+                            return@contextBlock
+                        }
+
                         block.setMetadata(
                             "tropicportal",
                             FixedMetadataValue(plugin, it.id)
