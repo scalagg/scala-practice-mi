@@ -25,6 +25,10 @@ data class BotSetting(
     fun resetWithDefaults()
     {
         val defaults = SettingManager()
+
+        skin = defaults.skin
+        name = defaults.botName
+
         settings.clear()
 
         defaults.settings.forEach { setting ->
