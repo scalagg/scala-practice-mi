@@ -35,6 +35,7 @@ import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.suffixWhenDev
 import gg.tropic.practice.utilities.toRBTeamSide
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
+import kotlinx.coroutines.processNextEventInCurrentThread
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
@@ -329,6 +330,19 @@ object GameService
                 ?: return kotlin.run {
                     event.drops.clear()
                 }
+
+            if (!game.state(GameState.Playing))
+            {
+                return
+            }
+
+            if (
+                hasMetadata("light-spectator") ||
+                hasMetadata("spectator")
+                )
+            {
+                return
+            }
 
             game.takeSnapshot(this)
 
@@ -1288,7 +1302,12 @@ object GameService
                     return@handler
                 }
 
-                it.player.gracefullyRemoveFromGame(GameRemovalEvent(
+                // TODO: this might be a bit odd
+                val opponent = game.getOpponent(it.player)
+                val firstPlayer = opponent?.toBukkitPlayers()?.firstOrNull()
+                    ?: return@handler
+
+                firstPlayer.gracefullyRemoveFromGame(GameRemovalEvent(
                     drops = mutableListOf(),
                     shouldRespawn = false,
                     alternativeDeath = true

@@ -358,8 +358,6 @@ object MapReplicationService
                             "tropicportal",
                             FixedMetadataValue(plugin, it.id)
                         )
-
-                        Bukkit.broadcastMessage("Added portal: ${world.name}")
                     }
                 }
             }
