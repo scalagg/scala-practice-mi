@@ -12,7 +12,7 @@ import org.bukkit.util.Vector
  */
 data class MapMetadata(
     val metadataSignLocations: List<Vector>,
-    val metadata: List<AbstractMapMetadata>
+    var metadata: List<AbstractMapMetadata>
 )
 {
     fun clearSignLocations(world: World)

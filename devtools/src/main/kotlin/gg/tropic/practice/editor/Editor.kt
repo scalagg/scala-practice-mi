@@ -279,40 +279,118 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
                 val bounds = visiting!!.world.loadedChunks.toList().toBounds()
                 player.sendMessage("${CC.GREEN}Prepared bounds!")
 
+                val newMapName = visiting!!.schematic
+                    .nameWithoutExtension
+                    .replace("_", "")
+                    .capitalize()
+
+                if (MapService.mapWithID(newMapName) != null)
+                {
+                    player.sendMessage("${CC.RED}A map with this name already exists!")
+                    return@context
+                }
+
+                val metadata = MapMetadataScanUtilities.buildMetadataFor(bounds, visiting!!.world)
+
+                val availableSpawnMetadata = metadata.metadata.filterIsInstance<MapSpawnMetadata>()
+                if (availableSpawnMetadata.size >= 2)
+                {
+                    player.sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model & store the map in MongoDB...")
+                    prepareSlimeWorld(newMapName)
+
+                    val map = Map(
+                        name = newMapName.lowercase(),
+                        bounds = bounds,
+                        metadata = metadata,
+                        displayName = newMapName.capitalize(),
+                        associatedSlimeTemplate = "Map${newMapName.capitalize()}"
+                    )
+
+                    with(MapService.cached()) {
+                        maps[map.name] = map
+                        MapService.sync(this)
+
+                        player.playSound(player.location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)
+                        player.sendMessage("${CC.B_GREEN}(!)${CC.GREEN} Successfully created map ${CC.YELLOW}${map.name}${CC.GREEN}!")
+                    }
+                } else
+                {
+                    player.sendMessage("${CC.B_RED}(!) Failed to create a metadata copy! We found no spawn locations in the map. Please try again.")
+                }
+            }
+        })
+
+        hotbarPreset.addSlot(3, DynamicHotbarPresetEntry().apply {
+            onBuild = {
+                ItemBuilder.of(Material.ACTIVATOR_RAIL)
+                    .glow()
+                    .name("${CC.D_RED}Update Map Metadata ${CC.GRAY}(Right Click)")
+                    .build()
+            }
+
+            onClick = context@{
+                if (visiting == null)
+                {
+                    player.sendMessage("${CC.RED}You are not visiting!")
+                    return@context
+                }
+
+                val bounds = visiting!!.world.loadedChunks.toList().toBounds()
+                player.sendMessage("${CC.GREEN}Prepared bounds!")
+
+                val metadata = MapMetadataScanUtilities.buildMetadataFor(bounds, visiting!!.world)
+
                 InputPrompt()
-                    .withText("${CC.B_GOLD}Enter the map name! ${CC.GRAY}(do not prefix with Map!) (Capitalize!)")
+                    .withText("${CC.B_GOLD}Enter the map ID!")
                     .acceptInput { _, newMapName ->
-                        Tasks.delayed(10L) {
-                            val metadata = MapMetadataScanUtilities.buildMetadataFor(bounds, visiting!!.world)
-
-                            val availableSpawnMetadata = metadata.metadata.filterIsInstance<MapSpawnMetadata>()
-                            if (availableSpawnMetadata.size >= 2)
-                            {
-                                player.sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model & store the map in MongoDB...")
-                                prepareSlimeWorld(newMapName)
-
-                                val map = Map(
-                                    name = newMapName.lowercase(),
-                                    bounds = bounds,
-                                    metadata = metadata,
-                                    displayName = newMapName.capitalize(),
-                                    associatedSlimeTemplate = "Map${newMapName.capitalize()}"
-                                )
-
-                                with(MapService.cached()) {
-                                    maps[map.name] = map
-                                    MapService.sync(this)
-
-                                    player.playSound(player.location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)
-                                    player.sendMessage("${CC.B_GREEN}(!)${CC.GREEN} Successfully created map ${CC.YELLOW}${map.name}${CC.GREEN}!")
-                                }
-                            } else
-                            {
-                                player.sendMessage("${CC.B_RED}(!) Failed to create a metadata copy! We found no spawn locations in the map. Please try again.")
+                        val map = MapService.mapWithID(newMapName)
+                            ?: return@acceptInput run {
+                                player.sendMessage("${CC.RED}No schematic with that name!")
                             }
+
+                        val availableSpawnMetadata = metadata.metadata.filterIsInstance<MapSpawnMetadata>()
+                        if (availableSpawnMetadata.size >= 2)
+                        {
+                            map.metadata.metadata = availableSpawnMetadata
+
+                            with(MapService.cached()) {
+                                maps[map.name] = map
+                                MapService.sync(this)
+
+                                player.playSound(player.location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)
+                                player.sendMessage("${CC.B_GREEN}(!)${CC.GREEN} Updated map ${CC.YELLOW}${map.name}${CC.GREEN}!")
+                            }
+                        } else
+                        {
+                            player.sendMessage("${CC.RED}Your metadata is invalid!")
                         }
                     }
                     .start(player)
+            }
+        })
+
+        hotbarPreset.addSlot(5, DynamicHotbarPresetEntry().apply {
+            onBuild = {
+                ItemBuilder.of(Material.PAPER)
+                    .glow()
+                    .name("${CC.AQUA}Report Metadata ${CC.GRAY}(Right Click)")
+                    .build()
+            }
+
+            onClick = context@{
+                if (visiting == null)
+                {
+                    player.sendMessage("${CC.RED}You are not visiting!")
+                    return@context
+                }
+
+                val bounds = visiting!!.world.loadedChunks.toList().toBounds()
+                val metadata = MapMetadataScanUtilities.buildMetadataFor(bounds, visiting!!.world)
+
+                player.sendMessage("${CC.GREEN}[Metadata report ${CC.GRAY}(${metadata.metadata.size})${CC.GREEN}]")
+                metadata.metadata.forEach {
+                    player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${it.report()}")
+                }
             }
         })
 
