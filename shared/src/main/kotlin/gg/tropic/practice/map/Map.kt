@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture
 data class Map(
     val name: String,
     val bounds: Bounds,
-    val metadata: MapMetadata,
+    var metadata: MapMetadata,
     var displayName: String,
     var displayIcon: ItemStack = ItemBuilder
         .of(Material.MAP)

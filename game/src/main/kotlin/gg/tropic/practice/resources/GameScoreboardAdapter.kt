@@ -6,6 +6,7 @@ import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
@@ -59,10 +60,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
         }
 
-
         fun insertMRStatusSection(firstPerson: Boolean = true)
         {
-            val self = game.getTeamOf(player)
+            val self = if (firstPerson) game.getTeamOf(player) else game.teams[GameTeamSide.A]!!
             val selfColor = game.colorOf(self)
 
             val them = game.getOpponent(self)!!

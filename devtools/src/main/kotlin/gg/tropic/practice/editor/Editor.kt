@@ -347,7 +347,7 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
                         val availableSpawnMetadata = metadata.metadata.filterIsInstance<MapSpawnMetadata>()
                         if (availableSpawnMetadata.size >= 2)
                         {
-                            map.metadata.metadata = availableSpawnMetadata
+                            map.metadata = metadata
 
                             with(MapService.cached()) {
                                 maps[map.name] = map
