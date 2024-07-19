@@ -104,20 +104,18 @@ public class SettingManager {
             @Override
             public void run() {
                 data.setUpdatingGui(true);
-                SettingManager defaults = new SettingManager();
+                BotSettingProfile profile = BotSettingProfileService.INSTANCE.findOrCreate(data.getPlayer().getUniqueId());
+                BotSetting defaultProfile = profile.getSettings().get("default");
 
-                setBotName(data.getPlayer().getUniqueId(), defaults.getBotName());
-                setSkin(data.getPlayer().getUniqueId(), defaults.getSkin());
+                // if they dont even got a fucking profile no need to reset
+                if (defaultProfile != null) {
+                    defaultProfile.resetWithDefaults();
+                    defaultProfile.save();
 
-                settings.forEach(setting -> {
-                    setting.getSettings().forEach(settingObject -> {
-                        SettingObject sb = defaults.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
-                        settingObject.setObjectUpdate(sb.getObject());
-                        if (sb.getObject() instanceof Integer || sb.getObject() instanceof Double) {
-                            settingObject.setRandomizerUpdate(sb.getRandomizer());
-                        }
-                    });
-                });
+                    profile.getSettings().put("default", defaultProfile);
+                    profile.save();
+                }
+
                 data.setUpdatingGui(false);
             }
         }.runTaskAsynchronously(SmartBotsBackend.getInstance());
@@ -128,20 +126,11 @@ public class SettingManager {
             @Override
             public void run() {
                 data.setUpdatingGui(true);
-                SettingManager defaults = new SettingManager();
+                BotSetting difficultyProfile = BotSettingService.INSTANCE.getOrCreate(difficulty);
 
-                setBotName(difficulty, "Bot");
-                setSkin(difficulty, "Xecivity");
+                difficultyProfile.resetWithDefaults();
+                difficultyProfile.save();
 
-                settings.forEach(setting -> {
-                    setting.getSettings().forEach(settingObject -> {
-                        SettingObject sb = defaults.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
-                        settingObject.setObjectUpdate(sb.getObject());
-                        if (sb.getObject() instanceof Integer || sb.getObject() instanceof Double) {
-                            settingObject.setRandomizerUpdate(sb.getRandomizer());
-                        }
-                    });
-                });
                 data.setUpdatingGui(false);
             }
         }.runTaskAsynchronously(SmartBotsBackend.getInstance());
@@ -152,6 +141,7 @@ public class SettingManager {
             @Override
             public void run() {
                 data.setUpdatingGui(true);
+                BotSetting presetProfile = BotSettingService.INSTANCE.getOrCreate(presetType.name());
                 SettingManager defaults = new SettingManager();
 
                 setBotName(presetType, "Bot");
@@ -169,20 +159,9 @@ public class SettingManager {
                         break;
                 }
 
-                settings.forEach(setting -> {
-                    setting.getSettings().forEach(settingObject -> {
-                        SettingObject sb = defaults.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
-                        settingObject.setObjectUpdate(sb.getObject());
-                        if (sb.getObject() instanceof  Integer || sb.getObject() instanceof Double) {
-                            settingObject.setRandomizerUpdate(sb.getRandomizer());
+                presetProfile.resetWithDefaults();
+                presetProfile.save();
 
-                            if (presetType == PresetType.UNRANKED) {
-                                settingObject.setMinUpdate(sb.getMin());
-                                settingObject.setMaxUpdate(sb.getMax());
-                            }
-                        }
-                    });
-                });
                 data.setUpdatingGui(false);
             }
         }.runTaskAsynchronously(SmartBotsBackend.getInstance());
@@ -195,7 +174,7 @@ public class SettingManager {
                 settings.forEach(setting -> {
                     setting.getSettings().forEach(settingObject -> {
                         SettingObject sb = updated.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
-                        settingObject.setObjectUpdate(sb.getObject());
+                        settingObject.setObject(sb.getObject());
                     });
                 });
             }
@@ -243,13 +222,60 @@ public class SettingManager {
 
     public static SettingManager loadSettings(String difficulty) {
         SettingManager settingManager = new SettingManager();
+        BotSetting settings = BotSettingService.INSTANCE.getOrCreate(difficulty);
 
+        String botName = settings.getName();
+        String botSkin = settings.getSkin();
+
+        if (botName.equalsIgnoreCase("&")) {
+            settingManager.setBotNameWithoutUpdate(Color.code(botName));
+        } else {
+            settingManager.setBotNameWithoutUpdate(botName);
+        }
+
+        settingManager.setSkinWithoutUpdate(botSkin);
+
+        settingManager.getSettings().forEach(setting -> {
+            setting.getSettings().forEach(object -> {
+                SettingObject savedSetting = settings.getSettings().get(setting.getName()).get(object.getName());
+
+                if (savedSetting == null) {
+                    savedSetting = (SettingObject) defaultManager.getSettingByName(setting.getFancyName()).getSettingByName(object.getName()).getObject();
+                }
+
+                object.setObject(savedSetting);
+            });
+        });
 
         return settingManager;
     }
 
     public static SettingManager loadSettings(PresetType presetType, String presetName) {
         SettingManager settingManager = new SettingManager();
+        BotSetting settings = BotSettingService.INSTANCE.getOrCreate(presetName);
+
+        String botName = settings.getName();
+        String botSkin = settings.getSkin();
+
+        if (botName.equalsIgnoreCase("&")) {
+            settingManager.setBotNameWithoutUpdate(Color.code(botName));
+        } else {
+            settingManager.setBotNameWithoutUpdate(botName);
+        }
+
+        settingManager.setSkinWithoutUpdate(botSkin);
+
+        settingManager.getSettings().forEach(setting -> {
+            setting.getSettings().forEach(object -> {
+                SettingObject savedSetting = settings.getSettings().get(setting.getName()).get(object.getName());
+
+                if (savedSetting == null) {
+                    savedSetting = (SettingObject) defaultManager.getSettingByName(setting.getFancyName()).getSettingByName(object.getName()).getObject();
+                }
+
+                object.setObject(savedSetting);
+            });
+        });
 
 
         return settingManager;

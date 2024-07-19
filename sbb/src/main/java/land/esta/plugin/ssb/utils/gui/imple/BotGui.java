@@ -2,6 +2,8 @@ package land.esta.plugin.ssb.utils.gui.imple;
 
 import com.mongodb.client.MongoCursor;
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.profile.BotSettingProfile;
+import land.esta.plugin.ssb.bot.profile.BotSettingProfileService;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.setting.Setting;
@@ -50,7 +52,6 @@ public class BotGui {
                 guis = new HashMap<>();
 
                 profiles = new ArrayList<>();
-//                loadProfiles();
                 createSubGuis();
                 createProfiles();
                 createMain(dataPlayer.getPlayer());
@@ -59,53 +60,13 @@ public class BotGui {
         }.runTaskAsynchronously(SmartBotsBackend.getInstance());
     }
 
-    //Loads all the presets from the config
-    /*public void loadProfiles() {
-        try (MongoCursor<Document> iterator = SmartBotsBackend.getInstance().getMongo().getProfiles().find().iterator()) {
-            while (iterator.hasNext()) {
-                Document document = iterator.next();
-                profiles.add(SettingManager.loadSettings(data));
-            }
-        }
-    }*/
-
-    /*
     public void saveSettings() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                data.setSaving(true);
+        BotSettingProfile profile = BotSettingProfileService.INSTANCE.find(data.getPlayer().getUniqueId());
 
-                //Values
-                UUID uuid = data.getPlayer().getUniqueId();
-                String path = "settings." + uuid + ".";
-
-                //Get number
-                double number = FileManager.getOrDefault(SmartBotsBackend.getInstance(),"settingsID." + uuid,1.0);
-                number++;
-
-                //Set config
-                SmartBotsBackend.getInstance().getConfig().set("settingsID." + uuid,number);
-                SmartBotsBackend.getInstance().saveConfig();
-
-                path  = path + Math.round(number);
-                saveSettings(path);
-
-                //Giving it a few more ticks just to make sure everything is working
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        data.setSaving(false);
-                    }
-                }.runTaskLater(SmartBotsBackend.getInstance(),5);
-            }
-        }.runTaskAsynchronously(SmartBotsBackend.getInstance());
-    } */
-
-    /*
-    public void saveSettings(String path) {
-        manager.saveSettings(path,SmartBotsBackend.getInstance());
-    } */
+        if (profile != null) {
+            profile.update(manager.getSettings());
+        }
+    }
 
     public void resetSettings() {}
 

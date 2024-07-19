@@ -18,29 +18,24 @@ public class SettingObject {
     private Object object;
     private double updateBy = 1;
     private double randomizer = 0;
-    private Runnable update;
     private boolean hasPerm;
     private double min = 0;
     private double max = 0;
 
     public void setObjectUpdate(Object object) {
         this.object = object;
-        if (update != null) update.run();
     }
 
     public void setRandomizerUpdate(double randomizer) {
         this.randomizer = randomizer;
-        if (update != null) update.run();
     }
 
     public void setMinUpdate(double value) {
         this.min = value;
-        if (update != null) update.run();
     }
 
     public void setMaxUpdate(double value) {
         this.max = value;
-        if (update != null) update.run();
     }
 
     public List<String> getDescription() {
