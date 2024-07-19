@@ -37,10 +37,17 @@ object MapMetadataScanUtilities
             val model = modelMapping.value.first()
             val scanner = model.scanner
 
-            metadata += scanner.scan(
-                modelMapping.key.removePrefix(model.metaType),
-                modelMapping.value
-            )
+            val scannedMetadata = runCatching {
+                scanner.scan(
+                    modelMapping.key.removePrefix(model.metaType),
+                    modelMapping.value
+                )
+            }.getOrNull()
+
+            if (scannedMetadata != null)
+            {
+                metadata += scannedMetadata
+            }
         }
 
         return MapMetadata(
