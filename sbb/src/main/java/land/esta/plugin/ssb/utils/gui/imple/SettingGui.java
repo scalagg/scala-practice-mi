@@ -1,7 +1,6 @@
 package land.esta.plugin.ssb.utils.gui.imple;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
-import lombok.Getter;
 import land.esta.plugin.ssb.bots.setting.Setting;
 import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.bots.setting.SettingObject;
@@ -11,6 +10,7 @@ import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.gui.GlobalGui;
 import land.esta.plugin.ssb.utils.gui.PlayerGui;
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -36,7 +36,7 @@ public class SettingGui {
     public SettingGui(SettingManager manager, PlayerGui profiles, PresetType type) {
         this.manager = manager;
         this.guis = new HashMap<>();
-        this.mainGui = new GlobalGui("&c&lBot Settings", (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 18);
+        this.mainGui = new GlobalGui("&c&lBot Settings", (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 18);
 
         createSubGuis();
         createMain(profiles, type);
@@ -46,7 +46,8 @@ public class SettingGui {
         manager.getSettings().forEach(setting -> {
             GlobalGui gui;
             if (setting.getName().equalsIgnoreCase("PlaySettings")) gui = new GlobalGui(setting.getFancyName(), 9 * 5);
-            else gui = new GlobalGui(setting.getFancyName(), (int) MathUtils.floor(setting.getSettings().size() + 2,9,false) + 9 * 2);
+            else
+                gui = new GlobalGui(setting.getFancyName(), (int) MathUtils.floor(setting.getSettings().size() + 2, 9, false) + 9 * 2);
 
             NumberFormat numberFormat = NumberFormat.getInstance();
             numberFormat.setMaximumFractionDigits(1);
@@ -211,43 +212,43 @@ public class SettingGui {
                     gameRandomizerGuis.add(g);
 
                     if (setting.getEmpty().contains(index)) {
-                        gui.setBackGroundColorSlot(theme,slot);
+                        gui.setBackGroundColorSlot(theme, slot);
                         index++;
                         slot += 1;
                         if ((slot - 8) % 9 == 0) slot += 2;
                     }
 
-                    gui.createGuiItem(so.getItem(),slot,"&c&l" + so.getName(),(player, pressedSlot) -> {
+                    gui.createGuiItem(so.getItem(), slot, "&c&l" + so.getName(), (player, pressedSlot) -> {
                         if (so.getObject() instanceof Boolean) {
                             so.setObjectUpdate(!so.isBooleanValue());
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.isBooleanValue() + "")));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.isBooleanValue() + "")));
                         }
 
                         if (so.getObject() instanceof Integer) {
                             so.setObjectUpdate((int) Math.max(so.getOriginalIntValue() + so.getUpdateBy(), 0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.getOriginalIntValue() + "")));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.getOriginalIntValue() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setObjectUpdate(Math.max(so.getOriginalDouble() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",MathUtils.stringOfDouble(so.getOriginalDouble(),3) + "")));
+                            so.setObjectUpdate(Math.max(so.getOriginalDouble() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", MathUtils.stringOfDouble(so.getOriginalDouble(), 3) + "")));
                         }
 
                         gui.minOpen(player);
                     }, (player, pressedSlot) -> {
                         if (so.getObject() instanceof Boolean) {
                             so.setObjectUpdate(!so.isBooleanValue());
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.isBooleanValue() + "")));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.isBooleanValue() + "")));
                         }
 
                         if (so.getObject() instanceof Integer) {
                             so.setObjectUpdate((int) Math.max(so.getOriginalIntValue() - so.getUpdateBy(), 0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.getOriginalIntValue() + "")));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.getOriginalIntValue() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setObjectUpdate(Math.max(so.getOriginalDouble() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",MathUtils.stringOfDouble(so.getOriginalDouble(),3) + "")));
+                            so.setObjectUpdate(Math.max(so.getOriginalDouble() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", MathUtils.stringOfDouble(so.getOriginalDouble(), 3) + "")));
                         }
 
                         gui.minOpen(player);
@@ -257,13 +258,13 @@ public class SettingGui {
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizerInt() + "")));
+                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizerInt() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setRandomizerUpdate(Math.max(so.getRandomizer() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizer() + "")));
+                            so.setRandomizerUpdate(Math.max(so.getRandomizer() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizer() + "")));
                         }
 
                         gui.minOpen(player);
@@ -273,13 +274,13 @@ public class SettingGui {
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizerInt() + "")));
+                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizerInt() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setRandomizerUpdate(Math.max(so.getRandomizer() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizer() + "")));
+                            so.setRandomizerUpdate(Math.max(so.getRandomizer() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizer() + "")));
                         }
 
                         gui.minOpen(player);
@@ -298,11 +299,11 @@ public class SettingGui {
                     if ((slot - 8) % 9 == 0) slot += 2;
                 }
 
-                gui.createGuiItem(new ItemStack(Material.CARPET),0,"&cPrevious Page", mainGui::minOpen);
+                gui.createGuiItem(new ItemStack(Material.CARPET), 0, "&cPrevious Page", mainGui::minOpen);
 
                 gui.setBackGroundColor(theme);
             });
-            guis.put(setting,gui);
+            guis.put(setting, gui);
         });
     }
 
@@ -312,17 +313,17 @@ public class SettingGui {
             int slot = 0;
 
             for (Setting setting : manager.getSettings()) {
-                mainGui.createGuiItem(new ItemStack(setting.getMaterial(),1, (short) setting.getId()),setting.getSlot(), setting.getFancyName(),(player, pressedSlot) -> {
+                mainGui.createGuiItem(new ItemStack(setting.getMaterial(), 1, (short) setting.getId()), setting.getSlot(), setting.getFancyName(), (player, pressedSlot) -> {
                     GlobalGui gui = guis.get(setting);
                     if (gui == null) return;
                     gui.minOpen(player);
-                },setting.getDescription(), setting.isImportant());
+                }, setting.getDescription(), setting.isImportant());
                 slot += 2;
             }
 
             //Name
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 6 + 9;
-            mainGui.createGuiItemUsingName(manager.getSkullItem("Xecivity",false),slot,"&cChange Bot Name",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 6 + 9;
+            mainGui.createGuiItemUsingName(manager.getSkullItem("Xecivity", false), slot, "&cChange Bot Name", (player, pressedSlot) -> {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 data.setChatUpdate((name) -> {
                     switch (type) {
@@ -346,8 +347,8 @@ public class SettingGui {
             });
 
             //Skin
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 7 + 9;
-            mainGui.createGuiItemUsingName(manager.getSkullItem("Xecivity",true),slot,"&cChange Bot Skin",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 7 + 9;
+            mainGui.createGuiItemUsingName(manager.getSkullItem("Xecivity", true), slot, "&cChange Bot Skin", (player, pressedSlot) -> {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 data.setChatUpdate((name) -> {
                     switch (type) {
@@ -371,25 +372,25 @@ public class SettingGui {
             });
 
             //Save
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 1 + 9;
-            mainGui.createGuiItem(new ItemStack(Material.WOOL,1,(short) 5),slot,"&a&lSave",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 1 + 9;
+            mainGui.createGuiItem(new ItemStack(Material.WOOL, 1, (short) 5), slot, "&a&lSave", (player, pressedSlot) -> {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
-                //data.getGui().saveSettings();
+                data.getGui().saveSettings();
                 player.closeInventory();
                 player.sendMessage(Color.code("&aYou have successfully saved your settings."));
             });
 
             if (profiles != null) {
                 //Load
-                slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 2 + 9;
-                mainGui.createGuiItem(new ItemStack(Material.NAME_TAG,1),slot,"&e&lLoad Presets",(player, pressedSlot) -> {
+                slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 2 + 9;
+                mainGui.createGuiItem(new ItemStack(Material.NAME_TAG, 1), slot, "&e&lLoad Presets", (player, pressedSlot) -> {
                     profiles.minOpen();
                 });
             }
 
             //Reset
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 4 + 9;
-            mainGui.createGuiItem(new ItemStack(Material.WOOL,1,(short) 14),slot,"&c&lReset",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 4 + 9;
+            mainGui.createGuiItem(new ItemStack(Material.WOOL, 1, (short) 14), slot, "&c&lReset", (player, pressedSlot) -> {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 switch (type) {
                     case UNRANKED:

@@ -2,6 +2,8 @@ package land.esta.plugin.ssb.utils.gui.imple;
 
 import com.mongodb.client.MongoCursor;
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.profile.BotSettingProfile;
+import land.esta.plugin.ssb.bot.profile.BotSettingProfileService;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.setting.Setting;
@@ -58,8 +60,12 @@ public class BotGui {
         }.runTaskAsynchronously(SmartBotsBackend.getInstance());
     }
 
-    public void saveSettings(String path) {
-        //manager.saveSettings(path,SmartBotsBackend.getInstance());
+    public void saveSettings() {
+        BotSettingProfile profile = BotSettingProfileService.INSTANCE.find(data.getPlayer().getUniqueId());
+
+        if (profile != null) {
+            profile.update(manager.getSettings());
+        }
     }
 
     public void resetSettings() {}
