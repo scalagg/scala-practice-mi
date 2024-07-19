@@ -234,20 +234,14 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
 
         hotbarPreset.addSlot(4, DynamicHotbarPresetEntry().apply {
             onBuild = {
-                ItemBuilder.of(Material.SLIME_BALL)
+                ItemBuilder.of(Material.GOLD_AXE)
                     .glow()
-                    .name("${CC.D_RED}Update Map World ${CC.GRAY}(Right Click)")
+                    .name("${CC.B_YELLOW}Through ${CC.GRAY}(Right Click)")
                     .build()
             }
 
             onClick = context@{
-                if (visiting == null)
-                {
-                    player.sendMessage("${CC.RED}You are not visiting!")
-                    return@context
-                }
-
-                player.sendMessage("${CC.RED}Not yet implemented!")
+                player.chat("//thru")
 
                 /*InputPrompt()
                     .withText("${CC.B_GOLD}Enter the map ID! ${CC.GRAY}(do not prefix with Map!)")
