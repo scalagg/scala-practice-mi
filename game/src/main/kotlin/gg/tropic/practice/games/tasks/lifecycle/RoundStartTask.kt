@@ -82,7 +82,7 @@ class RoundStartTask(
             winner.toBukkitPlayers().firstOrNull()?.name else rbTeamSide.display
 
         val opponent = game.getOpponent(winner)
-        val primary = "${rbTeamSide.format(winnerDisplay ?: "???")} ${CC.SEC}won!"
+        val primary = "${rbTeamSide.format(winnerDisplay ?: "???")} ${CC.SEC}scored!"
         val subText = " ${rbTeamSide.format(winner.gameLifecycleArbitraryObjectiveProgress.toString())} ${CC.GRAY}- ${
             opponent!!.side.toRBTeamSide().format(opponent.gameLifecycleArbitraryObjectiveProgress.toString())
         }"
