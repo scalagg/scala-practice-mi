@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.utils.gui.imple;
 
+import com.mongodb.client.MongoCursor;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import land.esta.plugin.ssb.data.DataPlayer;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.gui.PlayerGui;
+import org.bson.Document;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -48,7 +50,7 @@ public class BotGui {
                 guis = new HashMap<>();
 
                 profiles = new ArrayList<>();
-                loadProfiles();
+//                loadProfiles();
                 createSubGuis();
                 createProfiles();
                 createMain(dataPlayer.getPlayer());
@@ -58,15 +60,14 @@ public class BotGui {
     }
 
     //Loads all the presets from the config
-    public void loadProfiles() {
-        /*
+    /*public void loadProfiles() {
         try (MongoCursor<Document> iterator = SmartBotsBackend.getInstance().getMongo().getProfiles().find().iterator()) {
             while (iterator.hasNext()) {
                 Document document = iterator.next();
                 profiles.add(SettingManager.loadSettings(data));
             }
-        } */
-    }
+        }
+    }*/
 
     /*
     public void saveSettings() {
@@ -288,7 +289,7 @@ public class BotGui {
                     data.setChatUpdate((name) -> {
                         manager.setSkin(data.getPlayer().getUniqueId(), name);
                         player.sendMessage(Color.code("&aYou have changed the Bot Skin to &e" + name + "&a."));
-
+                        mainGui.openGui();
                         return true;
                     });
 
@@ -308,7 +309,7 @@ public class BotGui {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 if (!data.isUpdatingGui()) {
                     if (!data.isSaving()) {
-                        //data.getGui().saveSettings();
+//                        data.getGui().saveSettings();
                         player.sendMessage(Color.code("&aYou have successfully saved your settings."));
                     } else player.sendMessage(Color.code("&7Please wait for your presets to save..."));
                 } else {
@@ -320,7 +321,7 @@ public class BotGui {
             slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 2 + 9;
             mainGui.createGuiItem(new ItemStack(Material.NAME_TAG,1),slot,"&e&lLoad Presets",(player, pressedSlot) -> {
                 if (!data.isSaving()) {
-                    //profilesGui.minOpen();
+                    profilesGui.minOpen();
                     player.sendMessage(Color.code("&cThis feature is currently disabled."));
                 } else player.sendMessage(Color.code("&7Please wait for your presets to save..."));
             });
