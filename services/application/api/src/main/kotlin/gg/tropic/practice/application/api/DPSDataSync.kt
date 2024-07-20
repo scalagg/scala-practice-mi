@@ -176,7 +176,6 @@ abstract class DPSDataSync<T>
                     .getDeclaredConstructor()
                     .newInstance()
         }.onFailure {
-            println("FAILED SOMETHING IN ${this.javaClass.name} ${this.type().name}")
             it.printStackTrace()
             exitProcess(4)
         }
