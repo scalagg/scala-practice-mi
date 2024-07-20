@@ -48,7 +48,6 @@ public class DifficultiesSettings {
     }
 
     public void loadSetting(String setting, String fancyName) {
-        SmartBotsBackend.getInstance().getMongoHandler().createBotDoc(setting);
         SettingManager manager = SettingManager.loadSettings(setting);
         data.put(setting, manager);
 

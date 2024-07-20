@@ -21,7 +21,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -40,17 +42,17 @@ public class SettingManager {
     private PlaystyleSettings playstyleSettings;
     private RodSettings rodSettings;
     private WTapSetting wTapSetting;
-    private ArrayList<Setting> settings;
+    public ArrayList<Setting> settings;
 
 
     private String name = "default";
     private String foundPath;
-    private int elo = 0;
-    private int tier = 1;
-    private boolean gameRandomizer = false;
+    public int elo = 0;
+    public int tier = 1;
+    public boolean gameRandomizer = false;
 
-    private String botName = "&cBot"; //The default would be your self
-    private String skin = "Xecivity"; //The default would be your self
+    public String botName = "&cBot"; //The default would be your self
+    public String skin = "Xecivity"; //The default would be your self
 
     private List<String> description = new ArrayList<>();
     public static SettingManager defaultManager = new SettingManager();
@@ -90,6 +92,19 @@ public class SettingManager {
             if (setting.getFancyName().equals(name)) return setting;
         }
         return null;
+    }
+
+    public List<String> getMenuDescription(String identifier) {
+        List<String> lore = new ArrayList<>();
+        Map<String, Map<String, SettingObject>> map = BotSettingService.INSTANCE.getOrCreate(identifier).getSettings();
+
+        lore.add(" ");
+        lore.add("&c&lDifficulty");
+        lore.add(" &c&l| &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
+        lore.add(" &c&l| &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
+        lore.add(" &c&l| &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
+
+        return lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line)).collect(Collectors.toList());
     }
 
     public Setting getSettingByNameRemoveColor(String name) {

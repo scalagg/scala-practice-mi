@@ -11,10 +11,10 @@ import java.util.*;
 @Setter
 public class Setting implements ConfigurationSerializable {
 
-    private final ArrayList<SettingObject> settings;
+    public final ArrayList<SettingObject> settings;
     private final Material material;
     private final String fancyName;
-    private final String name;
+    public final String name;
     private final  String permissionName;
     private int id = 0;
     private int slot;
@@ -22,7 +22,7 @@ public class Setting implements ConfigurationSerializable {
     private boolean important;
     private List<Integer> empty;
 
-    private static final HashMap<String,Setting> defaults = new HashMap<>();
+    public static final HashMap<String,Setting> defaults = new HashMap<>();
 
     public SettingObject getSettingByName(String name) {
         for (SettingObject sb : settings) {

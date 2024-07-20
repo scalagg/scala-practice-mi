@@ -46,7 +46,7 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     private static SmartBotsBackend instance;
 
     @Getter
-    DifficultiesSettings difficultiesSettings;
+    public DifficultiesSettings difficultiesSettings;
 
     @Getter
     private BotManager botManager;
@@ -92,7 +92,6 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
         featureManager = new FeatureManager();
         presetManager = new PresetManager();
         bukkitEvents = new BukkitEvents();
-        difficultiesSettings = new DifficultiesSettings();
         threadSystem = new ThreadSystem();
 
         registerListeners();

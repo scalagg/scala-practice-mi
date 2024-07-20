@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 public class SettingObject {
 
-    private String name;
+    public String name;
     private ItemStack item;
     private Object object;
     private double updateBy = 1;
