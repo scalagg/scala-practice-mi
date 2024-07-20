@@ -739,8 +739,7 @@ open class GameImpl(
                 arenaWorld
                     ?.getBlockAt(it.toLocation(arenaWorld))
                     ?.apply {
-                        state.type = Material.AIR
-                        state.update()
+                        type = Material.AIR
                     }
             }
         }

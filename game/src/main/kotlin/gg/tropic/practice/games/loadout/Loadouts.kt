@@ -2,6 +2,7 @@ package gg.tropic.practice.games.loadout
 
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.utilities.toRBTeamSide
 import org.bukkit.entity.Player
 
 /**
@@ -17,6 +18,7 @@ fun Player.fixInventoryBasedOnRBTeamColor()
         if (game.flag(FeatureFlag.RedBlueTeams))
         {
             val teamSide = team.side.toRBTeamSide()
+            sendMessage("Checking")
             player.inventory.armorContents.toList().forEachIndexed { index, itemStack ->
                 if (itemStack == null)
                 {
@@ -28,6 +30,7 @@ fun Player.fixInventoryBasedOnRBTeamColor()
                     return@forEachIndexed
                 }
 
+                sendMessage("updating $index")
                 player.inventory.armorContents[index] = net.evilblock.cubed.util.bukkit.ItemBuilder
                     .copyOf(itemStack)
                     .color(teamSide.armorColor)
@@ -42,6 +45,7 @@ fun Player.fixInventoryBasedOnRBTeamColor()
 
                 if (itemStack.type == org.bukkit.Material.WOOL || itemStack.type == org.bukkit.Material.STAINED_CLAY)
                 {
+                    sendMessage("updating $index inventory wool/stainedclay")
                     player.inventory.contents[index] = net.evilblock.cubed.util.bukkit.ItemBuilder
                         .copyOf(itemStack)
                         .data(teamSide.blockColor)
