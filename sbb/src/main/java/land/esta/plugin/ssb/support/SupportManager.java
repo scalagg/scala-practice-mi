@@ -1,5 +1,7 @@
 package land.esta.plugin.ssb.support;
 
+import gg.tropic.practice.player.hotbar.LobbyHotbarService;
+import land.esta.plugin.ssb.bot.menu.BotDuelMenu;
 import lombok.Getter;
 import land.esta.plugin.ssb.support.estapractice.EstaPracticeSupport;
 import net.evilblock.cubed.util.Reflection;
@@ -17,6 +19,11 @@ public class SupportManager implements Listener {
         if (Reflection.getClassSuppressed("gg.tropic.practice.PracticeGame") != null)
         {
             addSupport(new EstaPracticeSupport("EstaPractice"));
+        }
+
+        if (Reflection.getClassSuppressed("gg.tropic.practice.PracticeLobby") != null)
+        {
+            LobbyHotbarService.INSTANCE.setBuildNewBotFightMenu((player) -> new BotDuelMenu());
         }
     }
 

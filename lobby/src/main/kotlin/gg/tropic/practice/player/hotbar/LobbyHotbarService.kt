@@ -34,6 +34,7 @@ import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.menu.Button
+import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -57,6 +58,7 @@ object LobbyHotbarService
     @Inject
     lateinit var audiences: BukkitAudiences
 
+    var buildNewBotFightMenu: (Player) -> Menu? = { null }
     private val hotbarCache = mutableMapOf<PlayerState, HotbarPreset>()
 
     @Configure
@@ -253,7 +255,12 @@ object LobbyHotbarService
                         return@context
                     }
 
-                    player.sendMessage("${CC.RED}This feature is coming soon!")
+                    val menu = buildNewBotFightMenu(player)
+                        ?: return@context run {
+                            player.sendMessage("${CC.RED}This feature is coming soon!")
+                        }
+
+                    menu.openMenu(player)
                 }
             }
         )
