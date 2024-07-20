@@ -44,6 +44,7 @@ open class RobotSinglePlayerQueue(
         val map = MapDataSync
             .selectRandomMapCompatibleWith(kit)
             ?: return run {
+                println("no mpa")
                 DPSRedisShared.sendMessage(
                     // don't unnecessarily send message targeting the robot
                     first.players,
@@ -67,6 +68,7 @@ open class RobotSinglePlayerQueue(
         )
 
         val region = first.preferredQueueRegion
+        println("do prep gam")
         GameQueueManager
             .prepareGameFor(
                 map = map,
@@ -74,6 +76,7 @@ open class RobotSinglePlayerQueue(
                 // prefer NA servers if queuing globally
                 region = if (region == Region.Both) Region.NA else region,
                 cleanup = {
+                    println("doing clenup")
                     GameQueueManager
                         .destroyQueueStates(
                             queueId(), first
@@ -82,7 +85,13 @@ open class RobotSinglePlayerQueue(
             )
             .exceptionally {
                 it.printStackTrace()
+                println("excption")
                 return@exceptionally null
+            }
+            .thenAccept {
+
+                println(it)
+                println("game rpeped")
             }
             .join()
 

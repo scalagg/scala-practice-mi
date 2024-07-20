@@ -11,8 +11,6 @@ import lombok.Setter;
 import land.esta.plugin.ssb.data.DataPlayer;
 import land.esta.plugin.ssb.data.presets.PresetType;
 import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.db.MongoUtil;
-import land.esta.plugin.ssb.utils.db.SettingType;
 import net.evilblock.cubed.util.bukkit.Tasks;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
