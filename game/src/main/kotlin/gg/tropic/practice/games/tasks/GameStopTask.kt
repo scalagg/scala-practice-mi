@@ -3,6 +3,7 @@ package gg.tropic.practice.games.tasks
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.Globals
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.rating.MapRatingService
 import gg.tropic.practice.serializable.Message
@@ -69,7 +70,7 @@ class GameStopTask(
 
                 for ((index, winner) in players.withIndex())
                 {
-                    val username = if (game.robot()) game.robotInstance?.name() else winner.username()
+                    val username = if (winner == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else winner.username()
                     withMessage(CC.YELLOW + username)
                         .andHoverOf(
                             "${CC.GREEN}Click to view inventory!"

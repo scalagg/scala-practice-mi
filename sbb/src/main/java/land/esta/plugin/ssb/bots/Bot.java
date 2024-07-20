@@ -31,7 +31,6 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
