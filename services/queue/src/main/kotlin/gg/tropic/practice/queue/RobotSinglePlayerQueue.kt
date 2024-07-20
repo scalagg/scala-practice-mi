@@ -36,8 +36,9 @@ open class RobotSinglePlayerQueue(
             return
         }
 
-        println(queueEntries.values)
         val first = queueEntries.values.first()
+        GameQueueManager.removeQueueEntryFromId(queueId(), first.leader)
+        println(queueEntries.values)
 
         // a bot is playing w/ the player lol
         val users = first.players + Globals.PLAYER_BOT_UNIQUE_ID

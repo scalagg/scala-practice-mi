@@ -127,6 +127,7 @@ object MapReplicationService
 
             if (newGame.robot())
             {
+                plugin.logger.info("Creating robot")
                 kotlin.runCatching {
                     newGame.robotInstance = RobotGameLifecycle
                         .createNewRobotInstance(newGame)
