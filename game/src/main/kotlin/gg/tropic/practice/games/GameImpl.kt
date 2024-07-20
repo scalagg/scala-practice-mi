@@ -169,13 +169,16 @@ open class GameImpl(
                     {
                         val userIsWinner = winner.players.contains(it.uniqueId)
                         val queueMultiplier = expectationModel.queueType!!.coinMultiplier
-                        profile.addCoins(
-                            coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
-                            reason = if (userIsWinner) "Winning a game" else "Playing a game",
-                            feedback = { feedback ->
-                                playerFeedback.getOrPut(it.uniqueId) { mutableListOf() } += feedback
-                            }
-                        )
+                        if (queueMultiplier != 0.0)
+                        {
+                            profile.addCoins(
+                                coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
+                                reason = if (userIsWinner) "Winning a game" else "Playing a game",
+                                feedback = { feedback ->
+                                    playerFeedback.getOrPut(it.uniqueId) { mutableListOf() } += feedback
+                                }
+                            )
+                        }
                     }
                 }
 
