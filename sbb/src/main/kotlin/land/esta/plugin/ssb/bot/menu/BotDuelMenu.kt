@@ -1,6 +1,5 @@
 package land.esta.plugin.ssb.bot.menu
 
-import gg.scala.basics.plugin.settings.SettingMenu
 import land.esta.plugin.ssb.bots.setting.SettingManager
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
