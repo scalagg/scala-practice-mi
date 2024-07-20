@@ -137,6 +137,13 @@ object MapReplicationService
                     newGame.closeAndCleanup()
                     return@handler
                 }
+
+                if (newGame.robotInstance == null)
+                {
+                    newGame.state = GameState.Completed
+                    newGame.closeAndCleanup()
+                    return@handler
+                }
             }
 
             val start = System.currentTimeMillis()

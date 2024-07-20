@@ -237,6 +237,7 @@ public class Bot {
 
     public void silentKill() {
         alive = false;
+        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
         SmartBotsBackend.getInstance().getBotManager().removeBot(this);
         packetsManager.sendRemovePackets();
         npc.getBukkitEntity().remove();
@@ -247,7 +248,7 @@ public class Bot {
         fakeDeath(npc.getBukkitEntity(), movements.getTargetLocate().getTargetEntity(), executeAction);
 
         //Event
-        //Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
+        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
 
     }
 

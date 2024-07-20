@@ -2,7 +2,9 @@ package land.esta.plugin.ssb.bot.impl
 
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.robot.RobotInstance
+import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
+import me.lucko.helper.Events
 import org.bukkit.entity.Player
 
 /**
@@ -22,6 +24,15 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
             // Auto destroy it if the terminable closes, we don't wanna waste resources
             spawnedBot.silentKill()
         }
+
+        Events
+            .subscribe(BotDeathEvent::class.java)
+            .handler {
+                gameImpl.complete(
+                    gameImpl.humanSide()
+                )
+            }
+            .bindWith(terminable)
     }
 
     override fun name(): String = spawnedBot.settingManager.botName

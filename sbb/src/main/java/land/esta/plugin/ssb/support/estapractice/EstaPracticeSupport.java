@@ -42,6 +42,11 @@ public class EstaPracticeSupport extends PluginSupport {
                     null // SETTINGMANAGER
             );
 
+            if (bot == null)
+            {
+                return CompletableFuture.completedFuture(null);
+            }
+
             return CompletableFuture.completedFuture(
                     new EstaPracticeRobotInstanceImpl(game, bot)
             );
