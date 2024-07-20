@@ -31,6 +31,10 @@ public class BotManager {
                             continue;
                         }
 
+                        if (!bot.getPlayer().isOnline()) {
+                            continue;
+                        }
+
                         // Cannot measure distance between diff words patch
                         if (bot.getMovements().getLocation().getWorld().equals(bot.getMovements().getTargetLocate().getTarget().getWorld()) && bot.isAlive()) {
                             bot.tick();

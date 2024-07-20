@@ -60,6 +60,8 @@ public class Bot {
     private boolean alive = true;
     public boolean killed;
 
+    private final Player player;
+
     private final String skin;
     private final SettingManager settings;
 
@@ -70,6 +72,7 @@ public class Bot {
 
         this.skin = skin;
         this.settings = settings;
+        this.player = player;
         //Registering
         registerNPC(name, loc);
 
