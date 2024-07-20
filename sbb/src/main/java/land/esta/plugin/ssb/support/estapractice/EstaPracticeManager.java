@@ -10,12 +10,9 @@ import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
 import land.esta.plugin.ssb.bots.setting.Setting;
 import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.bots.setting.SettingObject;
-import land.esta.plugin.ssb.data.DataPlayer;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
-import land.esta.plugin.ssb.utils.gui.imple.BotGui;
-import land.esta.plugin.ssb.utils.gui.imple.SettingGui;
 import net.evilblock.cubed.ScalaCommonsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -47,7 +44,7 @@ public class EstaPracticeManager {
             return null;
         }
 
-        SettingManager settings = SettingManager.loadSettings(selectedBot);
+        SettingManager settings = SelectionsKt.loadSettingsFromSelection(player, selectedBot);
 
         if (settings == null) {
             Logger.getGlobal().info("No bot configuration was found!");

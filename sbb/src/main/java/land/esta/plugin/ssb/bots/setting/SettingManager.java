@@ -241,6 +241,38 @@ public class SettingManager {
         return settingManager;
     }
 
+    public static SettingManager loadSettings(PresetType presetType, String presetName) {
+        SettingManager settingManager = new SettingManager();
+        BotSetting settings = BotSettingService.INSTANCE.getOrCreate(presetName);
+
+        String botName = settings.getName();
+        String botSkin = settings.getSkin();
+
+        if (botName.equalsIgnoreCase("&")) {
+            settingManager.setBotNameWithoutUpdate(Color.code(botName));
+        } else {
+            settingManager.setBotNameWithoutUpdate(botName);
+        }
+
+        settingManager.setSkinWithoutUpdate(botSkin);
+
+        settingManager.getSettings().forEach(setting -> {
+            setting.getSettings().forEach(object -> {
+                SettingObject savedSetting = settings.getSettings().get(setting.getName()).get(object.getName());
+
+                if (savedSetting == null) {
+                    savedSetting = (SettingObject) defaultManager.getSettingByName(setting.getFancyName()).getSettingByName(object.getName()).getObject();
+                }
+
+                object.setObject(savedSetting);
+            });
+        });
+
+
+        return settingManager;
+    }
+
+
     public static SettingManager loadSettings(String difficulty) {
         SettingManager settingManager = new SettingManager();
         BotSetting settings = BotSettingService.INSTANCE.getOrCreate(difficulty);
@@ -271,10 +303,8 @@ public class SettingManager {
         return settingManager;
     }
 
-    public static SettingManager loadSettings(PresetType presetType, String presetName) {
+    public static SettingManager loadManagerFromSettings(BotSetting settings) {
         SettingManager settingManager = new SettingManager();
-        BotSetting settings = BotSettingService.INSTANCE.getOrCreate(presetName);
-
         String botName = settings.getName();
         String botSkin = settings.getSkin();
 
