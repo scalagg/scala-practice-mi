@@ -14,6 +14,7 @@ import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
 import net.evilblock.cubed.ScalaCommonsSpigot;
+import net.evilblock.cubed.util.bukkit.Tasks;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -170,7 +171,10 @@ public class EstaPracticeManager {
         }.runTaskLater(SmartBotsBackend.getInstance(), 1);
         //TODO combo mode support.
 
-        ScalaCommonsSpigot.getInstance().getKvConnection().sync().del("bot-selection:" + game.humanSide().getPlayers().get(0));
+        Tasks.async(() -> {
+            ScalaCommonsSpigot.getInstance().getKvConnection().sync().del("bot-selection:" + game.humanSide().getPlayers().get(0));
+            return null;
+        });
         return bot;
     }
 
