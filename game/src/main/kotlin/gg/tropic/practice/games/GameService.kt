@@ -164,9 +164,11 @@ object GameService
         GameManagerService.bindToStatusService {
             GameStatus(
                 games = gameMappings.values
+                    .toList()
                     .map {
                         val players = it.toBukkitPlayers()
                             .filterNotNull()
+                            .toList()
 
                         val majoritySpectatorsEnabled = players
                             .mapNotNull(BasicsProfileService::find)
@@ -183,6 +185,7 @@ object GameService
                             state = it.state,
                             players = it.toPlayers(),
                             spectators = it.arenaWorld?.players
+                                ?.toList()
                                 ?.filter { player ->
                                     player.hasMetadata("spectator")
                                 }
