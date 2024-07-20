@@ -253,6 +253,7 @@ object LobbyHotbarService
                         return@context
                     }
 
+                    player.sendMessage("${CC.RED}This feature is coming soon!")
                 }
             }
         )
