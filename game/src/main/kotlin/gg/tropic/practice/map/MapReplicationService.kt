@@ -364,7 +364,6 @@ object MapReplicationService
                 {
                     if (block == null)
                     {
-                        println("IT'S NULL?")
                         continue
                     }
 
@@ -373,7 +372,6 @@ object MapReplicationService
                         "tropicportal",
                         FixedMetadataValue(plugin, it.id)
                     )
-                    println("  REPLACED BLOCK")
                 }
             }
     }
