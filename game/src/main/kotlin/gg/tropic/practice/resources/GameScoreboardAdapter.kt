@@ -4,6 +4,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.team.GameTeamSide
@@ -140,7 +141,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
         if (player.uniqueId in game.expectedSpectators)
         {
-            for (team in game.teams.values)
+            for (team in (if (game.robot()) listOf(game.humanSide()) else game.teams.values))
             {
                 fun Player.format() = "${CC.WHITE}${
                     if (hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
@@ -199,9 +200,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     if (opponent.players.size == 1)
                     {
                         board += "${CC.WHITE}Opponent: ${CC.PRI}${
-                            opponent.players.first().username()
+                            if (game.robot()) "Robot" else opponent.players.first().username()
                         }"
-                    } else
+                    } else if (!game.robot())
                     {
                         board += "${CC.PRI}Opponents:"
 
@@ -217,16 +218,18 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     }
 
                     board += ""
-
-                    val opponentPlayer = opponent.players.first()
-
                     board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
-                    board += "${CC.WHITE}Their ping: ${CC.RED}${
-                        if (Bukkit.getPlayer(opponentPlayer) != null)
-                            MinecraftReflection.getPing(
-                                Bukkit.getPlayer(opponentPlayer)
-                            ) else "0"
-                    }ms"
+
+                    if (!game.robot())
+                    {
+                        val opponentPlayer = opponent.players.first()
+                        board += "${CC.WHITE}Their ping: ${CC.RED}${
+                            if (Bukkit.getPlayer(opponentPlayer) != null)
+                                MinecraftReflection.getPing(
+                                    Bukkit.getPlayer(opponentPlayer)
+                                ) else "0"
+                        }ms"
+                    }
                 }
 
                 GameState.Playing ->
@@ -241,7 +244,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     {
                         val opponentPlayer = opponent.players.first()
 
-                        board += "${CC.WHITE}Opponent: ${CC.PRI}${opponentPlayer.username()}"
+                        board += "${CC.WHITE}Opponent: ${CC.PRI}${
+                            if (game.robot()) "Robot" else opponentPlayer.username()
+                        }"
                         board += ""
 
                         if (showHitScoreboard)
@@ -285,14 +290,17 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             }
 
                             board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
-                            board += "${CC.WHITE}Their ping: ${CC.RED}${
-                                if (Bukkit.getPlayer(opponentPlayer) != null)
-                                    MinecraftReflection.getPing(
-                                        Bukkit.getPlayer(opponentPlayer)
-                                    ) else "0"
-                            }ms"
+                            if (!game.robot())
+                            {
+                                board += "${CC.WHITE}Their ping: ${CC.RED}${
+                                    if (Bukkit.getPlayer(opponentPlayer) != null)
+                                        MinecraftReflection.getPing(
+                                            Bukkit.getPlayer(opponentPlayer)
+                                        ) else "0"
+                                }ms"
+                            }
                         }
-                    } else
+                    } else if (!game.robot())
                     {
                         if (game.lifecycle() != GameLifecycle.SoulBound)
                         {
@@ -368,40 +376,26 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                     if (report != null)
                     {
+                        val robotID = Globals.PLAYER_BOT_UNIQUE_ID
+                        fun List<UUID>.toReport()
+                        {
+                            val firstUsername = if (robotID == first()) "Robot" else first().username()
+
+                            when (size)
+                            {
+                                0 -> "N/A"
+                                1 -> firstUsername + CC.GRAY + (Bukkit.getPlayer(report.winners.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
+                                else -> "$firstUsername's Team"
+                            }
+                        }
+
                         board += "${CC.WHITE}Winner:"
-                        board += " ${CC.GREEN}${
-                            when (report.winners.size)
-                            {
-                                0 -> "N/A"
-                                1 -> report.winners.first()
-                                    .username() + CC.GRAY + (Bukkit.getPlayer(report.winners.first())
-                                    ?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
-
-                                else ->
-                                {
-                                    "${report.winners.first().username()}'s Team"
-                                }
-                            }
-                        }"
-
+                        board += " ${CC.GREEN}${report.winners.toReport()}"
                         board += "${CC.WHITE}Loser:"
-                        board += " ${CC.RED}${
-                            when (report.losers.size)
-                            {
-                                0 -> "N/A"
-                                1 -> report.losers.first()
-                                    .username() + CC.GRAY + (Bukkit.getPlayer(report.losers.first())
-                                    ?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
-
-                                else ->
-                                {
-                                    "${report.losers.first().username()}'s Team"
-                                }
-                            }
-                        }"
+                        board += " ${CC.RED}${report.losers.toReport()}"
                         board += ""
                         board += "Duration: ${CC.PRI}${game.getDuration()}"
-                        board += "Gamemode: ${CC.PRI}${report.kit}"
+                        board += "Kit: ${CC.PRI}${report.kit}"
                     } else
                     {
                         board += "${CC.D_GRAY}Loading game report..."
