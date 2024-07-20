@@ -31,6 +31,17 @@ public class SettingObject {
         return possibleInt;
     }
 
+    public void setObject(Object object) {
+        if (object instanceof Boolean) {
+            possibleBoolean = (Boolean) object;
+        } else if (object instanceof Integer) {
+            possibleInt = (Integer) object;
+        } else {
+            possibleDouble = (Double) object;
+        }
+    }
+
+
     public void setObjectUpdate(Object object) {
         if (object instanceof Boolean) {
             possibleBoolean = (Boolean) object;
