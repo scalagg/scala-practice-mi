@@ -237,9 +237,12 @@ public class Bot {
         });
     }
 
+    public Runnable deathEvent = () -> {};
+
     public void silentKill() {
         alive = false;
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
+        deathEvent.run();
         SmartBotsBackend.getInstance().getBotManager().removeBot(this);
         packetsManager.sendRemovePackets();
         npc.getBukkitEntity().remove();
@@ -251,6 +254,7 @@ public class Bot {
 
         //Event
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
+        deathEvent.run();
 
     }
 
@@ -271,6 +275,7 @@ public class Bot {
                 alive = false;
                 npc.getBukkitEntity().remove();
                 Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(bot));
+                deathEvent.run();
             }
         }.runTaskLater(SmartBotsBackend.getInstance(), 14);
     }
