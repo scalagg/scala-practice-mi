@@ -2,6 +2,7 @@ package gg.tropic.practice.reports.menu
 
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.Globals
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
@@ -47,7 +48,9 @@ class SelectPlayerMenu(
                     .of(Material.SKULL_ITEM)
                     .data(3)
                     .owner(it.key.username())
-                    .name("${CC.B_GREEN}${it.key.username()}")
+                    .name("${CC.B_GREEN}${
+                        if (it.key == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else it.key.username()
+                    }")
                     .addToLore(
                         "${CC.WHITE}This player is on the:",
                         "${CC.GREEN}${if (it.key in game.losers) "losing" else "winning"} team",

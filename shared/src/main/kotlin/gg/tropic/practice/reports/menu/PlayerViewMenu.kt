@@ -32,7 +32,7 @@ class PlayerViewMenu(
     private val snapshot: GameReportSnapshot,
     private val originalMenu: Menu? = null
 ) : Menu("Viewing player ${
-    if (snapshot.playerUniqueId == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else snapshot.playerUniqueId
+    if (snapshot.playerUniqueId == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else snapshot.playerUniqueId.username()
 }...")
 {
     override fun onClose(player: Player, manualClose: Boolean)

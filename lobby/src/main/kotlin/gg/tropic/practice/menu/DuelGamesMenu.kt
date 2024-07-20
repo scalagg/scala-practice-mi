@@ -1,6 +1,7 @@
 package gg.tropic.practice.menu
 
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportStatus
 import gg.tropic.practice.reports.menu.SelectPlayerMenu
@@ -63,7 +64,7 @@ class DuelGamesMenu(
                     }: ${CC.GREEN}${
                         if (report.winners.isEmpty()) "N/A" else
                             report.winners.joinToString(", ") {
-                                it.username()
+                                if (it == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else it.username()
                             }
                     }",
                     "${CC.WHITE}Loser${
@@ -71,7 +72,7 @@ class DuelGamesMenu(
                     }: ${CC.RED}${
                         if (report.losers.isEmpty()) "N/A" else
                             report.losers.joinToString(", ") {
-                                it.username()
+                                if (it == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else it.username()
                             }
                     }",
                     "",
