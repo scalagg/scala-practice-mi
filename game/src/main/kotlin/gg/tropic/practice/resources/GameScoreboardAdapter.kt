@@ -377,11 +377,11 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     if (report != null)
                     {
                         val robotID = Globals.PLAYER_BOT_UNIQUE_ID
-                        fun List<UUID>.toReport()
+                        fun List<UUID>.toReport(): String
                         {
                             val firstUsername = if (isNotEmpty()) (if (robotID == first()) "Robot" else first().username()) else null
 
-                            when (size)
+                            return when (size)
                             {
                                 0 -> "N/A"
                                 1 -> firstUsername + CC.GRAY + (Bukkit.getPlayer(report.winners.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")

@@ -402,7 +402,7 @@ object GameService
                 game.getOpponent(this)
             } else
             {
-                game.getTeamOf(killerPlayer)
+                if (game.robot()) game.robotSide() else game.getTeamOf(killerPlayer)
             }
 
             val killerName = if (game.flag(FeatureFlag.RedBlueTeams))
@@ -469,9 +469,12 @@ object GameService
             {
                 GameLifecycle.SoulBound ->
                 {
-                    if (killerPlayer is Player)
+                    if (!game.robot())
                     {
-                        runFinalDeathEffectsFor(killerPlayer, this, game)
+                        if (killerPlayer is Player)
+                        {
+                            runFinalDeathEffectsFor(killerPlayer, this, game)
+                        }
                     }
 
                     game.sendMessage(deathMessage)
