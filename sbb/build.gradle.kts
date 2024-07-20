@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":game"))
+    compileOnly(project(":lobby"))
 
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")

@@ -38,8 +38,7 @@ public class EstaPracticeSupport extends PluginSupport {
                             .toLocation(game.getArenaWorld()),
                     game,
                     false,
-                    false,
-                    null // SETTINGMANAGER
+                    false
             );
 
             return CompletableFuture.completedFuture(

@@ -16,6 +16,7 @@ import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
 import land.esta.plugin.ssb.utils.gui.imple.BotGui;
 import land.esta.plugin.ssb.utils.gui.imple.SettingGui;
+import net.evilblock.cubed.ScalaCommonsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -24,6 +25,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 @Getter
@@ -36,11 +38,13 @@ public class EstaPracticeManager {
             Location loc,
             GameImpl game,
             boolean combo,
-            boolean noDamage,
-            SettingManager settings
+            boolean noDamage
     ) {
+        String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync().get("bot-selection:" + game.humanSide().getPlayers().get(0));
+        SettingManager settings = SettingManager.loadSettings(selectedBot);
+
         if (settings == null) {
-            game.complete(null, "No bot configuration was found!");
+            Logger.getGlobal().info("No bot configuration was found!");
             return null;
         }
 
@@ -162,6 +166,8 @@ public class EstaPracticeManager {
             }
         }.runTaskLater(SmartBotsBackend.getInstance(), 1);
         //TODO combo mode support.
+
+        ScalaCommonsSpigot.getInstance().getKvConnection().sync().del("bot-selection:" + game.humanSide().getPlayers().get(0));
         return bot;
     }
 
@@ -169,46 +175,6 @@ public class EstaPracticeManager {
     public void kill(int id) {
         Bot bot = SmartBotsBackend.getInstance().getBotManager().getNpcFromId(id);
         if (bot != null && bot.isAlive()) bot.silentKill();
-    }
-
-    public SettingManager getSettings(DataPlayer data, String level, String kitName, int... tier) {
-        //Unranked / ranked queue
-        if (level.equals("UNRANKED"))
-            return SmartBotsBackend.getInstance().getPresetManager().getUnranked().getPreset().getManager();
-        if (level.equals("RANKED")) {
-            int elo = getElo(data.getPlayer(), kitName);
-
-            SettingGui closedPreset = null;
-            int best = 1000;
-
-            for (SettingGui preset : SmartBotsBackend.getInstance().getPresetManager().getRanked().getPresets()) {
-                int diff = Math.abs(preset.getManager().getElo() - elo);
-                if (diff < best) {
-                    closedPreset = preset;
-                    best = diff;
-                }
-            }
-
-            if (closedPreset != null)
-                return closedPreset.getManager();
-        }
-        if (level.equals("TOURNAMENT")) {
-            for (SettingGui preset : SmartBotsBackend.getInstance().getPresetManager().getTournament().getPresets()) {
-                if (preset.getManager().getTier() == tier[0]) return preset.getManager();
-            }
-        }
-
-        //Custom
-        BotGui gui = data.getGui();
-        if (level.equals("HACKER")) {
-            if (!gui.isLoaded()) {
-                data.getPlayer().sendMessage(Color.code("&aFetching settings, please a moment..."));
-                return null;
-            }
-            return data.getGui().getManager();
-        }
-        //Easy,Normal,Hard,Expert,Nightmare
-        return SmartBotsBackend.getInstance().getDifficultiesSettings().getData(level);
     }
 
     public int getElo(Player player, String kitName) {

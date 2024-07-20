@@ -94,7 +94,7 @@ public class SettingManager {
         return null;
     }
 
-    public List<String> getMenuDescription(String identifier) {
+    public List<String> getMenuDescription(String identifier, String fancyName) {
         List<String> lore = new ArrayList<>();
         Map<String, Map<String, SettingObject>> map = BotSettingService.INSTANCE.getOrCreate(identifier).getSettings();
 
@@ -103,6 +103,13 @@ public class SettingManager {
         lore.add(" &c&l| &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
         lore.add(" &c&l| &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
         lore.add(" &c&l| &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
+        lore.add(" ");
+        lore.add("&c&lTraits");
+        lore.add(" &c&l| &fW-Tap: &c" + map.get("WTap").get("W-Tap").isBooleanValue());
+        lore.add(" &c&l| &fRod Enabled: &c" + map.get("Rod").get("Rod Enabled").isBooleanValue());
+        lore.add(" &c&l| &fStrafe: &c" + map.get("Strafe").get("Strafe").isBooleanValue());
+        lore.add(" ");
+        lore.add("&aClick to select the " + fancyName + " &abot!");
 
         return lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line)).collect(Collectors.toList());
     }

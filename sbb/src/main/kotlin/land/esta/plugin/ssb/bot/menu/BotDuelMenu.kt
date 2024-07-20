@@ -27,27 +27,43 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         10 to ItemBuilder.of(Material.WOOL)
             .data(5)
             .name("&aEasy")
-            .setLore(SettingManager.defaultManager.getMenuDescription("EASY"))
-            .toButton(),
+            .setLore(SettingManager.defaultManager.getMenuDescription("EASY", "&aEasy"))
+            .toButton { _, _ ->
+                BotKitMenu("EASY").openMenu(player)
+            },
         11 to ItemBuilder.of(Material.WOOL)
             .data(4)
             .name("&eNormal")
-            .setLore(SettingManager.defaultManager.getMenuDescription("NORMAL"))
-            .toButton(),
+            .setLore(SettingManager.defaultManager.getMenuDescription("NORMAL", "&eNormal"))
+            .toButton { _, _ ->
+                BotKitMenu("NORMAL").openMenu(player)
+            },
         12 to ItemBuilder.of(Material.WOOL)
             .data(14)
             .name("&cHard")
-            .setLore(SettingManager.defaultManager.getMenuDescription("HARD"))
-            .toButton(),
+            .setLore(SettingManager.defaultManager.getMenuDescription("HARD", "&cHard"))
+            .toButton { _, _ ->
+                BotKitMenu("HARD").openMenu(player)
+            },
         13 to ItemBuilder.of(Material.WOOL)
             .data(14)
             .name("&4Expert")
-            .setLore(SettingManager.defaultManager.getMenuDescription("EXPERT"))
-            .toButton(),
+            .setLore(SettingManager.defaultManager.getMenuDescription("EXPERT", "&cExpert"))
+            .toButton { _, _ ->
+                BotKitMenu("EXPERT").openMenu(player)
+            },
         14 to ItemBuilder.of(Material.WOOL)
             .data(10)
             .name("&5Nightmare")
-            .setLore(SettingManager.defaultManager.getMenuDescription("NIGHTMARE"))
-            .toButton()
+            .setLore(SettingManager.defaultManager.getMenuDescription("NIGHTMARE", "&5Nightmare"))
+            .toButton { _, _ ->
+                BotKitMenu("NIGHTMARE").openMenu(player)
+            },
+        16 to ItemBuilder.of(Material.NETHER_STAR)
+            .name("&6Custom")
+            .setLore(SettingManager.defaultManager.getMenuDescription(player.uniqueId.toString(), "&6Custom"))
+            .toButton { _, _ ->
+                BotKitMenu(player.uniqueId.toString()).openMenu(player)
+            },
     )
 }
