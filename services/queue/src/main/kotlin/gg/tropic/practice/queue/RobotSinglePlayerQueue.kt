@@ -20,7 +20,7 @@ open class RobotSinglePlayerQueue(
     kit, QueueType.Robot, 1
 )
 {
-    private fun run()
+    override fun run()
     {
         val length = GameQueueManager.queueSizeFromId(queueId())
         if (length == 0L)
@@ -82,17 +82,5 @@ open class RobotSinglePlayerQueue(
             .join()
 
         Thread.sleep(200)
-    }
-
-    override fun invoke()
-    {
-        while (true)
-        {
-            runCatching {
-                run()
-            }.onFailure {
-                it.printStackTrace()
-            }
-        }
     }
 }

@@ -277,7 +277,7 @@ open class GameQueue(
         metadataUpdateThread.shutdownNow()
     }
 
-    private fun run()
+    protected open fun run()
     {
         val length = GameQueueManager.queueSizeFromId(queueId())
 
