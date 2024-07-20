@@ -40,17 +40,17 @@ public class SettingManager {
     private PlaystyleSettings playstyleSettings;
     private RodSettings rodSettings;
     private WTapSetting wTapSetting;
-    private ArrayList<Setting> settings;
+    public ArrayList<Setting> settings;
 
 
     private String name = "default";
     private String foundPath;
-    private int elo = 0;
-    private int tier = 1;
-    private boolean gameRandomizer = false;
+    public int elo = 0;
+    public int tier = 1;
+    public boolean gameRandomizer = false;
 
-    private String botName = "&cBot"; //The default would be your self
-    private String skin = "Xecivity"; //The default would be your self
+    public String botName = "&cBot"; //The default would be your self
+    public String skin = "Xecivity"; //The default would be your self
 
     private List<String> description = new ArrayList<>();
     public static SettingManager defaultManager = new SettingManager();
