@@ -1383,6 +1383,7 @@ object GameService
                                     .amount(4)
                                     .build()
                             )
+                            it.player.updateInventory()
                             return@handler
                         }
 
