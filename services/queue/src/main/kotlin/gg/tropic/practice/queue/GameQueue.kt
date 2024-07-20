@@ -1,6 +1,5 @@
 package gg.tropic.practice.queue
 
-import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.game.GameTeam
@@ -19,13 +18,12 @@ import java.util.logging.Logger
 import kotlin.concurrent.thread
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.system.measureTimeMillis
 
 /**
  * @author GrowlyX
  * @since 9/17/2023
  */
-class GameQueue(
+open class GameQueue(
     val kit: ImmutableKit,
     private val queueType: QueueType,
     private val teamSize: Int
@@ -145,7 +143,7 @@ class GameQueue(
         }
     }
 
-    fun start()
+    open fun start()
     {
         check(thread == null)
         Logger.getGlobal()

@@ -690,11 +690,17 @@ object GameQueueManager
                                 return@scope
                             }
 
-                            val queue = GameQueue(
-                                kit = kit,
-                                queueType = it,
-                                teamSize = model.first
-                            )
+                            val queue = if (it != QueueType.Robot)
+                            {
+                                GameQueue(
+                                    kit = kit,
+                                    queueType = it,
+                                    teamSize = model.first
+                                )
+                            } else
+                            {
+                                RobotSinglePlayerQueue(kit)
+                            }
 
                             if (!queues.containsKey(queue.queueId()))
                             {
