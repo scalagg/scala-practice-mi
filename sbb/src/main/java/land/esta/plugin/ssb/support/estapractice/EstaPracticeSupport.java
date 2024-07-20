@@ -51,8 +51,6 @@ public class EstaPracticeSupport extends PluginSupport {
                     new EstaPracticeRobotInstanceImpl(game, bot)
             );
         });
-
-
         return super.enable();
     }
 }

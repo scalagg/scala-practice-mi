@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.support;
 
+import gg.tropic.practice.PracticeGame;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
 import land.esta.plugin.ssb.support.estapractice.EstaPracticeSupport;
@@ -17,7 +18,14 @@ public class SupportManager implements Listener {
     private final ArrayList<PluginSupport> pluginSupports = new ArrayList<>();
 
     public SupportManager() {
-        addSupport(new EstaPracticeSupport("EstaPractice"));
+        try
+        {
+            PracticeGame.Companion.getSubCommands();
+            addSupport(new EstaPracticeSupport("EstaPractice"));
+        } catch (Exception ignored) {
+
+        }
+
         Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
     }
 
