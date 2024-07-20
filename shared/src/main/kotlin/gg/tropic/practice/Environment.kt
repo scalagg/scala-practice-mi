@@ -16,4 +16,4 @@ fun gameGroup() = "mipgame"
 fun lobbyGroup() = "miplobby"
 
 fun String.suffixWhenDev() = (if (isDev()) "${if (this == "tropicpractice")
-    "tropicprac" else this}DEV" else this)
+    "tropicprac" else this}dev" else this)
