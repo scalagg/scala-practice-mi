@@ -113,7 +113,6 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     )
                 }
                 .exceptionally {
-                    it.printStackTrace()
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,

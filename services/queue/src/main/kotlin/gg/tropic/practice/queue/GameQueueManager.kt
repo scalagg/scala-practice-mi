@@ -114,7 +114,6 @@ object GameQueueManager
         val distinctUsers = expectation.players.distinct()
         if (distinctUsers.size != expectation.players.size)
         {
-            println("dojmfpref")
             DPSRedisShared.sendMessage(
                 expectation.players,
                 listOf(
@@ -131,7 +130,6 @@ object GameQueueManager
          */
         if (map.locked)
         {
-            println("fucker")
             DPSRedisShared.sendMessage(
                 expectation.players,
                 listOf(
@@ -187,7 +185,6 @@ object GameQueueManager
                 }
                 ?.id
                 ?: return run {
-                    println("NIO GAME SER")
                     DPSRedisShared.sendMessage(
                         expectation.players,
                         listOf(
@@ -222,7 +219,6 @@ object GameQueueManager
 
                 if (it.status == ReplicationManager.ReplicationResultStatus.Unavailable)
                 {
-                    println("BLAAA")
                     DPSRedisShared.sendMessage(
                         expectation.players,
                         listOf(
@@ -234,7 +230,6 @@ object GameQueueManager
                 cleanup()
             }
             .exceptionally {
-                println("NO ALOCAT")
                 DPSRedisShared.sendMessage(
                     expectation.players,
                     listOf(
