@@ -61,7 +61,6 @@ public class Bot {
     private boolean alive = true;
     public boolean killed;
 
-
     public final UUID uniqueId = UUID.randomUUID();
     private final Player player;
 

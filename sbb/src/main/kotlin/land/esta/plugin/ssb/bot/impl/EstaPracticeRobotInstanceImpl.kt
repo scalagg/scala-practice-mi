@@ -28,16 +28,6 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
             // Auto destroy it if the terminable closes, we don't wanna waste resources
             spawnedBot?.silentKill()
         }
-
-        Events
-            .subscribe(BotDeathEvent::class.java)
-            .filter { it.bot.uniqueId == spawnedBot?.uniqueId }
-            .handler {
-                gameImpl.complete(
-                    gameImpl.humanSide()
-                )
-            }
-            .bindWith(terminable)
     }
 
     override fun name(): String = spawnedBot?.settingManager?.botName ?: ""
