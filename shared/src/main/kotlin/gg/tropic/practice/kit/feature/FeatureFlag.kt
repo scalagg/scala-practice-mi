@@ -18,6 +18,7 @@ enum class FeatureFlag(
     ),
     HeartsBelowNameTag,
     ExplodePlacedBlocks,
+    DoNotTakeFallDamage,
     DoNotTakeDamage(
         schema = mutableMapOf("doDamageTick" to "false")
     ),

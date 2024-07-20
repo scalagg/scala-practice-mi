@@ -204,31 +204,41 @@ object GameService
             audiences.player(this).apply {
                 sendActionBar {
                     Component.text { text ->
-                        text.append(Component.text("${damaged.name} ")
-                            .color(NamedTextColor.YELLOW))
+                        text.append(
+                            Component.text("${damaged.name} ")
+                                .color(NamedTextColor.YELLOW)
+                        )
 
                         val hearts = damaged.health / 2.0
                         val fullHearts = floor(hearts).toInt()
 
                         repeat(fullHearts) {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.DARK_RED))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.DARK_RED)
+                            )
                         }
 
                         if (hearts.toInt().toDouble() != hearts)
                         {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.RED))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.RED)
+                            )
                         } else
                         {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.GRAY))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.GRAY)
+                            )
                         }
 
                         val usedHearts = floor((damaged.maxHealth - damaged.health) / 2.0)
                         repeat(usedHearts.toInt()) {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.GRAY))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.GRAY)
+                            )
                         }
                     }
                 }
@@ -336,7 +346,7 @@ object GameService
             if (
                 hasMetadata("light-spectator") ||
                 hasMetadata("spectator")
-                )
+            )
             {
                 return
             }
@@ -400,7 +410,7 @@ object GameService
             else "${CC.GREEN}${killerPlayer?.name ?: "???"}"
 
             val killedName = if (game.flag(FeatureFlag.RedBlueTeams))
-                team.side.toRBTeamSide().format(name) ?: "???"
+                team.side.toRBTeamSide().format(name)
             else "${CC.RED}$name"
 
             val deathMessage = "${CC.RED}$killedName${CC.GRAY} ${
@@ -471,6 +481,7 @@ object GameService
                         game.complete(killer)
                     }
                 }
+
                 GameLifecycle.RoundBound ->
                 {
                     if (
@@ -506,6 +517,7 @@ object GameService
 
                     game.prepareForNewLife(player)
                 }
+
                 GameLifecycle.ObjectiveBound ->
                 {
                     game.sendMessage(deathMessage)
@@ -518,6 +530,7 @@ object GameService
 
                     game.prepareForNewLife(player)
                 }
+
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     val opposingTeam = game.getOpponent(team)!!
@@ -883,6 +896,24 @@ object GameService
                 spectator.expectedSpectators -= it.player.uniqueId
             }
 
+        Events
+            .subscribe(EntityDamageEvent::class.java)
+            .filter {
+                it.cause == DamageCause.FALL && it.entity is Player
+            }
+            .handler {
+                val player = it.entity as Player
+                val game = byPlayer(player)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (game.flag(FeatureFlag.DoNotTakeFallDamage))
+                {
+                    it.isCancelled = true
+                }
+            }
+
         Schedulers
             .async()
             .runRepeating({ _ ->
@@ -1235,11 +1266,13 @@ object GameService
                     damagerTeam.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
                 )
                 {
-                    (it.entity as Player).gracefullyRemoveFromGame(GameRemovalEvent(
-                        killerPlayerOverride = it.damager as Player,
-                        drops = mutableListOf(),
-                        shouldRespawn = false
-                    ))
+                    (it.entity as Player).gracefullyRemoveFromGame(
+                        GameRemovalEvent(
+                            killerPlayerOverride = it.damager as Player,
+                            drops = mutableListOf(),
+                            shouldRespawn = false
+                        )
+                    )
                 }
 
                 if (doNotTakeDamage != null)
@@ -1293,10 +1326,12 @@ object GameService
                 val teamOfPlayer = game.getTeamOf(it.player)
                 if (teamOfPlayer.side == enteredIntoTeamPortal)
                 {
-                    it.player.gracefullyRemoveFromGame(GameRemovalEvent(
-                        drops = mutableListOf(),
-                        shouldRespawn = false
-                    ))
+                    it.player.gracefullyRemoveFromGame(
+                        GameRemovalEvent(
+                            drops = mutableListOf(),
+                            shouldRespawn = false
+                        )
+                    )
                     return@handler
                 }
 
@@ -1305,11 +1340,13 @@ object GameService
                 val firstPlayer = opponent?.toBukkitPlayers()?.firstOrNull()
                     ?: return@handler
 
-                firstPlayer.gracefullyRemoveFromGame(GameRemovalEvent(
-                    drops = mutableListOf(),
-                    shouldRespawn = false,
-                    alternativeDeath = true
-                ))
+                firstPlayer.gracefullyRemoveFromGame(
+                    GameRemovalEvent(
+                        drops = mutableListOf(),
+                        shouldRespawn = false,
+                        alternativeDeath = true
+                    )
+                )
             }
 
         Events.subscribe(BlockExplodeEvent::class.java)
@@ -1556,6 +1593,7 @@ object GameService
         .find {
             player in it.toPlayers() || player in it.expectedSpectators
         }
+
     private inline fun <reified T : PlayerEvent> configureMetadataProvidingEventHandler(incrementing: String)
     {
         Events
