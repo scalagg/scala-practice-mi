@@ -1,8 +1,13 @@
 package gg.tropic.practice.games.loadout
 
+import gg.tropic.practice.games.GameService
 import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.loadout.Loadout
+import gg.tropic.practice.utilities.toRBTeamSide
+import net.evilblock.cubed.util.bukkit.ItemBuilder
+import org.bukkit.Material
 import org.bukkit.entity.Player
 
 /**
@@ -19,6 +24,7 @@ class CustomLoadout(
     {
         kit.populate(player)
         player.inventory.contents = loadout.inventoryContents.deepClone()
+        player.fixInventoryBasedOnRBTeamColor()
         player.updateInventory()
     }
 }

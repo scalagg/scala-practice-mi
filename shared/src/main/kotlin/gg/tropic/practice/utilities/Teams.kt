@@ -7,6 +7,8 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Color
+import org.bukkit.Material
+import org.bukkit.entity.Player
 
 /**
  * @author GrowlyX
@@ -15,18 +17,22 @@ import org.bukkit.Color
 enum class RBTeamSide(
     val display: String,
     val color: String,
-    val armorColor: Color
+    val armorColor: Color,
+    val blockColor: Short,
 )
 {
     Red(
         display = "Red",
         color = CC.RED,
-        armorColor = Color.RED
+        armorColor = Color.RED,
+        blockColor = 14
+
     ),
     Blue(
         display = "Blue",
         color = CC.BLUE,
-        armorColor = Color.BLUE
+        armorColor = Color.BLUE,
+        blockColor = 11
     );
 
     fun format(message: String) = "$color$message"
