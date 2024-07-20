@@ -100,9 +100,9 @@ public class SettingManager {
 
         lore.add(" ");
         lore.add("&c&lDifficulty");
-        lore.add(" &c&l❚ &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
-        lore.add(" &c&l❚ &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
-        lore.add(" &c&l❚ &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
+        lore.add(" &c&l| &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
+        lore.add(" &c&l| &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
+        lore.add(" &c&l| &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
 
         return lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line)).collect(Collectors.toList());
     }
