@@ -204,6 +204,7 @@ object MapReplicationService
 
         ReplicationManagerService.bindToStatusService {
             val replicationStatuses = mapReplications
+                .toList()
                 .map {
                     Replication(
                         associatedMapName = it.associatedMap.name,
