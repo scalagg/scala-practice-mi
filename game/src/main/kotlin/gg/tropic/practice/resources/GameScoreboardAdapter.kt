@@ -379,7 +379,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         val robotID = Globals.PLAYER_BOT_UNIQUE_ID
                         fun List<UUID>.toReport()
                         {
-                            val firstUsername = if (robotID == first()) "Robot" else first().username()
+                            val firstUsername = if (isNotEmpty()) (if (robotID == first()) "Robot" else first().username()) else null
 
                             when (size)
                             {
