@@ -50,7 +50,7 @@ public class DataPresets {
             while (iterator.hasNext()) {
                 count++;
                 Document document = iterator.next();
-                loadPreset(SettingManager.loadSettings(type, document.getString("presetName")));
+               // loadPreset(SettingManager.loadSettings(type, document.getString("presetName")));
             }
         }
     }
