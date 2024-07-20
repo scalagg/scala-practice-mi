@@ -6,6 +6,7 @@ import gg.tropic.practice.utilities.toRBTeamSide
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 
 /**
  * @author GrowlyX
@@ -20,22 +21,6 @@ fun Player.fixInventoryBasedOnRBTeamColor()
         if (game.flag(FeatureFlag.RedBlueTeams))
         {
             val teamSide = team.side.toRBTeamSide()
-            player.inventory.armorContents.indices.forEach { index ->
-                val itemStack = player.inventory.contents[index]
-                    ?: return@forEach
-
-                if (!itemStack.type.name.contains("LEATHER"))
-                {
-                    return@forEach
-                }
-
-                player.inventory.armorContents[index] = ItemBuilder
-                    .copyOf(itemStack)
-                    .color(teamSide.armorColor)
-                    .build()
-                player.updateInventory()
-            }
-
             player.inventory.contents.indices.forEach { index ->
                 val itemStack = player.inventory.contents[index]
                     ?: return@forEach
@@ -49,9 +34,27 @@ fun Player.fixInventoryBasedOnRBTeamColor()
                             .data(teamSide.blockColor)
                             .build()
                     )
-                    player.updateInventory()
                 }
             }
+
+            val newArrayOfContents = arrayOf<ItemStack?>(null, null, null, null)
+            player.inventory.armorContents.indices.forEach { index ->
+                val itemStack = player.inventory.armorContents[index]
+                    ?: return@forEach
+
+                if (!itemStack.type.name.contains("LEATHER"))
+                {
+                    newArrayOfContents[index] = itemStack
+                    return@forEach
+                }
+
+                newArrayOfContents[index] = ItemBuilder
+                    .copyOf(itemStack)
+                    .color(teamSide.armorColor)
+                    .build()
+            }
+
+            player.inventory.armorContents = newArrayOfContents
         }
     }
 }
