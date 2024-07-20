@@ -150,6 +150,11 @@ object ExpectationService
                     NametagHandler.reloadPlayer(it.player)
                     VisibilityHandler.update(it.player)
 
+                    if (game.robot())
+                    {
+                        game.robotInstance?.spectatorConnected(it.player)
+                    }
+
                     it.player.allowFlight = true
                     it.player.isFlying = true
 

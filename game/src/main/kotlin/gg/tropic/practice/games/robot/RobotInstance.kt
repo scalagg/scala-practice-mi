@@ -1,6 +1,7 @@
 package gg.tropic.practice.games.robot
 
 import me.lucko.helper.terminable.composite.CompositeTerminable
+import org.bukkit.entity.Player
 
 /**
  * @author GrowlyX
@@ -9,5 +10,7 @@ import me.lucko.helper.terminable.composite.CompositeTerminable
 abstract class RobotInstance
 {
     val terminable = CompositeTerminable.create()
+
     abstract fun name(): String
+    abstract fun spectatorConnected(player: Player)
 }
