@@ -1,4 +1,4 @@
-package land.esta.plugin.ssb.support.strikepractice;
+package land.esta.plugin.ssb.support.estapractice;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,13 +12,15 @@ public class EstaPracticeSupport extends PluginSupport {
         super(name);
     }
 
-    private SPEvents events;
-    private SPManager manager;
+    private EstaPracticeEvents events;
+    private EstaPracticeManager manager;
 
     @Override
     public PluginSupport enable() {
-        this.manager = new SPManager(this);
-        this.events = new SPEvents(this);
+        this.manager = new EstaPracticeManager(this);
+        this.events = new EstaPracticeEvents(this);
+
+
         return super.enable();
     }
 }

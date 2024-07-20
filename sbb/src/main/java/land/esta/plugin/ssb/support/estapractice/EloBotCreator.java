@@ -1,4 +1,4 @@
-package land.esta.plugin.ssb.support.strikepractice;
+package land.esta.plugin.ssb.support.estapractice;
 
 import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.utils.FileManager;

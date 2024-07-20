@@ -190,6 +190,11 @@ object ExpectationService
                     )
                 } else
                 {
+                    if (game.robot())
+                    {
+                        game.robotInstance?.spectatorConnected(it.player)
+                    }
+
                     it.player.removeMetadata("spectator", plugin)
                 }
             }

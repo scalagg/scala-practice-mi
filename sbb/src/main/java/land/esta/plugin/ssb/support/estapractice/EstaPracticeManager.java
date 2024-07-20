@@ -1,8 +1,9 @@
-package land.esta.plugin.ssb.support.strikepractice;
+package land.esta.plugin.ssb.support.estapractice;
 
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
@@ -20,7 +21,6 @@ import land.esta.plugin.ssb.utils.gui.imple.SettingGui;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -31,14 +31,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 @Getter
-public class SPManager implements Listener {
+@AllArgsConstructor
+public class EstaPracticeManager {
 
     private final EstaPracticeSupport support;
-
-    public SPManager(EstaPracticeSupport support) {
-        this.support = support;
-        Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
-    }
 
     public Bot spawn(
             Location loc,

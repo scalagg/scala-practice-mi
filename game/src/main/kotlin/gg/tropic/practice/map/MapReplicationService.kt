@@ -127,10 +127,16 @@ object MapReplicationService
 
             if (newGame.robot())
             {
-                newGame.robotInstance = RobotGameLifecycle
-                    .createNewRobotInstance(newGame)
-                    .join()
-                newGame.robotInstance?.terminable?.bindWith(newGame)
+                kotlin.runCatching {
+                    newGame.robotInstance = RobotGameLifecycle
+                        .createNewRobotInstance(newGame)
+                        .join()
+                    newGame.robotInstance?.terminable?.bindWith(newGame)
+                }.onFailure {
+                    newGame.state = GameState.Completed
+                    newGame.closeAndCleanup()
+                    return@handler
+                }
             }
 
             val start = System.currentTimeMillis()

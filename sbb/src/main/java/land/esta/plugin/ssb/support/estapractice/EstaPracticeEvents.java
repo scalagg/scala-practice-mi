@@ -1,4 +1,4 @@
-package land.esta.plugin.ssb.support.strikepractice;
+package land.esta.plugin.ssb.support.estapractice;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
@@ -11,13 +11,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 @Getter
-public class SPEvents implements Listener {
+public class EstaPracticeEvents implements Listener {
 
     //If you have StrikePractice you are also required to have Citizens, so we could replace the bot.
 
     private final EstaPracticeSupport support;
 
-    public SPEvents(EstaPracticeSupport support) {
+    public EstaPracticeEvents(EstaPracticeSupport support) {
         this.support = support;
         Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
     }

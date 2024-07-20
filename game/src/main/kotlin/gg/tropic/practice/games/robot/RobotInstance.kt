@@ -12,5 +12,6 @@ abstract class RobotInstance
     val terminable = CompositeTerminable.create()
 
     abstract fun name(): String
+    abstract fun participantConnected(player: Player)
     abstract fun spectatorConnected(player: Player)
 }

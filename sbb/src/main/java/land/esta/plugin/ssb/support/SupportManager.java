@@ -2,8 +2,7 @@ package land.esta.plugin.ssb.support;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
-import land.esta.plugin.ssb.support.strikepractice.EstaPracticeSupport;
-import land.esta.plugin.ssb.utils.Color;
+import land.esta.plugin.ssb.support.estapractice.EstaPracticeSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
