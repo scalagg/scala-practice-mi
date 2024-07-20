@@ -98,7 +98,8 @@ object MapReplicationService
             val scheduledMap = findScheduledReplication(expectation.identifier)
                 ?: return@handler
 
-            Schedulers.sync()
+            Schedulers
+                .sync()
                 .run {
                     newGame.map.metadata.clearSignLocations(scheduledMap.world)
                     newGame.map.prepare(scheduledMap.world)
@@ -358,13 +359,21 @@ object MapReplicationService
         metadata.metadata
             .filterIsInstance<MapPortalMetadata>()
             .forEach {
+                println("EDITING: ${it.id}")
                 for (block in it.bounds.utility(world))
                 {
+                    if (block == null)
+                    {
+                        println("IT'S NULL?")
+                        continue
+                    }
+
                     block.type = Material.ENDER_PORTAL
                     block.setMetadata(
                         "tropicportal",
                         FixedMetadataValue(plugin, it.id)
                     )
+                    println("  REPLACED BLOCK")
                 }
             }
     }
