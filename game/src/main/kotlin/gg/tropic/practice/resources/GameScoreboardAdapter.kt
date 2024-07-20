@@ -14,6 +14,7 @@ import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import gg.tropic.practice.utilities.colorOf
+import gg.tropic.practice.utilities.toRBTeamSide
 import me.lucko.helper.Events
 import me.lucko.helper.Helper
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
@@ -60,6 +61,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
         }
 
+        fun GameTeamSide.format() = if (game.flag(FeatureFlag.RedBlueTeams)) toRBTeamSide().display[0] else name
+
         fun insertMRStatusSection(firstPerson: Boolean = true)
         {
             val self = if (firstPerson) game.getTeamOf(player) else game.teams[GameTeamSide.A]!!
@@ -94,7 +97,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         ballID += "${CC.GRAY}⬤"
                     }
 
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.name else "You"}: $ballID"
+                    teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $ballID"
 
                     ballID = ""
                     repeat(them.gameLifecycleArbitraryObjectiveProgress)
@@ -107,15 +110,15 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         ballID += "${CC.GRAY}⬤"
                     }
 
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.name else "Them"}: $ballID"
+                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $ballID"
                 }
 
                 GameLifecycle.ObjectiveBound ->
                 {
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.name else "You"}: $selfColor${
+                    teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
                         self.gameLifecycleArbitraryObjectiveProgress
                     }"
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.name else "Them"}: $selfColor${
+                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $selfColor${
                         them.gameLifecycleArbitraryObjectiveProgress
                     }"
                 }
@@ -146,7 +149,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 }ms)"
 
                 val bukkitPlayers = team.toBukkitPlayers().filterNotNull()
-                val sidePrefix = "${game.colorOf(team)}[${team.side}]:"
+                val sidePrefix = "${game.colorOf(team)}[${team.side.format()}]:"
 
                 board += "$sidePrefix ${
                     if (bukkitPlayers.size == 1) bukkitPlayers.first().format() else ""
@@ -169,12 +172,11 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 board += ""
             }
 
-            if (game.lifecycle() == GameLifecycle.SoulBound)
-            {
-                board += "Map: ${CC.PRI}${game.map.displayName}"
-                board += "Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
-                board += "Duration: ${CC.PRI}${game.getDuration()}"
-            } else
+            board += "Map: ${CC.PRI}${game.map.displayName}"
+            board += "Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
+            board += "Duration: ${CC.PRI}${game.getDuration()}"
+
+            if (game.lifecycle()!= GameLifecycle.SoulBound)
             {
                 insertMRStatusSection(firstPerson = false)
             }

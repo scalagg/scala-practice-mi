@@ -428,6 +428,11 @@ open class GameImpl(
             player.uniqueId in it.players
         }
 
+    fun getNullableTeam(player: Player) = this.teams.values
+        .firstOrNull {
+            player.uniqueId in it.players
+        }
+
     fun getOpponent(player: Player) =
         this.getOpponent(
             this.getTeamOf(player)
@@ -739,8 +744,7 @@ open class GameImpl(
                 arenaWorld
                     ?.getBlockAt(it.toLocation(arenaWorld))
                     ?.apply {
-                        state.type = Material.AIR
-                        state.update()
+                        type = Material.AIR
                     }
             }
         }

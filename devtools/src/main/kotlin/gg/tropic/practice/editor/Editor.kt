@@ -35,7 +35,7 @@ import java.util.UUID
  * @author GrowlyX
  * @since 7/18/2024
  */
-class Editor(private val player: Player) : CompositeTerminable by CompositeTerminable.create()
+class Editor(private val player: Player)
 {
     companion object
     {
@@ -49,6 +49,8 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
     private val schematics = containers.schematicsDirectory.listFiles()
         ?.toList()?.filterNotNull() ?: emptyList()
 
+    val terminable = CompositeTerminable.create()
+
     fun initialize()
     {
         if (schematics.isEmpty())
@@ -57,26 +59,40 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
             return
         }
 
+        player.sendMessage("Subscribing to everything")
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
                 if (it.player.uniqueId == player.uniqueId)
                 {
-                    closeAndReportException()
+                    terminable.closeAndReportException()
                 }
             }
-            .bindWith(this)
+            .bindWith(terminable)
 
         instances[player.uniqueId] = this
 
-        with {
+        terminable.with {
+            val audiences = MapManageServices.audiences.player(player)
+            audiences.sendActionBar(Component.empty())
+
+            player.inventory.clear()
+            player.updateInventory()
+
+            player.teleport(Location(
+                Bukkit.getWorld("world"),
+                0.0, 100.0, 0.0
+            ))
+
+            HotbarPresetHandler.forget(editorID)
+
             instances.remove(player.uniqueId)
         }
 
         Schedulers
             .sync()
             .runRepeating({ task ->
-                if (isClosed)
+                if (terminable.isClosed)
                 {
                     task.closeAndReportException()
                     return@runRepeating
@@ -99,7 +115,7 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
                         )
                 )
             }, 0L, 10L)
-            .bindWith(this@Editor)
+            .bindWith(terminable)
 
         populateInventoryHotbar()
         visit(schematics.first())
@@ -115,7 +131,7 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
         )
 
         val instance = EditorInstance(schematic, newWorld)
-        instance.bindWith(this)
+        instance.bindWith(terminable)
 
         player.gameMode = GameMode.CREATIVE
         player.allowFlight = true
@@ -428,21 +444,5 @@ class Editor(private val player: Player) : CompositeTerminable by CompositeTermi
         {
             visit(oldSchematic)
         }
-    }
-
-    override fun close()
-    {
-        val audiences = MapManageServices.audiences.player(player)
-        audiences.sendActionBar(Component.empty())
-
-        player.inventory.clear()
-        player.updateInventory()
-
-        player.teleport(Location(
-            Bukkit.getWorld("world"),
-            0.0, 100.0, 0.0
-        ))
-
-        HotbarPresetHandler.forget(editorID)
     }
 }

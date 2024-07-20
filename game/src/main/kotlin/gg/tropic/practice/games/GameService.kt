@@ -35,6 +35,7 @@ import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.suffixWhenDev
 import gg.tropic.practice.utilities.toRBTeamSide
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
+import kotlinx.coroutines.processNextEventInCurrentThread
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
@@ -203,31 +204,41 @@ object GameService
             audiences.player(this).apply {
                 sendActionBar {
                     Component.text { text ->
-                        text.append(Component.text("${damaged.name} ")
-                            .color(NamedTextColor.YELLOW))
+                        text.append(
+                            Component.text("${damaged.name} ")
+                                .color(NamedTextColor.YELLOW)
+                        )
 
                         val hearts = damaged.health / 2.0
                         val fullHearts = floor(hearts).toInt()
 
                         repeat(fullHearts) {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.DARK_RED))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.DARK_RED)
+                            )
                         }
 
                         if (hearts.toInt().toDouble() != hearts)
                         {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.RED))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.RED)
+                            )
                         } else
                         {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.GRAY))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.GRAY)
+                            )
                         }
 
                         val usedHearts = floor((damaged.maxHealth - damaged.health) / 2.0)
                         repeat(usedHearts.toInt()) {
-                            text.append(Component.text(HEART_SYMBOL)
-                                .color(NamedTextColor.GRAY))
+                            text.append(
+                                Component.text(HEART_SYMBOL)
+                                    .color(NamedTextColor.GRAY)
+                            )
                         }
                     }
                 }
@@ -285,9 +296,6 @@ object GameService
                 player.isFlying = true
             }
 
-            target.allowFlight = true
-            target.isFlying = true
-
             if (configuration.clearInventory != false)
             {
                 game.takeSnapshot(player)
@@ -329,6 +337,19 @@ object GameService
                 ?: return kotlin.run {
                     event.drops.clear()
                 }
+
+            if (!game.state(GameState.Playing))
+            {
+                return
+            }
+
+            if (
+                hasMetadata("light-spectator") ||
+                hasMetadata("spectator")
+            )
+            {
+                return
+            }
 
             game.takeSnapshot(this)
 
@@ -389,7 +410,7 @@ object GameService
             else "${CC.GREEN}${killerPlayer?.name ?: "???"}"
 
             val killedName = if (game.flag(FeatureFlag.RedBlueTeams))
-                team.side.toRBTeamSide().format(name) ?: "???"
+                team.side.toRBTeamSide().format(name)
             else "${CC.RED}$name"
 
             val deathMessage = "${CC.RED}$killedName${CC.GRAY} ${
@@ -460,6 +481,7 @@ object GameService
                         game.complete(killer)
                     }
                 }
+
                 GameLifecycle.RoundBound ->
                 {
                     if (
@@ -471,16 +493,17 @@ object GameService
                             .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
                             ?.toIntOrNull() ?: 2
 
+                        val opponentWinner = game.getOpponent(team)!!
                         game.sendMessage(deathMessage)
-                        if (team.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
+                        if (opponentWinner.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
                         {
-                            game.complete(team)
+                            game.complete(opponentWinner)
                             return
                         }
 
                         game.multiRoundGame.roundNumber += 1
                         Tasks.delayed(1L) {
-                            game.startNewRound(game.getOpponent(team)!!)
+                            game.startNewRound(opponentWinner)
                         }
                         return
                     }
@@ -494,6 +517,7 @@ object GameService
 
                     game.prepareForNewLife(player)
                 }
+
                 GameLifecycle.ObjectiveBound ->
                 {
                     game.sendMessage(deathMessage)
@@ -506,6 +530,7 @@ object GameService
 
                     game.prepareForNewLife(player)
                 }
+
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     val opposingTeam = game.getOpponent(team)!!
@@ -871,6 +896,24 @@ object GameService
                 spectator.expectedSpectators -= it.player.uniqueId
             }
 
+        Events
+            .subscribe(EntityDamageEvent::class.java)
+            .filter {
+                it.cause == DamageCause.FALL && it.entity is Player
+            }
+            .handler {
+                val player = it.entity as Player
+                val game = byPlayer(player)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (game.flag(FeatureFlag.DoNotTakeFallDamage))
+                {
+                    it.isCancelled = true
+                }
+            }
+
         Schedulers
             .async()
             .runRepeating({ _ ->
@@ -1223,11 +1266,13 @@ object GameService
                     damagerTeam.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
                 )
                 {
-                    (it.entity as Player).gracefullyRemoveFromGame(GameRemovalEvent(
-                        killerPlayerOverride = it.damager as Player,
-                        drops = mutableListOf(),
-                        shouldRespawn = false
-                    ))
+                    (it.entity as Player).gracefullyRemoveFromGame(
+                        GameRemovalEvent(
+                            killerPlayerOverride = it.damager as Player,
+                            drops = mutableListOf(),
+                            shouldRespawn = false
+                        )
+                    )
                 }
 
                 if (doNotTakeDamage != null)
@@ -1281,18 +1326,27 @@ object GameService
                 val teamOfPlayer = game.getTeamOf(it.player)
                 if (teamOfPlayer.side == enteredIntoTeamPortal)
                 {
-                    it.player.gracefullyRemoveFromGame(GameRemovalEvent(
-                        drops = mutableListOf(),
-                        shouldRespawn = false
-                    ))
+                    it.player.gracefullyRemoveFromGame(
+                        GameRemovalEvent(
+                            drops = mutableListOf(),
+                            shouldRespawn = false
+                        )
+                    )
                     return@handler
                 }
 
-                it.player.gracefullyRemoveFromGame(GameRemovalEvent(
-                    drops = mutableListOf(),
-                    shouldRespawn = false,
-                    alternativeDeath = true
-                ))
+                // TODO: this might be a bit odd
+                val opponent = game.getOpponent(it.player)
+                val firstPlayer = opponent?.toBukkitPlayers()?.firstOrNull()
+                    ?: return@handler
+
+                firstPlayer.gracefullyRemoveFromGame(
+                    GameRemovalEvent(
+                        drops = mutableListOf(),
+                        shouldRespawn = false,
+                        alternativeDeath = true
+                    )
+                )
             }
 
         Events.subscribe(BlockExplodeEvent::class.java)
@@ -1355,6 +1409,18 @@ object GameService
                             }
                     )
                     {
+                        if (it.block.type == Material.SNOW_BLOCK)
+                        {
+                            it.player.inventory.addItem(
+                                ItemBuilder
+                                    .of(Material.SNOW_BALL)
+                                    .amount(4)
+                                    .build()
+                            )
+                            it.player.updateInventory()
+                            return@handler
+                        }
+
                         return@handler
                     }
                 }
@@ -1425,8 +1491,7 @@ object GameService
                     }
                 }
 
-                val zone = game.map.findZoneContainingEntity(it.player)
-
+                val zone = game.map.findZoneContainingBlock(it.block)
                 if (zone != null && zone.id.startsWith("restrict"))
                 {
                     it.isCancelled = true
@@ -1503,6 +1568,7 @@ object GameService
                                 it.blockPlaced.type = Material.AIR
                             }
                         }, blockExpiration * 20L)
+                        .bindWith(game.multiRoundGame.terminable)
                 }
             }
             .bindWith(plugin)
@@ -1527,6 +1593,7 @@ object GameService
         .find {
             player in it.toPlayers() || player in it.expectedSpectators
         }
+
     private inline fun <reified T : PlayerEvent> configureMetadataProvidingEventHandler(incrementing: String)
     {
         Events

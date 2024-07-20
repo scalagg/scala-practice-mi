@@ -39,10 +39,13 @@ fun PracticeProfile.useKitStatistics(
     }
 }
 
-fun GameImpl.resetPlayerForFight(player: Player)
+fun GameImpl.resetPlayerForFight(player: Player, noUpdateVisibility: Boolean = false)
 {
-    VisibilityHandler.update(player)
-    NametagHandler.reloadPlayer(player)
+    if (!noUpdateVisibility)
+    {
+        VisibilityHandler.update(player)
+        NametagHandler.reloadPlayer(player)
+    }
 
     player.apply {
         isFlying = false
@@ -104,9 +107,12 @@ fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
     }
 }
 
-fun GameImpl.prepareForNewLife(player: Player)
+fun GameImpl.prepareForNewLife(player: Player, noUpdateVisibility: Boolean = false)
 {
-    player.removeMetadata("spectator", plugin)
+    if (!noUpdateVisibility)
+    {
+        player.removeMetadata("spectator", plugin)
+    }
 
     teleportToSpawnLocation(player)
     resetPlayerForFight(player)
@@ -124,12 +130,10 @@ fun GameImpl.teleportToSpawnLocation(player: Player)
     if (flag(FeatureFlag.ClearIllegalBlocksOnRespawn))
     {
         val block = arenaWorld!!.getBlockAt(spawnLocation)
-        block.state.type = Material.AIR
-        block.state.update()
+        block.type = Material.AIR
 
         block.getRelative(BlockFace.UP).apply {
-            state.type = Material.AIR
-            state.update()
+            type = Material.AIR
         }
     }
 

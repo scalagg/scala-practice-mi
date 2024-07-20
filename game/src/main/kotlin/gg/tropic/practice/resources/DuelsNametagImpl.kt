@@ -37,8 +37,11 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 
             if (playerGame.flag(FeatureFlag.RedBlueTeams))
             {
+                val team = playerGame.getNullableTeam(refreshFor)
+                    ?: return createNametag(CC.GRAY, "", "zzz")
+
                 return createNametag(
-                    prefix = playerGame.getTeamOf(toRefresh)
+                    prefix = team
                         .side
                         .toRBTeamSide()
                         .color,

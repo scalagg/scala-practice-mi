@@ -2,6 +2,7 @@ package gg.tropic.practice.games.tasks.lifecycle
 
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.*
+import gg.tropic.practice.games.GameService.plugin
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.serializable.Message
@@ -9,6 +10,7 @@ import gg.tropic.practice.utilities.toRBTeamSide
 import me.lucko.helper.Helper
 import me.lucko.helper.Schedulers
 import me.lucko.helper.scheduler.Task
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.visibility.VisibilityHandler
@@ -59,22 +61,36 @@ class RoundStartTask(
     init
     {
         game.multiRoundGame.switchingRounds = true
+
+        game.multiRoundGame.terminable.closeAndReportException()
+        game.multiRoundGame.terminable = CompositeTerminable.create()
+
         winner.gameLifecycleArbitraryObjectiveProgress += 1
 
         game.cleanupWorld()
         game.toBukkitPlayers().filterNotNull()
+            .forEach {
+                it.removeMetadata("spectator", plugin)
+            }
+
+        game.toBukkitPlayers().filterNotNull()
+            .forEach {
+                VisibilityHandler.update(it)
+            }
+
+        game.toBukkitPlayers().filterNotNull()
             .forEach { player ->
                 // enter a "light" spectator mode, where they can't interact with anything yet
-                game.prepareForNewLife(player)
+                game.prepareForNewLife(player, true)
 
                 player.setMetadata(
                     "spectator",
-                    FixedMetadataValue(Helper.hostPlugin(), "light")
+                    FixedMetadataValue(plugin, "light")
                 )
 
                 player.setMetadata(
                     "light-spectator",
-                    FixedMetadataValue(Helper.hostPlugin(), "true")
+                    FixedMetadataValue(plugin, "true")
                 )
             }
 
@@ -83,7 +99,7 @@ class RoundStartTask(
 
         val opponent = game.getOpponent(winner)
         val primary = "${rbTeamSide.format(winnerDisplay ?: "???")} ${CC.SEC}scored!"
-        val subText = " ${rbTeamSide.format(winner.gameLifecycleArbitraryObjectiveProgress.toString())} ${CC.GRAY}- ${
+        val subText = " ${CC.I}${rbTeamSide.format(winner.gameLifecycleArbitraryObjectiveProgress.toString())}${CC.R} ${CC.GRAY}- ${CC.I}${
             opponent!!.side.toRBTeamSide().format(opponent.gameLifecycleArbitraryObjectiveProgress.toString())
         }"
 
@@ -115,8 +131,8 @@ class RoundStartTask(
 
             game.toBukkitPlayers().filterNotNull()
                 .forEach {
-                    it.removeMetadata("spectator", Helper.hostPlugin())
-                    it.removeMetadata("light-spectator", Helper.hostPlugin())
+                    it.removeMetadata("spectator", plugin)
+                    it.removeMetadata("light-spectator", plugin)
 
                     VisibilityHandler.update(it)
                     NametagHandler.reloadPlayer(it)
