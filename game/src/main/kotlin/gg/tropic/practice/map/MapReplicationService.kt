@@ -183,13 +183,13 @@ object MapReplicationService
         MapService.onPostReload = ::populateSlimeCache
         startWorldRequestThread()
 
-        ReplicationAutoScaleTask.start()
+//        ReplicationAutoScaleTask.start()
     }
 
     @Close
     fun close()
     {
-        ReplicationAutoScaleTask.interrupt()
+//        ReplicationAutoScaleTask.interrupt()
     }
 
     fun findScheduledReplication(expectation: UUID) = mapReplications
