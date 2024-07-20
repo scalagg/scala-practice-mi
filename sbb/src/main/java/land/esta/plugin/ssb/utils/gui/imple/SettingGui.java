@@ -1,6 +1,8 @@
 package land.esta.plugin.ssb.utils.gui.imple;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.setting.BotSetting;
+import land.esta.plugin.ssb.bot.setting.BotSettingService;
 import land.esta.plugin.ssb.bots.setting.Setting;
 import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.bots.setting.SettingObject;
@@ -23,6 +25,7 @@ import java.util.List;
 public class SettingGui {
 
     private final SettingManager manager;
+    private final String identifier;
     private final HashMap<Setting, GlobalGui> guis;
     private final int theme = 15;
     private final GlobalGui mainGui;
@@ -33,8 +36,9 @@ public class SettingGui {
     // Manager -> The setting which will be displayed in the gui
     // Data -> The player who sees the gui
     // Profiles -> Set to null to disable
-    public SettingGui(SettingManager manager, PlayerGui profiles, PresetType type) {
+    public SettingGui(String identifier, SettingManager manager, PlayerGui profiles, PresetType type) {
         this.manager = manager;
+        this.identifier = identifier;
         this.guis = new HashMap<>();
         this.mainGui = new GlobalGui("&c&lBot Settings", (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 18);
 
@@ -374,21 +378,14 @@ public class SettingGui {
             //Save
             slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 1 + 9;
             mainGui.createGuiItem(new ItemStack(Material.WOOL, 1, (short) 5), slot, "&a&lSave", (player, pressedSlot) -> {
-                DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
-                data.getGui().saveSettings();
+                BotSetting existingSetting = BotSettingService.INSTANCE.getOrCreate(identifier);
+
+                existingSetting.update(manager);
+                existingSetting.save();
+
                 player.closeInventory();
                 player.sendMessage(Color.code("&aYou have successfully saved your settings."));
             });
-
-/*
-            if (profiles != null) {
-                //Load
-                slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 2 + 9;
-                mainGui.createGuiItem(new ItemStack(Material.NAME_TAG, 1), slot, "&e&lLoad Presets", (player, pressedSlot) -> {
-                    profiles.minOpen();
-                });
-            }
-*/
 
             //Reset
             slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 4 + 9;

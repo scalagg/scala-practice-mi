@@ -190,33 +190,9 @@ public class DataPresets {
 
     //Creates a default preset
     public SettingGui createPreset() {
-        String presetName = "default";
-        int counter = 0;
-
-        List<String> names = presetsNames();
-
-        while (names.contains(presetName)) {
-            counter++;
-            presetName = presetName + counter;
-        }
-        //Bukkit.broadcastMessage("path " + path);
-        String finalPresetName = presetName;
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                SmartBotsBackend.getInstance().getMongoHandler().createBotDoc(type, finalPresetName);
-            }
-        }.runTaskAsynchronously(SmartBotsBackend.getInstance());
-        SettingGui preset = new SettingGui(SettingManager.loadSettings(type, presetName),null, type);
-        preset.getManager().setName(presetName);
-        return addPreset(preset);
+        return null;
     }
 
-    // Loads a preset
-    public SettingGui loadPreset(SettingManager manager) {
-        SettingGui preset = new SettingGui(manager,null, type);
-        return addPreset(preset);
-    }
 
     //If a present with that name exists
     public boolean findPreset(String name) {

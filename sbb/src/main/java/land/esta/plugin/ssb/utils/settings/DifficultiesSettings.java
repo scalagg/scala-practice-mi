@@ -52,7 +52,7 @@ public class DifficultiesSettings {
         data.put(setting, manager);
 
         // Creates a gui
-        guiMap.put(fancyName, new SettingGui(manager, null, PresetType.DEFAULT)); // We don't need any profiles in difficulty selector therefore its null
+        guiMap.put(fancyName, new SettingGui(setting, manager, null, PresetType.DEFAULT)); // We don't need any profiles in difficulty selector therefore its null
     }
 
     public void loadGui() {
