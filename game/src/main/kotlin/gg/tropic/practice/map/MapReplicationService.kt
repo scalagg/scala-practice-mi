@@ -141,7 +141,6 @@ object MapReplicationService
 
                 if (newGame.robotInstance == null)
                 {
-                    println("Instance is null")
                     newGame.state = GameState.Completed
                     newGame.closeAndCleanup()
                     return@handler

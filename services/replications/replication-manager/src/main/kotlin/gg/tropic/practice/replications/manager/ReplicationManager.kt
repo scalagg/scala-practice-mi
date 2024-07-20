@@ -11,8 +11,11 @@ import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 /**
  * @author GrowlyX
@@ -60,6 +63,22 @@ object ReplicationManager
 
     fun load()
     {
+        val service = Executors.newSingleThreadScheduledExecutor()
+        service.scheduleAtFixedRate({
+            replicationCallbacks.entries.toList()
+                .filter { it.value.first + 5000L <= System.currentTimeMillis() }
+                .forEach {
+                    it.value.second.complete(
+                        ReplicationResult(
+                            status = ReplicationResultStatus.Unavailable,
+                            message = "Expired"
+                        )
+                    )
+
+                    replicationCallbacks.remove(it.key)
+                }
+        }, 0L, 200L, TimeUnit.MILLISECONDS)
+
         redis.configure {
             listen("status") {
                 val server = retrieve<String>("server")
@@ -80,7 +99,7 @@ object ReplicationManager
                 val requestID = retrieve<UUID>("requestID")
                 val result = retrieve<ReplicationResult>("result")
 
-                replicationCallbacks.getIfPresent(requestID)
+                replicationCallbacks[requestID]?.second
                     ?.complete(result)
             }
         }
@@ -97,21 +116,7 @@ object ReplicationManager
         val message: String? = null
     )
 
-    private val replicationCallbacks = Caffeine
-        .newBuilder()
-        .removalListener<UUID, CompletableFuture<ReplicationResult>> { _, value, cause ->
-            if (cause == RemovalCause.EXPIRED)
-            {
-                value?.complete(
-                    ReplicationResult(
-                        status = ReplicationResultStatus.Unavailable,
-                        message = "Expired"
-                    )
-                )
-            }
-        }
-        .expireAfterWrite(5L, TimeUnit.SECONDS)
-        .build<UUID, CompletableFuture<ReplicationResult>>()
+    private val replicationCallbacks = ConcurrentHashMap<UUID, Pair<Long, CompletableFuture<ReplicationResult>>>()
 
     fun allocateReplication(
         server: String,
@@ -138,7 +143,7 @@ object ReplicationManager
             channel = "practice:replicationmanager-inhabitants".suffixWhenDev()
         )
 
-        replicationCallbacks.put(requestID, future)
+        replicationCallbacks[requestID] = System.currentTimeMillis() to future
         return future
     }
 
@@ -167,7 +172,7 @@ object ReplicationManager
             channel = "practice:replicationmanager-inhabitants".suffixWhenDev()
         )
 
-        replicationCallbacks.put(requestID, future)
+        replicationCallbacks[requestID] = System.currentTimeMillis() to future
         return future
     }
 }
