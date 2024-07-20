@@ -20,7 +20,6 @@ fun Player.fixInventoryBasedOnRBTeamColor()
         if (game.flag(FeatureFlag.RedBlueTeams))
         {
             val teamSide = team.side.toRBTeamSide()
-            sendMessage("Checking")
             player.inventory.armorContents.indices.forEach { index ->
                 val itemStack = player.inventory.contents[index]
                     ?: return@forEach
@@ -30,7 +29,6 @@ fun Player.fixInventoryBasedOnRBTeamColor()
                     return@forEach
                 }
 
-                sendMessage("updating $index")
                 player.inventory.armorContents[index] = ItemBuilder
                     .copyOf(itemStack)
                     .color(teamSide.armorColor)
@@ -44,7 +42,6 @@ fun Player.fixInventoryBasedOnRBTeamColor()
 
                 if (itemStack.type == Material.WOOL || itemStack.type == Material.STAINED_CLAY)
                 {
-                    sendMessage("updating $index inventory wool/stainedclay")
                     player.inventory.setItem(
                         index,
                         ItemBuilder
