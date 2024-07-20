@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
@@ -60,9 +61,16 @@ public class Bot {
     private boolean alive = true;
     private boolean killed;
 
-    public Bot(Location loc, String name, String skin, Player p, SettingManager settings, Kit kit) throws IOException, InterruptedException {
+    private final String skin;
+    private final SettingManager settings;
+
+    public Bot(Location loc, String name, String skin, SettingManager settings, Kit kit) {
         this.kit = kit;
-        this.eventListener = (e) -> {};
+        this.eventListener = (e) -> {
+        };
+
+        this.skin = skin;
+        this.settings = settings;
         //Registering
         registerNPC(name, loc);
 
@@ -70,16 +78,22 @@ public class Bot {
             player.hidePlayer(npc.getBukkitEntity());
         });
 
-        p.showPlayer(npc.getBukkitEntity());
-
-        registerManagers(settings, loc, p);
-        registerSkin(skin, p);
+        registerManagers(settings, loc);
 
         //Create packets
         packetsManager.sendCreatesPackets();
 
         loadManagers();
         registerBot();
+    }
+
+    public boolean hasRegisteredOnlyPlayer = false;
+    public CompletableFuture<Void> registerPlayer(Player player) {
+        player.showPlayer(npc.getBukkitEntity());
+
+        return CompletableFuture.runAsync(() -> {
+            registerSkin(skin, player);
+        });
     }
 
     private void registerBot() {
@@ -100,7 +114,7 @@ public class Bot {
         MEventManager.addEvent(effectsManager);
     }
 
-    private void registerManagers(SettingManager settings,Location loc,Player p) {
+    private void registerManagers(SettingManager settings, Location loc) {
         if (settings != null) settingManager = settings;
         //Load the SettingsManager first in order for other managers to read from it.
         if (settings == null) settingManager = new SettingManager();
@@ -109,13 +123,11 @@ public class Bot {
         MEventManager = new MEventManager(this);
         effectsManager = new EffectsManager(this);
         velocityCalculator = new VelocityCalculator(this);
-        movements = new MovementsMain(this,loc,p);
+        movements = new MovementsMain(this, loc);
         packetsManager = new PacketsManager(this);
         inventoryManager = new InventoryManager(this);
         fleeManager = new FleeManager(this);
-        List<Player> playerList = new ArrayList<>();
-        playerList.add(p);
-        viewsManager = new ViewsManager(this,playerList);
+        viewsManager = new ViewsManager(this, new ArrayList<>());
     }
 
     private void registerNPC(String name, Location loc) {
@@ -138,7 +150,7 @@ public class Bot {
     }
 
     // TODO: Optimize registering skin (HTTP Open Stream) is tanking performance
-    private void registerSkin(String name, Player fallback) throws IOException {
+    private void registerSkin(String name, Player fallback) {
         //If the skin is already registered to the server use it.
         Property property;
         try {
@@ -232,14 +244,14 @@ public class Bot {
 
     public void deathEvent(Runnable executeAction) {
         //Animation
-        fakeDeath(npc.getBukkitEntity(), movements.getTargetLocate().getTargetEntity(),executeAction);
+        fakeDeath(npc.getBukkitEntity(), movements.getTargetLocate().getTargetEntity(), executeAction);
 
         //Event
         //Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
 
     }
 
-    public void fakeDeath(Player player, Player killer,Runnable finishAction) {
+    public void fakeDeath(Player player, Player killer, Runnable finishAction) {
         movements.setMove(false);
 
         packetsManager.sendDeathPackets();
@@ -257,7 +269,7 @@ public class Bot {
                 npc.getBukkitEntity().remove();
                 Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(bot));
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(),14);
+        }.runTaskLater(SmartBotsBackend.getInstance(), 14);
     }
 
     public void lightning() {
@@ -271,7 +283,8 @@ public class Bot {
         MEventManager.tickMid();
         MEventManager.tickPost();
 
-        if (!movements.getTargetLocate().getTargetEntity().getWorld().equals(movements.getLocation().getWorld())) return;
+        if (!movements.getTargetLocate().getTargetEntity().getWorld().equals(movements.getLocation().getWorld()))
+            return;
         velocityCalculator.setPre(false);
         MEventManager.callEvents();
     }

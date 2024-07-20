@@ -27,6 +27,12 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     override fun name(): String = spawnedBot.settingManager.botName
     override fun participantConnected(player: Player)
     {
+        if (!spawnedBot.hasRegisteredOnlyPlayer)
+        {
+            spawnedBot.hasRegisteredOnlyPlayer
+            spawnedBot.registerPlayer(player)
+        }
+
         spawnedBot.viewsManager.addPlayer(player)
     }
 

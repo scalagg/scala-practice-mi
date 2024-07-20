@@ -5,8 +5,6 @@ import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
-import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
 import land.esta.plugin.ssb.bots.setting.Setting;
@@ -18,7 +16,6 @@ import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
 import land.esta.plugin.ssb.utils.gui.imple.BotGui;
 import land.esta.plugin.ssb.utils.gui.imple.SettingGui;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +23,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
@@ -40,63 +36,60 @@ public class EstaPracticeManager {
             Location loc,
             GameImpl game,
             boolean combo,
-            Player player,
-            boolean noDamage
-    ) throws IOException {
-        DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
-        try {
-            SettingManager settings = getSettings(data, "easy", game.getKit().getId());
+            boolean noDamage,
+            SettingManager settings
+    ) {
+        if (settings == null) {
+            game.complete(null, "No bot configuration was found!");
+            return null;
+        }
 
-            if (settings == null) {
-                game.complete(null, "No bot configuration was found!");
-                return null;
-            }
+        if (settings.isGameRandomizer()) {
+            for (Setting setting : settings.getSettings()) {
+                for (SettingObject object : setting.getSettings()) {
+                    if (object.getMin() <= 0 || object.getMax() <= 0) continue;
 
-            if (settings.isGameRandomizer()) {
-                for (Setting setting : settings.getSettings()) {
-                    for (SettingObject object : setting.getSettings()) {
-                        if (object.getMin() <= 0 || object.getMax() <= 0) continue;
-
-                        if (object.getObject() instanceof Boolean) {
-                            object.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1);
-                        } else if (object.getObject() instanceof Double) {
-                            if ((Double) object.getObject() % 1 == 0)
-                                if (RandomUtil.randInt((int) object.getMin(), (int) object.getMax()) != -1)
-                                    object.setObject(RandomUtil.randInt((int) object.getMin(), (int) object.getMax()));
-                                else if (RandomUtil.randDouble(object.getMin(), object.getMax()) != -1)
-                                    object.setObject(RandomUtil.randDouble(object.getMin(), object.getMax()));
-                        } else {
+                    if (object.getObject() instanceof Boolean) {
+                        object.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1);
+                    } else if (object.getObject() instanceof Double) {
+                        if ((Double) object.getObject() % 1 == 0)
                             if (RandomUtil.randInt((int) object.getMin(), (int) object.getMax()) != -1)
                                 object.setObject(RandomUtil.randInt((int) object.getMin(), (int) object.getMax()));
-                        }
+                            else if (RandomUtil.randDouble(object.getMin(), object.getMax()) != -1)
+                                object.setObject(RandomUtil.randDouble(object.getMin(), object.getMax()));
+                    } else {
+                        if (RandomUtil.randInt((int) object.getMin(), (int) object.getMax()) != -1)
+                            object.setObject(RandomUtil.randInt((int) object.getMin(), (int) object.getMax()));
                     }
                 }
             }
+        }
 
-            String name = settings.getBotName().replace("%player%", player.getName());
-            if (name.length() > 16) {
-                name = name.substring(0, 16);
-            }
+        String name = settings.getBotName();
+        if (name.length() > 16) {
+            name = name.substring(0, 16);
+        }
 
-            Bot bot = new Bot(loc, Color.code(name), settings.getSkin().replace("%player%", player.getName()), player, settings, game.getKit()); // ADDED: Applies the bot skin and name
-            if (game.flag(FeatureFlag.DeathOnLiquidInteraction)) {
-                bot.getMovements().setEdgeDetector(true);
-            }
+        Bot bot = new Bot(loc, Color.code(name), settings.getSkin(), settings, game.getKit()); // ADDED: Applies the bot skin and name
+        if (game.flag(FeatureFlag.DeathOnLiquidInteraction)) {
+            bot.getMovements().setEdgeDetector(true);
+        }
 
-            bot.getDamageManager().setAllowGlobalAttacks(false);
-            // bot.lightning();
-            bot.getMovements().getCollision().setWaterEnterEvent(bot::silentKill);
-            bot.getDamageManager().setNoDamage(noDamage);
-            bot.getMovements().setMove(false);
+        bot.getDamageManager().setAllowGlobalAttacks(false);
+        // bot.lightning();
+        bot.getMovements().getCollision().setWaterEnterEvent(bot::silentKill);
+        bot.getDamageManager().setNoDamage(noDamage);
+        bot.getMovements().setMove(false);
 
-            if (combo) bot.getDamageManager().setCombo(combo);
+        if (combo) bot.getDamageManager().setCombo(combo);
 
-            //Boxing support
-            if (noDamage) {
+        //Boxing support
+            /*if (noDamage) {
                 data.setBotHitCounter(0);
                 data.setHitCounter(0);
                 data.setCombo(0);
                 data.setBotCombo(0);
+
                 bot.setEventListener((event -> {
                     if (event instanceof BotDamageEvent) {
                         if (((BotDamageEvent) event).getSource() != null && ((BotDamageEvent) event).getSource().getEntity() != null && Bukkit.getServer().getPlayer(((BotDamageEvent) event).getSource().getEntity().getName()).equals(player)) {
@@ -119,62 +112,57 @@ public class EstaPracticeManager {
                         }
                     }
                 }));
-            }
+            }*/
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (bot.isAlive()) bot.getMovements().setMove(true);
-                }
-            }.runTaskLater(SmartBotsBackend.getInstance(), 6 * 20);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (bot.isAlive()) bot.getMovements().setMove(true);
+            }
+        }.runTaskLater(SmartBotsBackend.getInstance(), 6 * 20);
 
-            InventoryManager inventoryManager = bot.getInventoryManager();
-            inventoryManager.applyItemList(
-                    Stream
-                            .of(game.getKit().getContents())
-                            .map(ItemStack::clone)
-                            .toList()
-            );
+        InventoryManager inventoryManager = bot.getInventoryManager();
+        inventoryManager.applyItemList(
+                Stream
+                        .of(game.getKit().getContents())
+                        .map(ItemStack::clone)
+                        .toList()
+        );
 
-            if (game.getKit().getArmorContents()[3] != null) {
-                // inventoryManager.updateHelmet(helmet.clone());
-                inventoryManager.updateArmorContents(game.getKit().getArmorContents()[3].clone(), 4);
-            }
-            if (game.getKit().getArmorContents()[2] != null) {
-                // inventoryManager.updateChestPlate(chestPlate.clone());
-                inventoryManager.updateArmorContents(game.getKit().getArmorContents()[2].clone(), 3);
-            }
-            if (game.getKit().getArmorContents()[1] != null) {
-                // inventoryManager.updateLeggings(leggings.clone());
-                inventoryManager.updateArmorContents(game.getKit().getArmorContents()[1].clone(), 2);
-            }
-            if (game.getKit().getArmorContents()[0] != null) {
-                // inventoryManager.updateBoots(boots.clone());
-                inventoryManager.updateArmorContents(game.getKit().getArmorContents()[0].clone(), 1);
-            }
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    bot.getEffectsManager().addEffects(
-                            game.getKit()
-                                    .getPotionEffects()
-                                    .entrySet()
-                                    .stream()
-                                    .map(pair -> new PotionEffect(
-                                            PotionEffectType.getByName(pair.getKey()), Integer.MAX_VALUE, pair.getValue()
-                                    ))
-                                    .toList()
-                    );
-                }
-            }.runTaskLater(SmartBotsBackend.getInstance(), 1);
-            //TODO combo mode support.
-            return bot;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (game.getKit().getArmorContents()[3] != null) {
+            // inventoryManager.updateHelmet(helmet.clone());
+            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[3].clone(), 4);
+        }
+        if (game.getKit().getArmorContents()[2] != null) {
+            // inventoryManager.updateChestPlate(chestPlate.clone());
+            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[2].clone(), 3);
+        }
+        if (game.getKit().getArmorContents()[1] != null) {
+            // inventoryManager.updateLeggings(leggings.clone());
+            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[1].clone(), 2);
+        }
+        if (game.getKit().getArmorContents()[0] != null) {
+            // inventoryManager.updateBoots(boots.clone());
+            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[0].clone(), 1);
         }
 
-        return null;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                bot.getEffectsManager().addEffects(
+                        game.getKit()
+                                .getPotionEffects()
+                                .entrySet()
+                                .stream()
+                                .map(pair -> new PotionEffect(
+                                        PotionEffectType.getByName(pair.getKey()), Integer.MAX_VALUE, pair.getValue()
+                                ))
+                                .toList()
+                );
+            }
+        }.runTaskLater(SmartBotsBackend.getInstance(), 1);
+        //TODO combo mode support.
+        return bot;
     }
 
 

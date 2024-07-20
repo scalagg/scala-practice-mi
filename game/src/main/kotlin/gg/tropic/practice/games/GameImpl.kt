@@ -768,4 +768,5 @@ open class GameImpl(
     }
 
     fun humanSide() = teams[GameTeamSide.A]!!
+    fun robotSide() = teams[GameTeamSide.B]!!
 }
