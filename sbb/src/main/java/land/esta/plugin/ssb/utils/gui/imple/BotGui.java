@@ -278,14 +278,14 @@ public class BotGui {
                 }
             });
 
-            //Load
+/*            //Load
             slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 2 + 9;
             mainGui.createGuiItem(new ItemStack(Material.NAME_TAG,1),slot,"&e&lLoad Presets",(player, pressedSlot) -> {
                 if (!data.isSaving()) {
                     profilesGui.minOpen();
                     player.sendMessage(Color.code("&cThis feature is currently disabled."));
                 } else player.sendMessage(Color.code("&7Please wait for your presets to save..."));
-            });
+            });*/
 
             //Reset
             slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 4 + 9;

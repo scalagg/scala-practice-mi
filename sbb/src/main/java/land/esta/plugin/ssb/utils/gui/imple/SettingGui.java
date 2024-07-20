@@ -380,6 +380,7 @@ public class SettingGui {
                 player.sendMessage(Color.code("&aYou have successfully saved your settings."));
             });
 
+/*
             if (profiles != null) {
                 //Load
                 slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 2 + 9;
@@ -387,6 +388,7 @@ public class SettingGui {
                     profiles.minOpen();
                 });
             }
+*/
 
             //Reset
             slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 4 + 9;
