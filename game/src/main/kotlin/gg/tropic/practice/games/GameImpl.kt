@@ -428,6 +428,11 @@ open class GameImpl(
             player.uniqueId in it.players
         }
 
+    fun getNullableTeam(player: Player) = this.teams.values
+        .firstOrNull {
+            player.uniqueId in it.players
+        }
+
     fun getOpponent(player: Player) =
         this.getOpponent(
             this.getTeamOf(player)
