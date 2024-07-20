@@ -1522,6 +1522,7 @@ object GameService
                                 it.blockPlaced.type = Material.AIR
                             }
                         }, blockExpiration * 20L)
+                        .bindWith(game.multiRoundGame.terminable)
                 }
             }
             .bindWith(plugin)

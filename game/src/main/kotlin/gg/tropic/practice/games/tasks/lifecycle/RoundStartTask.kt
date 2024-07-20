@@ -10,6 +10,7 @@ import gg.tropic.practice.utilities.toRBTeamSide
 import me.lucko.helper.Helper
 import me.lucko.helper.Schedulers
 import me.lucko.helper.scheduler.Task
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.visibility.VisibilityHandler
@@ -60,6 +61,10 @@ class RoundStartTask(
     init
     {
         game.multiRoundGame.switchingRounds = true
+
+        game.multiRoundGame.terminable.closeAndReportException()
+        game.multiRoundGame.terminable = CompositeTerminable.create()
+
         winner.gameLifecycleArbitraryObjectiveProgress += 1
 
         game.cleanupWorld()
