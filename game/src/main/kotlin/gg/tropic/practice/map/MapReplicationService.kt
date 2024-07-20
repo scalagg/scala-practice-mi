@@ -14,6 +14,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.robot.RobotGameLifecycle
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.map.metadata.anonymous.toBlockFace
@@ -74,7 +75,10 @@ object MapReplicationService
         {
             if (game.robot())
             {
-                if (game.humanSide().toBukkitPlayers().all { it != null })
+                if (
+                    game.humanSide().toBukkitPlayers().all { it != null } &&
+                    game.robotInstance != null
+                )
                 {
                     game.initializeAndStart()
                     return true
@@ -120,6 +124,14 @@ object MapReplicationService
 
             scheduledMap.inUse = true
             newGame.arenaWorldName = scheduledMap.world.name
+
+            if (newGame.robot())
+            {
+                newGame.robotInstance = RobotGameLifecycle
+                    .createNewRobotInstance(newGame)
+                    .join()
+                newGame.robotInstance?.terminable?.bindWith(newGame)
+            }
 
             val start = System.currentTimeMillis()
 
