@@ -1375,6 +1375,17 @@ object GameService
                             }
                     )
                     {
+                        if (it.block.type == Material.SNOW_BLOCK)
+                        {
+                            it.player.inventory.addItem(
+                                ItemBuilder
+                                    .of(Material.SNOW_BALL)
+                                    .amount(4)
+                                    .build()
+                            )
+                            return@handler
+                        }
+
                         return@handler
                     }
                 }
