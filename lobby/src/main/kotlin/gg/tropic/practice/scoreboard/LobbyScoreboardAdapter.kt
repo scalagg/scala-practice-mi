@@ -126,9 +126,6 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                                     if (this > 20.0) "*20.0" else "%.1f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
                                 }
                             }"
-                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Replications: ${CC.PRI}${
-                                Numbers.format(ScoreboardInfoService.scoreboardInfo.availableReplications)
-                            }"
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Games: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
                             } ${CC.GRAY}(${
