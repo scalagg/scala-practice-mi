@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.support.estapractice.EstaPracticeManager
 import me.lucko.helper.Events
+import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.entity.Player
 
 /**
@@ -55,6 +56,10 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
                 false,
                 false
             )
+
+            Tasks.delayed(1L) {
+                spawnedBot?.viewsManager?.addPlayer(player)
+            }
             return
         }
 

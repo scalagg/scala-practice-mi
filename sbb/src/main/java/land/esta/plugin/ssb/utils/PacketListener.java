@@ -144,6 +144,10 @@ public class PacketListener implements Listener {
     }
 
     public void attack(int id,Player attacker) {
+        if (SmartBotsBackend.getInstance() == null) {
+            return;
+        }
+
         for (Bot bot : SmartBotsBackend.getInstance().getBotManager().getBots()) {
             if (bot.getNpc().getId() == id) {
                 //Nms already does this for us

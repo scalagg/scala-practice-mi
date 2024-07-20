@@ -192,7 +192,7 @@ object ExpectationService
                 {
                     if (game.robot())
                     {
-                        game.robotInstance?.spectatorConnected(it.player)
+                        game.robotInstance?.participantConnected(it.player)
                     }
 
                     it.player.removeMetadata("spectator", plugin)
