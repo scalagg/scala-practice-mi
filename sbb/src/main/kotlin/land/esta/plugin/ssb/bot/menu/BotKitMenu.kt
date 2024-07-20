@@ -70,7 +70,7 @@ class BotKitMenu(private val identifier: String) : TemplateKitMenu()
             }
     )
 
-    override fun filterDisplayOfKit(player: Player, kit: Kit) = true
+    override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes.any { it.second.contains(QueueType.Robot) }
 
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_GREEN}${kit.displayName}"
     override fun itemDescriptionOf(player: Player, kit: Kit) = listOf(

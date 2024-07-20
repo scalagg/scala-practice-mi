@@ -44,9 +44,9 @@ public class Bot {
     private static Map<String, Property> registeredSkins = new HashMap<>();
     private NPCEntity npc;
     private Kit kit;
-    private SettingManager settingManager;
+    public SettingManager settingManager;
     private PacketsManager packetsManager;
-    private ViewsManager viewsManager;
+    public ViewsManager viewsManager;
     private EffectsManager effectsManager;
     private VelocityCalculator velocityCalculator;
     private MEventManager MEventManager;
@@ -59,7 +59,7 @@ public class Bot {
     private EventRunnable eventListener;
     private DamageCalculator damageCalculator;
     private boolean alive = true;
-    private boolean killed;
+    public boolean killed;
 
     private final String skin;
     private final SettingManager settings;
