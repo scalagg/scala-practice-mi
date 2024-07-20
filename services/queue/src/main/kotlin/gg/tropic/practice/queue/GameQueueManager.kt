@@ -153,7 +153,7 @@ object GameQueueManager
                     .getServer<GameServer?>(it.key)
                     ?: return@filter false
 
-                game.state == ServerState.Loaded
+                game.lastHeartbeat + 5000L > System.currentTimeMillis() && game.state == ServerState.Loaded
             }
             .flatMap {
                 it.value.replications.values.flatten()

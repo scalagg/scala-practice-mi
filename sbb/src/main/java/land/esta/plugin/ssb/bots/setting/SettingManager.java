@@ -11,6 +11,7 @@ import lombok.Setter;
 import land.esta.plugin.ssb.data.DataPlayer;
 import land.esta.plugin.ssb.data.presets.PresetType;
 import land.esta.plugin.ssb.utils.Color;
+import net.evilblock.cubed.util.bukkit.Constants;
 import net.evilblock.cubed.util.bukkit.Tasks;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -96,17 +97,18 @@ public class SettingManager {
     public List<String> getMenuDescription(String identifier, String fancyName) {
         List<String> lore = new ArrayList<>();
         Map<String, Map<String, SettingObject>> map = BotSettingService.INSTANCE.getOrCreate(identifier).getSettings();
+        var thing = Constants.getTHIN_VERTICAL_LINE();
 
         lore.add(" ");
-        lore.add("&c&lDifficulty");
-        lore.add(" &c&l| &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
-        lore.add(" &c&l| &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
-        lore.add(" &c&l| &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
+        lore.add("&cDifficulty:");
+        lore.add("&7" + thing + " &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
+        lore.add("&7" + thing + " &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
+        lore.add("&7" + thing + " &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
         lore.add(" ");
-        lore.add("&c&lTraits");
-        lore.add(" &c&l| &fW-Tap: &c" + map.get("WTap").get("W-Tap").isBooleanValue());
-        lore.add(" &c&l| &fRod Enabled: &c" + map.get("Rod").get("Rod Enabled").isBooleanValue());
-        lore.add(" &c&l| &fStrafe: &c" + map.get("Strafe").get("Strafe").isBooleanValue());
+        lore.add("&cTraits:");
+        lore.add("&7" + thing + " &fW-Tap: &c" + map.get("WTap").get("W-Tap").isBooleanValue());
+        lore.add("&7" + thing + " &fRod Enabled: &c" + map.get("Rod").get("Rod Enabled").isBooleanValue());
+        lore.add("&7" + thing + " &fStrafe: &c" + map.get("Strafe").get("Strafe").isBooleanValue());
         lore.add(" ");
         lore.add("&aClick to select the " + fancyName + " &abot!");
 
