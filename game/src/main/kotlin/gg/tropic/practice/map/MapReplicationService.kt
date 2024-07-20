@@ -359,7 +359,6 @@ object MapReplicationService
         metadata.metadata
             .filterIsInstance<MapPortalMetadata>()
             .forEach {
-                println("EDITING: ${it.id}")
                 for (block in it.bounds.utility(world))
                 {
                     if (block == null)
