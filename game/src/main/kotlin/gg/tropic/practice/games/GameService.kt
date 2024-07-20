@@ -286,9 +286,6 @@ object GameService
                 player.isFlying = true
             }
 
-            target.allowFlight = true
-            target.isFlying = true
-
             if (configuration.clearInventory != false)
             {
                 game.takeSnapshot(player)
