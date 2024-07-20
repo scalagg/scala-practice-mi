@@ -44,11 +44,11 @@ public class EatingAndDrinking extends Feature {
             boolean needsHealth = bot.getHealthManager().getHealth() + bot.getHealthManager().getAbsHearts() < bot.getSettingManager().getEatingSettings().getEatingGappleHealth().getIntValue() && bot.getInventoryManager().hasItem(322).size() > 0;
 
             if (needsHealth) {
-                // Prefer to splash potions
+                /*// Prefer to splash potions
                 if (!getPotions(bot).isEmpty()) {
                     SmartBotsBackend.getInstance().getFeatureManager().getHealthPotionThrowing().splash(bot, bot.getFleeManager().getTicks());
                     return;
-                }
+                }*/
 
                 if (able) {
                     if (!bot.getInventoryManager().isEating())

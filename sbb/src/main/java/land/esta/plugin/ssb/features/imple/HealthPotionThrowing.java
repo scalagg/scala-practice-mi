@@ -45,39 +45,30 @@ public class HealthPotionThrowing extends Feature {
         }
 
         if (event instanceof RunningEvent e) {
+            //Values
+            Bot bot = e.bot;
+            int ticks = e.getTicks();
 
-            if (splash(e.bot, e.getTicks())) {
-                e.setForceEnd(true);
-                e.bot.getFleeManager().setRunning(false);
+            //Throwing
+            if (
+                    ticks == bot.getSettingManager().getPotionSetting().getFirstPotionTick().getIntValue() ||
+                            ticks ==  bot.getSettingManager().getPotionSetting().getSecondPotionTick().getIntValue() &&
+                                    bot.getSettingManager().getPotionSetting().getSecondPotion().isBooleanValue()
+            ) {
+                List<ItemStack> potions = getPotions(bot);
+                bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(potions.get(0)));
+                throwPotion(potions.get(0), bot);
+
+                //Set holding
+                if (potions.size() > 1)
+                    bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(1)));
+
+                if (potions.size() <= 1) {
+                    bot.getInventoryManager().setMainHand(1);
+                    e.setForceEnd(true);
+                }
             }
         }
-    }
-
-    public boolean splash(Bot bot, int ticks) {
-        //Throwing
-        if (ticks == bot.getSettingManager().getPotionSetting().getFirstPotionTick().getIntValue() || ticks == bot.getSettingManager().getPotionSetting().getSecondPotionTick().getIntValue() && bot.getSettingManager().getPotionSetting().getSecondPotion().isBooleanValue()) {
-            List<ItemStack> potions = getPotions(bot);
-            bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(potions.get(0)));
-            throwPotion(potions.get(0), bot);
-
-            //Set holding
-            /*if (potions.size() > 1)
-                bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(1)));
-
-            if (potions.size() <= 1) {
-                bot.getInventoryManager().setMainHand(1);
-            }*/
-            bot.getInventoryManager().setMainHand(1);
-            return true;
-        }
-
-        //Cancel
-        if (bot.getHealthManager().getHealth() > bot.getSettingManager().getPotionSetting().getFleeHealth().getIntValue() && nearTarget(bot) || ticks > bot.getSettingManager().getPotionSetting().getFinishPotionTick().getIntValue()) {
-            bot.getInventoryManager().setMainHand(1);
-            return true;
-        }
-
-        return false;
     }
 
     //Gets all the splash potions of a specific type
