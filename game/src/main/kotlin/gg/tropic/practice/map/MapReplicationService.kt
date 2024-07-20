@@ -14,10 +14,12 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.map.metadata.anonymous.toBlockFace
 import gg.tropic.practice.map.metadata.impl.MapBedMetadata
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
 import gg.tropic.practice.services.ReplicationManagerService
@@ -70,6 +72,16 @@ object MapReplicationService
 
         fun startIfReady(game: GameImpl): Boolean
         {
+            if (game.robot())
+            {
+                if (game.humanSide().toBukkitPlayers().all { it != null })
+                {
+                    game.initializeAndStart()
+                    return true
+                }
+                return false
+            }
+
             if (
                 game.toBukkitPlayers()
                     .none { other ->

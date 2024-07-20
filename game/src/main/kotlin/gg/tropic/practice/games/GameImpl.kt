@@ -313,7 +313,7 @@ open class GameImpl(
         stopTask.task.bindWith(this)
     }
 
-    fun initializeTeamObjectives()
+    private fun initializeTeamObjectives()
     {
         if (flag(FeatureFlag.WinWhenNHitsReached))
         {
@@ -758,4 +758,11 @@ open class GameImpl(
                 it.remove()
             }
     }
+
+    fun robot(): Boolean
+    {
+        return expectationModel.queueType == QueueType.Robot
+    }
+
+    fun humanSide() = teams[GameTeamSide.A]!!
 }
