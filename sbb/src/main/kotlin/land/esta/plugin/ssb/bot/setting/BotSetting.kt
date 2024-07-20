@@ -27,6 +27,17 @@ data class BotSetting(
         }
     }
 
+    fun update(manager: SettingManager)
+    {
+        manager.settings.forEach { setting ->
+            setting.settings.forEach { so ->
+                settings.putIfAbsent(setting.name, mutableMapOf())
+
+                settings[setting.name]!![so.name] = so
+            }
+        }
+    }
+
     fun save()
     {
         with(BotSettingService.cached()) {
