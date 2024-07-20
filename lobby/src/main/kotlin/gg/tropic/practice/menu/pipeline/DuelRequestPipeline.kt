@@ -235,20 +235,19 @@ object DuelRequestPipeline
             .intersect(kitGroups)
             .isNotEmpty()
 
-        override fun itemDescriptionOf(player: Player, map: Map) = listOf("",
-            "${CC.AQUA}Right-click to edit Match Configuration",
+        override fun itemDescriptionOf(player: Player, map: Map) = listOf(
             "",
             "${CC.GREEN}Click to select!",
         )
 
         override fun itemClicked(player: Player, map: Map, type: ClickType)
         {
-            if (type == ClickType.RIGHT)
+            /*if (type == ClickType.RIGHT)
             {
                 Button.playNeutral(player)
                 stage3AEditDuelConfiguration(player, target, kit, previous, selectedRegion, map)
                 return
-            }
+            }*/
 
             Button.playNeutral(player)
             stage3SendDuelRequest(player, target, kit, map, selectedRegion)
