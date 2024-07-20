@@ -98,8 +98,12 @@ object MapReplicationService
             val scheduledMap = findScheduledReplication(expectation.identifier)
                 ?: return@handler
 
-            newGame.map.metadata.clearSignLocations(scheduledMap.world)
-            newGame.map.prepare(scheduledMap.world)
+            Schedulers.sync()
+                .run {
+                    newGame.map.metadata.clearSignLocations(scheduledMap.world)
+                    newGame.map.prepare(scheduledMap.world)
+                }
+                .join()
 
             scheduledMap.inUse = true
             newGame.arenaWorldName = scheduledMap.world.name
