@@ -270,7 +270,7 @@ public class BotGui {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 if (!data.isUpdatingGui()) {
                     if (!data.isSaving()) {
-//                        data.getGui().saveSettings();
+                        data.getGui().saveSettings();
                         player.sendMessage(Color.code("&aYou have successfully saved your settings."));
                     } else player.sendMessage(Color.code("&7Please wait for your presets to save..."));
                 } else {
