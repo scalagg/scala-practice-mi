@@ -20,6 +20,7 @@ import land.esta.plugin.ssb.npc.NPCPlayerConnection;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.EventRunnable;
+import net.evilblock.cubed.util.bukkit.Tasks;
 import net.minecraft.server.v1_8_R3.EnumProtocolDirection;
 import net.minecraft.server.v1_8_R3.MinecraftServer;
 import net.minecraft.server.v1_8_R3.PlayerInteractManager;
@@ -60,6 +61,8 @@ public class Bot {
     private boolean alive = true;
     public boolean killed;
 
+
+    public final UUID uniqueId = UUID.randomUUID();
     private final Player player;
 
     private final String skin;
@@ -88,8 +91,12 @@ public class Bot {
         loadManagers();
         player.showPlayer(npc.getBukkitEntity());
 
-        registerSkin(skin, player);
-        registerBot();
+        CompletableFuture.runAsync(() -> {
+            registerSkin(skin, player);
+        }).thenRun(() -> Tasks.sync(() -> {
+            registerBot();
+            return null;
+        }));
     }
 
     private void registerBot() {

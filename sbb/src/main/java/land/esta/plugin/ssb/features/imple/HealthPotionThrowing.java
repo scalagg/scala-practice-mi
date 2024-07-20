@@ -26,16 +26,16 @@ public class HealthPotionThrowing extends Feature {
 
     @Override
     public void listen(Event event) {
-        if (event instanceof BotHealthChangeEvent) {
-            BotHealthChangeEvent e = (BotHealthChangeEvent) event;
+        if (event instanceof BotHealthChangeEvent e) {
             Bot bot = e.bot;
 
             //Health & agro checks
-            if (e.getAfter() > 4 || bot.getHealthManager().getHealth() > bot.getMovements().getTargetLocate().getTargetEntity().getHealth()) return;
+            if (e.getAfter() > 4 || bot.getHealthManager().getHealth() > bot.getMovements().getTargetLocate().getTargetEntity().getHealth())
+                return;
 
             //Getting the potions
             List<ItemStack> potions = getPotions(bot);
-            if (potions.size() == 0) return;
+            if (potions.isEmpty()) return;
 
             //Set running
             bot.getFleeManager().setRunning(true);
@@ -44,32 +44,37 @@ public class HealthPotionThrowing extends Feature {
             bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(0)));
         }
 
-        if (event instanceof RunningEvent) {
-            RunningEvent e = (RunningEvent) event;
+        if (event instanceof RunningEvent e) {
 
             if (splash(e.bot, e.getTicks())) {
                 e.setForceEnd(true);
+                e.bot.getFleeManager().setRunning(false);
             }
         }
     }
 
     public boolean splash(Bot bot, int ticks) {
         //Throwing
-        if (ticks == bot.getSettingManager().getPotionSetting().getFirstPotionTick().getIntValue() || ticks ==  bot.getSettingManager().getPotionSetting().getSecondPotionTick().getIntValue() && bot.getSettingManager().getPotionSetting().getSecondPotion().isBooleanValue()) {
+        if (ticks == bot.getSettingManager().getPotionSetting().getFirstPotionTick().getIntValue() || ticks == bot.getSettingManager().getPotionSetting().getSecondPotionTick().getIntValue() && bot.getSettingManager().getPotionSetting().getSecondPotion().isBooleanValue()) {
             List<ItemStack> potions = getPotions(bot);
             bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(potions.get(0)));
-            throwPotion(potions.get(0),bot);
+            throwPotion(potions.get(0), bot);
 
             //Set holding
-            if (potions.size() > 1) bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(1)));
+            /*if (potions.size() > 1)
+                bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(1)));
+
             if (potions.size() <= 1) {
                 bot.getInventoryManager().setMainHand(1);
-            }
+            }*/
+            bot.getInventoryManager().setMainHand(1);
+            return true;
         }
 
         //Cancel
-        if (bot.getHealthManager().getHealth() > bot.getSettingManager().getPotionSetting().getFleeHealth().getIntValue() && nearTarget(bot) || ticks >  bot.getSettingManager().getPotionSetting().getFinishPotionTick().getIntValue()) {
+        if (bot.getHealthManager().getHealth() > bot.getSettingManager().getPotionSetting().getFleeHealth().getIntValue() && nearTarget(bot) || ticks > bot.getSettingManager().getPotionSetting().getFinishPotionTick().getIntValue()) {
             bot.getInventoryManager().setMainHand(1);
+            return true;
         }
 
         return false;
@@ -81,7 +86,8 @@ public class HealthPotionThrowing extends Feature {
         List<ItemStack> result = new ArrayList<>();
 
         for (ItemStack item : potions) {
-            if (Potion.fromItemStack(item).isSplash() && Potion.fromItemStack(item).getType().equals(PotionType.INSTANT_HEAL)) result.add(item);
+            if (Potion.fromItemStack(item).isSplash() && Potion.fromItemStack(item).getType().equals(PotionType.INSTANT_HEAL))
+                result.add(item);
         }
 
         return result;
@@ -97,9 +103,9 @@ public class HealthPotionThrowing extends Feature {
     }
 
     //Throws potions
-    public void throwPotion(ItemStack potion,Bot bot) {
+    public void throwPotion(ItemStack potion, Bot bot) {
         // Spawn the potion
-        launchProjectile(potion,null,bot.getNpc().getBukkitEntity());
+        launchProjectile(potion, null, bot.getNpc().getBukkitEntity());
 
         //Adds health //TODO replace with a system that listen for potion splash event and if the bot is in the right distance.
         bot.getHealthManager().addHealth(4 * 2);
@@ -112,7 +118,7 @@ public class HealthPotionThrowing extends Feature {
             public void run() {
                 World world = ((CraftWorld) entity.getWorld()).getHandle();
                 net.minecraft.server.v1_8_R3.Entity launch;
-                launch = new EntityPotion(world, entity.getHandle(),CraftItemStack.asNMSCopy(item));
+                launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
                 Validate.notNull(launch, "Projectile not supported");
                 if (velocity != null) {

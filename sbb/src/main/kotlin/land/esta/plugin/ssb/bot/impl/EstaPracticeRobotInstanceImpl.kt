@@ -31,6 +31,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
 
         Events
             .subscribe(BotDeathEvent::class.java)
+            .filter { it.bot.uniqueId == spawnedBot?.uniqueId }
             .handler {
                 gameImpl.complete(
                     gameImpl.humanSide()
@@ -63,6 +64,8 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
 
     override fun spectatorConnected(player: Player)
     {
-        spawnedBot?.viewsManager?.addPlayer(player)
+        Tasks.delayed(1L) {
+            spawnedBot?.viewsManager?.addPlayer(player)
+        }
     }
 }
