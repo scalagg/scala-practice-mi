@@ -31,11 +31,16 @@ open class RobotSinglePlayerQueue(
 
         // don't unnecessarily load in and map to data class if not needed
         val queueEntries = GameQueueManager.getQueueEntriesFromId(queueId())
+        if (queueEntries.values.isEmpty())
+        {
+            return
+        }
+
+        println(queueEntries.values)
         val first = queueEntries.values.first()
 
         // a bot is playing w/ the player lol
         val users = first.players + Globals.PLAYER_BOT_UNIQUE_ID
-
         val map = MapDataSync
             .selectRandomMapCompatibleWith(kit)
             ?: return run {
