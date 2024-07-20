@@ -1445,8 +1445,7 @@ object GameService
                     }
                 }
 
-                val zone = game.map.findZoneContainingEntity(it.player)
-
+                val zone = game.map.findZoneContainingBlock(it.block)
                 if (zone != null && zone.id.startsWith("restrict"))
                 {
                     it.isCancelled = true
