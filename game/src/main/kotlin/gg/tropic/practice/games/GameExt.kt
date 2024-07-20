@@ -130,12 +130,10 @@ fun GameImpl.teleportToSpawnLocation(player: Player)
     if (flag(FeatureFlag.ClearIllegalBlocksOnRespawn))
     {
         val block = arenaWorld!!.getBlockAt(spawnLocation)
-        block.state.type = Material.AIR
-        block.state.update()
+        block.type = Material.AIR
 
         block.getRelative(BlockFace.UP).apply {
-            state.type = Material.AIR
-            state.update()
+            type = Material.AIR
         }
     }
 
