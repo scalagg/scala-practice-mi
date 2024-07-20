@@ -902,6 +902,25 @@ object GameService
         Events
             .subscribe(EntityDamageEvent::class.java)
             .filter {
+                it.cause == DamageCause.VOID && it.entity is Player
+            }
+            .handler {
+                val player = it.entity as Player
+                val game = byPlayer(player)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (!game.state(GameState.Playing))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+            }
+
+        Events
+            .subscribe(EntityDamageEvent::class.java)
+            .filter {
                 it.cause == DamageCause.FALL && it.entity is Player
             }
             .handler {

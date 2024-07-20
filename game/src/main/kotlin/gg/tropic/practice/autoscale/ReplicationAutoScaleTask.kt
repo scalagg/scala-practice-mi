@@ -22,8 +22,8 @@ object ReplicationAutoScaleTask : Thread("replication-auto-scale")
     @Inject
     lateinit var plugin: ExtendedScalaPlugin
 
-    private const val TARGET_REPLICATIONS = 32
-    private const val FLOOR_REQUIRED_FOR_AUTO_SCALE = 0.85
+    private const val TARGET_REPLICATIONS = 14
+    private const val FLOOR_REQUIRED_FOR_AUTO_SCALE = 1.0
 
     var lastAutoScaleCheck = 0L
 
