@@ -69,7 +69,8 @@ class GameStopTask(
 
                 for ((index, winner) in players.withIndex())
                 {
-                    withMessage(CC.YELLOW + winner.username())
+                    val username = if (game.robot()) game.robotInstance?.name() else winner.username()
+                    withMessage(CC.YELLOW + username)
                         .andHoverOf(
                             "${CC.GREEN}Click to view inventory!"
                         )

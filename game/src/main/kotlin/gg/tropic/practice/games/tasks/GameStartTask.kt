@@ -1,40 +1,28 @@
 package gg.tropic.practice.games.tasks
 
-import dev.iiahmed.disguise.Disguise
-import gg.scala.basics.plugin.disguise.DisguiseService
-import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.staff.anticheat.AnticheatCheck
 import gg.scala.staff.anticheat.AnticheatFeature
-import gg.tropic.practice.commands.admin.RankedBanCommand
 import gg.tropic.practice.commands.offlineProfile
 import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
-import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.resetPlayerForFight
 import gg.tropic.practice.games.team.GameTeamSide
-import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
-import gg.tropic.practice.resetAttributes
+import gg.tropic.practice.queue.QueueType
 import me.lucko.helper.scheduler.Task
-import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.util.time.Duration
-import net.evilblock.cubed.util.time.TimeUtil
-import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
 import org.bukkit.Bukkit
 import org.bukkit.Sound
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.scoreboard.DisplaySlot
 
 /**
  * @author GrowlyX
@@ -66,6 +54,7 @@ class GameStartTask(
 
             val gameType = when (true)
             {
+                (game.expectationModel.queueType == QueueType.Robot) -> "Bot Fight"
                 (game.expectationModel.queueType != null) -> game.expectationModel.queueType!!.name
                 (game.expectationModel.queueId == "tournament") -> "Tournament"
                 (game.expectationModel.queueId == "party") -> "Party"
@@ -81,10 +70,16 @@ class GameStartTask(
                             it.username()
                         }
                 } and ${
-                    this.game.teams[GameTeamSide.B]!!.players
-                        .joinToString(", ") {
-                            it.username()
-                        }
+                    if (this.game.robot())
+                    {
+                        this.game.robotInstance?.name() ?: "???"
+                    } else
+                    {
+                        this.game.teams[GameTeamSide.B]!!.players
+                            .joinToString(", ") {
+                                it.username()
+                            }
+                    }
                 }"
             )
 

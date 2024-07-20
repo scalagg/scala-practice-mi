@@ -10,6 +10,7 @@ import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
 import gg.tropic.practice.games.loadout.SelectedLoadout
 import gg.tropic.practice.games.ranked.PotPvPEloCalculator
+import gg.tropic.practice.games.robot.RobotInstance
 import gg.tropic.practice.games.tasks.GameStartTask
 import gg.tropic.practice.games.tasks.GameStopTask
 import gg.tropic.practice.games.team.GameTeam
@@ -89,6 +90,8 @@ open class GameImpl(
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
+
+    var robotInstance: RobotInstance? = null
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
