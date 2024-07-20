@@ -64,7 +64,7 @@ public class Bot {
     private final String skin;
     private final SettingManager settings;
 
-    public Bot(Location loc, String name, String skin, SettingManager settings, Kit kit) {
+    public Bot(Location loc, String name, Player player, String skin, SettingManager settings, Kit kit) {
         this.kit = kit;
         this.eventListener = (e) -> {
         };
@@ -74,26 +74,22 @@ public class Bot {
         //Registering
         registerNPC(name, loc);
 
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            player.hidePlayer(npc.getBukkitEntity());
+        Bukkit.getOnlinePlayers().forEach(other -> {
+            other.hidePlayer(npc.getBukkitEntity());
         });
 
-        registerManagers(settings, loc);
+        registerManagers(settings, player, loc);
 
         //Create packets
         packetsManager.sendCreatesPackets();
 
         loadManagers();
-        registerBot();
-    }
-
-    public boolean hasRegisteredOnlyPlayer = false;
-    public CompletableFuture<Void> registerPlayer(Player player) {
         player.showPlayer(npc.getBukkitEntity());
 
-        return CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             registerSkin(skin, player);
         });
+        registerBot();
     }
 
     private void registerBot() {
@@ -114,7 +110,7 @@ public class Bot {
         MEventManager.addEvent(effectsManager);
     }
 
-    private void registerManagers(SettingManager settings, Location loc) {
+    private void registerManagers(SettingManager settings, Player pla, Location loc) {
         if (settings != null) settingManager = settings;
         //Load the SettingsManager first in order for other managers to read from it.
         if (settings == null) settingManager = new SettingManager();
@@ -123,7 +119,7 @@ public class Bot {
         MEventManager = new MEventManager(this);
         effectsManager = new EffectsManager(this);
         velocityCalculator = new VelocityCalculator(this);
-        movements = new MovementsMain(this, loc);
+        movements = new MovementsMain(this, pla, loc);
         packetsManager = new PacketsManager(this);
         inventoryManager = new InventoryManager(this);
         fleeManager = new FleeManager(this);

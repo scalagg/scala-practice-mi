@@ -49,7 +49,7 @@ public class MovementsMain extends Manager {
     private boolean requiredToMove = true;
     private boolean jumpCombo = false;
 
-    public MovementsMain(Bot bot, Location loc) {
+    public MovementsMain(Bot bot, Player player, Location loc) {
         super(bot);
         location = loc;
 
@@ -57,10 +57,6 @@ public class MovementsMain extends Manager {
         bot.getMEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
         bot.getMEventManager().addEvent(movements = new Movements(bot));
         bot.getMEventManager().addEvent(rotations = new Rotations(bot));
-    }
-
-    public void registerTargetLocateEvent(Player player)
-    {
         bot.getMEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
     }
 

@@ -30,24 +30,8 @@ public class EstaPracticeSupport extends PluginSupport {
 
         RobotGameLifecycle.INSTANCE.setCreateNewRobotInstance(game -> {
             // get from redis bot type
-            final var bot = manager.spawn(
-                    game.getMap()
-                            .findSpawnLocationMatchingTeam(
-                                    game.robotSide().getSide()
-                            )
-                            .toLocation(game.getArenaWorld()),
-                    game,
-                    false,
-                    false
-            );
-
-            if (bot == null)
-            {
-                return CompletableFuture.completedFuture(null);
-            }
-
             return CompletableFuture.completedFuture(
-                    new EstaPracticeRobotInstanceImpl(game, bot)
+                    new EstaPracticeRobotInstanceImpl(game, manager)
             );
         });
         return super.enable();

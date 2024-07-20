@@ -37,6 +37,7 @@ public class EstaPracticeManager {
     public Bot spawn(
             Location loc,
             GameImpl game,
+            Player player,
             boolean combo,
             boolean noDamage
     ) {
@@ -74,7 +75,7 @@ public class EstaPracticeManager {
             name = name.substring(0, 16);
         }
 
-        Bot bot = new Bot(loc, Color.code(name), settings.getSkin(), settings, game.getKit()); // ADDED: Applies the bot skin and name
+        Bot bot = new Bot(loc, Color.code(name), player, settings.getSkin(), settings, game.getKit()); // ADDED: Applies the bot skin and name
         if (game.flag(FeatureFlag.DeathOnLiquidInteraction)) {
             bot.getMovements().setEdgeDetector(true);
         }
