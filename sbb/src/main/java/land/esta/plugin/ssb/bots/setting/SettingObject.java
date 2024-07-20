@@ -15,38 +15,55 @@ public class SettingObject {
 
     public String name;
     private ItemStack item;
+
     private Boolean possibleBoolean;
     private Double possibleDouble;
     private Integer possibleInt;
+    private SettingObject possibleSubSetting;
+
     private double updateBy = 1;
     private double randomizer = 0;
     private boolean hasPerm;
     private double min = 0;
     private double max = 0;
-    
+
     public Object getObject() {
         if (possibleBoolean != null) return possibleBoolean;
         if (possibleDouble != null) return possibleDouble;
-        
+
         return possibleInt;
     }
 
-    public void setObject(Object object) {
-        if (object instanceof Boolean) {
-            possibleBoolean = (Boolean) object;
-        } else if (object instanceof Integer) {
-            possibleInt = (Integer) object;
-        } else {
-            possibleDouble = (Double) object;
-        }
+
+
+    public void setObject(SettingObject object) {
+        possibleSubSetting = object;
+
+    }
+
+    public void setObject(Boolean object) {
+        possibleBoolean = object;
+
+    }
+
+    public void setObject(Double object) {
+        possibleDouble = object;
+
+    }
+
+    public void setObject(Integer object) {
+        possibleInt = object;
+
     }
 
 
-    public void setObjectUpdate(Object object) {
+    public void setObjectInferred(Object object) {
         if (object instanceof Boolean) {
             possibleBoolean = (Boolean) object;
         } else if (object instanceof Integer) {
             possibleInt = (Integer) object;
+        } else if (object instanceof SettingObject) {
+            possibleSubSetting = (SettingObject) object;
         } else {
             possibleDouble = (Double) object;
         }

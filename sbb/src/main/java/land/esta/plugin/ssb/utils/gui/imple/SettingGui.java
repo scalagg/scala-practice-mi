@@ -224,34 +224,34 @@ public class SettingGui {
 
                     gui.createGuiItem(so.getItem(), slot, "&c&l" + so.getName(), (player, pressedSlot) -> {
                         if (so.getObject() instanceof Boolean) {
-                            so.setObjectUpdate(!so.isBooleanValue());
+                            so.setObjectInferred(!so.isBooleanValue());
                             player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.isBooleanValue() + "")));
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setObjectUpdate((int) Math.max(so.getOriginalIntValue() + so.getUpdateBy(), 0));
+                            so.setObjectInferred((int) Math.max(so.getOriginalIntValue() + so.getUpdateBy(), 0));
                             player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.getOriginalIntValue() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setObjectUpdate(Math.max(so.getOriginalDouble() + so.getUpdateBy(), 0));
+                            so.setObjectInferred(Math.max(so.getOriginalDouble() + so.getUpdateBy(), 0));
                             player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", MathUtils.stringOfDouble(so.getOriginalDouble(), 3) + "")));
                         }
 
                         gui.minOpen(player);
                     }, (player, pressedSlot) -> {
                         if (so.getObject() instanceof Boolean) {
-                            so.setObjectUpdate(!so.isBooleanValue());
+                            so.setObjectInferred(!so.isBooleanValue());
                             player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.isBooleanValue() + "")));
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setObjectUpdate((int) Math.max(so.getOriginalIntValue() - so.getUpdateBy(), 0));
+                            so.setObjectInferred((int) Math.max(so.getOriginalIntValue() - so.getUpdateBy(), 0));
                             player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.getOriginalIntValue() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setObjectUpdate(Math.max(so.getOriginalDouble() - so.getUpdateBy(), 0));
+                            so.setObjectInferred(Math.max(so.getOriginalDouble() - so.getUpdateBy(), 0));
                             player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", MathUtils.stringOfDouble(so.getOriginalDouble(), 3) + "")));
                         }
 

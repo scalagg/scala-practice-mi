@@ -13,6 +13,7 @@ import land.esta.plugin.ssb.data.presets.PresetType;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.db.MongoUtil;
 import land.esta.plugin.ssb.utils.db.SettingType;
+import net.evilblock.cubed.util.bukkit.Tasks;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -190,17 +191,15 @@ public class SettingManager {
     }
 
     public void update(SettingManager updated) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                settings.forEach(setting -> {
-                    setting.getSettings().forEach(settingObject -> {
-                        SettingObject sb = updated.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
-                        settingObject.setObject(sb.getObject());
-                    });
+        Tasks.async(() -> {
+            settings.forEach(setting -> {
+                setting.getSettings().forEach(settingObject -> {
+                    SettingObject sb = updated.getSettingByName(setting.getFancyName()).getSettingByName(settingObject.getName());
+                    settingObject.setObjectInferred(sb.getObject());
                 });
-            }
-        }.runTaskAsynchronously(SmartBotsBackend.getInstance());
+            });
+           return null;
+        });
     }
 
 

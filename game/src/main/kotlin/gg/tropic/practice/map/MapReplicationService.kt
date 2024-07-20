@@ -133,6 +133,7 @@ object MapReplicationService
                         .join()
                     newGame.robotInstance?.terminable?.bindWith(newGame)
                 }.onFailure {
+                    it.printStackTrace()
                     newGame.state = GameState.Completed
                     newGame.closeAndCleanup()
                     return@handler
@@ -140,6 +141,7 @@ object MapReplicationService
 
                 if (newGame.robotInstance == null)
                 {
+                    println("Instance is null")
                     newGame.state = GameState.Completed
                     newGame.closeAndCleanup()
                     return@handler
