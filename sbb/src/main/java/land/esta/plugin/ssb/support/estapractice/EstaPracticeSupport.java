@@ -41,12 +41,15 @@ public class EstaPracticeSupport extends PluginSupport {
                     false
             );
 
+            if (bot == null)
+            {
+                return CompletableFuture.completedFuture(null);
+            }
+
             return CompletableFuture.completedFuture(
                     new EstaPracticeRobotInstanceImpl(game, bot)
             );
         });
-
-
         return super.enable();
     }
 }
