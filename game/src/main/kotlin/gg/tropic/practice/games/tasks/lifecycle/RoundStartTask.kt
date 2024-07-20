@@ -83,7 +83,7 @@ class RoundStartTask(
 
         val opponent = game.getOpponent(winner)
         val primary = "${rbTeamSide.format(winnerDisplay ?: "???")} ${CC.SEC}scored!"
-        val subText = " ${rbTeamSide.format(winner.gameLifecycleArbitraryObjectiveProgress.toString())} ${CC.GRAY}- ${
+        val subText = " ${CC.I}${rbTeamSide.format(winner.gameLifecycleArbitraryObjectiveProgress.toString())}${CC.R} ${CC.GRAY}- ${CC.I}${
             opponent!!.side.toRBTeamSide().format(opponent.gameLifecycleArbitraryObjectiveProgress.toString())
         }"
 

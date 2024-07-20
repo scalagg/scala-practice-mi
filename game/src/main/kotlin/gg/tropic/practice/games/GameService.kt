@@ -485,16 +485,17 @@ object GameService
                             .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
                             ?.toIntOrNull() ?: 2
 
+                        val opponentWinner = game.getOpponent(team)!!
                         game.sendMessage(deathMessage)
-                        if (team.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
+                        if (opponentWinner.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
                         {
-                            game.complete(team)
+                            game.complete(opponentWinner)
                             return
                         }
 
                         game.multiRoundGame.roundNumber += 1
                         Tasks.delayed(1L) {
-                            game.startNewRound(game.getOpponent(team)!!)
+                            game.startNewRound(opponentWinner)
                         }
                         return
                     }
