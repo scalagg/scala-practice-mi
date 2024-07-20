@@ -88,9 +88,7 @@ public class Bot {
         loadManagers();
         player.showPlayer(npc.getBukkitEntity());
 
-        CompletableFuture.runAsync(() -> {
-            registerSkin(skin, player);
-        });
+        registerSkin(skin, player);
         registerBot();
     }
 
@@ -125,7 +123,7 @@ public class Bot {
         packetsManager = new PacketsManager(this);
         inventoryManager = new InventoryManager(this);
         fleeManager = new FleeManager(this);
-        viewsManager = new ViewsManager(this, new ArrayList<>());
+        viewsManager = new ViewsManager(this, List.of(pla));
     }
 
     private void registerNPC(String name, Location loc) {

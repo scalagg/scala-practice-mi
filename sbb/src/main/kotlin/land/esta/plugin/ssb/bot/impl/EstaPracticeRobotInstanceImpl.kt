@@ -56,10 +56,6 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
                 false,
                 false
             )
-
-            Tasks.delayed(1L) {
-                spawnedBot?.viewsManager?.addPlayer(player)
-            }
             return
         }
 

@@ -31,6 +31,11 @@ public class Rotations extends Manager {
 
     @Override
     public void tickPre() {
+        var data = SmartBotsBackend.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
+        if (data == null) {
+            return;
+        }
+
         float speed = bot.getSettingManager().getRotationSetting().getSpeed().getIntValue();
         if (bot.getFleeManager().getOffTicks() < 5) {
             speed = bot.getSettingManager().getFleeSettings().getRunningRotationSpeed().getIntValue();
@@ -50,7 +55,7 @@ public class Rotations extends Manager {
         boolean bool1 = bot.getAttackingManager().getAttackTicks() <= bot.getSettingManager().getPlaystyleSettings().getFlipLong().getIntValue();
         boolean bool2 = bot.getSettingManager().getPlaystyleSettings().getFlipSync().isBooleanValue();
         boolean bool3 = bot.getMovements().isWtap();
-        boolean bool4 = SmartBotsBackend.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity()).getBotCombo() > 3; //If necessary could be made into a setting
+        boolean bool4 = data.getBotCombo() > 3; //If necessary could be made into a setting
         boolean flip = false;
 
         if (bool2 && bool3 && bool4) flip = true;

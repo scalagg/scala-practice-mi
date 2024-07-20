@@ -2,6 +2,7 @@ package gg.tropic.practice.reports.menu
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportSnapshot
 import gg.tropic.practice.reports.menu.utility.RomanNumerals
@@ -30,7 +31,9 @@ class PlayerViewMenu(
     private val gameReport: GameReport,
     private val snapshot: GameReportSnapshot,
     private val originalMenu: Menu? = null
-) : Menu("Viewing player ${snapshot.playerUniqueId.username()}...")
+) : Menu("Viewing player ${
+    if (snapshot.playerUniqueId == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else snapshot.playerUniqueId
+}...")
 {
     override fun onClose(player: Player, manualClose: Boolean)
     {
@@ -207,58 +210,68 @@ class PlayerViewMenu(
 
         var nextPlayer = indexes.getOrNull(index + 1)
             ?: indexes.first()
-        var snapshot = gameReport.snapshots[nextPlayer]!!
+        var snapshot = gameReport.snapshots[nextPlayer]
 
-        buttons[53] = ItemBuilder
-            .let {
-                if (viewerVersionIs17)
-                {
-                    return@let it.of(Material.PAPER)
+        if (snapshot != null)
+        {
+            buttons[53] = ItemBuilder
+                .let {
+                    if (viewerVersionIs17)
+                    {
+                        return@let it.of(Material.PAPER)
+                    }
+
+                    return@let it.copyOf(
+                        object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
+                        {}.getButtonItem(player)
+                    )
                 }
-
-                return@let it.copyOf(
-                    object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
-                    {}.getButtonItem(player)
+                .name(
+                    "${CC.B_SEC}${
+                        if (nextPlayer == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else nextPlayer.username()
+                    }'s Inventory"
                 )
-            }
-            .name(
-                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
-            )
-            .addToLore(
-                "",
-                "${CC.SEC}Click to switch inventories!"
-            )
-            .toButton { _, _ ->
-                Button.playNeutral(player)
-                PlayerViewMenu(gameReport, snapshot, originalMenu).openMenu(player)
-            }
+                .addToLore(
+                    "",
+                    "${CC.SEC}Click to switch inventories!"
+                )
+                .toButton { _, _ ->
+                    Button.playNeutral(player)
+                    PlayerViewMenu(gameReport, snapshot!!, originalMenu).openMenu(player)
+                }
+        }
 
         nextPlayer = indexes.getOrNull(index - 1) ?: indexes.last()
-        snapshot = gameReport.snapshots[nextPlayer]!!
+        snapshot = gameReport.snapshots[nextPlayer]
 
-        buttons[45] = ItemBuilder
-            .let {
-                if (viewerVersionIs17)
-                {
-                    return@let it.of(Material.PAPER)
+        if (snapshot != null)
+        {
+            buttons[45] = ItemBuilder
+                .let {
+                    if (viewerVersionIs17)
+                    {
+                        return@let it.of(Material.PAPER)
+                    }
+
+                    return@let it.copyOf(
+                        object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
+                        {}.getButtonItem(player)
+                    )
                 }
-
-                return@let it.copyOf(
-                    object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
-                    {}.getButtonItem(player)
+                .name(
+                    "${CC.B_SEC}${
+                        if (nextPlayer == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else nextPlayer.username()
+                    }'s Inventory"
                 )
-            }
-            .name(
-                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
-            )
-            .addToLore(
-                "",
-                "${CC.SEC}Click to switch inventories!"
-            )
-            .toButton { _, _ ->
-                Button.playNeutral(player)
-                PlayerViewMenu(gameReport, snapshot, originalMenu).openMenu(player)
-            }
+                .addToLore(
+                    "",
+                    "${CC.SEC}Click to switch inventories!"
+                )
+                .toButton { _, _ ->
+                    Button.playNeutral(player)
+                    PlayerViewMenu(gameReport, snapshot, originalMenu).openMenu(player)
+                }
+        }
 
         return buttons
     }

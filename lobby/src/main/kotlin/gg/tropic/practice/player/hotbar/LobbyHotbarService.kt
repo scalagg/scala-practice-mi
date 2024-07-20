@@ -13,6 +13,7 @@ import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.parties.command.PartyCommand
+import gg.tropic.practice.Globals
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.PracticeConfigurationService
@@ -135,8 +136,15 @@ object LobbyHotbarService
                     val kit = KitService.cached().kits[rematchKitID]
                         ?: return@handler
 
+                    val rematchUuid = UUID.fromString(rematchTargetID)
+
+                    if (rematchUuid == Globals.PLAYER_BOT_UNIQUE_ID)
+                    {
+                        return@handler
+                    }
+
                     loginTasks.getOrPut(it.uniqueId, ::mutableListOf) += { player ->
-                        val username = UUID.fromString(rematchTargetID).username()
+                        val username = rematchUuid.username()
                         val rematchItem = ItemBuilder
                             .of(Material.PAPER)
                             .name(

@@ -416,7 +416,7 @@ object GameService
             val deathMessage = "${CC.RED}$killedName${CC.GRAY} ${
                 if (event.alternativeDeath && killerPlayer == null) "fell into the void" else "was ${
                     if (killerPlayer == null || killerPlayer == this) "killed" else "${
-                        getMessageBundlePhrase(killerPlayer as Player)
+                        if (game.robot()) "killed" else getMessageBundlePhrase(killerPlayer as Player)
                     } by ${CC.GREEN}$killerName${CC.GRAY}"
                 }"
             }!"
