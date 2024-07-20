@@ -44,7 +44,6 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     {
         if (spawnedBot == null)
         {
-            println("Spawned bot")
             practiceManager.spawn(
                 gameImpl.map
                     .findSpawnLocationMatchingTeam(

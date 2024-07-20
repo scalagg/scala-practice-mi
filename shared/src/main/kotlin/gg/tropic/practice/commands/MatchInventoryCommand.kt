@@ -7,6 +7,7 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.Globals
 import gg.tropic.practice.reports.GameReportService
 import gg.tropic.practice.reports.menu.PlayerViewMenu
 import gg.tropic.practice.reports.menu.SelectPlayerMenu
@@ -43,7 +44,7 @@ object MatchInventoryCommand : ScalaCommand()
             val snapshot = it.snapshots[playerId]
                 ?: throw ConditionFailedException(
                     "No match snapshot exists for the player ${CC.YELLOW}${
-                        playerId.username()
+                        if (playerId == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else playerId.username()
                     }${CC.RED}."
                 )
 
