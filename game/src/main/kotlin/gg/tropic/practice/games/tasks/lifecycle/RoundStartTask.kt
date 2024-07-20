@@ -2,6 +2,7 @@ package gg.tropic.practice.games.tasks.lifecycle
 
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.*
+import gg.tropic.practice.games.GameService.plugin
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.serializable.Message
@@ -63,18 +64,23 @@ class RoundStartTask(
 
         game.cleanupWorld()
         game.toBukkitPlayers().filterNotNull()
+            .forEach {
+                it.removeMetadata("spectator", plugin)
+            }
+
+        game.toBukkitPlayers().filterNotNull()
             .forEach { player ->
                 // enter a "light" spectator mode, where they can't interact with anything yet
                 game.prepareForNewLife(player)
 
                 player.setMetadata(
                     "spectator",
-                    FixedMetadataValue(Helper.hostPlugin(), "light")
+                    FixedMetadataValue(plugin, "light")
                 )
 
                 player.setMetadata(
                     "light-spectator",
-                    FixedMetadataValue(Helper.hostPlugin(), "true")
+                    FixedMetadataValue(plugin, "true")
                 )
             }
 
@@ -115,8 +121,8 @@ class RoundStartTask(
 
             game.toBukkitPlayers().filterNotNull()
                 .forEach {
-                    it.removeMetadata("spectator", Helper.hostPlugin())
-                    it.removeMetadata("light-spectator", Helper.hostPlugin())
+                    it.removeMetadata("spectator", plugin)
+                    it.removeMetadata("light-spectator", plugin)
 
                     VisibilityHandler.update(it)
                     NametagHandler.reloadPlayer(it)
