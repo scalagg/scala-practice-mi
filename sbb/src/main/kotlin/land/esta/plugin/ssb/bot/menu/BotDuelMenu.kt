@@ -1,11 +1,14 @@
 package land.esta.plugin.ssb.bot.menu
 
+import land.esta.plugin.ssb.SmartBotsBackend
 import land.esta.plugin.ssb.bots.setting.SettingManager
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
 
 /**
  * Class created on 7/19/2024
@@ -60,8 +63,30 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             },
         16 to ItemBuilder.of(Material.NETHER_STAR)
             .name("&6Custom")
+            .addToLore("${CC.GRAY}Available for ${CC.D_AQUA}VIP${CC.GRAY} and up!")
             .setLore(SettingManager.defaultManager.getMenuDescription(player.uniqueId.toString(), "&6Custom"))
-            .toButton { _, _ ->
+            .addToLore("${CC.YELLOW}Right-Click to customize!")
+            .toButton { _, type ->
+                if (!player.hasPermission("botgui.use"))
+                {
+                    player.sendMessage("${CC.RED}You cannot use this feature!")
+                    return@toButton
+                }
+
+                if (type == ClickType.RIGHT)
+                {
+                    val data = SmartBotsBackend.instance
+                        .dataManager
+                        .getPlayer(player)
+
+                    val gui = data.gui
+                    if (gui.loaded)
+                    {
+                        gui.mainGui.openGui()
+                    }
+                    return@toButton
+                }
+
                 BotKitMenu(player.uniqueId.toString()).openMenu(player)
             },
     )

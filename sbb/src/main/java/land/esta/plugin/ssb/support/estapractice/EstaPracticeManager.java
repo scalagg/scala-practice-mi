@@ -41,7 +41,12 @@ public class EstaPracticeManager {
             boolean combo,
             boolean noDamage
     ) {
-        String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync().get("bot-selection:" + game.humanSide().getPlayers().get(0));
+        String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync().get("tropic-practice:bot-selection:" + game.humanSide().getPlayers().get(0));
+        if (selectedBot == null) {
+            Logger.getGlobal().info("No bot configuration was found!");
+            return null;
+        }
+
         SettingManager settings = SettingManager.loadSettings(selectedBot);
 
         if (settings == null) {

@@ -17,7 +17,7 @@ import land.esta.plugin.ssb.utils.gui.imple.BotGui;
 @AutoRegister
 public class BotGUICommand extends ScalaCommand {
 
-    @CommandAlias("botgui|bots")
+    @CommandAlias("customizebots")
     public void onBotGUI(ScalaPlayer player) {
         if (player.bukkit().hasPermission("botgui.use")) {
             DataPlayer data = SmartBotsBackend.getInstance()

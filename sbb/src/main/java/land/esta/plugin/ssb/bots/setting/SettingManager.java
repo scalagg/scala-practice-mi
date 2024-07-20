@@ -102,7 +102,7 @@ public class SettingManager {
         lore.add(" ");
         lore.add("&cDifficulty:");
         lore.add("&7" + thing + " &fCPS: &c" + map.get("Attack").get("CPS").getIntValue());
-        lore.add("&7" + thing + " &fRange: &c" + map.get("Attack").get("Reach").getDoubleValue());
+        lore.add("&7" + thing + " &fRange: &c" + String.format("%.2f", map.get("Attack").get("Reach").getDoubleValue()));
         lore.add("&7" + thing + " &fPing: &c" + map.get("Connection").get("Ping").getIntValue());
         lore.add(" ");
         lore.add("&cTraits:");

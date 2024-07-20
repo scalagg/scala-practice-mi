@@ -25,7 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 public class BotGui {
-    private PlayerGui mainGui;
+    public PlayerGui mainGui;
     private DataPlayer data;
     private SettingManager manager;
     private HashMap<Setting,PlayerGui> guis;
@@ -35,7 +35,7 @@ public class BotGui {
     private int maxProfiles;
 
     private String defaultPath = "data.%uuid%";
-    private boolean loaded;
+    public boolean loaded;
     private List<SettingManager> profiles;
 
     public BotGui(DataPlayer dataPlayer) {

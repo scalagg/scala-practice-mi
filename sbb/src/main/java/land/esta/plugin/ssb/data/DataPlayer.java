@@ -28,7 +28,7 @@ import java.util.List;
 public class DataPlayer implements Listener {
     private final Player player;
     private Vector motion;
-    private BotGui gui;
+    public BotGui gui;
 
     private int hitCounter;
     private int combo;

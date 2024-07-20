@@ -1,10 +1,8 @@
 package land.esta.plugin.ssb.bot.menu
 
-import gg.scala.lemon.util.QuickAccess.username
-import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.kit.Kit
-import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.menu.template.TemplateKitMenu
+import gg.tropic.practice.namespace
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
@@ -108,7 +106,8 @@ class BotKitMenu(private val identifier: String) : TemplateKitMenu()
         kitSelectionLock = true
 
         CompletableFuture.runAsync {
-            ScalaCommonsSpigot.instance.kvConnection.sync().set("bot-selection:${player.uniqueId}", identifier)
+            ScalaCommonsSpigot.instance.kvConnection.sync()
+                .set("${namespace()}:bot-selection:${player.uniqueId}", identifier)
         }.thenAccept {
             QueueService.joinQueue(kit, QueueType.Robot, 1, player)
         }

@@ -41,7 +41,7 @@ import org.bukkit.Bukkit;
 public final class SmartBotsBackend extends ExtendedScalaPlugin {
 
     @Getter
-    private static SmartBotsBackend instance;
+    public static SmartBotsBackend instance;
 
     @Getter
     public DifficultiesSettings difficultiesSettings;
@@ -50,7 +50,7 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     private BotManager botManager;
 
     @Getter
-    private DataManager dataManager;
+    public DataManager dataManager;
 
     @Getter
     private EventManager eventManager;
