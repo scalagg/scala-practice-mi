@@ -586,6 +586,7 @@ open class GameImpl(
         Tasks.delayed(20L) {
             if (arenaWorld == null)
             {
+                println("Skipping unload world because it's null")
                 return@delayed
             }
 
