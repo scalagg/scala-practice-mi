@@ -4,6 +4,7 @@ import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.lemon.command.annotations.AllowOffline
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.tropic.practice.menu.DuelGamesMenu
 import gg.tropic.practice.reports.GameReportService
@@ -24,6 +25,7 @@ object DuelGamesCommand : ScalaCommand()
         @Conditions("cooldown:duration=10,unit=SECONDS")
         player: ScalaPlayer,
         @Optional
+        @AllowOffline
         @CommandPermission("practice.command.matchhistory.view-other-profiles")
         target: AsyncLemonPlayer?
     ): CompletableFuture<Void>

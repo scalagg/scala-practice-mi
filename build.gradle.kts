@@ -54,7 +54,7 @@ subprojects {
 
         compileOnly("gg.scala.spigot:server:1.1.3")
 
-        compileOnly("gg.scala.lemon:bukkit:1.7.0")
+        compileOnly("gg.scala.lemon:bukkit:1.8.1")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
     }
 
