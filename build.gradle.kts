@@ -4,8 +4,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     `maven-publish`
-    kotlin("jvm") version "1.9.20"
-    kotlin("kapt") version "1.9.20"
+    kotlin("jvm") version "1.9.24"
+    kotlin("kapt") version "1.9.24"
     id("org.ajoberstar.grgit") version "4.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -54,7 +54,7 @@ subprojects {
 
         compileOnly("gg.scala.spigot:server:1.1.3")
 
-        compileOnly("gg.scala.lemon:bukkit:1.7.0")
+        compileOnly("gg.scala.lemon:bukkit:1.8.1")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
     }
 

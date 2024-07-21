@@ -15,4 +15,6 @@ abstract class RobotInstance
 
     abstract fun participantConnected(player: Player)
     abstract fun spectatorConnected(player: Player)
+
+    abstract fun destroy()
 }

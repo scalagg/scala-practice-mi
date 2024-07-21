@@ -64,7 +64,11 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         16 to ItemBuilder.of(Material.NETHER_STAR)
             .name("&6Custom")
             .addToLore("${CC.GRAY}Available for ${CC.D_AQUA}VIP${CC.GRAY} and up!")
-            .setLore(SettingManager.defaultManager.getMenuDescription(player.uniqueId.toString(), "&6Custom"))
+            .addToLore(
+                *SettingManager.defaultManager
+                    .getMenuDescription(player.uniqueId.toString(), "&6Custom")
+                    .toTypedArray()
+            )
             .addToLore("${CC.YELLOW}Right-Click to customize!")
             .toButton { _, type ->
                 if (!player.hasPermission("botgui.use"))

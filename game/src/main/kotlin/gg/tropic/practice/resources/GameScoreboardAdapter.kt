@@ -200,7 +200,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     if (opponent.players.size == 1)
                     {
                         board += "${CC.WHITE}Opponent: ${CC.PRI}${
-                            if (game.robot()) "Robot" else opponent.players.first().username()
+                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponent.players.first().username()
                         }"
                     } else if (!game.robot())
                     {
@@ -245,7 +245,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         val opponentPlayer = opponent.players.first()
 
                         board += "${CC.WHITE}Opponent: ${CC.PRI}${
-                            if (game.robot()) "Robot" else opponentPlayer.username()
+                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponentPlayer.username()
                         }"
                         board += ""
 
@@ -379,7 +379,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         val robotID = Globals.PLAYER_BOT_UNIQUE_ID
                         fun List<UUID>.toReport(): String
                         {
-                            val firstUsername = if (isNotEmpty()) (if (robotID == first()) "Robot" else first().username()) else null
+                            val firstUsername = if (isNotEmpty()) (if (robotID == first()) game.robotInstance?.name() ?: "Robot" else first().username()) else null
 
                             return when (size)
                             {

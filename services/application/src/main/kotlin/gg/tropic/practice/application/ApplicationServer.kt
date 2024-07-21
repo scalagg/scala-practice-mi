@@ -52,6 +52,13 @@ class ApplicationServerArgs(parser: ArgParser)
         }
         .default(6379)
 
+    val redisPassword by parser
+        .storing(
+            "--redispass",
+            help = "The port of the Redis server"
+        )
+        .default("")
+
     val mongoHost by parser
         .storing(
             "--mongohost",
@@ -93,7 +100,9 @@ fun main(args: Array<String>) = mainBody {
     AwareHub.configure(
         WrappedAwareUri(
             parsedArgs.redisHost,
-            parsedArgs.redisPort
+            parsedArgs.redisPort,
+            if (parsedArgs.redisPassword == "")
+                null else parsedArgs.redisPassword
         )
     ) {
         Serializers.gson

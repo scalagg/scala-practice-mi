@@ -1,8 +1,11 @@
 package land.esta.plugin.ssb.support.estapractice;
 
+import gg.tropic.practice.Globals;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
+import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
+import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -13,10 +16,14 @@ import land.esta.plugin.ssb.bots.setting.SettingObject;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
+import me.lucko.helper.Events;
 import net.evilblock.cubed.ScalaCommonsSpigot;
 import net.evilblock.cubed.util.bukkit.Tasks;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,9 +42,7 @@ public class EstaPracticeManager {
     public Bot spawn(
             Location loc,
             GameImpl game,
-            Player player,
-            boolean combo,
-            boolean noDamage
+            Player player
     ) {
         String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync().get("tropicpractice:bot-selection:" + game.humanSide().getPlayers().get(0));
         if (selectedBot == null) {
@@ -84,58 +89,111 @@ public class EstaPracticeManager {
         }
 
         bot.getDamageManager().setAllowGlobalAttacks(false);
-        // bot.lightning();
+//        bot.lightning();
         bot.getMovements().getCollision().setWaterEnterEvent(bot::silentKill);
-        bot.getDamageManager().setNoDamage(noDamage);
+        bot.getDamageManager().setNoDamage(game.flag(FeatureFlag.WinWhenNHitsReached));
         bot.getMovements().setMove(false);
 
-        if (combo) bot.getDamageManager().setCombo(combo);
+//        if (combo) bot.getDamageManager().setCombo(combo);
 
         //Boxing support
-            /*if (noDamage) {
-                data.setBotHitCounter(0);
-                data.setHitCounter(0);
-                data.setCombo(0);
-                data.setBotCombo(0);
 
-                bot.setEventListener((event -> {
-                    if (event instanceof BotDamageEvent) {
-                        if (((BotDamageEvent) event).getSource() != null && ((BotDamageEvent) event).getSource().getEntity() != null && Bukkit.getServer().getPlayer(((BotDamageEvent) event).getSource().getEntity().getName()).equals(player)) {
-                            data.hit();
-                            // TODO: support this
-//                            fight.getStatistics(player).setHits(data.getHitCounter());
+        if (game.flag(FeatureFlag.WinWhenNHitsReached)) {
+            var robot = game.robotSide();
+            var metadata = Integer.parseInt(
+                    game.flagMetaData(FeatureFlag.WinWhenNHitsReached, "hits")
+            );
 
-                            if (data.getHitCounter() >= 100) {
-                                bot.kill();
+            bot.setEventListener((event -> {
+                if (event instanceof BotDamageEvent) {
+                    if (
+                            ((BotDamageEvent) event).getSource() != null &&
+                                    ((BotDamageEvent) event).getSource().getEntity() != null &&
+                                    ((BotDamageEvent) event).getSource().getEntity().getUniqueID().equals(player.getUniqueId())
+                    ) {
+                        var playerCounter = game.counter(player);
+                        game.humanSide().setGameLifecycleArbitraryObjectiveProgress(
+                                game.humanSide().getGameLifecycleArbitraryObjectiveProgress() + 1
+                        );
+
+                        game.humanSide().getPlayerCombos().compute(
+                                player.getUniqueId(),
+                                (k, combo) -> (combo == null ? 0 : combo) + 1
+                        );
+
+                        playerCounter.increment("totalHits");
+                        playerCounter.increment("combo");
+
+                        if (playerCounter.valueOf("combo") > playerCounter.valueOf("highestCombo")) {
+                            playerCounter.update(
+                                    "highestCombo",
+                                    playerCounter.valueOf("combo")
+                            );
+                        }
+
+                        robot.getPlayerCombos().put(Globals.getPLAYER_BOT_UNIQUE_ID(), 0);
+
+                        if (game.humanSide().getGameLifecycleArbitraryObjectiveProgress() >= metadata) {
+                            bot.kill();
+                        }
+                    } else {
+                        BotDamageEvent damageEvent = (BotDamageEvent) event;
+                        damageEvent.setCanceled(true);
+                    }
+                }
+
+                if (event instanceof BotAttackLandEvent) {
+                    robot.setGameLifecycleArbitraryObjectiveProgress(
+                            robot.getGameLifecycleArbitraryObjectiveProgress() + 1
+                    );
+
+                    game.humanSide().getPlayerCombos().clear();
+
+                    if (robot.getGameLifecycleArbitraryObjectiveProgress() >= metadata) {
+                        game.complete(robot, "");
+                    }
+                }
+            }));
+
+            Events
+                    .subscribe(EntityDamageByEntityEvent.class)
+                    .handler(event -> {
+                        if (event.getEntity() instanceof Player other) {
+                            if (other.equals(player)) {
+                                event.setDamage(0.0);
                             }
-                        } else {
-                            BotDamageEvent e = (BotDamageEvent) event;
-                            e.setCanceled(true);
                         }
-                    }
-                    if (event instanceof BotAttackLandEvent) {
-                        data.botHit();
-                        if (data.getBotHitCounter() >= 100) {
-                            player.setHealth(0);
-                        }
-                    }
-                }));
-            }*/
+                    })
+                    .bindWith(game);
+        }
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (bot.isAlive()) bot.getMovements().setMove(true);
+        if (game.flag(FeatureFlag.WinWhenNHitsReached))
+        {
+            if (bot.isAlive()) {
+                bot.getMovements().setMove(true);
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(), 6 * 20);
+        } else {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (bot.isAlive()) {
+                        bot.getMovements().setMove(true);
+                    }
+                }
+            }.runTaskLater(SmartBotsBackend.getInstance(), 5 * 20);
+        }
 
         InventoryManager inventoryManager = bot.getInventoryManager();
-        inventoryManager.applyItemList(
-                Stream
-                        .of(game.getKit().getContents())
-                        .map(ItemStack::clone)
-                        .toList()
-        );
+        try {
+            inventoryManager.applyItemList(
+                    Stream
+                            .of(game.getKit().getContents())
+                            .map(ItemStack::clone)
+                            .toList()
+            );
+        } catch (Exception ignored) {
+
+        }
 
         if (game.getKit().getArmorContents()[3] != null) {
             // inventoryManager.updateHelmet(helmet.clone());

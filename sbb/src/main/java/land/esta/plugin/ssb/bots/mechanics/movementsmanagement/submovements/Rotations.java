@@ -57,14 +57,13 @@ public class Rotations extends Manager {
         boolean bool2 = bot.getSettingManager().getPlaystyleSettings().getFlipSync().isBooleanValue();
         boolean bool3 = bot.getMovements().isWtap();
         boolean bool4 = data.getBotCombo() > 3; //If necessary could be made into a setting
-        boolean flip = false;
+        boolean flip = bool2 && bool3 && bool4;
 
-        if (bool2 && bool3 && bool4) flip = true;
         if (!bool2 && bool1 && bool4) flip = true;
 
         if (bot.getSettingManager().getPlaystyleSettings().getFlips().isBooleanValue() && flip) {
             //Flip chance
-            if (MathUtils.getRandom(0,100) <= bot.getSettingManager().getPlaystyleSettings().getFlipChance().getIntValue()) {
+            if (MathUtils.getRandom(0, 100) <= bot.getSettingManager().getPlaystyleSettings().getFlipChance().getIntValue()) {
                 double size = 1;
                 size = generateSize();
 
@@ -73,19 +72,19 @@ public class Rotations extends Manager {
             }
         }
 
-         Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(),tPos);
-        /*// TODO: Instead get direction of next best possible block if
+
+        // TODO: Instead get direction of next best possible block if
         AStar aStar = new AStar(bot.getMovements().getLocation(), movements.getTargetLocate().getTarget());
-        // bot.getMovements().getAStar().getPath();
-        // **Test change
-        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), aStar.getPath().get(0));*/
+        final var path = aStar.getPath();
+        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), !path.isEmpty() ? path.get(0) : tPos);
+
         this.lastYaw = yaw;
-        yaw = aimAssist(yaw, (float) (aimBot.getX() + flipYaw),speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);
-        pitch = aimAssistPitch(pitch,(float) (aimBot.getZ() + flipPitch),speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);
+        yaw = aimAssist(yaw, (float) (aimBot.getX() + flipYaw), speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);
+        pitch = aimAssistPitch(pitch, (float) (aimBot.getZ() + flipPitch), speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);
         if (Math.abs(pitch) > 90) pitch = 90 * pitch / Math.abs(pitch);
 
-        callEventAsync(new RotationEvent(bot,yaw,pitch,bot.getMovements().getLocation().getYaw(),bot.getMovements().getLocation().getPitch()));
-        movements.rotate(yaw,pitch);
+        callEventAsync(new RotationEvent(bot, yaw, pitch, bot.getMovements().getLocation().getYaw(), bot.getMovements().getLocation().getPitch()));
+        movements.rotate(yaw, pitch);
     }
 
     public int generateSize() {
@@ -95,16 +94,16 @@ public class Rotations extends Manager {
         return 1;
     }
 
-    public float aimAssistPitch(float before,float after,float s) {
+    public float aimAssistPitch(float before, float after, float s) {
         double delta = after - before;
 
         double speed = s + (float) MathUtils.getRandom(-rotationSpeedRandom, rotationSpeedRandom);
 
         if (Math.abs(delta) <= speed) return after;
-        return  ((float) (before + (delta / Math.abs(delta) * speed)));
+        return ((float) (before + (delta / Math.abs(delta) * speed)));
     }
 
-    public float aimAssist(float before,float after,float s) {
+    public float aimAssist(float before, float after, float s) {
         double deltaYaw;
 
         double speed = s + (float) MathUtils.getRandom(-rotationSpeedRandom, rotationSpeedRandom);
@@ -114,7 +113,7 @@ public class Rotations extends Manager {
         float var2 = after - (before + 360);
         float var3 = (after + 360) - (before + 360);
 
-        deltaYaw = Math.min(min(Math.abs(var1),Math.abs(var2),Math.abs(var3)),Math.abs(original));
+        deltaYaw = Math.min(min(Math.abs(var1), Math.abs(var2), Math.abs(var3)), Math.abs(original));
         if (deltaYaw == Math.abs(var1)) deltaYaw = var1;
         if (deltaYaw == Math.abs(var2)) deltaYaw = var2;
         if (deltaYaw == Math.abs(var3)) deltaYaw = var3;
@@ -125,8 +124,8 @@ public class Rotations extends Manager {
         return after;
     }
 
-    public double min(double var1,double var2,double var3) {
-        double var4 = Math.min(var1,var2);
-        return Math.min(var3,var4);
+    public double min(double var1, double var2, double var3) {
+        double var4 = Math.min(var1, var2);
+        return Math.min(var3, var4);
     }
 }
