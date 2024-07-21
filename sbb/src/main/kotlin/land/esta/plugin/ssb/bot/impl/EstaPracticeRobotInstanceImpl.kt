@@ -65,7 +65,6 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
 
     override fun spectatorConnected(player: Player)
     {
-        player.sendMessage("VIEWING BOT lol")
         spawnedBot?.viewsManager?.addPlayer(player)
     }
 }
