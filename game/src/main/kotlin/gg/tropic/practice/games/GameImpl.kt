@@ -2,6 +2,7 @@ package gg.tropic.practice.games
 
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
+import gg.tropic.practice.Globals
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
@@ -774,4 +775,6 @@ open class GameImpl(
 
     fun humanSide() = teams[GameTeamSide.A]!!
     fun robotSide() = teams[GameTeamSide.B]!!
+
+    fun robotCounter() = playerCounters.getOrPut(Globals.PLAYER_BOT_UNIQUE_ID) { Counter(Globals.PLAYER_BOT_UNIQUE_ID) }
 }

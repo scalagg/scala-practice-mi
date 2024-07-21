@@ -3,6 +3,8 @@ package land.esta.plugin.ssb.support.estapractice;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
+import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
+import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -15,6 +17,7 @@ import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
 import net.evilblock.cubed.ScalaCommonsSpigot;
 import net.evilblock.cubed.util.bukkit.Tasks;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -92,35 +95,58 @@ public class EstaPracticeManager {
         if (combo) bot.getDamageManager().setCombo(combo);
 
         //Boxing support
-            /*if (noDamage) {
-                data.setBotHitCounter(0);
-                data.setHitCounter(0);
-                data.setCombo(0);
-                data.setBotCombo(0);
+        if (game.flag(FeatureFlag.WinWhenNHitsReached)) {
+            var robot = game.robotSide();
+            var metadata = Integer.parseInt(
+                    game.flagMetaData(FeatureFlag.WinWhenNHitsReached, "hits")
+            );
 
-                bot.setEventListener((event -> {
-                    if (event instanceof BotDamageEvent) {
-                        if (((BotDamageEvent) event).getSource() != null && ((BotDamageEvent) event).getSource().getEntity() != null && Bukkit.getServer().getPlayer(((BotDamageEvent) event).getSource().getEntity().getName()).equals(player)) {
-                            data.hit();
-                            // TODO: support this
-//                            fight.getStatistics(player).setHits(data.getHitCounter());
+            bot.setEventListener((event -> {
+                if (event instanceof BotDamageEvent) {
+                    if (
+                            ((BotDamageEvent) event).getSource() != null &&
+                                    ((BotDamageEvent) event).getSource().getEntity() != null &&
+                                    Bukkit.getServer().getPlayer(((BotDamageEvent) event).getSource().getEntity().getName()).equals(player)
+                    ) {
+                        var playerCounter = game.counter(player);
+                        playerCounter.increment("totalHits");
+                        playerCounter.increment("combo");
 
-                            if (data.getHitCounter() >= 100) {
-                                bot.kill();
-                            }
-                        } else {
-                            BotDamageEvent e = (BotDamageEvent) event;
-                            e.setCanceled(true);
+                        if (playerCounter.valueOf("combo") > playerCounter.valueOf("highestCombo")) {
+                            playerCounter.update(
+                                    "highestCombo",
+                                    playerCounter.valueOf("combo")
+                            );
                         }
-                    }
-                    if (event instanceof BotAttackLandEvent) {
-                        data.botHit();
-                        if (data.getBotHitCounter() >= 100) {
-                            player.setHealth(0);
+
+                        game.robotCounter().reset("combo");
+                        if (playerCounter.valueOf("totalHits") >= metadata) {
+                            bot.kill();
                         }
+                    } else {
+                        BotDamageEvent damageEvent = (BotDamageEvent) event;
+                        damageEvent.setCanceled(true);
                     }
-                }));
-            }*/
+                }
+
+                if (event instanceof BotAttackLandEvent) {
+                    var counter = game.robotCounter();
+                    counter.increment("totalHits");
+                    counter.increment("combo");
+
+                    if (counter.valueOf("combo") > counter.valueOf("highestCombo")) {
+                        counter.update(
+                                "highestCombo",
+                                counter.valueOf("combo")
+                        );
+                    }
+
+                    if (counter.valueOf("totalHits") >= metadata) {
+                        game.complete(robot, "");
+                    }
+                }
+            }));
+        }
 
         new BukkitRunnable() {
             @Override

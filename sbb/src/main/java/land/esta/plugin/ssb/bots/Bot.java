@@ -243,6 +243,10 @@ public class Bot {
     public Runnable deathEvent = () -> {};
 
     public void silentKill() {
+        if (!alive) {
+            return;
+        }
+
         alive = false;
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
         deathEvent.run();
