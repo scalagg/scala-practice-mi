@@ -74,9 +74,9 @@ public class Rotations extends Manager {
 
 
         // TODO: Instead get direction of next best possible block if
-        AStar aStar = new AStar(bot.getMovements().getLocation(), movements.getTargetLocate().getTarget());
-        final var path = aStar.getPath();
-        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), !path.isEmpty() ? path.get(0) : tPos);
+//        AStar aStar = new AStar(bot.getMovements().getLocation(), movements.getTargetLocate().getTarget());
+//        final var path = aStar.getPath();
+        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), tPos);
 
         this.lastYaw = yaw;
         yaw = aimAssist(yaw, (float) (aimBot.getX() + flipYaw), speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);
