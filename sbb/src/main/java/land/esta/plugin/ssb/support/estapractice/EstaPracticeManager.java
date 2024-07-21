@@ -172,7 +172,7 @@ public class EstaPracticeManager {
         //TODO combo mode support.
 
         Tasks.async(() -> {
-            ScalaCommonsSpigot.getInstance().getKvConnection().sync().del("bot-selection:" + game.humanSide().getPlayers().get(0));
+            ScalaCommonsSpigot.getInstance().getKvConnection().sync().del("tropicpractice:bot-selection:" + game.humanSide().getPlayers().get(0));
             return null;
         });
         return bot;

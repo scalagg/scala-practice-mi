@@ -73,12 +73,12 @@ public class Rotations extends Manager {
             }
         }
 
-        // Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(),tPos);
-        // TODO: Instead get direction of next best possible block if
+         Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(),tPos);
+        /*// TODO: Instead get direction of next best possible block if
         AStar aStar = new AStar(bot.getMovements().getLocation(), movements.getTargetLocate().getTarget());
         // bot.getMovements().getAStar().getPath();
         // **Test change
-        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), aStar.getPath().get(0));
+        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), aStar.getPath().get(0));*/
         this.lastYaw = yaw;
         yaw = aimAssist(yaw, (float) (aimBot.getX() + flipYaw),speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);
         pitch = aimAssistPitch(pitch,(float) (aimBot.getZ() + flipPitch),speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);

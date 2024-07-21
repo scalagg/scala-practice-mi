@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.support.estapractice.EstaPracticeManager
 import me.lucko.helper.Events
+import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.entity.Player
 
@@ -40,7 +41,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
             .bindWith(terminable)
     }
 
-    override fun name(): String = spawnedBot?.settingManager?.botName ?: ""
+    override fun name(): String = spawnedBot?.settingManager?.botName?.let(Color::translate) ?: ""
     override fun participantConnected(player: Player)
     {
         if (spawnedBot == null)
