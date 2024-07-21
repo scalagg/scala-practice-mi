@@ -23,7 +23,7 @@ import kotlin.concurrent.thread
  */
 object ReplicationManager
 {
-    private val redis = DPSRedisService("replicationmanager-inhibitor".suffixWhenDev())
+    private val redis = DPSRedisService("replicationmanager-inhibitor")
         .apply(DPSRedisService::start)
 
     private val gameInstanceCache = Caffeine.newBuilder()
