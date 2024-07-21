@@ -43,6 +43,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
@@ -584,33 +585,43 @@ open class GameImpl(
         Tasks.delayed(20L) {
             if (arenaWorld == null)
             {
+                println("Skipping unload world because it's null")
                 return@delayed
             }
 
             MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
+            println("World dimension: ${
+                (arenaWorld!! as CraftWorld).handle.dimension
+            }")
 
             if (kickPlayers)
             {
                 // final check
                 val onlinePlayers = getOnlinePlayers()
+                println("Online players: ${onlinePlayers.size}")
+
                 if (onlinePlayers.isNotEmpty())
                 {
+                    println("Players still here, kicking")
                     onlinePlayers.forEach {
                         it.kickPlayer("You should not be on this server!")
                     }
 
                     Tasks.delayed(10L) {
-                        Bukkit.unloadWorld(
+                        println("Unloading world, delayed: ${Bukkit.unloadWorld(
                             arenaWorld, false
-                        )
+                        )}")
+
                     }
                     return@delayed
                 }
             }
 
-            Bukkit.unloadWorld(
-                arenaWorld, false
-            )
+            println("Unloading world: ${
+                Bukkit.unloadWorld(
+                    arenaWorld, false
+                )
+            }")
         }
 
         closeAndReportException()

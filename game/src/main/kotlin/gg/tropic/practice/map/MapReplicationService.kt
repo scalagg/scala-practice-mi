@@ -158,6 +158,7 @@ object MapReplicationService
                             newGame.state = GameState.Completed
                             newGame.closeAndCleanup()
 
+                            println("")
                             task.closeAndReportException()
                             return@runRepeating
                         }
