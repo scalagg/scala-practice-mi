@@ -41,7 +41,7 @@ class PracticeLobby : ExtendedScalaPlugin()
     fun containerEnable()
     {
         devProvider = {
-            "miplobbyDEV" in ServerSync.getLocalGameServer().groups
+            "miplobbydev" in ServerSync.getLocalGameServer().groups
         }
 
         SettingMenu.defaultCategory = "Practice"

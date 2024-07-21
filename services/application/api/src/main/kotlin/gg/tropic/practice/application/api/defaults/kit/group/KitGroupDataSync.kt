@@ -5,6 +5,7 @@ import gg.tropic.practice.application.api.DPSDataSyncKeys
 import gg.tropic.practice.application.api.DPSDataSyncSource
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.namespace
+import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
 import net.kyori.adventure.key.Key
 
@@ -19,7 +20,7 @@ object KitGroupDataSync : DPSDataSync<ImmutableKitContainer>()
         override fun newStore() = "mi-practice-kits-groups"
 
         override fun store() = Key.key(namespace(), "groups")
-        override fun sync() = Key.key(namespace().suffixWhenDev(), "gsync")
+        override fun sync() = Key.key(namespaceShortened().suffixWhenDev(), "gsync")
     }
 
     override fun locatedIn() = DPSDataSyncSource.Mongo

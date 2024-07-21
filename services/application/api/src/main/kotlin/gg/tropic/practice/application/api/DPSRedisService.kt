@@ -4,6 +4,7 @@ import gg.scala.aware.Aware
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
+import gg.tropic.practice.suffixWhenDev
 import java.util.logging.Logger
 
 /**
@@ -19,7 +20,7 @@ class DPSRedisService(
         AwareBuilder
             .of<AwareMessage>("${
                 if (!raw) "practice:" else ""
-            }$channel")
+            }$channel".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()

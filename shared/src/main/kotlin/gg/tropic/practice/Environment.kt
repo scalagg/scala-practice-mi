@@ -10,6 +10,7 @@ fun isDev() = devProvider()
 fun isProd() = !devProvider()
 
 fun namespace() = "tropicpractice"
+fun namespaceShortened() = "tp"
 
 fun practiceGroup() = "mip"
 fun gameGroup() = "mipgame"

@@ -46,7 +46,7 @@ class PracticeGame : ExtendedScalaPlugin()
     fun containerEnable()
     {
         devProvider = {
-            "mipgameDEV" in ServerSync.getLocalGameServer().groups
+            "mipgamedev" in ServerSync.getLocalGameServer().groups
         }
 
         ChatChannelService.default

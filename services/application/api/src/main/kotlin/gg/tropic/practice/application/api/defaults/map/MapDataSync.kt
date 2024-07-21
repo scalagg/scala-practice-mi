@@ -7,6 +7,7 @@ import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.kit.group.ImmutableKitGroup
 import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import gg.tropic.practice.namespace
+import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
 import net.kyori.adventure.key.Key
 
@@ -21,7 +22,7 @@ object MapDataSync : DPSDataSync<ImmutableMapContainer>()
         override fun newStore() = "mi-practice-maps"
 
         override fun store() = Key.key(namespace(), "maps")
-        override fun sync() = Key.key(namespace().suffixWhenDev(), "msync")
+        override fun sync() = Key.key(namespaceShortened().suffixWhenDev(), "msync")
     }
 
     override fun locatedIn() = DPSDataSyncSource.Mongo

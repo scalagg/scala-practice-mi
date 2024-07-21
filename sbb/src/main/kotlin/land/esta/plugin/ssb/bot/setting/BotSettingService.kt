@@ -7,6 +7,7 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.namespace
+import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
 import land.esta.plugin.ssb.SmartBotsBackend
 import land.esta.plugin.ssb.bot.profile.BotSettingProfileService
@@ -43,7 +44,7 @@ object BotSettingService: DataSyncService<BotSettingContainer>()
         override fun newStore() = "mi-practice-bot-settings"
 
         override fun store() = Key.key(namespace(), "bot-settings")
-        override fun sync() = Key.key(namespace().suffixWhenDev(), "bsync")
+        override fun sync() = Key.key(namespaceShortened().suffixWhenDev(), "bsync")
     }
 
     override fun locatedIn() = DataSyncSource.Mongo

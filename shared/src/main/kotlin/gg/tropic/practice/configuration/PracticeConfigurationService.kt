@@ -5,6 +5,7 @@ import gg.scala.commons.persist.datasync.DataSyncService
 import gg.scala.commons.persist.datasync.DataSyncSource
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.namespace
+import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
 import net.kyori.adventure.key.Key
 
@@ -20,7 +21,7 @@ object PracticeConfigurationService : DataSyncService<PracticeConfiguration>()
         override fun newStore() = "mi-practice-lobbyconfig"
 
         override fun store() = Key.key(namespace(), "lobbyconf")
-        override fun sync() = Key.key(namespace().suffixWhenDev(), "lcsync")
+        override fun sync() = Key.key(namespaceShortened().suffixWhenDev(), "lcsync")
     }
 
     override fun locatedIn() = DataSyncSource.Mongo
