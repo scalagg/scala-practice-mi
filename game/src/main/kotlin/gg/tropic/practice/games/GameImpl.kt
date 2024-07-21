@@ -608,7 +608,9 @@ open class GameImpl(
                         }
 
                         val player = it.bukkitEntity as Player
-                        player.kickPlayer("You should not be on this server!")
+                        runCatching {
+                            player.kickPlayer("You should not be on this server!")
+                        }
 
                         onlinePlayers.remove(it)
                     }
