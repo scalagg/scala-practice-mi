@@ -40,8 +40,12 @@ public class DataManager implements Listener {
 
     @EventHandler
     public void remove(PlayerQuitEvent e) {
-        getPlayer(e.getPlayer()).quit();
-        dataSet.remove(e.getPlayer());
+        try {
+            getPlayer(e.getPlayer()).quit();
+            dataSet.remove(e.getPlayer());
+        } catch (Exception ignored) {
+
+        }
     }
 
     public DataPlayer getPlayer(Player player) {

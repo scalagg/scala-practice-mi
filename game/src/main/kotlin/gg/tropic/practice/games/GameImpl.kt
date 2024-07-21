@@ -44,6 +44,7 @@ import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
@@ -590,38 +591,36 @@ open class GameImpl(
             }
 
             MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
-            println("World dimension: ${
-                (arenaWorld!! as CraftWorld).handle.dimension
-            }")
+            robotInstance?.destroy()
 
+            val handlePlayers = (arenaWorld!! as CraftWorld).handle
             if (kickPlayers)
             {
                 // final check
-                val onlinePlayers = getOnlinePlayers()
-                println("Online players: ${onlinePlayers.size}")
+                val onlinePlayers = handlePlayers.players
 
                 if (onlinePlayers.isNotEmpty())
                 {
-                    println("Players still here, kicking")
-                    onlinePlayers.forEach {
-                        it.kickPlayer("You should not be on this server!")
+                    onlinePlayers.toList().forEach {
+                        if (it.bukkitEntity !is Player)
+                        {
+                            return@forEach
+                        }
+
+                        val player = it.bukkitEntity as Player
+                        player.kickPlayer("You should not be on this server!")
+
+                        onlinePlayers.remove(it)
                     }
 
                     Tasks.delayed(10L) {
-                        println("Unloading world, delayed: ${Bukkit.unloadWorld(
-                            arenaWorld, false
-                        )}")
-
+                        Bukkit.unloadWorld(arenaWorld, false)
                     }
                     return@delayed
                 }
             }
 
-            println("Unloading world: ${
-                Bukkit.unloadWorld(
-                    arenaWorld, false
-                )
-            }")
+            Bukkit.unloadWorld(arenaWorld, false)
         }
 
         closeAndReportException()

@@ -42,7 +42,7 @@ import java.util.concurrent.CompletableFuture;
 public class Bot {
     private MovementsMain movements;
     private static Map<String, Property> registeredSkins = new HashMap<>();
-    private NPCEntity npc;
+    public NPCEntity npc;
     private Kit kit;
     public SettingManager settingManager;
     private PacketsManager packetsManager;
