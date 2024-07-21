@@ -11,6 +11,9 @@ plugins {
 }
 
 var currentBranch: String = grgit.branch.current().name
+if (currentBranch == "development") {
+    println("Starting in development mode")
+}
 
 allprojects {
     group = "land.esta.practice"
