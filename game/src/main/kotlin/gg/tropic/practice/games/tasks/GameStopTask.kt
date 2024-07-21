@@ -6,6 +6,7 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.rating.MapRatingService
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.settings.isASilentSpectator
 import me.lucko.helper.Events
@@ -266,7 +267,7 @@ class GameStopTask(
                 }
         }
 
-        if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueId != "party")
+        if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueType != QueueType.Robot && game.expectationModel.queueId != "party")
         {
             if (game.expectationModel.queueId != null)
             {
