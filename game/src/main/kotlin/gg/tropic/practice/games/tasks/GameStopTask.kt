@@ -267,7 +267,7 @@ class GameStopTask(
                 }
         }
 
-        if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueType != QueueType.Robot && game.expectationModel.queueId != "party")
+        if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueId != "party")
         {
             if (game.expectationModel.queueId != null)
             {
