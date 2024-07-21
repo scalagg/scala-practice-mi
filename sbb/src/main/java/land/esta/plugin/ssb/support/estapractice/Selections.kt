@@ -11,7 +11,6 @@ import java.util.UUID
  */
 fun loadSettingsFromSelection(player: Player, selection: String): SettingManager?
 {
-    player.sendMessage("Selection $selection")
     if (runCatching { UUID.fromString(selection) }.getOrNull() != null)
     {
         val profile = BotSettingProfileService.find(player)
@@ -19,10 +18,8 @@ fun loadSettingsFromSelection(player: Player, selection: String): SettingManager
         val setting = profile.settings["default"]
             ?: return null
 
-        player.sendMessage("Using custom bots")
         return SettingManager.loadManagerFromSettings(setting)
     }
 
-    player.sendMessage("Using preset bots: $selection")
     return SettingManager.loadSettings(selection)
 }
