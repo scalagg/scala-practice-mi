@@ -1,5 +1,9 @@
 package gg.tropic.practice.menu
 
+import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.staff.ScalaStaffConfig
+import gg.scala.staff.ScalaStaffPlugin
+import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
@@ -114,6 +118,16 @@ class JoinQueueMenu(
         {
             player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to join a queue.")
             return
+        }
+
+        val profile = StaffProfileService.find(player)
+        if (profile != null && player.hasPermission(ScalaStaffPlugin.STAFF_NODE))
+        {
+            if (profile.staffAutoVanishEnabled)
+            {
+                player.sendMessage("${CC.RED}You currently have AutoVanish enabled! Use ${CC.B}/toggleautovanish${CC.RED} to be able to join a queue.")
+                return
+            }
         }
 
         player.closeInventory()

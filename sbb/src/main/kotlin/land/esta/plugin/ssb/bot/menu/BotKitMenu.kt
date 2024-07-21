@@ -1,5 +1,7 @@
 package land.esta.plugin.ssb.bot.menu
 
+import gg.scala.staff.ScalaStaffPlugin
+import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.namespace
@@ -99,6 +101,16 @@ class BotKitMenu(private val identifier: String) : TemplateKitMenu()
         {
             player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to join a queue.")
             return
+        }
+
+        val profile = StaffProfileService.find(player)
+        if (profile != null && player.hasPermission(ScalaStaffPlugin.STAFF_NODE))
+        {
+            if (profile.staffAutoVanishEnabled)
+            {
+                player.sendMessage("${CC.RED}You currently have AutoVanish enabled! Use ${CC.B}/toggleautovanish${CC.RED} to be able to join a queue.")
+                return
+            }
         }
 
         player.closeInventory()

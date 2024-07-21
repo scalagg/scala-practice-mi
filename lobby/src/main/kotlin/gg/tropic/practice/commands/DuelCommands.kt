@@ -11,6 +11,8 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.scala.lemon.util.QuickAccess
+import gg.scala.staff.ScalaStaffPlugin
+import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.friendship.Friendships
@@ -58,6 +60,15 @@ object DuelCommands : ScalaCommand()
             throw ConditionFailedException(
                 "You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to accept a duel."
             )
+        }
+
+        val staffProfile = StaffProfileService.find(player.bukkit())
+        if (staffProfile != null && player.bukkit().hasPermission(ScalaStaffPlugin.STAFF_NODE))
+        {
+            if (staffProfile.staffAutoVanishEnabled)
+            {
+                throw ConditionFailedException("You currently have AutoVanish enabled! Use ${CC.B}/toggleautovanish${CC.RED} to be able to join a queue.")
+            }
         }
 
         if (player.bukkit().hasMetadata("frozen"))
