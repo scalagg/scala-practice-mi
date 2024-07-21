@@ -20,6 +20,7 @@ data class Counter(
         mappings[id] = 0.0
     }
 
+    @JvmOverloads
     fun increment(id: String, amount: Double = 1.0)
     {
         mappings.compute(id) { _, value ->

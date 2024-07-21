@@ -107,7 +107,10 @@ class BotKitMenu(private val identifier: String) : TemplateKitMenu()
 
         CompletableFuture.runAsync {
             ScalaCommonsSpigot.instance.kvConnection.sync()
-                .set("${namespace()}:bot-selection:${player.uniqueId}", identifier)
+                .set(
+                    "${namespace()}:bot-selection:${player.uniqueId}",
+                    identifier
+                )
         }.thenAccept {
             QueueService.joinQueue(kit, QueueType.Robot, 1, player)
         }
