@@ -54,9 +54,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
                     )!!
                     .toLocation(gameImpl.arenaWorld!!),
                 gameImpl,
-                player,
-                false,
-                false
+                player
             )
             return
         }
