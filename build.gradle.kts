@@ -6,12 +6,17 @@ plugins {
     `maven-publish`
     kotlin("jvm") version "1.9.20"
     kotlin("kapt") version "1.9.20"
+    id("org.ajoberstar.grgit") version "4.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
+var currentBranch: String = grgit.branch.current().name
+
 allprojects {
     group = "land.esta.practice"
-    version = "1.0.0"
+    version = "1.0.0${
+        if (currentBranch == "development") "-dev" else ""
+    }"
 
     repositories {
         configureScalaRepository()
@@ -97,7 +102,7 @@ subprojects {
     }
 
     publishing {
-        repositories.configureScalaRepository(dev = false)
+        repositories.configureScalaRepository(dev = currentBranch == "development")
 
         publications {
             register(
