@@ -129,7 +129,10 @@ public class Bot {
         packetsManager = new PacketsManager(this);
         inventoryManager = new InventoryManager(this);
         fleeManager = new FleeManager(this);
-        viewsManager = new ViewsManager(this, List.of(pla));
+
+        final List<Player> players = new ArrayList<>();
+        players.add(pla);
+        viewsManager = new ViewsManager(this, players);
     }
 
     private void registerNPC(String name, Location loc) {
