@@ -18,12 +18,9 @@ import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.RandomUtil;
 import me.lucko.helper.Events;
 import net.evilblock.cubed.ScalaCommonsSpigot;
-import net.evilblock.cubed.util.bukkit.Tasks;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -228,11 +225,6 @@ public class EstaPracticeManager {
             }
         }.runTaskLater(SmartBotsBackend.getInstance(), 1);
         //TODO combo mode support.
-
-        Tasks.async(() -> {
-            ScalaCommonsSpigot.getInstance().getKvConnection().sync().del("tropicpractice:bot-selection:" + game.humanSide().getPlayers().get(0));
-            return null;
-        });
         return bot;
     }
 
