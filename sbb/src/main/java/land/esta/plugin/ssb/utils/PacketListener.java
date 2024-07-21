@@ -26,7 +26,11 @@ public class PacketListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        removePlayer(e.getPlayer());
+        try {
+            removePlayer(e.getPlayer());
+        } catch (Exception ignored) {
+
+        }
     }
 
     @EventHandler

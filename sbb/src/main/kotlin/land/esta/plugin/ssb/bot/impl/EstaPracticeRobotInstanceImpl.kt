@@ -71,6 +71,9 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     {
         if (spawnedBot?.killed == true)
         {
+            runCatching {
+                spawnedBot?.npc?.bukkitEntity?.remove()
+            }
             return
         }
 
