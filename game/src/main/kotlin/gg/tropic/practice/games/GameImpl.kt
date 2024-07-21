@@ -142,6 +142,11 @@ open class GameImpl(
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
         val playerFeedback = mutableMapOf<UUID, MutableList<String>>()
 
+        if (robot())
+        {
+            robotInstance?.destroy()
+        }
+
         toBukkitPlayers()
             .filterNotNull()
             .forEach(::takeSnapshotIfNotAlreadyExists)

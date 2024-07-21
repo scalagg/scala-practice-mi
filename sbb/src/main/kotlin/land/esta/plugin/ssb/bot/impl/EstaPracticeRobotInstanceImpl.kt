@@ -14,7 +14,8 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 7/20/2024
  */
-class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val practiceManager: EstaPracticeManager) : RobotInstance()
+class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val practiceManager: EstaPracticeManager) :
+    RobotInstance()
 {
     private var spawnedBot: Bot? = null
 
@@ -66,5 +67,15 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     override fun spectatorConnected(player: Player)
     {
         spawnedBot?.viewsManager?.addPlayer(player)
+    }
+
+    override fun destroy()
+    {
+        if (spawnedBot?.killed == true)
+        {
+            return
+        }
+
+        spawnedBot?.silentKill()
     }
 }
