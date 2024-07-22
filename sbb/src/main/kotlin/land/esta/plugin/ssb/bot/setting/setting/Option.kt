@@ -1,12 +1,14 @@
 package land.esta.plugin.ssb.bot.setting.setting
 
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileBackbone
+import land.esta.plugin.ssb.bot.profile.RobotProfileService
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingValue
 import land.esta.plugin.ssb.bot.setting.setting.persistence.toInternalValue
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
@@ -17,15 +19,38 @@ import org.bukkit.inventory.ItemStack
  */
 data class Option<T : Any>(
     override val id: String,
-    override val description: List<String> = listOf(),
     override val item: ItemStack,
     override val parent: Category?,
     override val displayName: String,
     val default: T,
     val increment: Double = 1.0,
+    override val description: List<String> = listOf(),
     override val permission: String? = null
 ) : SettingLike
 {
+    constructor(
+        display: String,
+        material: Material,
+        parent: Category?,
+        default: T,
+        increment: Double
+    ) : this(
+        display.lowercase()
+            .replace("(", "_")
+            .replace(")", "_")
+            .replace(" ", "_"),
+        ItemStack((material)), parent, display, default, increment
+    )
+
+    constructor(
+        display: String,
+        material: Material,
+        parent: Category?,
+        default: T
+    ) : this(
+        display, material, parent, default, 1.0
+    )
+
     fun interact(
         player: Player,
         profile: SettingProfile,

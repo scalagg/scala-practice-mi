@@ -1,14 +1,13 @@
 package land.esta.plugin.ssb.bots;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.bot.MojangKt;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.bots.mechanics.*;
-import land.esta.plugin.ssb.bots.setting.SettingManager;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
@@ -18,8 +17,6 @@ import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
 import land.esta.plugin.ssb.npc.NPCEntity;
 import land.esta.plugin.ssb.npc.NPCNetworkManager;
 import land.esta.plugin.ssb.npc.NPCPlayerConnection;
-import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.EventRunnable;
 import net.evilblock.cubed.util.bukkit.Tasks;
 import net.minecraft.server.v1_8_R3.EnumProtocolDirection;
@@ -33,8 +30,6 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,10 +37,8 @@ import java.util.concurrent.CompletableFuture;
 @Setter
 public class Bot {
     private MovementsMain movements;
-    private static Map<String, Property> registeredSkins = new HashMap<>();
     public NPCEntity npc;
     private Kit kit;
-    public SettingManager settingManager;
     private PacketsManager packetsManager;
     public ViewsManager viewsManager;
     private EffectsManager effectsManager;
@@ -66,22 +59,22 @@ public class Bot {
     private final Player player;
 
     private final String skin;
-    private final SettingManager settings;
+    private final SettingProfile profile;
 
-    public Bot(Location loc, String name, Player player, String skin, SettingManager settings, Kit kit) {
+    public Bot(Location loc, String name, Player player, String skin, SettingProfile profile, Kit kit) {
         this.kit = kit;
         this.eventListener = (e) -> {
         };
 
         this.skin = skin;
-        this.settings = settings;
+        this.profile = profile;
         this.player = player;
         //Registering
         registerNPC(name, loc);
 
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
 
-        registerManagers(settings, player, loc);
+        registerManagers(player, loc);
 
         //Create packets
         packetsManager.sendCreatesPackets();
@@ -115,11 +108,7 @@ public class Bot {
         MEventManager.addEvent(effectsManager);
     }
 
-    private void registerManagers(SettingManager settings, Player pla, Location loc) {
-        if (settings != null) settingManager = settings;
-        //Load the SettingsManager first in order for other managers to read from it.
-        if (settings == null) settingManager = new SettingManager();
-        //Load LagCompensatorManager in order for other managers to read from it.
+    private void registerManagers(Player pla, Location loc) {
         lagCompensatorManager = new LagCompensatorManager(this);
         MEventManager = new MEventManager(this);
         effectsManager = new EffectsManager(this);

@@ -45,4 +45,9 @@ open class Category(
             .flatMap { it.recursiveOptions() }
     }
 
+    fun <T> childByType(id: String): T
+    {
+        return children[id] as T
+    }
+
 }
