@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -50,13 +51,13 @@ public class VelocityCalculator extends Manager {
     public Vector getVelocityBot(EntityPlayer attacker, Bot bot, boolean sprinting, Vector motion) {
         Vector dir = MathUtils.getDirection(attacker.yaw);
 
-        VelocitySettings velocitySettings = settingManager.getVelocitySettings();
+        VelocitySettings velocitySettings = RootAccessor.INSTANCE.getVelocitySettings();
 
-        double h = velocitySettings.getHorizontal().getDoubleValue();
-        double reach = velocitySettings.getDependentRange().getDoubleValue();
-        double distMultiplier = velocitySettings.getDependentRangeMultiplier().getDoubleValue();
-        double v = velocitySettings.getVertical().getDoubleValue();
-        double motionMultiplier = velocitySettings.getMotionFriction().getDoubleValue();
+        double h = bot.getProfile().value(velocitySettings.getHorizontal());
+        double reach = bot.getProfile().value(velocitySettings.getDependentRange());
+        double distMultiplier = bot.getProfile().value(velocitySettings.getDependentRangeMultiplier());
+        double v = bot.getProfile().value(velocitySettings.getVertical());
+        double motionMultiplier = bot.getProfile().value(velocitySettings.getMotionFriction());
         double extraH = 0;
         Location botLocation = bot.getMovements().getLocation();
         Location attackerLocation = attacker.getBukkitEntity().getLocation();
@@ -66,7 +67,7 @@ public class VelocityCalculator extends Manager {
             extraH = Math.min(Math.max((reach - (botLocation.distance(attackerLocation) - 0.3)) * distMultiplier, 0), 0.4);
         }
 
-        if (sprinting) h *= velocitySettings.getSprintMultiplier().getDoubleValue();
+        if (sprinting) h *= bot.getProfile().value(velocitySettings.getSprintMultiplier());
 
     // Calculate the distance between the bot and the attacker
     double distance = bot.getMovements().getLocation().distance(attacker.getBukkitEntity().getLocation());
@@ -77,9 +78,9 @@ public class VelocityCalculator extends Manager {
     // Adjust the horizontal velocity components by the reduction percentage
     h *= (1 - reductionPercentage / 100.0);
 
-        if (bot.getMovements().isOnGround()) h *= velocitySettings.getGroundMultiplier().getDoubleValue();
+        if (bot.getMovements().isOnGround()) h *= bot.getProfile().value(velocitySettings.getGroundMultiplier());
         h += extraH;
-        h -= velocitySettings.getHorizontal().getDoubleValue();
+        h -= bot.getProfile().value(velocitySettings.getHorizontal());
 
         Vector velocity = dir.clone().multiply(new Vector(h, 1, h));
         motion.multiply(-motionMultiplier);
@@ -110,7 +111,7 @@ public class VelocityCalculator extends Manager {
         }
 
         if (!bot.getDamageManager().isCombo()) {
-            velocity.add(getBasedVelocity(distanceX, distanceZ, velocitySettings.getHorizontal().getDoubleValue()));
+            velocity.add(getBasedVelocity(distanceX, distanceZ, bot.getProfile().value(velocitySettings.getHorizontal())));
         }
 
         return velocity;

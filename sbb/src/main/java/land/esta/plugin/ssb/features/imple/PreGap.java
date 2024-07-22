@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.SpawnEvent;
 import land.esta.plugin.ssb.bots.Bot;
@@ -19,7 +20,7 @@ public class PreGap extends Feature {
                 @Override
                 public void run() {
                     boolean a = bot.getInventoryManager().hasItem(322).size() > 0;
-                    boolean b = bot.getSettingManager().getEatingSettings().getPreGap().isBooleanValue();
+                    boolean b = bot.getProfile().value(RootAccessor.INSTANCE.getEatingSettings().getPreGap());
 
                     //Bukkit.broadcastMessage("a " + a + " b " + b);
                     if (a && b) {

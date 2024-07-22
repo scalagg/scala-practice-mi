@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
 import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.BlockManager;
@@ -39,7 +40,7 @@ public class Movements extends Manager {
     }
 
     private final double blockingMultiplier = 0.2;
-    private final boolean advancedReduce = bot.getSettingManager().getClickSetting().getAdvancedReduce().isBooleanValue();
+    private final boolean advancedReduce = bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getAdvancedReduce());
 
     private boolean lastOnGround;
 

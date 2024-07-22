@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -28,7 +29,7 @@ public class Collision extends Manager {
 
     private final double raytraceAccuracy = 0.005;
     private Location lastValidLoc;
-    private final double xzHitBoxOffset = bot.getSettingManager().getClickSetting().getPlayerHitBox().getDoubleValue();
+    private final double xzHitBoxOffset = bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getPlayerHitBox());
     private final AABB playerBox = new AABB(new Vector(-xzHitBoxOffset,0.0,-xzHitBoxOffset),new Vector(xzHitBoxOffset,1.8,xzHitBoxOffset));
     private boolean inWater = false;
     private List<Location> pastLocations = new ArrayList<>();

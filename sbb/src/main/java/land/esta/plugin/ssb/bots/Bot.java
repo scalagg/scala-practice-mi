@@ -60,7 +60,11 @@ public class Bot {
 
     private final SettingProfile profile;
 
+    private Location startLocation;
+
     public Bot(Location loc, String name, Player player, SettingProfile profile, Kit kit) {
+        this.startLocation = loc;
+
         this.kit = kit;
         this.eventListener = (e) -> {
         };

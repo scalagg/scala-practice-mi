@@ -5,21 +5,16 @@ import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.objects.PlayerRunnable;
 import org.bukkit.entity.Player;
 
 @Getter
 public class Manager {
-
-    public SettingManager settingManager;
-
     public final Bot bot;
 
     public Manager(Bot bot) {
         this.bot = bot;
-        settingManager = bot.getSettingManager();
     }
 
     public void globalAction(PlayerRunnable runnable) {

@@ -2,6 +2,7 @@ package land.esta.plugin.ssb.bots.mechanics.movementsmanagement;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,7 +75,7 @@ public class MovementsMain extends Manager {
         bot.getMEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
     }
 
-    private boolean delayedBotLocation = bot.getSettingManager().getConnectionSettings().getDelayedBotLocation().isBooleanValue();
+    private boolean delayedBotLocation = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());
 
     @Override
     public void tickMid() {
@@ -86,7 +87,7 @@ public class MovementsMain extends Manager {
                     public void run() {
                         getBot().getPacketsManager().updateLocation(location);
                     }
-                }.runTaskLater(SmartBotsBackend.getInstance(), settingManager.getConnectionSettings().getPing().getIntValue() / 100);
+                }.runTaskLater(SmartBotsBackend.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100);
             } else {
                 getBot().getPacketsManager().updateLocation(getBot().getMovements().getLocation());
             }

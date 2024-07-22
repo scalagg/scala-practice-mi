@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.bots.Bot;
@@ -18,17 +19,16 @@ public class WTapFeature extends Feature {
             BotAttackLandEvent e = (BotAttackLandEvent) event;
             Bot bot = e.bot;
             int random = (ThreadLocalRandom.current().nextInt(100));
-            WTapSetting wTapSetting = bot.getSettingManager().getWTapSetting();
 
             bot.getMovements().setAttackSprint(false);
-            if (!wTapSetting.getEnabled().isBooleanValue()) return;
-            if (random > wTapSetting.getChance().getIntValue()) return;
+            if (!bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getEnabled())) return;
+            if (random > bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getChance())) return;
 
             final long tapLong;
             if (SmartBotsBackend.getInstance().getDataManager().getPlayer(e.getPlayer()).getBotCombo() > 3) {
-                tapLong = wTapSetting.getComboTapLong().getIntValue();
+                tapLong = bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getComboTapLong());
             } else {
-                tapLong = wTapSetting.getTapLong().getIntValue();
+                tapLong = bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getComboTapLong());
             }
             new BukkitRunnable() {
                 @Override
@@ -36,7 +36,7 @@ public class WTapFeature extends Feature {
                     if (!bot.isAlive()) return;
 
 
-                    if (bot.getSettingManager().getWTapSetting().getBlockingHitting().isBooleanValue()) {
+                    if (bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getBlockingHitting())) {
                         //Block hitting handling
                         bot.getPacketsManager().sendBlockHittingPackets(true);
                         bot.getMovements().setUse(true);
@@ -51,7 +51,7 @@ public class WTapFeature extends Feature {
                         public void run() {
                             if (!bot.isAlive()) return;
 
-                            if (bot.getSettingManager().getWTapSetting().getBlockingHitting().isBooleanValue()) {
+                            if (bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getBlockingHitting())) {
                                 //Block hitting handling
                                 bot.getPacketsManager().sendBlockHittingPackets(false);
                                 bot.getMovements().setUse(false);
@@ -64,7 +64,7 @@ public class WTapFeature extends Feature {
                         }
                     }.runTaskLater(SmartBotsBackend.getInstance(),tapLong);
                 }
-            }.runTaskLater(SmartBotsBackend.getInstance(),wTapSetting.getTapStart().getIntValue());
+            }.runTaskLater(SmartBotsBackend.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getTapStart()));
         }
     }
 }

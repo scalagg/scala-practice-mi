@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -76,6 +77,6 @@ public class LagCompensatorManager extends Manager {
     }
 
     public Location getClientLocation() {
-        return getPrevLocation(settingManager.getConnectionSettings().getPing().getIntValue() + settingManager.getConnectionSettings().getConnectionPacketDelay().getIntValue()).toLocation(bot.getMovements().getLocation().getWorld());
+        return getPrevLocation(bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) + bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getConnectionPacketDelay())).toLocation(bot.getMovements().getLocation().getWorld());
     }
 }

@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.setting.impl.PearlSettings;
 import land.esta.plugin.ssb.features.Feature;
@@ -27,13 +28,12 @@ public class Pearling extends Feature {
     public void tickEvent(Bot bot) {
         pearlTick.put(bot,pearlTick.getOrDefault(bot,0) + 1);
         List<ItemStack> pearls = getPearls(bot);
-        PearlSettings pearlSettings = bot.getSettingManager().getPearlSettings();
 
         if (pearls.size() <= 0) return;
         if (bot.getFleeManager().getOffTicks() < 10) return;
         if (bot.getHealthManager().getHealth() < bot.getMovements().getTargetLocate().getTargetEntity().getHealth()) return;
-        if (getAngle(bot) < pearlSettings.getAngleDifference().getIntValue()) return;
-        if (pearlTick.get(bot) < pearlSettings.getPearlDelay().getIntValue()) return;
+        if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference())) return;
+        if (pearlTick.get(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlDelay())) return;
 
         pearl(pearls.get(0),bot);
     }
@@ -47,16 +47,16 @@ public class Pearling extends Feature {
             public void run() {
                 if (!bot.isAlive()) return;
                 Location location = bot.getMovements().getLocation();
-                location.setYaw(location.getYaw() + bot.getSettingManager().getPearlSettings().getPearlThrowYawOffSet().getIntValue());
+                location.setYaw(location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()));
                 location.setPitch(3);
                 updateLocation(bot,location);
                 bot.getInventoryManager().setMainHand(1);
 
-                if (getAngle(bot) < bot.getSettingManager().getPearlSettings().getAngleDifference().getIntValue()) return;
+                if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference())) return;
                 bot.getInventoryManager().removeItem(itemSlot(pearl,bot));
                 bot.getNpc().getBukkitEntity().launchProjectile(EnderPearl.class);
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(),bot.getSettingManager().getPearlSettings().getPearlingTicks().getIntValue());
+        }.runTaskLater(SmartBotsBackend.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()));
     }
 
     public void updateLocation(Bot bot,Location location) {

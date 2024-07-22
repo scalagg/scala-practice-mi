@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
@@ -18,7 +19,7 @@ import java.util.List;
 @Getter
 public class PacketsManager extends Manager {
 
-    private final boolean relativeMovement = bot.getSettingManager().getPacketsSettings().getRelativeMove().isBooleanValue();
+    private final boolean relativeMovement = bot.getProfile().value(RootAccessor.INSTANCE.getPacketSettings().getRelativeMove());
     private final List<Packet> queue;
 
     public PacketsManager(Bot bot) {

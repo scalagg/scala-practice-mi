@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
@@ -27,19 +28,19 @@ public class RodFeature extends Feature {
 
     @Override
     public void listen(Event event) {
+        Bot bot = event.bot;
         if (event instanceof FinalMoveEvent) {
             FinalMoveEvent e = (FinalMoveEvent) event;
             try {
                 double distance = e.getTo().distance(e.bot.getMovements().getTargetLocate().getTarget());
-                RodSettings settings = e.bot.getSettingManager().getRodSettings();
                 ItemStack mainHand = e.bot.getInventoryManager().getItemInMainHand();
 
-                if (!settings.getEnabled().isBooleanValue()) return;
+                if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getEnabled())) return;
 
-                if (distance >= settings.getMinRodDistance().getDoubleValue() && distance <= settings.getMaxRodDistance().getDoubleValue() && !e.bot.getFleeManager().isActive()) {
+                if (distance >= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMinRodDistance()) && distance <= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMaxRodDistance()) && !e.bot.getFleeManager().isActive()) {
                     if (mainHand == null) return;
                     if (mainHand.getType().equals(Material.FISHING_ROD)) return;
-                    if (!settings.getRodWhileInCombo().isBooleanValue() && SmartBotsBackend.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(e.bot, 0) > 2 && e.bot.getDamageManager().getDamageTicks() < 10) return;
+                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && SmartBotsBackend.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(e.bot, 0) > 2 && e.bot.getDamageManager().getDamageTicks() < 10) return;
                     List<ItemStack> rods = e.bot.getInventoryManager().hasItem(Material.FISHING_ROD);
                     if (rods.isEmpty()) return;
 
@@ -58,7 +59,7 @@ public class RodFeature extends Feature {
                         }
                     }.runTask(SmartBotsBackend.getInstance());
                 } else {
-                    if (System.currentTimeMillis() - lastSwitch.getOrDefault(e.bot, 0L) < settings.getRodDuration().getIntValue()) return;
+                    if (System.currentTimeMillis() - lastSwitch.getOrDefault(e.bot, 0L) < bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodDuration())) return;
                     if (mainHand == null) return;
                     if (!mainHand.getType().equals(Material.FISHING_ROD)) return;
                     e.bot.getInventoryManager().setMainHand(prevSlot.getOrDefault(e.bot,0));

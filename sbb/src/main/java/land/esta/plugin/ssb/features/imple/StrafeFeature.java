@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
@@ -26,7 +27,6 @@ public class StrafeFeature extends Feature {
     @Override
     public void tickEvent(Bot bot) {
         //Values
-        StrafeSettings strafeSettings = bot.getSettingManager().getStrafeSettings();
         boolean inCombo = combo.getOrDefault(bot, 0) > 3;
 
         // Check if the bot and target are in the same world
@@ -37,10 +37,10 @@ public class StrafeFeature extends Feature {
         }
 
         boolean close = botLocation.distance(targetLocation) < 6;
-        boolean chance = ThreadLocalRandom.current().nextInt(100) <= bot.getSettingManager().getStrafeSettings().getChance().getIntValue();
+        boolean chance = ThreadLocalRandom.current().nextInt(100) <= bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getChance());
 
         //Enable & Combo & Close check
-        if (!strafeSettings.getEnabled().isBooleanValue() || inCombo && !strafeSettings.getStrafeInCombo().isBooleanValue() || !close || bot.getMovements().isEdge()) {
+        if (!bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getEnabled()) || inCombo && !bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getStrafeInCombo()) || !close || bot.getMovements().isEdge()) {
             strafe.put(bot, 0f);
             bot.getMovements().setStrafe(0);
             return;
@@ -56,7 +56,7 @@ public class StrafeFeature extends Feature {
         ticks.put(bot, ticks.getOrDefault(bot, 0) + 1);
 
         //Switch check
-        if (ticks.get(bot) > strafeSettings.getSwitchSideTicks().getIntValue()) {
+        if (ticks.get(bot) > bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getSwitchSideTicks())) {
             ticks.put(bot, 0);
             strafe.put(bot, strafe.getOrDefault(bot, 0f) * -1f);
             bot.getMovements().setSpeedMultiplier(1 / 1.05);
@@ -67,11 +67,11 @@ public class StrafeFeature extends Feature {
 
     @Override
     public void listen(Event event) {
+        Bot bot = event.bot;
         //Combo calculation.
         if (event instanceof BotDamageEvent) {
             combo.put(event.bot,combo.getOrDefault(event.bot,0) + 1);
-            FleeSettings fleeSettings = event.bot.getSettingManager().getFleeSettings();
-            if (combo.get(event.bot) > fleeSettings.getRunFromCombosHits().getIntValue() && fleeSettings.getRunFromCombos().isBooleanValue() && !event.bot.getFleeManager().isRunning()) {
+            if (combo.get(event.bot) > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.bot.getFleeManager().isRunning()) {
                 event.bot.getFleeManager().setRunningFromCombo(true);
                 combo.put(event.bot,0);
 
@@ -80,7 +80,7 @@ public class StrafeFeature extends Feature {
                     public void run() {
                         event.bot.getFleeManager().setRunningFromCombo(false);
                     }
-                }.runTaskLater(SmartBotsBackend.getInstance(), fleeSettings.getRunFromCombosTime().getIntValue());
+                }.runTaskLater(SmartBotsBackend.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosTime()));
             }
         }
         if (event instanceof BotAttackEvent) {
