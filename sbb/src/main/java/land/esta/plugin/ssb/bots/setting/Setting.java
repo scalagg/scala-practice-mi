@@ -13,7 +13,7 @@ public class Setting implements ConfigurationSerializable {
 
     public final ArrayList<SettingObject> settings;
     private final Material material;
-    public final String fancyName;
+    private final String fancyName;
     public final String name;
     private final  String permissionName;
     private int id = 0;

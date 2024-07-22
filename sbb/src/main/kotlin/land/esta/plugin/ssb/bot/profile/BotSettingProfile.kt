@@ -13,7 +13,6 @@ data class BotSettingProfile(
 {
     var skin: String? = null
     var name: String? = null
-
     val settings: MutableMap<String, BotSetting> = mutableMapOf()
 
     init
@@ -28,8 +27,8 @@ data class BotSettingProfile(
 
         toUpdate.forEach { setting ->
             setting.settings.forEach { ob ->
-                botSetting.settings.putIfAbsent(setting.fancyName, mutableMapOf())
-                botSetting.settings[setting.fancyName]!![ob.name] = ob
+                botSetting.settings.putIfAbsent(setting.name, mutableMapOf())
+                botSetting.settings[setting.name]!![ob.name] = ob
             }
         }
 
