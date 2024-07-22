@@ -65,7 +65,6 @@ data class Option<T : Any>(
     )
     {
         val setting = profile.setting(this)
-
         fun updateRandomizerRanges()
         {
             if (setting.getObject() is Int)
@@ -97,7 +96,7 @@ data class Option<T : Any>(
                     )
 
                     updateRandomizerRanges()
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 }
 
@@ -114,7 +113,7 @@ data class Option<T : Any>(
                         if (integer + increment.toInt() > maxValue) setting.setObject(maxValue)
                         else setting.setObject(integer + increment)
                     }
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 }
 
@@ -131,7 +130,7 @@ data class Option<T : Any>(
                         if (integer - increment.toInt() < 0) setting.setObject(0)
                         else setting.setObject(integer - increment)
                     }
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 }
 
@@ -143,7 +142,7 @@ data class Option<T : Any>(
                     )
 
                     updateRandomizerRanges()
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 } else
                 {
@@ -155,7 +154,7 @@ data class Option<T : Any>(
             {
                 val value = setting.getObject() as Boolean
                 setting.setObject(!value)
-                backbone.save()
+                backbone.save(profile)
             }
 
             else ->
@@ -192,7 +191,7 @@ data class Option<T : Any>(
                             else -> "$value"
                         }
                     }",
-                    "${CC.GREEN}Randomizer: ${CC.WHITE}${
+                    "${CC.GOLD}Randomizer: ${CC.WHITE}${
                         "%.2f".format(setting.randomizer.toFloat())
                     } ${
                         "${CC.GRAY}(${CC.WHITE}${
@@ -203,7 +202,7 @@ data class Option<T : Any>(
                     }",
                     "",
                     "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                        "Left Click for Value"
+                        "Left Click"
                     }",
                     "${CC.GREEN}   ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                         "Shift Left Click for Randomizer"

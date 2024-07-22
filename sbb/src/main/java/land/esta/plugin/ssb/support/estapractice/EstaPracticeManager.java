@@ -184,7 +184,7 @@ public class EstaPracticeManager {
                         }
                     })
                     .bindWith(game);
-        } else
+        }/* else
         {
             bot.setEventListener((event -> {
                 if (event instanceof BotDamageEvent) {
@@ -207,7 +207,7 @@ public class EstaPracticeManager {
                     }
                 }
             }));
-        }
+        }*/
 
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {

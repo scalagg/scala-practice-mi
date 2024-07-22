@@ -9,15 +9,15 @@ import org.bukkit.entity.Player
  * @since 7/22/2024
  */
 class PlayerProfileBackbone(
-    private val player: Player,
-    private val settingProfile: SettingProfile
+    private val player: Player
 ) : ProfileBackbone
 {
-    override fun save()
+    override fun save(settings: SettingProfile)
     {
         val profile = RobotProfileService.find(player)
             ?: return
 
+        profile.profiles[settings.id] = settings
         profile.save()
     }
 }
