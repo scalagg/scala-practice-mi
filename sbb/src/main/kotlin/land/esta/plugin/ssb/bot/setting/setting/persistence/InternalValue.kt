@@ -34,9 +34,9 @@ data class IntValue(
 
 fun Any.toInternalValue() = when (true)
 {
-    (this is Boolean) -> BooleanValue(this)
-    (this is Double) -> DoubleValue(this)
-    (this is Int) -> IntValue(this)
+    ((this is Boolean) || (this.javaClass == Boolean::class.javaObjectType) || (this.javaClass == Boolean::class.javaPrimitiveType)) -> BooleanValue(this as Boolean)
+    ((this is Double) || (this.javaClass == Double::class.javaObjectType) || (this.javaClass == Double::class.javaPrimitiveType)) -> DoubleValue(this as Double)
+    ((this is Int) || (this.javaClass == Int::class.javaObjectType) || (this.javaClass == Int::class.javaPrimitiveType)) -> IntValue(this as Int)
     else -> throw IllegalStateException(
         "Unsupported InternalValue type ${javaClass.name} was given"
     )

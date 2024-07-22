@@ -174,7 +174,6 @@ class ProfileCategoryMenu(
                     {
                         Button.playSuccess(player)
                         setting.interact(player, profile, backbone, clickType!!)
-
                         openMenu(player)
                     }
                 }

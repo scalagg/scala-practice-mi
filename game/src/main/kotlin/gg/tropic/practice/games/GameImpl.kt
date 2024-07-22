@@ -1,5 +1,6 @@
 package gg.tropic.practice.games
 
+import com.grinderwolf.swm.nms.v1_8_R3.CustomWorldServer
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.Globals
@@ -38,6 +39,7 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.*
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -594,6 +596,8 @@ open class GameImpl(
             robotInstance?.destroy()
 
             val handlePlayers = (arenaWorld!! as CraftWorld).handle
+            val worldServer = handlePlayers as CustomWorldServer
+
             if (kickPlayers)
             {
                 // final check
@@ -615,7 +619,12 @@ open class GameImpl(
                         onlinePlayers.remove(it)
                     }
 
+                    val server = MinecraftServer.getServer()
+//                    server.server.unloadWorld(worldServer.na)
+
                     Tasks.delayed(10L) {
+
+
                         Bukkit.unloadWorld(arenaWorld, false)
                     }
                     return@delayed

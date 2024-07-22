@@ -77,30 +77,10 @@ data class Option<T : Any>(
             }
         }
 
-        val newLines = when (true)
+        when (true)
         {
             (setting.getObject() is Int), (setting.getObject() is Double) ->
-            {/*
-                listOf(
-                    "",
-                    "${CC.AQUA}Value: ${CC.WHITE}${context.value(this)}",
-                    "${CC.GREEN}Randomizer: ${CC.WHITE}${setting.randomizer}",
-                    "            ${CC.GRAY}(${CC.WHITE}${setting.randomizerMinMax.first} ${CC.GREEN}◀▶${CC.WHITE}${setting.randomizerMinMax.second}${CC.GRAY})",
-                    "",
-                    "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                        "Left Click for Value"
-                    }",
-                    "${CC.GREEN}  ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                        "Shift Left Click for Randomizer"
-                    }",
-                    "${CC.RED}▼ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                        "Right Click for Value"
-                    }",
-                    "${CC.RED}  ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                        "Shift Right Click for Randomizer"
-                    }"
-                )*/
-
+            {
                 if (clickType == ClickType.SHIFT_LEFT)
                 {
                     profile.updateRandomizer(
@@ -200,8 +180,14 @@ data class Option<T : Any>(
                             else -> "$value"
                         }
                     }",
-                    "${CC.GREEN}Randomizer: ${CC.WHITE}${setting.randomizer} ${
-                        "${CC.GRAY}(${CC.WHITE}${setting.randomizerMinMax.first} ${CC.GREEN}◀▶ ${CC.WHITE}${setting.randomizerMinMax.second}${CC.GRAY})"
+                    "${CC.GREEN}Randomizer: ${CC.WHITE}${
+                        "%.2f".format(setting.randomizer.toFloat())
+                    } ${
+                        "${CC.GRAY}(${CC.WHITE}${
+                            "%.2f".format(setting.randomizerMinMax.first.toFloat())
+                        } ${CC.GREEN}◀▶ ${CC.WHITE}${
+                            "%.2f".format(setting.randomizerMinMax.second.toFloat())
+                        }${CC.GRAY})"
                     }",
                     "",
                     "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
