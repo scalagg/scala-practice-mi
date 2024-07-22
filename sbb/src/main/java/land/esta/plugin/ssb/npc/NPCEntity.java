@@ -6,10 +6,12 @@ import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.utils.Nms;
 import net.minecraft.server.v1_8_R3.*;
 
+import java.lang.ref.WeakReference;
+
 public class NPCEntity extends EntityPlayer {
 
-    public NPCEntity(MinecraftServer minecraftserver, WorldServer worldserver, GameProfile gameprofile, PlayerInteractManager playerinteractmanager) {
-        super(minecraftserver, worldserver, gameprofile, playerinteractmanager);
+    public NPCEntity(MinecraftServer minecraftserver, WeakReference<WorldServer> worldserver, GameProfile gameprofile, PlayerInteractManager playerinteractmanager) {
+        super(minecraftserver, worldserver.get(), gameprofile, playerinteractmanager);
     }
 
     @Override

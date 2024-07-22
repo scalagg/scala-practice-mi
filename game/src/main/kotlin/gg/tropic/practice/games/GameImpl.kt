@@ -622,8 +622,6 @@ open class GameImpl(
 
                     Tasks.delayed(10L) {
                         arenaWorld = null
-                        MapReplicationService.mapReplications -= replication
-
                         Bukkit.unloadWorld(arenaWorldName, false)
                     }
                     return@delayed

@@ -30,6 +30,7 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -126,7 +127,7 @@ public class Bot {
         WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
         PlayerInteractManager interactManager = new PlayerInteractManager(world);
 
-        npc = new NPCEntity(server, world, profile, interactManager);
+        npc = new NPCEntity(server, new WeakReference<>(world), profile, interactManager);
         npc.playerConnection = new NPCPlayerConnection(server, new NPCNetworkManager(EnumProtocolDirection.CLIENTBOUND), npc);
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());
@@ -166,7 +167,9 @@ public class Bot {
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
         SmartBotsBackend.getInstance().getBotManager().removeBot(this);
         packetsManager.sendRemovePackets();
+
         npc.getBukkitEntity().remove();
+        npc = null;
     }
 
     public void deathEvent() {
@@ -189,6 +192,7 @@ public class Bot {
 
                 alive = false;
                 npc.getBukkitEntity().remove();
+                npc = null;
 
                 Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
             }

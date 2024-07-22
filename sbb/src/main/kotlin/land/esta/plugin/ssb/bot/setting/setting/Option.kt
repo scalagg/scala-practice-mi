@@ -57,7 +57,6 @@ data class Option<T : Any>(
     )
     {
         val setting = profile.setting(this)
-
         fun updateRandomizerRanges()
         {
             if (setting.getObject() is Int)
@@ -180,7 +179,7 @@ data class Option<T : Any>(
                             else -> "$value"
                         }
                     }",
-                    "${CC.GREEN}Randomizer: ${CC.WHITE}${
+                    "${CC.GOLD}Randomizer: ${CC.WHITE}${
                         "%.2f".format(setting.randomizer.toFloat())
                     } ${
                         "${CC.GRAY}(${CC.WHITE}${
@@ -191,7 +190,7 @@ data class Option<T : Any>(
                     }",
                     "",
                     "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                        "Left Click for Value"
+                        "Left Click"
                     }",
                     "${CC.GREEN}   ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                         "Shift Left Click for Randomizer"
