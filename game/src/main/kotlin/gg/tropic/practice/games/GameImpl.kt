@@ -22,6 +22,7 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import gg.tropic.practice.leaderboards.ScoreUpdates
+import gg.tropic.practice.map.BuiltMapReplication
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfile
@@ -80,10 +81,10 @@ open class GameImpl(
     val map: gg.tropic.practice.map.Map
         get() = MapService.mapWithID(mapId)!!
 
-    var arenaWorldName: String? = null
+    var replication: BuiltMapReplication? = null
 
-    val arenaWorld: World?
-        get() = Bukkit.getWorld(this.arenaWorldName)
+    var arenaWorldName: String? = null
+    var arenaWorld: World? = null
 
     private val audiences: BukkitAudiences
         get() = ExpectationService.audiences
@@ -619,19 +620,20 @@ open class GameImpl(
                         onlinePlayers.remove(it)
                     }
 
-                    val server = MinecraftServer.getServer()
-//                    server.server.unloadWorld(worldServer.na)
-
                     Tasks.delayed(10L) {
+                        arenaWorld = null
+                        MapReplicationService.mapReplications -= replication
 
-
-                        Bukkit.unloadWorld(arenaWorld, false)
+                        Bukkit.unloadWorld(arenaWorldName, false)
                     }
                     return@delayed
                 }
             }
 
-            Bukkit.unloadWorld(arenaWorld, false)
+            arenaWorld = null
+            MapReplicationService.mapReplications -= replication
+
+            Bukkit.unloadWorld(arenaWorldName, false)
         }
 
         closeAndReportException()
