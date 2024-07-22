@@ -103,7 +103,7 @@ object GameService
     val playerToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
     val spectatorToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
 
-    private val ensureCauseDenied = listOf(
+    private val ensureCauseDenied = EnumSet.of(
         DamageCause.BLOCK_EXPLOSION,
         DamageCause.FIRE,
         DamageCause.LAVA,
@@ -1006,7 +1006,7 @@ object GameService
                     return@handler
                 }
 
-                if (ensureCauseDenied.contains(it.cause))
+                if (it.cause in ensureCauseDenied)
                 {
                     it.isCancelled = true
                     return@handler

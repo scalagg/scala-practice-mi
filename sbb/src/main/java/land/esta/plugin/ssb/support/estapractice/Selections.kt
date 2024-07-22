@@ -14,11 +14,9 @@ fun loadSettingsFromSelection(player: Player, selection: String): SettingManager
     if (runCatching { UUID.fromString(selection) }.getOrNull() != null)
     {
         val profile = BotSettingProfileService.find(player)
-            ?: return null
-        val setting = profile.settings["default"]
-            ?: return null
+            ?: return SettingManager.loadSettings("EASY")
 
-        return SettingManager.loadManagerFromSettings(setting)
+        return SettingManager.loadManagerFromSettings(profile)
     }
 
     return SettingManager.loadSettings(selection)
