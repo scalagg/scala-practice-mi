@@ -13,15 +13,10 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.EventManager;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.BotManager;
-import land.esta.plugin.ssb.data.DataManager;
-import land.esta.plugin.ssb.data.presets.PresetManager;
 import land.esta.plugin.ssb.features.FeatureManager;
 import land.esta.plugin.ssb.support.SupportManager;
 import land.esta.plugin.ssb.thread.ThreadSystem;
 import land.esta.plugin.ssb.utils.config.ConfigManager;
-import land.esta.plugin.ssb.utils.db.Mongo;
-import land.esta.plugin.ssb.utils.db.MongoHandler;
-import land.esta.plugin.ssb.utils.settings.DifficultiesSettings;
 import org.bukkit.Bukkit;
 
 @Plugin(
@@ -44,22 +39,13 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     public static SmartBotsBackend instance;
 
     @Getter
-    public DifficultiesSettings difficultiesSettings;
-
-    @Getter
     private BotManager botManager;
-
-    @Getter
-    public DataManager dataManager;
 
     @Getter
     private EventManager eventManager;
 
     @Getter
     private FeatureManager featureManager;
-
-    @Getter
-    private PresetManager presetManager;
 
     @Getter
     private BukkitEvents bukkitEvents;
@@ -70,42 +56,36 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     @Getter
     private ThreadSystem threadSystem;
 
-    @Getter
-    private Mongo mongo = null;
-
-    @Getter
-    private MongoHandler mongoHandler;
-
     @ContainerEnable
     public void containerEnable() {
         // Plugin startup logic
         instance = this;
-
         new ConfigManager(); //Loading the config manager
-        loadMongo();
 
-        botManager = new BotManager();
+        if (GameServer.is()) {
+            botManager = new BotManager();
+        }
+
         eventManager = new EventManager();
         supportManager = new SupportManager();
-        featureManager = new FeatureManager();
-        presetManager = new PresetManager();
+
+        if (GameServer.is()) {
+            featureManager = new FeatureManager();
+        }
+
         bukkitEvents = new BukkitEvents();
-        threadSystem = new ThreadSystem();
+
+        if (GameServer.is()) {
+            threadSystem = new ThreadSystem();
+        }
 
         registerListeners();
-    }
-
-    public void loadMongo() {
-        mongo = new Mongo();
-        mongoHandler = new MongoHandler();
     }
 
     public void registerListeners() {
         if (GameServer.is()) {
             Bukkit.getServer().getPluginManager().registerEvents(new PacketListener(),this);
         }
-
-        Bukkit.getServer().getPluginManager().registerEvents(dataManager = new DataManager(), this);
     }
 
     @ContainerDisable

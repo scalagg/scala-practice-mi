@@ -79,8 +79,5 @@ class PlayerDescribeProfilesMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player): String
-    {
-        TODO("Not yet implemented")
-    }
+    override fun getPrePaginatedTitle(player: Player) = "Viewing profiles..."
 }

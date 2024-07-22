@@ -4,7 +4,6 @@ import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.SmartBotsBackend;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -23,13 +22,11 @@ public class Feature extends BotEvent implements Listener {
     }
 
     /*  Known events */
-
     public void listen(Event event) {
-        if (event instanceof FinalMoveEvent) {
-            FinalMoveEvent e = (FinalMoveEvent) event;
-            finalMoveEvent(e, event.bot,event.bot.getSettingManager());
+        if (event instanceof FinalMoveEvent e) {
+            finalMoveEvent(e, event.bot);
         }
     }
 
-    public void finalMoveEvent(FinalMoveEvent event, Bot bot, SettingManager setting) {}
+    public void finalMoveEvent(FinalMoveEvent event, Bot bot) {}
 }
