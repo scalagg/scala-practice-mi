@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 @Setter
 public class Bot {
-    private MovementsMain movements;
+    public MovementsMain movements;
     private static Map<String, Property> registeredSkins = new HashMap<>();
     private NPCEntity npc;
     private Kit kit;
@@ -67,7 +67,11 @@ public class Bot {
     private final String skin;
     private final SettingManager settings;
 
+    private Location startLocation;
+
     public Bot(Location loc, String name, Player player, String skin, SettingManager settings, Kit kit) {
+        this.startLocation = loc.clone();
+
         this.kit = kit;
         this.eventListener = (e) -> {
         };

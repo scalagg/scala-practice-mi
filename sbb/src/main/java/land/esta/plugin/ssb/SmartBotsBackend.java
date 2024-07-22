@@ -39,7 +39,6 @@ import org.bukkit.Bukkit;
         @PluginDependency("EstaPractice")
 })
 public final class SmartBotsBackend extends ExtendedScalaPlugin {
-
     @Getter
     public static SmartBotsBackend instance;
 
@@ -47,7 +46,7 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     public DifficultiesSettings difficultiesSettings;
 
     @Getter
-    private BotManager botManager;
+    public BotManager botManager;
 
     @Getter
     public DataManager dataManager;

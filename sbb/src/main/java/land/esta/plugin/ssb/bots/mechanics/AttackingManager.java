@@ -41,6 +41,8 @@ public class AttackingManager extends Manager {
     private int hitSelectingTicks;
     private boolean projectile;
 
+    private long lastAttackedOrDamaged = System.currentTimeMillis();
+
     @Override
     public void tickPre() {
         if (!landAttack) return;
@@ -223,5 +225,6 @@ public class AttackingManager extends Manager {
         ((Damageable) player).damage(damage,bot.getNpc().getBukkitEntity());
         callEvent(new BotAttackEvent(bot));
         this.attacked = System.currentTimeMillis();
+        this.lastAttackedOrDamaged = System.currentTimeMillis();
     }
 }
