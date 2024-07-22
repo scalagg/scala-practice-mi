@@ -40,8 +40,21 @@ public class DataPresets {
         this.name = name;
         this.type = type;
 
+        loadPresets();
         createGuis();
     }
+
+    //Loads all the presets from the config
+    public void loadPresets() {
+        try (MongoCursor<Document> iterator = SmartBotsBackend.getInstance().getMongoHandler().getPresetCollection(type).find().iterator()) {
+            while (iterator.hasNext()) {
+                count++;
+                Document document = iterator.next();
+               // loadPreset(SettingManager.loadSettings(type, document.getString("presetName")));
+            }
+        }
+    }
+
     public void createGuis() {
         double toPages = count / 36.0;
         String[] split = (toPages + "").split("\\.", 2);

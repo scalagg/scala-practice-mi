@@ -202,6 +202,45 @@ public class SettingManager {
         });
     }
 
+
+    public static SettingManager loadSettings(UUID uuid) {
+        SettingManager settingManager = new SettingManager();
+        BotSettingProfile profile = BotSettingProfileService.INSTANCE.findOrCreate(uuid);
+
+        String botName = profile.getName();
+        String botSkin = profile.getSkin();
+
+        if (botName == null) {
+            botName = defaultManager.getBotName();
+        }
+
+        if (botSkin == null) {
+            botSkin = defaultManager.getSkin();
+        }
+
+        if (botName.equalsIgnoreCase("&")) {
+            settingManager.setBotNameWithoutUpdate(Color.code(botName));
+        } else {
+            settingManager.setBotNameWithoutUpdate(botName);
+        }
+
+        settingManager.setSkinWithoutUpdate(botSkin);
+
+        settingManager.getSettings().forEach(setting -> {
+            setting.getSettings().forEach(object -> {
+                SettingObject savedSetting = profile.getSettings().get("default").getSettings().get(setting.getName()).get(object.getName());
+
+                if (savedSetting == null) {
+                    savedSetting = (SettingObject) defaultManager.getSettingByName(setting.getFancyName()).getSettingByName(object.getName()).getObject();
+                }
+
+                object.setObject(savedSetting);
+            });
+        });
+
+        return settingManager;
+    }
+
     public static SettingManager loadSettings(PresetType presetType, String presetName) {
         SettingManager settingManager = new SettingManager();
         BotSetting settings = BotSettingService.INSTANCE.getOrCreate(presetName);
@@ -251,7 +290,7 @@ public class SettingManager {
 
         settingManager.getSettings().forEach(setting -> {
             setting.getSettings().forEach(object -> {
-                SettingObject savedSetting = settings.getSettings().get(setting.getFancyName()).get(object.getName());
+                SettingObject savedSetting = settings.getSettings().get(setting.getName()).get(object.getName());
 
                 if (savedSetting == null) {
                     savedSetting = (SettingObject) defaultManager.getSettingByName(setting.getFancyName()).getSettingByName(object.getName()).getObject();
@@ -264,12 +303,12 @@ public class SettingManager {
         return settingManager;
     }
 
-    public static SettingManager loadManagerFromSettings(BotSettingProfile profile, BotSetting settings) {
+    public static SettingManager loadManagerFromSettings(BotSetting settings) {
         SettingManager settingManager = new SettingManager();
         String botName = settings.getName();
-        String botSkin = profile.getSkin();
+        String botSkin = settings.getSkin();
 
-        if (botName.contains("&")) {
+        if (botName.equalsIgnoreCase("&")) {
             settingManager.setBotNameWithoutUpdate(Color.code(botName));
         } else {
             settingManager.setBotNameWithoutUpdate(botName);
@@ -277,23 +316,18 @@ public class SettingManager {
 
         settingManager.setSkinWithoutUpdate(botSkin);
 
-        final var presetSetting = profile.getSettings().get("default");
         settingManager.getSettings().forEach(setting -> {
-            var databaseData = presetSetting.getSettings()
-                    .get(setting.getFancyName());
-
             setting.getSettings().forEach(object -> {
-                SettingObject savedSetting = databaseData.get(object.getName());
+                SettingObject savedSetting = settings.getSettings().get(setting.getName()).get(object.getName());
+
                 if (savedSetting == null) {
-                    savedSetting = (SettingObject) defaultManager
-                            .getSettingByName(setting.getFancyName())
-                            .getSettingByName(object.getName())
-                            .getObject();
+                    savedSetting = (SettingObject) defaultManager.getSettingByName(setting.getFancyName()).getSettingByName(object.getName()).getObject();
                 }
 
                 object.setObject(savedSetting);
             });
         });
+
 
         return settingManager;
     }

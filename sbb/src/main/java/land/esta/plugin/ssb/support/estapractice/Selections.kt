@@ -18,7 +18,7 @@ fun loadSettingsFromSelection(player: Player, selection: String): SettingManager
         val setting = profile.settings["default"]
             ?: return SettingManager.loadSettings("EASY")
 
-        return SettingManager.loadManagerFromSettings(profile, setting)
+        return SettingManager.loadManagerFromSettings(setting)
     }
 
     return SettingManager.loadSettings(selection)
