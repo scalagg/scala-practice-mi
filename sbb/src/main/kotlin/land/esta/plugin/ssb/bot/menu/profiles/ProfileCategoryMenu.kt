@@ -63,7 +63,7 @@ class ProfileCategoryMenu(
                     .withText("${CC.GREEN}Enter a new bot name!")
                     .acceptInput { _, text ->
                         profile.botName = Color.translate(text)
-                        backbone.save()
+                        backbone.save(profile)
 
                         player.sendMessage("${CC.GREEN}Saved!")
                         ProfileCategoryMenu(profile, backbone, category).openMenu(player)
@@ -85,7 +85,7 @@ class ProfileCategoryMenu(
                 Button.playNeutral(player)
 
                 profile.randomizerEnabled = !(profile.randomizerEnabled ?: false)
-                backbone.save()
+                backbone.save(profile)
 
                 openMenu(player)
             }
@@ -130,7 +130,7 @@ class ProfileCategoryMenu(
 
                                 Button.playSuccess(player)
                                 profile.skinProperties = textures
-                                backbone.save()
+                                backbone.save(profile)
 
                                 player.sendMessage("${CC.GREEN}Saved!")
                                 ProfileCategoryMenu(profile, backbone, category).openMenu(player)

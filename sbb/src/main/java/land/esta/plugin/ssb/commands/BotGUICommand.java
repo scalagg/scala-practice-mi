@@ -29,7 +29,7 @@ public class BotGUICommand extends ScalaCommand {
             new PlayerDescribeProfilesMenu(profile, settingProfile -> {
                 new ProfileCategoryMenu(
                         settingProfile,
-                        new PlayerProfileBackbone(player.bukkit(), settingProfile),
+                        new PlayerProfileBackbone(player.bukkit()),
                         GlobalsKt.getRoot()
                 ).openMenu(player.bukkit());
                 return null;

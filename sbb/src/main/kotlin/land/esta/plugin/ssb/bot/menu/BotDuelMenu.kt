@@ -108,7 +108,7 @@ class BotDuelMenu : Menu("Select a Difficulty...")
                 {
                     Button.playNeutral(player)
                     PlayerDescribeProfilesMenu(profile) {
-                        ProfileCategoryMenu(it, PlayerProfileBackbone(player, it), root).openMenu(player)
+                        ProfileCategoryMenu(it, PlayerProfileBackbone(player), root).openMenu(player)
                     }.openMenu(player)
                     return@toButton
                 }

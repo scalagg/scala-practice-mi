@@ -88,7 +88,7 @@ data class Option<T : Any>(
                     )
 
                     updateRandomizerRanges()
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 }
 
@@ -103,7 +103,7 @@ data class Option<T : Any>(
                         val integer = setting.getObject() as Double
                         setting.setObject(integer + increment)
                     }
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 }
 
@@ -118,7 +118,7 @@ data class Option<T : Any>(
                         val integer = setting.getObject() as Double
                         setting.setObject(integer - increment)
                     }
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 }
 
@@ -130,7 +130,7 @@ data class Option<T : Any>(
                     )
 
                     updateRandomizerRanges()
-                    backbone.save()
+                    backbone.save(profile)
                     return
                 } else
                 {
@@ -142,7 +142,7 @@ data class Option<T : Any>(
             {
                 val value = setting.getObject() as Boolean
                 setting.setObject(!value)
-                backbone.save()
+                backbone.save(profile)
             }
 
             else ->

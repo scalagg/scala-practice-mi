@@ -30,9 +30,12 @@ public class DifficultiesCommand extends ScalaCommand {
                 settingProfile -> {
                     new ProfileCategoryMenu(
                             settingProfile,
-                            () -> BotSettingService.INSTANCE.sync(
-                                    BotSettingService.INSTANCE.cached()
-                            ),
+                            (settings) -> {
+                                final var cached = BotSettingService.INSTANCE.cached();
+                                cached.getMap().put(settings.getId(), settings);
+
+                                BotSettingService.INSTANCE.sync(cached);
+                            },
                             GlobalsKt.getRoot()
                     ).openMenu(player.bukkit());
                     return null;
