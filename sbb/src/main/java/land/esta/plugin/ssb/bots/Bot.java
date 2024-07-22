@@ -58,15 +58,13 @@ public class Bot {
     public final UUID uniqueId = UUID.randomUUID();
     private final Player player;
 
-    private final String skin;
     private final SettingProfile profile;
 
-    public Bot(Location loc, String name, Player player, String skin, SettingProfile profile, Kit kit) {
+    public Bot(Location loc, String name, Player player, SettingProfile profile, Kit kit) {
         this.kit = kit;
         this.eventListener = (e) -> {
         };
 
-        this.skin = skin;
         this.profile = profile;
         this.player = player;
         //Registering
@@ -82,12 +80,7 @@ public class Bot {
         loadManagers();
         player.showPlayer(npc.getBukkitEntity());
 
-        CompletableFuture
-                .runAsync(() -> registerSkin(skin))
-                .thenRun(() -> Tasks.sync(() -> {
-                    registerBot();
-                    return null;
-                }));
+        npc.getProfile().getProperties().put("textures", profile.getSkinProperties());
     }
 
     private void registerBot() {
@@ -147,20 +140,6 @@ public class Bot {
             "ewogICJ0aW1lc3RhbXAiIDogMTcyMTU5ODQ0MzU4MiwKICAicHJvZmlsZUlkIiA6ICI5OGYzMGY2OWExYTA0NWRhOWNmOGZjMDI3OThmOWEyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDaGVtaWNhbExvY2tlZCIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS82MmI1Mjk3ZjhjOTg1YTBkODU5ZjY5Zjc0YzE3ODAzMTcwZjFhMmU4NTk1ZGEyZWUzZWU4Nzk1N2VkMzQzZTMzIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=",
             ""
     );
-
-    private void registerSkin(String name) {
-        final var profile = MojangKt.getProfile(name);
-        if (profile == null) {
-            npc.getProfile().getProperties().put("textures", DEFAULT);
-            return;
-        }
-
-        final var textures = profile.extractTextures();
-        npc.getProfile().getProperties().put(
-                "textures",
-                textures == null ? DEFAULT : textures
-        );
-    }
 
     public void kill() {
         if (killed) return;
