@@ -79,9 +79,7 @@ public class Bot {
         //Registering
         registerNPC(name, loc);
 
-        Bukkit.getOnlinePlayers().forEach(other -> {
-            other.hidePlayer(npc.getBukkitEntity());
-        });
+        Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
 
         registerManagers(settings, player, loc);
 
@@ -146,13 +144,13 @@ public class Bot {
         npc.playerConnection = new NPCPlayerConnection(server, new NPCNetworkManager(EnumProtocolDirection.CLIENTBOUND), npc);
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());
+
         new BukkitRunnable() {
             @Override
             public void run() {
                 world.addEntity(npc);
             }
         }.runTask(SmartBotsBackend.getInstance());
-        //server.getPlayerList().players.add(npc);
     }
 
     private static final Property DEFAULT = new Property(
@@ -184,12 +182,8 @@ public class Bot {
         damageManager.setInvaluable(true);
 
         //Calls the animation with the event
-        deathEvent(() -> {
-        });
+        deathEvent();
     }
-
-    public Runnable deathEvent = () -> {
-    };
 
     public void silentKill() {
         if (!alive) {
@@ -198,46 +192,35 @@ public class Bot {
 
         alive = false;
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        deathEvent.run();
         SmartBotsBackend.getInstance().getBotManager().removeBot(this);
         packetsManager.sendRemovePackets();
         npc.getBukkitEntity().remove();
     }
 
-    public void deathEvent(Runnable executeAction) {
+    public void deathEvent() {
         //Animation
-        fakeDeath(npc.getBukkitEntity(), movements.getTargetLocate().getTargetEntity(), executeAction);
+        fakeDeath();
 
         //Event
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        deathEvent.run();
-
     }
 
-    public void fakeDeath(Player player, Player killer, Runnable finishAction) {
+    public void fakeDeath() {
         movements.setMove(false);
-
         packetsManager.sendDeathPackets();
-        //lightning();
-
-        Bot bot = this;
-
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 packetsManager.sendRemovePackets();
-                SmartBotsBackend.getInstance().getBotManager().removeBot(bot);
+                SmartBotsBackend.getInstance().getBotManager().removeBot(Bot.this);
+
                 alive = false;
                 npc.getBukkitEntity().remove();
-                Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(bot));
-                deathEvent.run();
+
+                Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
             }
         }.runTaskLater(SmartBotsBackend.getInstance(), 14);
-    }
-
-    public void lightning() {
-        movements.getLocation().getWorld().strikeLightningEffect(movements.getLocation());
     }
 
     public void tick() {
