@@ -1,27 +1,43 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
 @Setter
-public class AttackSettings extends Setting {
+public class AttackSettings extends Category {
 
-    private SettingObject reach = new SettingObject("Reach",Material.DIAMOND_SWORD,2.7,0.1);
-    private SettingObject cps = new SettingObject("CPS", Material.DIAMOND_CHESTPLATE,6);
-    private SettingObject swingRange = new SettingObject("Swing Range",Material.IRON_SWORD,6);
-    private SettingObject playerHitBox = new SettingObject("Player Hitbox",Material.IRON_CHESTPLATE,0.3,0.1);
-    private SettingObject advancedReduce = new SettingObject("Reduce",Material.STICK,false);
+    private Option<Double> reach = new Option<>("Reach", Material.DIAMOND_SWORD, this, 2.7, 0.1);
+    private Option<Integer> cps = new Option<>("CPS", Material.DIAMOND_CHESTPLATE, this, 6);
+    private Option<Integer> swingRange = new Option<>("Swing Range", Material.IRON_SWORD, this, 6);
+    private Option<Double> playerHitBox = new Option<>("Player Hitbox", Material.IRON_CHESTPLATE, this, 0.3, 0.1);
+    private Option<Boolean> advancedReduce = new Option<>("Reduce", Material.STICK, this, false);
 
-    public int getDelay() {
-        return cps.getIntValue() > 0 ? 1000 / cps.getIntValue() : 1000;
+    public int getDelay(SettingProfile profile) {
+        int cps = profile.value(this.cps);
+        return cps > 0 ? 1000 / cps : 1000;
     }
 
     public AttackSettings() {
-        super(Material.DIAMOND_SWORD,"&c&lAttack Settings","Attack", "attacksettings", 10,true,"&f In this category","&f you are able to","&f modify the bot's","&f attack settings.","","&aClick to select!");
-        addSettings(reach,cps,swingRange,advancedReduce,playerHitBox);
+        super(
+                "attacksettings",
+                Arrays.asList(
+                        "Configurable PvP mechanics",
+                        "for the robot."
+                ),
+                new ItemStack(Material.DIAMOND_SWORD),
+                GlobalsKt.getRoot(),
+                "Attack Settings",
+                "botgui.attacksettings"
+        );
+        addChildren(reach, cps, swingRange, advancedReduce, playerHitBox);
     }
 }

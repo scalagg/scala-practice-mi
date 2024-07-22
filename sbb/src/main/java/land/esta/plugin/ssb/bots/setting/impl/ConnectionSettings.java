@@ -1,20 +1,35 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
 @Setter
-public class ConnectionSettings extends Setting {
+public class ConnectionSettings extends Category {
 
-    private SettingObject ping = new SettingObject("Ping", Material.STRING,100,5);
-    private SettingObject delayedBotLocation = new SettingObject("Delayed Bot Location",Material.WATCH,true);
-    private SettingObject connectionPacketDelay = new SettingObject("Rel-Move Simulation Ticks",Material.SPIDER_EYE,3,1);
+    private Option<Integer> ping = new Option<>("Ping", Material.STRING, this, 100, 5);
+    private Option<Boolean> delayedBotLocation = new Option<>("Delayed Bot Location", Material.WATCH, this, true);
+    private Option<Integer> connectionPacketDelay = new Option<>("Rel-Move Simulation Ticks", Material.SPIDER_EYE, this, 3, 1);
+
     public ConnectionSettings() {
-        super(Material.DIODE,"&c&lConnection Settings","Connection", "connectionsettings",16,false,"&f In this category","&f you are able to","&f modify the bot's","&f connection settings.","","&aClick to select!");
-        addSettings(ping,delayedBotLocation,connectionPacketDelay);
+        super(
+                "connectionsettings",
+                Arrays.asList(
+                        "Configurable connection",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.DIODE),
+                GlobalsKt.getRoot(),
+                "Connection Settings",
+                "botgui.connectionsettings"
+        );
+        addChildren(ping, delayedBotLocation, connectionPacketDelay);
     }
 }

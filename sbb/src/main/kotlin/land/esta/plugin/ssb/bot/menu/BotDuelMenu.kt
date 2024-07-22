@@ -1,6 +1,11 @@
 package land.esta.plugin.ssb.bot.menu
 
 import land.esta.plugin.ssb.SmartBotsBackend
+import land.esta.plugin.ssb.bot.menu.profiles.PlayerDescribeProfilesMenu
+import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone
+import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu
+import land.esta.plugin.ssb.bot.profile.RobotProfileService
+import land.esta.plugin.ssb.bot.setting.setting.root
 import land.esta.plugin.ssb.bots.setting.SettingManager
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
@@ -73,24 +78,24 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .toButton { _, type ->
                 if (!player.hasPermission("botgui.use"))
                 {
+                    Button.playFail(player)
                     player.sendMessage("${CC.RED}You cannot use this feature!")
                     return@toButton
                 }
 
                 if (type == ClickType.RIGHT)
                 {
-                    val data = SmartBotsBackend.instance
-                        .dataManager
-                        .getPlayer(player)
+                    val profile = RobotProfileService.find(player)
+                        ?: return@toButton
 
-                    val gui = data.gui
-                    if (gui.loaded)
-                    {
-                        gui.mainGui.openGui()
-                    }
+                    Button.playNeutral(player)
+                    PlayerDescribeProfilesMenu(profile) {
+                        ProfileCategoryMenu(it, PlayerProfileBackbone(player, it), root).openMenu(player)
+                    }.openMenu(player)
                     return@toButton
                 }
 
+                Button.playNeutral(player)
                 BotKitMenu(player.uniqueId.toString()).openMenu(player)
             },
     )

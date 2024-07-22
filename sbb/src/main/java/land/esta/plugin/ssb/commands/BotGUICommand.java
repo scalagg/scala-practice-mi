@@ -1,14 +1,15 @@
 package land.esta.plugin.ssb.commands;
 
-import gg.scala.commons.acf.InvalidCommandArgument;
 import gg.scala.commons.acf.annotation.CommandAlias;
 import gg.scala.commons.annotations.commands.AutoRegister;
 import gg.scala.commons.command.ScalaCommand;
 import gg.scala.commons.issuer.ScalaPlayer;
-import land.esta.plugin.ssb.SmartBotsBackend;
-import land.esta.plugin.ssb.data.DataPlayer;
+import land.esta.plugin.ssb.bot.menu.profiles.PlayerDescribeProfilesMenu;
+import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone;
+import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu;
+import land.esta.plugin.ssb.bot.profile.RobotProfileService;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.gui.imple.BotGui;
 
 /**
  * @author GrowlyX
@@ -20,16 +21,19 @@ public class BotGUICommand extends ScalaCommand {
     @CommandAlias("customizebots")
     public void onBotGUI(ScalaPlayer player) {
         if (player.bukkit().hasPermission("botgui.use")) {
-            DataPlayer data = SmartBotsBackend.getInstance()
-                    .getDataManager()
-                    .getPlayer(player.bukkit());
-
-            BotGui gui = data.getGui();
-            if (gui.isLoaded()) {
-                gui.getMainGui().openGui();
-            } else {
-                throw new InvalidCommandArgument("The menu has not loaded, please try again later.");
+            final var profile = RobotProfileService.INSTANCE.find(player.bukkit());
+            if (profile == null) {
+                return;
             }
+
+            new PlayerDescribeProfilesMenu(profile, settingProfile -> {
+                new ProfileCategoryMenu(
+                        settingProfile,
+                        new PlayerProfileBackbone(player.bukkit(), settingProfile),
+                        GlobalsKt.getRoot()
+                ).openMenu(player.bukkit());
+                return null;
+            }).openMenu(player.bukkit());
         } else {
             player.sendMessage(Color.code("&cYou need the &3VIP &crank to use this."));
             player.sendMessage(Color.code("&cStore: &ehttps://store.esta.land"));

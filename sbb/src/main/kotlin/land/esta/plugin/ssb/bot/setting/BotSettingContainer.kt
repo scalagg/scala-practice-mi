@@ -1,3 +1,7 @@
 package land.esta.plugin.ssb.bot.setting
 
-data class BotSettingContainer(val map: MutableMap<String, BotSetting> = mutableMapOf())
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
+
+data class BotSettingContainer(
+    val map: MutableMap<String, SettingProfile> = mutableMapOf()
+)

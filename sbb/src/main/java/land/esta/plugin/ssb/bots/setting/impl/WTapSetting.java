@@ -1,12 +1,11 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
 import lombok.Getter;
 import org.bukkit.Material;
 
 @Getter
-public class WTapSetting extends Setting {
+public class WTapSetting extends Category {
 
     private final SettingObject enabled = new SettingObject("W-Tap", Material.DIAMOND_HELMET, true);
     private final SettingObject chance = new SettingObject("Chance", Material.DIAMOND_CHESTPLATE, 100, 25);
