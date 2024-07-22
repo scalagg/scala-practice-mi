@@ -6,6 +6,7 @@ import gg.scala.commons.annotations.commands.AutoRegister;
 import gg.scala.commons.command.ScalaCommand;
 import gg.scala.commons.issuer.ScalaPlayer;
 import land.esta.plugin.ssb.bot.menu.profiles.GenericDescribeProfilesMenu;
+import land.esta.plugin.ssb.bot.menu.profiles.ProfileBackbone;
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu;
 import land.esta.plugin.ssb.bot.setting.BotSettingService;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
@@ -30,7 +31,9 @@ public class DifficultiesCommand extends ScalaCommand {
                 settingProfile -> {
                     new ProfileCategoryMenu(
                             settingProfile,
-                            BotSettingService.INSTANCE::sync,
+                            () -> BotSettingService.INSTANCE.sync(
+                                    BotSettingService.INSTANCE.cached()
+                            ),
                             GlobalsKt.getRoot()
                     ).openMenu(player.bukkit());
                     return null;
