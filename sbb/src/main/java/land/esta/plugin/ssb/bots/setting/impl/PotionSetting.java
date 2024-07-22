@@ -1,29 +1,42 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
 @Setter
-public class PotionSetting extends Setting {
+    public class PotionSetting extends Category {
 
     //Health potion
-    private SettingObject fleeHealth = new SettingObject("Flee Health", Material.APPLE,4,1);
-    private SettingObject agroPotion = new SettingObject("Agro Potion",Material.DIAMOND_SWORD,false);
-    private SettingObject firstPotionTick = new SettingObject("First Potion Tick", Material.WATCH,9,1);
-    private SettingObject secondPotionTick = new SettingObject("Second Potion Tick", Material.WATCH,12,1);
-    private SettingObject finishPotionTick = new SettingObject("Finish Potion Tick", Material.WATCH,22,1);
-    private SettingObject tickOffset = new SettingObject("Tick Offset", Material.DIODE,1,1);
-    private SettingObject secondPotion = new SettingObject("Second Potion",Material.POTION, true);
-    private SettingObject cancelPotionDistance = new SettingObject("Cancel Potion Distance",Material.HOPPER,3.0,0.1);
+    private Option<Integer> fleeHealth = new Option<>("Flee Health", Material.APPLE,this,4,1);
+    private Option<Boolean> agroPotion = new Option<>("Agro Potion",Material.DIAMOND_SWORD,this,false);
+    private Option<Integer> firstPotionTick = new Option<>("First Potion Tick", Material.WATCH,this,9,1);
+    private Option<Integer> secondPotionTick = new Option<>("Second Potion Tick", Material.WATCH,this,12,1);
+    private Option<Integer> finishPotionTick = new Option<>("Finish Potion Tick", Material.WATCH,this,22,1);
+    private Option<Integer> tickOffset = new Option<>("Tick Offset", Material.DIODE,this,1,1);
+    private Option<Boolean> secondPotion = new Option<>("Second Potion",Material.POTION,this, true);
+    private Option<Double> cancelPotionDistance = new Option<>("Cancel Potion Distance",Material.HOPPER,this,3.0,0.1);
 
     public PotionSetting() {
-        super(Material.POTION,"&c&lPotion Settings","Potion", "potionsettings",15,false,"&f In this category","&f you are able to","&f modify the bot's","&f potion settings.","","&aClick to select!");
+        super(
+                "potionsettings",
+                Arrays.asList(
+                        "Configurable Potion",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.POTION),
+                GlobalsKt.getRoot(),
+                "Potion Settings",
+                "botgui.potionsettings"
+        );
 
-        setId(16428);
-        addSettings(agroPotion,fleeHealth,firstPotionTick,secondPotionTick,finishPotionTick,tickOffset,cancelPotionDistance,secondPotion);
+        addChildren(fleeHealth, agroPotion, firstPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion, cancelPotionDistance);
     }
 }
