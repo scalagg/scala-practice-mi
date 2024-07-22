@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.bots.events;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
@@ -11,10 +12,14 @@ import org.bukkit.entity.Player;
 
 @Getter
 public class Manager {
+
+    public SettingProfile settingManager;
+
     public final Bot bot;
 
     public Manager(Bot bot) {
         this.bot = bot;
+        settingManager = bot.getProfile();
     }
 
     public void globalAction(PlayerRunnable runnable) {

@@ -58,7 +58,7 @@ public class Bot {
     public final UUID uniqueId = UUID.randomUUID();
     private final Player player;
 
-    private final SettingProfile profile;
+    public final SettingProfile profile;
 
     private Location startLocation;
 

@@ -42,7 +42,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
             .bindWith(terminable)
     }
 
-    override fun name(): String = spawnedBot?.settingManager?.botName?.let(Color::translate) ?: ""
+    override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
     override fun participantConnected(player: Player)
     {
         if (spawnedBot == null)
