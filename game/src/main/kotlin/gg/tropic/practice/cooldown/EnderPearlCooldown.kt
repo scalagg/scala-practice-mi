@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 /**
  * @author GrowlyX
@@ -51,55 +52,47 @@ object EnderPearlCooldown : PlayerStaticCooldown(
     @Configure
     fun configure()
     {
-        // We need this for the exp bar
-        notifyOnExpiration()
-        whenExpired {
-            it.sendMessage("${CC.GRAY}Your enderpearl cooldown has expired.")
+        this.notifyOnExpiration()
+        this.whenExpired {
+            it.sendMessage("${CC.GRAY}Your enderpearl cooldown has expired.");
         }
+        this.scheduleLevelChangeAfterCooldownChange()
+        this.blockUnwantedEnderpearls()
+        this.launchEnderpearlCooldown()
+    }
 
-        Schedulers
-            .async()
-            .runRepeating(Runnable {
-                for (id in tasks.keys)
-                {
-                    val player = Bukkit.getPlayer(id)
-                        ?: continue
+    private fun scheduleLevelChangeAfterCooldownChange()
+    {
+        Schedulers.async().runRepeating(Runnable {
+            for (id in tasks.keys)
+            {
+                val player = Bukkit.getPlayer(id) ?: continue
+                val time = fetchRemaining(player)
+                if (time < 0) continue
 
-                    val time = fetchRemaining(player)
-                    if (time < 0)
-                    {
-                        continue
-                    }
+                val game = GameService.byPlayer(player) ?: continue
+                val duration = game.kit.featureConfig(
+                    FeatureFlag.EnderPearlCooldown,
+                    "duration"
+                ).toFloat()
 
-                    val game = GameService.byPlayer(player)
-                        ?: continue
+                val seconds = (time.toDouble() / 1000.0).roundToInt()
 
-                    val duration = game.kit
-                        .featureConfig(
-                            FeatureFlag.EnderPearlCooldown,
-                            "duration"
-                        )
-                        .toFloat()
+                player.level = max(seconds, 0)
+                player.exp = (time.toFloat() / (duration * 1000.0f)).coerceIn(0.0f, 1.0f)
+            }
+        }, 0L, 1L)
+    }
 
-                    val seconds = round(time.toDouble() / 1000.0).toInt()
-
-                    player.level = max(seconds, 0)
-                    player.exp = (time.toFloat() / (duration * 1000.0f)).coerceIn(0.0f, 1.0f)
-                }
-            }, 0L, 1L)
-
-        Events
-            .subscribe(PlayerInteractEvent::class.java)
+    private fun blockUnwantedEnderpearls()
+    {
+        Events.subscribe(PlayerInteractEvent::class.java)
             .filter {
-                it.hasItem() &&
-                    it.action.name.contains("RIGHT") &&
-                    it.item.type == Material.ENDER_PEARL
+                it.hasItem() && it.action.name.contains("RIGHT") && it.item.type == Material.ENDER_PEARL
             }
             .handler {
                 val player = it.player
-
-                val game = GameService.byPlayer(player)
-                    ?: return@handler
+                val game = GameService.byPlayer(player) ?: return@handler
 
                 if (!game.ensurePlaying() || player.hasMetadata("light-spectator"))
                 {
@@ -116,19 +109,17 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                 }
             }
             .bindWith(plugin)
+    }
 
-        Events
-            .subscribe(ProjectileLaunchEvent::class.java)
-            .filter { it.entity is EnderPearl }
-            .filter { it.entity.shooter is Player }
+    private fun launchEnderpearlCooldown()
+    {
+        Events.subscribe(ProjectileLaunchEvent::class.java)
+            .filter { it.entity is EnderPearl && it.entity.shooter is Player }
             .handler {
                 val player = it.entity.shooter as Player
-
                 if (!it.isCancelled)
                 {
-                    val game = GameService.byPlayer(player)
-                        ?: return@handler
-
+                    val game = GameService.byPlayer(player) ?: return@handler
                     if (game.flag(FeatureFlag.EnderPearlCooldown))
                     {
                         addOrOverride(player)

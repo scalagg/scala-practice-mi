@@ -2,8 +2,7 @@ package land.esta.plugin.ssb.bots;
 
 import land.esta.plugin.ssb.utils.GameServer;
 import lombok.Getter;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
-import me.lucko.helper.Schedulers;
+import land.esta.plugin.ssb.SmartBotsBackend;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -13,37 +12,16 @@ import java.util.ArrayList;
 
 @Getter
 public class BotManager {
-    public final ArrayList<Bot> bots = new ArrayList<>();
+    private final ArrayList<Bot> bots;
+    @Nullable
+    private BukkitTask task;
+    private final boolean async = false;
 
-    public BotManager(EstaRobotsPlugin plugin) {
+    public BotManager() {
+        bots = new ArrayList<>();
+
         if (GameServer.is()) {
-            Schedulers.sync()
-                    .runRepeating(() -> {
-                        final ArrayList<Bot> cloned = new ArrayList<>(bots);
-                        for (Bot bot : cloned) {
-                            if (bot == null) {
-                                continue;
-                            }
-
-                            if (!bot.getPlayer().isOnline()) {
-                                continue;
-                            }
-
-                            // Cannot measure distance between diff words patch
-                            if (
-                                    bot.getMovements().getLocation().getWorld().equals(
-                                            bot.getMovements().getTargetLocate().getTarget().getWorld()
-                                    ) &&
-                                            bot.isAlive()
-                            ) {
-                                bot.tick();
-                                continue;
-                            }
-
-                            bot.silentKill();
-                        }
-                    }, 1L, 1L)
-                    .bindWith(plugin);
+            task = new CheckBotsRunnable(bots).runTaskTimer(SmartBotsBackend.getInstance(), 1, 1);
         }
     }
 
@@ -83,5 +61,35 @@ public class BotManager {
         }
 
         return null;
+    }
+
+    private static class CheckBotsRunnable extends BukkitRunnable {
+        private final ArrayList<Bot> bots;
+
+        private CheckBotsRunnable(ArrayList<Bot> bots) {
+            this.bots = bots;
+        }
+
+        @Override
+        public void run() {
+            ArrayList<Bot> cloned = new ArrayList<>(bots);
+            for (Bot bot : cloned) {
+                if (bot == null) {
+                    //Bukkit.broadcastMessage("A problem was found");
+                    continue;
+                }
+
+                if (!bot.getPlayer().isOnline()) {
+                    continue;
+                }
+
+                // Cannot measure distance between diff words patch
+                if (bot.getMovements().getLocation().getWorld().equals(bot.getMovements().getTargetLocate().getTarget().getWorld()) && bot.isAlive()) {
+                    bot.tick();
+                    continue;
+                }
+                bot.silentKill();
+            }
+        }
     }
 }

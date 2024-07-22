@@ -1,12 +1,12 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
+import land.esta.plugin.ssb.botevents.events.BotSplashPotionEvent;
 import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SmartBotsBackend;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
@@ -14,11 +14,13 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +56,9 @@ public class HealthPotionThrowing extends Feature {
         }
     }
 
-    public boolean splash(Bot bot, int ticks) {
+    public static boolean splash(@NotNull Bot bot, int ticks) {
         //Throwing
-        if (ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFirstPotionTick()) || ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotionTick()) && bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotion())) {
+        if (ticks == bot.getSettingManager().getPotionSetting().getFirstPotionTick().getIntValue() || ticks == bot.getSettingManager().getPotionSetting().getSecondPotionTick().getIntValue() && bot.getSettingManager().getPotionSetting().getSecondPotion().isBooleanValue()) {
             List<ItemStack> potions = getPotions(bot);
             bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(potions.get(0)));
             throwPotion(potions.get(0), bot);
@@ -73,7 +75,7 @@ public class HealthPotionThrowing extends Feature {
         }
 
         //Cancel
-        if (bot.getHealthManager().getHealth() > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFleeHealth()) && nearTarget(bot) || ticks > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFinishPotionTick())) {
+        if (bot.getHealthManager().getHealth() > bot.getSettingManager().getPotionSetting().getFleeHealth().getIntValue() && nearTarget(bot) || ticks > bot.getSettingManager().getPotionSetting().getFinishPotionTick().getIntValue()) {
             bot.getInventoryManager().setMainHand(1);
             return true;
         }
@@ -82,29 +84,31 @@ public class HealthPotionThrowing extends Feature {
     }
 
     //Gets all the splash potions of a specific type
-    public List<ItemStack> getPotions(Bot bot) {
+    @NotNull
+    public static List<ItemStack> getPotions(@NotNull Bot bot) {
         List<ItemStack> potions = bot.getInventoryManager().hasItem(373);
         List<ItemStack> result = new ArrayList<>();
 
         for (ItemStack item : potions) {
-            if (Potion.fromItemStack(item).isSplash() && Potion.fromItemStack(item).getType().equals(PotionType.INSTANT_HEAL))
-                result.add(item);
+            Potion potion = Potion.fromItemStack(item);
+            if (potion.isSplash() && potion.getType() == PotionType.INSTANT_HEAL) result.add(item);
         }
 
         return result;
     }
 
     //Checks if a player is close by
-    public boolean nearTarget(Bot bot) {
+    public static boolean nearTarget(@NotNull Bot bot) {
         Location target = bot.getLagCompensatorManager().getClientLocation();
         Location loc = bot.getMovements().getLocation();
-        double distance = target.distance(loc);
+        double distance = target.distanceSquared(loc);
 
-        return distance < bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getCancelPotionDistance());
+        double getCancelPotionDistance = bot.getSettingManager().getPotionSetting().getCancelPotionDistance().getDoubleValue();
+        return distance < (getCancelPotionDistance * getCancelPotionDistance);
     }
 
     //Throws potions
-    public void throwPotion(ItemStack potion, Bot bot) {
+    public static void throwPotion(ItemStack potion, @NotNull Bot bot) {
         // Spawn the potion
         launchProjectile(potion, null, bot.getNpc().getBukkitEntity());
 
@@ -113,7 +117,7 @@ public class HealthPotionThrowing extends Feature {
     }
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
-    public void launchProjectile(ItemStack item, Vector velocity, CraftPlayer entity) {
+    public static void launchProjectile(ItemStack item, Vector velocity, CraftPlayer entity) {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -128,6 +132,6 @@ public class HealthPotionThrowing extends Feature {
 
                 world.addEntity(launch);
             }
-        }.runTask(EstaRobotsPlugin.getInstance());
+        }.runTask(SmartBotsBackend.getInstance());
     }
 }

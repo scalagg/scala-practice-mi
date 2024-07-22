@@ -1,8 +1,8 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
-import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
+import land.esta.plugin.ssb.SmartBotsBackend;
 import land.esta.plugin.ssb.bots.Bot;
+import land.esta.plugin.ssb.bots.setting.impl.PearlSettings;
 import land.esta.plugin.ssb.features.Feature;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,6 +14,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +29,13 @@ public class Pearling extends Feature {
     public void tickEvent(Bot bot) {
         pearlTick.put(bot,pearlTick.getOrDefault(bot,0) + 1);
         List<ItemStack> pearls = getPearls(bot);
+        PearlSettings pearlSettings = bot.getSettingManager().getPearlSettings();
 
-        if (pearls.size() <= 0) return;
+        if (pearls.isEmpty()) return;
         if (bot.getFleeManager().getOffTicks() < 10) return;
         if (bot.getHealthManager().getHealth() < bot.getMovements().getTargetLocate().getTargetEntity().getHealth()) return;
-        if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference())) return;
-        if (pearlTick.get(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlDelay())) return;
+        if (getAngle(bot) < pearlSettings.getAngleDifference().getIntValue()) return;
+        if (pearlTick.get(bot) < pearlSettings.getPearlDelay().getIntValue()) return;
 
         pearl(pearls.get(0),bot);
     }
@@ -45,20 +48,21 @@ public class Pearling extends Feature {
             @Override
             public void run() {
                 if (!bot.isAlive()) return;
+
                 Location location = bot.getMovements().getLocation();
-                location.setYaw(location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()));
+                location.setYaw(location.getYaw() + bot.getSettingManager().getPearlSettings().getPearlThrowYawOffSet().getIntValue());
                 location.setPitch(3);
                 updateLocation(bot,location);
                 bot.getInventoryManager().setMainHand(1);
 
-                if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference())) return;
-                bot.getInventoryManager().removeItem(itemSlot(pearl,bot));
+                if (getAngle(bot) < bot.getSettingManager().getPearlSettings().getAngleDifference().getIntValue()) return;
+                bot.getInventoryManager().removeItem(itemSlot(pearl, bot));
                 bot.getNpc().getBukkitEntity().launchProjectile(EnderPearl.class);
             }
-        }.runTaskLater(EstaRobotsPlugin.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()));
+        }.runTaskLater(SmartBotsBackend.getInstance(), bot.getSettingManager().getPearlSettings().getPearlingTicks().getIntValue());
     }
 
-    public void updateLocation(Bot bot,Location location) {
+    public static void updateLocation(Bot bot,Location location) {
         bot.getMovements().setLocation(location);
         final double x = location.getX();
         final double y = location.getY();
@@ -71,9 +75,8 @@ public class Pearling extends Feature {
     @EventHandler
     public void teleport(ProjectileLaunchEvent e) {
         if (!e.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
-        if (e.getEntity().getShooter() instanceof LivingEntity) {
-            LivingEntity shooter = (LivingEntity) e.getEntity().getShooter();
-            Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
+        if (e.getEntity().getShooter() instanceof LivingEntity shooter) {
+            Bot bot = SmartBotsBackend.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
             if (bot == null) return;
 
             new BukkitRunnable() {
@@ -84,15 +87,15 @@ public class Pearling extends Feature {
                         this.cancel();
                     } else trackedLoc = e.getEntity().getLocation();
                 }
-            }.runTaskTimer(EstaRobotsPlugin.getInstance(),1,1);
+            }.runTaskTimer(SmartBotsBackend.getInstance(),1,1);
         }
     }
 
-    public int itemSlot(ItemStack stack,Bot bot) {
+    public static int itemSlot(ItemStack stack, @NotNull Bot bot) {
         return bot.getInventoryManager().getItemSlot(stack);
     }
 
-    public float getAngle(Bot bot) {
+    public static float getAngle(@NotNull Bot bot) {
         Location from = bot.getMovements().getLocation();
         Location to = bot.getMovements().getTargetLocate().getTargetEntity().getLocation();
 
@@ -102,7 +105,9 @@ public class Pearling extends Feature {
         return Math.abs(yaw);
     }
 
-    public static Vector calculateYawDifference(Location from, Location to) {
+    @NotNull
+    @Contract("_, _ -> new")
+    public static Vector calculateYawDifference(@NotNull Location from, @NotNull Location to) {
         Location clonedFrom = from.clone();
         Vector startVector = clonedFrom.toVector();
         Vector targetVector = to.toVector();
@@ -111,7 +116,19 @@ public class Pearling extends Feature {
         return new Vector(clonedFrom.getYaw(), 0, clonedFrom.getPitch());
     }
 
-    public List<ItemStack> getPearls(Bot bot) {
+    public List<ItemStack> getPearls(@NotNull Bot bot) {
         return bot.getInventoryManager().hasItem(Material.ENDER_PEARL);
+    }
+
+    public static class TeleportBukkitRunnable extends BukkitRunnable {
+
+        @Override
+        public void run() {
+            Location trackedLoc = e.getEntity().getLocation();
+            if (e.getEntity().isDead()) {
+                updateLocation(bot,trackedLoc);
+                this.cancel();
+            } else trackedLoc = e.getEntity().getLocation();
+        }
     }
 }

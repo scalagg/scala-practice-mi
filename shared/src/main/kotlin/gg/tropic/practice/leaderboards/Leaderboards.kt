@@ -32,6 +32,7 @@ enum class ReferenceLeaderboardType(
     }
 }
 
+@JvmRecord
 data class Reference(
     val leaderboardType: ReferenceLeaderboardType,
     val kitID: String?
@@ -40,21 +41,25 @@ data class Reference(
     fun id() = "${leaderboardType.name}:${kitID ?: "global"}"
 }
 
+@JvmRecord
 data class LeaderboardReferences(
     val references: List<Reference>
 )
 
+@JvmRecord
 data class LeaderboardEntry(
     val uniqueId: UUID,
     val value: Long
 )
 
+@JvmRecord
 data class Position(
     val uniqueId: UUID,
     val score: Long,
     val position: Long
 )
 
+@JvmRecord
 data class ScoreUpdates(
     val oldScore: Long,
     val oldPosition: Long,

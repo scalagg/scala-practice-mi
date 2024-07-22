@@ -1,9 +1,8 @@
 package gg.tropic.practice.games
 
-import com.grinderwolf.swm.nms.v1_8_R3.CustomWorldServer
+import dev.cubxity.plugins.metrics.api.util.fastForEach
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
-import gg.tropic.practice.Globals
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
@@ -22,7 +21,6 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import gg.tropic.practice.leaderboards.ScoreUpdates
-import gg.tropic.practice.map.BuiltMapReplication
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfile
@@ -40,14 +38,11 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.*
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
@@ -57,6 +52,7 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
+import kotlin.collections.ArrayList
 
 /**
  * @author GrowlyX
@@ -81,12 +77,12 @@ open class GameImpl(
     val map: gg.tropic.practice.map.Map
         get() = MapService.mapWithID(mapId)!!
 
-    var replication: BuiltMapReplication? = null
-
     var arenaWorldName: String? = null
-    var arenaWorld: World? = null
 
-    private val audiences: BukkitAudiences
+    val arenaWorld: World?
+        get() = Bukkit.getWorld(this.arenaWorldName)
+
+    val audiences: BukkitAudiences
         get() = ExpectationService.audiences
 
     private fun durationMillis() =
@@ -148,13 +144,7 @@ open class GameImpl(
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
         val playerFeedback = mutableMapOf<UUID, MutableList<String>>()
 
-        if (robot())
-        {
-            robotInstance?.destroy()
-        }
-
         toBukkitPlayers()
-            .filterNotNull()
             .forEach(::takeSnapshotIfNotAlreadyExists)
 
         endTimestamp = System.currentTimeMillis()
@@ -175,26 +165,23 @@ open class GameImpl(
             sendInfoToTournamentService(losers = listOf())
         } else
         {
-            this.toBukkitPlayers()
-                .filterNotNull()
-                .onEach {
-                    val profile = CorePlayerProfileService.find(it)
-                    if (profile != null && expectationModel.queueType != null)
-                    {
-                        val userIsWinner = winner.players.contains(it.uniqueId)
-                        val queueMultiplier = expectationModel.queueType!!.coinMultiplier
-                        if (queueMultiplier != 0.0)
-                        {
-                            profile.addCoins(
-                                coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
-                                reason = if (userIsWinner) "Winning a game" else "Playing a game",
-                                feedback = { feedback ->
-                                    playerFeedback.getOrPut(it.uniqueId) { mutableListOf() } += feedback
-                                }
-                            )
-                        }
+            for (player in this.toBukkitPlayers())
+            {
+                val profile = CorePlayerProfileService.find(player)
+                if (profile == null || expectationModel.queueType == null) continue
+
+                val userIsWinner = winner.players.contains(player.uniqueId)
+                val queueMultiplier = expectationModel.queueType!!.coinMultiplier
+                if (queueMultiplier == 0.0) continue
+
+                profile.addCoins(
+                    coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
+                    reason = if (userIsWinner) "Winning a game" else "Playing a game",
+                    feedback = { feedback ->
+                        playerFeedback.getOrPut(player.uniqueId) { mutableListOf() } += feedback
                     }
-                }
+                )
+            }
 
             val opponent = this.getOpponent(winner)
                 ?: return
@@ -202,7 +189,6 @@ open class GameImpl(
             sendInfoToTournamentService(losers = opponent.players)
 
             val opponents = opponent.toBukkitPlayers()
-                .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
                 .onEach {
                     it.useKitStatistics(this) {
@@ -214,7 +200,6 @@ open class GameImpl(
                 }
 
             val winners = winner.toBukkitPlayers()
-                .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
                 .onEach {
                     it.useKitStatistics(this) {
@@ -270,27 +255,25 @@ open class GameImpl(
 
             (winners + opponents).forEach(PracticeProfile::save)
 
-            toBukkitPlayers()
-                .filterNotNull()
-                .forEach {
-                    counter(it).apply {
-                        extraInformation[it.uniqueId] = mapOf(
-                            "Hits" to mapOf(
-                                "Total" to valueOf("totalHits").toInt().toString(),
-                                "Max Combo" to valueOf("highestCombo").toInt().toString()
-                            ),
-                            "Other" to mapOf(
-                                "Criticals" to valueOf("criticalHits").toInt().toString(),
-                                "Blocked Hits" to valueOf("blockedHits").toInt().toString()
-                            ),
-                            "Health Regen" to mapOf(
-                                "Regen" to "%.2f${Constants.HEART_SYMBOL}".format(
-                                    valueOf("healthRegained").toFloat()
-                                )
+            toBukkitPlayers().forEach {
+                counter(it).apply {
+                    extraInformation[it.uniqueId] = mapOf(
+                        "Hits" to mapOf(
+                            "Total" to valueOf("totalHits").toInt().toString(),
+                            "Max Combo" to valueOf("highestCombo").toInt().toString()
+                        ),
+                        "Other" to mapOf(
+                            "Criticals" to valueOf("criticalHits").toInt().toString(),
+                            "Blocked Hits" to valueOf("blockedHits").toInt().toString()
+                        ),
+                        "Health Regen" to mapOf(
+                            "Regen" to "%.2f${Constants.HEART_SYMBOL}".format(
+                                valueOf("healthRegained").toFloat()
                             )
                         )
-                    }
+                    )
                 }
+            }
 
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
@@ -336,8 +319,7 @@ open class GameImpl(
                 value.gameLifecycleObjectiveMet = {
                     val winWhenHitsReached = flagMetaData(
                         FeatureFlag.WinWhenNHitsReached, "hits"
-                    )
-                        ?.toIntOrNull()
+                    )?.toIntOrNull()
 
                     winWhenHitsReached != null &&
                         value.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
@@ -360,32 +342,37 @@ open class GameImpl(
         startTask.task.bindWith(this)
     }
 
-    fun audiencesIndexed(lambda: (Audience, UUID) -> Unit) =
+    inline fun audiencesIndexed(lambda: (Audience, UUID) -> Unit) =
         this.toBukkitPlayers()
-            .filterNotNull()
             .forEach {
                 lambda(this.audiences.player(it), it.uniqueId)
             }
 
-    fun audiences(lambda: (Audience) -> Unit) =
+    inline fun audiences(lambda: (Audience) -> Unit) =
         this.toBukkitPlayers()
-            .filterNotNull()
             .forEach {
                 this.audiences.player(it).apply(lambda)
             }
 
     fun playSound(sound: Sound, pitch: Float = 1.0f)
     {
-        this.toBukkitPlayers()
-            .filterNotNull()
-            .forEach {
-                it.playSound(it.location, sound, 1.0f, pitch)
-            }
+        this.toBukkitPlayers().fastForEach {
+            it.playSound(it.location, sound, 1.0f, pitch)
+        }
     }
 
     fun sendMessage(vararg message: String)
     {
-        this.toBukkitPlayers()
+        val mutableList = this.expectedSpectators.mapNotNull(Bukkit::getPlayer)
+        val players = ArrayList(mutableList)
+
+        val bukkitPlayers = this.toBukkitPlayers()
+        players.addAll(bukkitPlayers)
+
+        bukkitPlayers.fastForEach {
+            message.fastForEach { msg -> it.sendMessage(msg) }
+        }
+        /*this.toBukkitPlayers()
             .filterNotNull()
             .forEach {
                 message.forEach { msg ->
@@ -399,12 +386,24 @@ open class GameImpl(
                 message.forEach { msg ->
                     it.sendMessage(msg)
                 }
-            }
+            }*/
     }
 
     fun sendMessage(vararg message: Message)
     {
-        this.toBukkitPlayers()
+        val mutableList = this.expectedSpectators.mapNotNull(Bukkit::getPlayer)
+        val players = ArrayList(mutableList)
+
+        val bukkitPlayers = this.toBukkitPlayers()
+        players.addAll(bukkitPlayers)
+
+        bukkitPlayers.fastForEach {
+            message.fastForEach { msg -> msg.sendToPlayer(it) }
+        }
+
+
+
+        /*this.toBukkitPlayers()
             .filterNotNull()
             .forEach {
                 message.forEach { msg ->
@@ -418,26 +417,30 @@ open class GameImpl(
                 message.forEach { msg ->
                     msg.sendToPlayer(it)
                 }
-            }
+            }*/
     }
 
     fun sendMessage(vararg message: FancyMessage)
     {
-        this.toBukkitPlayers()
-            .filterNotNull()
-            .forEach {
-                message.forEach { msg ->
-                    msg.sendToPlayer(it)
-                }
+        val mutableList = this.expectedSpectators.mapNotNull(Bukkit::getPlayer)
+        val players = ArrayList(mutableList)
+
+        val bukkitPlayers = this.toBukkitPlayers()
+        players.addAll(bukkitPlayers)
+
+        bukkitPlayers.fastForEach {
+            message.fastForEach { msg -> msg.sendToPlayer(it) }
+        }
+        /*this.toBukkitPlayers()
+            .fastForEach {
+                message.forEach { msg -> msg.sendToPlayer(it) }
             }
 
         this.expectedSpectators
             .mapNotNull(Bukkit::getPlayer)
-            .forEach {
-                message.forEach { msg ->
-                    msg.sendToPlayer(it)
-                }
-            }
+            .fastForEach {
+                message.forEach { msg -> msg.sendToPlayer(it) }
+            }*/
     }
 
     fun getTeamOf(player: Player) = this.teams.values
@@ -488,60 +491,41 @@ open class GameImpl(
         )
     }
 
-    fun toBukkitPlayers() = this.teams.values
-        .flatMap {
-            it.toBukkitPlayers()
-        }
+    fun toBukkitPlayers() = this.teams.values.flatMap(GameTeam::toBukkitPlayers)
 
-    fun toPlayers() = this.teams.values
-        .flatMap {
-            it.players
-        }
+    fun toPlayers() = this.teams.values.flatMap(GameTeam::players)
 
     fun generateRedirectMetadataFor(player: Player): Map<String, String>
     {
-        if (
-            player.uniqueId in expectedSpectators ||
-            player.uniqueId !in expectedQueueRejoin
-        )
+        val uniqueId = player.uniqueId
+        if (uniqueId !in expectedSpectators && uniqueId in expectedQueueRejoin) return mapOf()
+
+        if (expectationModel.players.size != 2)
         {
-            if (expectationModel.players.size != 2)
-            {
-                if (player.uniqueId in expectationModel.players)
-                {
-                    return mapOf("was-game-participant" to "true")
-                }
+            if (uniqueId !in expectationModel.players) return mapOf()
+            return mapOf("was-game-participant" to "true")
+        }
 
-                return mapOf()
+        if (uniqueId in expectationModel.players)
+        {
+            val target = expectationModel.players.firstOrNull { other -> uniqueId != other } ?: return mapOf()
+
+            if (expectationModel.queueId == "party" || expectationModel.queueId == "tournament")
+            {
+                return mapOf("was-game-participant" to "true")
             }
 
-            if (player.uniqueId in expectationModel.players)
-            {
-                val target = expectationModel.players
-                    .firstOrNull { other ->
-                        player.uniqueId != other
-                    }
-                    ?: return mapOf()
-
-                if (expectationModel.queueId == "party" || expectationModel.queueId == "tournament")
-                {
-                    return mapOf("was-game-participant" to "true")
-                }
-
-                return mapOf(
-                    "rematch-target-id" to target.toString(),
-                    "rematch-kit-id" to expectationModel.kitId,
-                    "rematch-region" to Region
-                        .extractFrom(
-                            ServerSync.getLocalGameServer().id
-                        )
-                        .name,
-                    "rematch-map-id" to expectationModel.mapId,
-                    "was-game-participant" to "true"
-                )
-            }
-
-            return mapOf()
+            return mapOf(
+                "rematch-target-id" to target.toString(),
+                "rematch-kit-id" to expectationModel.kitId,
+                "rematch-region" to Region
+                    .extractFrom(
+                        ServerSync.getLocalGameServer().id
+                    )
+                    .name,
+                "rematch-map-id" to expectationModel.mapId,
+                "was-game-participant" to "true"
+            )
         }
 
         val queueType = expectationModel.queueType?.name
@@ -564,80 +548,53 @@ open class GameImpl(
             return
         }
 
-        fun getOnlinePlayers() = Players.all()
-            .filter {
-                it.location.world.name == arenaWorldName
-            }
-            .filterNotNull()
+        val onlinePlayers = Players.all()
+            .filter { it != null && it.location.world.name == arenaWorldName }
             .toTypedArray()
+        if (onlinePlayers.isNotEmpty())
 
         if (kickPlayers)
         {
-            val onlinePlayers = getOnlinePlayers()
-
-            if (onlinePlayers.isNotEmpty())
-            {
-                GameService.redirector.redirect(
-                    ::generateRedirectMetadataFor,
-                    *onlinePlayers
-                )
-            }
+            GameService.redirector.redirect(
+                ::generateRedirectMetadataFor,
+                *onlinePlayers
+            )
         }
 
         GameService.gameMappings.remove(this.expectation)
 
-        Tasks.delayed(20L) {
-            if (arenaWorld == null)
-            {
-                println("Skipping unload world because it's null")
-                return@delayed
-            }
-
-            MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
-            robotInstance?.destroy()
-
-            val handlePlayers = (arenaWorld!! as CraftWorld).handle
-            val worldServer = handlePlayers as CustomWorldServer
-
-            if (kickPlayers)
-            {
-                // final check
-                val onlinePlayers = handlePlayers.players
-
-                if (onlinePlayers.isNotEmpty())
-                {
-                    onlinePlayers.toList().forEach {
-                        if (it.bukkitEntity !is Player)
-                        {
-                            return@forEach
-                        }
-
-                        val player = it.bukkitEntity as Player
-                        runCatching {
-                            player.kickPlayer("You should not be on this server!")
-                        }
-
-                        onlinePlayers.remove(it)
-                    }
-
-                    Tasks.delayed(10L) {
-                        arenaWorld = null
-                        Bukkit.unloadWorld(arenaWorldName, false)
-                    }
-                    return@delayed
-                }
-            }
-
-            arenaWorld = null
-            MapReplicationService.mapReplications -= replication
-
-            Bukkit.unloadWorld(arenaWorldName, false)
-        }
+        kickOnlinePlayers(kickPlayers, onlinePlayers)
 
         closeAndReportException()
     }
 
-    fun ensurePlaying() = this.state(GameState.Playing)
+    private fun kickOnlinePlayers(kickPlayers: Boolean, onlinePlayers: Array<Player>)
+    {
+        Tasks.delayed(20L) {
+            if (arenaWorld == null) return@delayed
+
+            MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
+
+            if (kickPlayers)
+            {
+                onlinePlayers.forEach {
+                    it.kickPlayer("You should not be on this server!")
+                }
+
+                Tasks.delayed(10L, this::unloadWorld);
+                return@delayed
+            }
+
+            unloadWorld()
+        }
+    }
+
+    private fun unloadWorld()
+    {
+        Bukkit.unloadWorld(arenaWorld, false)
+    }
+
+    fun ensurePlaying() = this.state == GameState.Playing
 
     fun state(state: GameState): Boolean
     {
@@ -653,8 +610,7 @@ open class GameImpl(
             return null
         }
 
-        return this.kit
-            .features[flag]
+        return this.kit.features[flag]
             ?.get(key)
             ?: flag.schema[key]
     }
@@ -662,9 +618,7 @@ open class GameImpl(
     private val loadoutSelection = mutableMapOf<UUID, CompositeTerminable>()
     fun completeLoadoutSelection()
     {
-        loadoutSelection.values.forEach(
-            CompositeTerminable::closeAndReportException
-        )
+        loadoutSelection.values.forEach(CompositeTerminable::closeAndReportException )
         loadoutSelection.clear()
     }
 
@@ -715,13 +669,7 @@ open class GameImpl(
         Events
             .subscribe(PlayerInteractEvent::class.java)
             .filter {
-                it.player.uniqueId == player.uniqueId
-            }
-            .filter {
-                it.action == Action.RIGHT_CLICK_AIR
-            }
-            .filter {
-                hashCodeToItemMappings.containsKey(it.item.hashCode())
+                it.player.uniqueId == player.uniqueId && it.action == Action.RIGHT_CLICK_AIR && hashCodeToItemMappings.containsKey(it.item.hashCode())
             }
             .handler {
                 val loadout = applicableLoadouts[hashCodeToItemMappings[it.item.hashCode()]]
@@ -762,12 +710,7 @@ open class GameImpl(
     fun lifecycle() = kit.lifecycle()
 
     fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId) { Counter(player.uniqueId) }
-    fun buildResources()
-    {
-        toPlayers().forEach {
-            playerCounters[it] = Counter(it)
-        }
-    }
+    fun buildResources(): Unit = toPlayers().forEach { playerCounters[it] = Counter(it) }
 
     fun cleanupWorld()
     {
@@ -796,6 +739,4 @@ open class GameImpl(
 
     fun humanSide() = teams[GameTeamSide.A]!!
     fun robotSide() = teams[GameTeamSide.B]!!
-
-    fun robotCounter() = playerCounters.getOrPut(Globals.PLAYER_BOT_UNIQUE_ID) { Counter(Globals.PLAYER_BOT_UNIQUE_ID) }
 }

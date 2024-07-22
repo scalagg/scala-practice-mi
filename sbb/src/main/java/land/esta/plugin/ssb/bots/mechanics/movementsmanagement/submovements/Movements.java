@@ -99,7 +99,7 @@ public class Movements extends Manager {
         updateValues(motion.clone(),true);
     }
 
-    public void sendMove(Vector motion,boolean addLastMotion) {
+    public static void sendMove(Vector motion,boolean addLastMotion) {
         bot.getMovements().move(motion,addLastMotion);
     }
 
@@ -121,7 +121,7 @@ public class Movements extends Manager {
         }
     }
 
-    public boolean onGround(Location loc) {
+    public static boolean onGround(Location loc) {
         AABB playerBox = new AABB(new Vector(-0.29,0.0,-0.29),new Vector(0.29,1.8,0.29));
         World world = loc.getWorld();
         Location min = loc.toVector().add(playerBox.getMin()).toLocation(world);
@@ -134,7 +134,7 @@ public class Movements extends Manager {
         return RayTrace.blockCollidesCheck(min,max);
     }
 
-    public Vector getDirection(float yaw,float pitch) {
+    public static Vector getDirection(float yaw,float pitch) {
         Vector result = new Vector(0,0,0);
         double xz = Math.cos(Math.toRadians(pitch));
         result.setX(-xz * Math.sin(Math.toRadians(yaw)));
