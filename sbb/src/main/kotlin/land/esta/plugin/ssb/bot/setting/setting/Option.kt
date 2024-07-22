@@ -1,11 +1,9 @@
 package land.esta.plugin.ssb.bot.setting.setting
 
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileBackbone
-import land.esta.plugin.ssb.bot.profile.RobotProfileService
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingValue
 import land.esta.plugin.ssb.bot.setting.setting.persistence.toInternalValue
-import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.Material

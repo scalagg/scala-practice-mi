@@ -30,6 +30,18 @@ object BotSettingService: DataSyncService<BotSettingContainer>()
         return cached().map[difficulty] ?: SettingProfile(difficulty)
     }
 
+    override fun postReload()
+    {
+        if (cached().map.isEmpty())
+        {
+            val cached = cached()
+            listOf("EASY", "NORMAL", "HARD", "EXPERT", "NIGHTMARE").forEach {
+                cached.map.putIfAbsent(it, SettingProfile(it))
+            }
+            sync(cached)
+        }
+    }
+
     override fun locatedIn() = DataSyncSource.Mongo
 
     override fun keys() = BotSettingKeys
