@@ -105,7 +105,7 @@ data class Option<T : Any>(
                     if (setting.getObject() is Int)
                     {
                         val integer = setting.getObject() as Int
-                        if (integer + increment.toInt() > maxValue) setting.setObject(maxValue)
+                        if (integer + increment.toInt() > maxValue.toInt()) setting.setObject(maxValue.toInt())
                         else setting.setObject(integer + increment.toInt())
                     } else
                     {
@@ -122,12 +122,12 @@ data class Option<T : Any>(
                     if (setting.getObject() is Int)
                     {
                         val integer = setting.getObject() as Int
-                        if (integer - increment.toInt() < 0) setting.setObject(0)
+                        if (integer - increment.toInt() < 0.0) setting.setObject(0.0)
                         else setting.setObject(integer - increment.toInt())
                     } else
                     {
                         val integer = setting.getObject() as Double
-                        if (integer - increment.toInt() < 0) setting.setObject(0)
+                        if (integer - increment.toInt() < 0.0) setting.setObject(0.0)
                         else setting.setObject(integer - increment)
                     }
                     backbone.save(profile)
