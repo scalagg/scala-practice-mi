@@ -19,15 +19,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class SettingManager {
+
+    public static SettingManager defaultManager = new SettingManager();
 
     private AttackSettings clickSetting;
     private RotationSetting rotationSetting;
@@ -42,24 +42,20 @@ public class SettingManager {
     private PlaystyleSettings playstyleSettings;
     private RodSettings rodSettings;
     private WTapSetting wTapSetting;
-    public ArrayList<Setting> settings;
 
+    public List<Setting> settings = new ArrayList<>();
 
     private String name = "default";
     private String foundPath;
-    public int elo = 0;
-    public int tier = 1;
+
     public boolean gameRandomizer = false;
 
     public String botName = "&cBot"; //The default would be your self
     public String skin = "Xecivity"; //The default would be your self
 
     private List<String> description = new ArrayList<>();
-    public static SettingManager defaultManager = new SettingManager();
 
     public SettingManager() {
-        settings = new ArrayList<>();
-
         settings.add(clickSetting = new AttackSettings());
         settings.add(velocitySettings = new VelocitySettings());
         settings.add(playstyleSettings = new PlaystyleSettings());
@@ -70,21 +66,9 @@ public class SettingManager {
         settings.add(strafeSettings = new StrafeSettings());
         settings.add(pearlSettings = new PearlSettings());
         settings.add(connectionSettings = new ConnectionSettings());
-        packetsSettings = new PacketsSettings();
+        settings.add(packetsSettings = new PacketsSettings());
         settings.add(wTapSetting = new WTapSetting());
         settings.add(rodSettings = new RodSettings());
-    }
-
-    public ItemStack getSkullItem(String player,boolean skin) {
-        ItemStack stack = new ItemStack(Material.SKULL_ITEM,1,(short) 3);
-        SkullMeta meta = (SkullMeta) stack.getItemMeta();
-
-        if (skin) meta.setOwner(this.skin.replace("%player%",player)); //Skin skull
-        if (!skin) meta.setOwner(this.botName.replace("%player%",player)); //Name skull
-
-        stack.setItemMeta(meta);
-
-        return stack.clone();
     }
 
     public Setting getSettingByName(String name) {
@@ -278,12 +262,20 @@ public class SettingManager {
         settingManager.setSkinWithoutUpdate(botSkin);
 
         final var presetSetting = profile.getSettings().get("default");
+        System.out.println(presetSetting.getSettings().keySet());
+
         settingManager.getSettings().forEach(setting -> {
             var databaseData = presetSetting.getSettings()
                     .get(setting.getFancyName());
 
+            if (databaseData == null) {
+                databaseData = new HashMap<>();
+                System.out.println(setting.getFancyName() + " not exist bro");
+            }
+
+            Map<String, SettingObject> finalDatabaseData = databaseData;
             setting.getSettings().forEach(object -> {
-                SettingObject savedSetting = databaseData.get(object.getName());
+                SettingObject savedSetting = finalDatabaseData.get(object.getName());
                 if (savedSetting == null) {
                     savedSetting = (SettingObject) defaultManager
                             .getSettingByName(setting.getFancyName())

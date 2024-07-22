@@ -153,7 +153,7 @@ public class Bot {
         }.runTask(SmartBotsBackend.getInstance());
     }
 
-    private static final Property DEFAULT = new Property(
+    public static final Property DEFAULT = new Property(
             "textures",
             "ewogICJ0aW1lc3RhbXAiIDogMTcyMTU5ODQ0MzU4MiwKICAicHJvZmlsZUlkIiA6ICI5OGYzMGY2OWExYTA0NWRhOWNmOGZjMDI3OThmOWEyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDaGVtaWNhbExvY2tlZCIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS82MmI1Mjk3ZjhjOTg1YTBkODU5ZjY5Zjc0YzE3ODAzMTcwZjFhMmU4NTk1ZGEyZWUzZWU4Nzk1N2VkMzQzZTMzIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=",
             ""
