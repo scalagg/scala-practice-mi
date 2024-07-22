@@ -7,7 +7,6 @@ import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.data.DataPlayer;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;

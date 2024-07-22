@@ -1,17 +1,13 @@
 package land.esta.plugin.ssb.support.estapractice;
 
-import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.utils.FileManager;
-import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.config.CustomConfig;
-
-import java.util.*;
 
 public class EloBotCreator {
 
     private static CustomConfig eloSettings = null;
 
-    public static SettingManager createBot(int elo) {
+    /*public static SettingManager createBot(int elo) {
         if (eloSettings == null) {
             eloSettings = new CustomConfig("eloSettings");
         }
@@ -90,7 +86,7 @@ public class EloBotCreator {
         bot.getWTapSetting().getEnabled().setObject(wTap);
 
         return bot;
-    }
+    }*/
 
     public static  <V> V readConfig(String path, V defaultValue) {
         return FileManager.getOrDefault(eloSettings,path,defaultValue);
