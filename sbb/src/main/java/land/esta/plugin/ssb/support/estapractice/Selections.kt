@@ -1,6 +1,8 @@
 package land.esta.plugin.ssb.support.estapractice
 
 import land.esta.plugin.ssb.bot.profile.RobotProfileService
+import land.esta.plugin.ssb.bot.setting.BotSettingService
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.bots.setting.SettingManager
 import org.bukkit.entity.Player
 import java.util.UUID
@@ -9,15 +11,16 @@ import java.util.UUID
  * @author GrowlyX
  * @since 7/20/2024
  */
-fun loadSettingsFromSelection(player: Player, selection: String): SettingManager?
+fun loadSettingsFromSelection(player: Player, selection: String, profileChoice: String?): SettingProfile?
 {
     if (runCatching { UUID.fromString(selection) }.getOrNull() != null)
     {
         val profile = RobotProfileService.find(player)
-            ?: return SettingManager.loadSettings("EASY")
+            ?: return BotSettingService.loadDefaultProfile("EASY")
 
-        return SettingManager.loadManagerFromSettings(profile)
+        return profile.profiles[profileChoice ?: "default"]
+            ?: BotSettingService.loadDefaultProfile("EASY")
     }
 
-    return SettingManager.loadSettings(selection)
+    return BotSettingService.loadDefaultProfile(selection)
 }

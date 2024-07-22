@@ -4,6 +4,7 @@ import gg.tropic.practice.Globals;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import lombok.AllArgsConstructor;
@@ -42,20 +43,28 @@ public class EstaPracticeManager {
             GameImpl game,
             Player player
     ) {
-        String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync().get("tropicpractice:bot-selection:" + game.humanSide().getPlayers().get(0));
+        String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync()
+                .get(
+                        "tropicpractice:bot-selection:" + game.humanSide().getPlayers().get(0)
+                );
         if (selectedBot == null) {
             Logger.getGlobal().info("No bot configuration was found!");
             return null;
         }
 
-        SettingManager settings = SelectionsKt.loadSettingsFromSelection(player, selectedBot);
+        var split = selectedBot.split(":");
+        SettingProfile settings = SelectionsKt.loadSettingsFromSelection(
+                player,
+                split[0],
+                split.length == 1 ? null : split[1]
+        );
 
         if (settings == null) {
             Logger.getGlobal().info("No bot configuration was found!");
             return null;
         }
 
-        if (settings.isGameRandomizer()) {
+        /*if (settings.isGameRandomizer()) {
             for (Setting setting : settings.getSettings()) {
                 for (SettingObject object : setting.getSettings()) {
                     if (object.getMin() <= 0 || object.getMax() <= 0) continue;
@@ -74,14 +83,14 @@ public class EstaPracticeManager {
                     }
                 }
             }
-        }
+        }*/
 
         String name = settings.getBotName();
         if (name.length() > 16) {
             name = name.substring(0, 16);
         }
 
-        Bot bot = new Bot(loc, Color.code(name), player, settings.getSkin(), settings, game.getKit()); // ADDED: Applies the bot skin and name
+        Bot bot = new Bot(loc, Color.code(name), player, settings, game.getKit()); // ADDED: Applies the bot skin and name
         if (game.flag(FeatureFlag.DeathOnLiquidInteraction)) {
             bot.getMovements().setEdgeDetector(true);
         }

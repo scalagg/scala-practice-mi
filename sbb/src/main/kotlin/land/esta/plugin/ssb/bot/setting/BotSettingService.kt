@@ -9,6 +9,7 @@ import gg.tropic.practice.namespace
 import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
 import land.esta.plugin.ssb.SmartBotsBackend
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import net.kyori.adventure.key.Key
 
 @Service
@@ -22,6 +23,11 @@ object BotSettingService: DataSyncService<BotSettingContainer>()
 
         override fun store() = Key.key(namespace(), "bot-settings")
         override fun sync() = Key.key(namespaceShortened().suffixWhenDev(), "bsync")
+    }
+
+    fun loadDefaultProfile(difficulty: String): SettingProfile
+    {
+        return cached().map[difficulty] ?: SettingProfile(difficulty)
     }
 
     override fun locatedIn() = DataSyncSource.Mongo
