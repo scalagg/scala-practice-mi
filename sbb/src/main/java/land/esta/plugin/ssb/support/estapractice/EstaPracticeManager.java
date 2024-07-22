@@ -4,9 +4,13 @@ import gg.tropic.practice.Globals;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
+import land.esta.plugin.ssb.utils.RandomUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -60,26 +64,26 @@ public class EstaPracticeManager {
             return null;
         }
 
-        /*if (settings.isGameRandomizer()) {
-            for (Setting setting : settings.getSettings()) {
-                for (SettingObject object : setting.getSettings()) {
-                    if (object.getMin() <= 0 || object.getMax() <= 0) continue;
+        if (/*settings.isGameRandomizer()*/false) {
+            for (Option<?> option : GlobalsKt.getRoot().recursiveOptions()) {
+                var profileValue = settings.setting(option);
 
-                    if (object.getObject() instanceof Boolean) {
-                        object.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1);
-                    } else if (object.getObject() instanceof Double) {
-                        if ((Double) object.getObject() % 1 == 0)
-                            if (RandomUtil.randInt((int) object.getMin(), (int) object.getMax()) != -1)
-                                object.setObject(RandomUtil.randInt((int) object.getMin(), (int) object.getMax()));
-                            else if (RandomUtil.randDouble(object.getMin(), object.getMax()) != -1)
-                                object.setObject(RandomUtil.randDouble(object.getMin(), object.getMax()));
-                    } else {
-                        if (RandomUtil.randInt((int) object.getMin(), (int) object.getMax()) != -1)
-                            object.setObject(RandomUtil.randInt((int) object.getMin(), (int) object.getMax()));
-                    }
+                if (profileValue.getRandomizerMinMax().getFirst() <= 0 || profileValue.getRandomizerMinMax().getSecond() <= 0) continue;
+
+                if (profileValue.getObject() instanceof Boolean) {
+                    profileValue.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1);
+                } else if (profileValue.getObject() instanceof Double) {
+                    if ((Double) profileValue.getObject() % 1 == 0)
+                        if (RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()) != -1)
+                            profileValue.setObject(RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()));
+                        else if (RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()) != -1)
+                            profileValue.setObject(RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()));
+                } else {
+                    if (RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()) != -1)
+                        profileValue.setObject(RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()));
                 }
             }
-        }*/
+        }
 
         String name = settings.getBotName();
         if (name.length() > 16) {
@@ -134,6 +138,11 @@ public class EstaPracticeManager {
                             );
                         }
 
+                        var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                        if (dataPlayer != null) {
+                            dataPlayer.hit();
+                        }
+
                         robot.getPlayerCombos().put(Globals.getPLAYER_BOT_UNIQUE_ID(), 0);
 
                         if (game.humanSide().getGameLifecycleArbitraryObjectiveProgress() >= metadata) {
@@ -154,6 +163,11 @@ public class EstaPracticeManager {
                     game.humanSide().getPlayerCombos().clear();
                     game.counter(player).reset("combo");
 
+                    var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                    if (dataPlayer != null) {
+                        dataPlayer.botHit();
+                    }
+
                     if (robot.getGameLifecycleArbitraryObjectiveProgress() >= metadata) {
                         game.complete(robot, "");
                     }
@@ -170,6 +184,29 @@ public class EstaPracticeManager {
                         }
                     })
                     .bindWith(game);
+        } else
+        {
+            bot.setEventListener((event -> {
+                if (event instanceof BotDamageEvent) {
+                    if (
+                            ((BotDamageEvent) event).getSource() != null &&
+                                    ((BotDamageEvent) event).getSource().getEntity() != null &&
+                                    ((BotDamageEvent) event).getSource().getEntity().getUniqueID().equals(player.getUniqueId())
+                    ) {
+                        var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                        if (dataPlayer != null) {
+                            dataPlayer.hit();
+                        }
+                    }
+                }
+
+                if (event instanceof BotAttackLandEvent) {
+                    var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                    if (dataPlayer != null) {
+                        dataPlayer.botHit();
+                    }
+                }
+            }));
         }
 
         if (game.flag(FeatureFlag.WinWhenNHitsReached))

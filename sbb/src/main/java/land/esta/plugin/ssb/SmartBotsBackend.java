@@ -5,6 +5,7 @@ import gg.scala.commons.annotations.container.ContainerDisable;
 import gg.scala.commons.annotations.container.ContainerEnable;
 import gg.scala.commons.core.plugin.*;
 import land.esta.plugin.ssb.utils.BukkitEvents;
+import land.esta.plugin.ssb.utils.DataManager;
 import land.esta.plugin.ssb.utils.GameServer;
 import land.esta.plugin.ssb.utils.PacketListener;
 import lombok.Getter;
@@ -56,6 +57,9 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
     @Getter
     private ThreadSystem threadSystem;
 
+    @Getter
+    private DataManager dataManager;
+
     @ContainerEnable
     public void containerEnable() {
         // Plugin startup logic
@@ -64,6 +68,11 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
 
         if (GameServer.is()) {
             botManager = new BotManager();
+            dataManager = new DataManager(this);
+
+            if (GameServer.is()) {
+                Bukkit.getServer().getPluginManager().registerEvents(new PacketListener(),this);
+            }
         }
 
         eventManager = new EventManager();
@@ -77,14 +86,6 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
 
         if (GameServer.is()) {
             threadSystem = new ThreadSystem();
-        }
-
-        registerListeners();
-    }
-
-    public void registerListeners() {
-        if (GameServer.is()) {
-            Bukkit.getServer().getPluginManager().registerEvents(new PacketListener(),this);
         }
     }
 

@@ -1,17 +1,14 @@
 package land.esta.plugin.ssb.utils;
 
 import land.esta.plugin.ssb.SmartBotsBackend;
-import lombok.Getter;
-import lombok.Setter;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
+import lombok.Data;
 import land.esta.plugin.ssb.bots.Bot;
 import net.minecraft.server.v1_8_R3.PacketPlayInFlying;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -19,11 +16,17 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-public class DataPlayer implements Listener {
+@Data
+public class DataPlayer {
     private final Player player;
     private Vector motion;
+
+    private final List<Vector> locations = new ArrayList<>();
+
+    public void handleFlying(PacketPlayInFlying wrapper) {
+        Vector posUpdate = new Vector(wrapper.a(),wrapper.b(),wrapper.c());
+        handlePos(posUpdate);
+    }
 
     private int hitCounter;
     private int combo;
@@ -43,36 +46,6 @@ public class DataPlayer implements Listener {
         hitCounter++;
         combo++;
         botCombo = 0;
-    }
-
-    private int guiCooldown;
-
-    private final List<Vector> locations;
-
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    // TODO
-    public DataPlayer(Player player) {
-        this.player = player;
-        locations = new ArrayList<>();
-    }
-
-    public void handleFlying(PacketPlayInFlying wrapper) {
-        Vector posUpdate = new Vector(wrapper.a(),wrapper.b(),wrapper.c());
-        handlePos(posUpdate);
     }
 
     public boolean handle() {
@@ -95,7 +68,11 @@ public class DataPlayer implements Listener {
         double reach = 3.5;
         double distMultiplier = 0.15;
 
-        if (bot.getMovements().isAttackSprint() || !bot.getSettingManager().getWTapSetting().getEnabled().isBooleanValue()) h *= 1.2;
+        var wtapEnabled = bot.getProfile().value(
+                RootAccessor.INSTANCE.getWTapSettings().getEnabled()
+        );
+
+        if (bot.getMovements().isAttackSprint() || !wtapEnabled) h *= 1.2;
         if (player.isOnGround()) h *= 1.1;
         double extraH = Math.min(Math.max((reach - (bot.getMovements().getLocation().distance(player.getLocation()) - 0.3)) * distMultiplier,0),0.4);
         h += extraH;
@@ -119,7 +96,7 @@ public class DataPlayer implements Listener {
     }
 
     public Vector getLastLoc() {
-        if (locations.size() == 0) return new Vector(0,0,0);
+        if (locations.isEmpty()) return new Vector(0,0,0);
         return locations.get(locations.size() - 1);
     }
 

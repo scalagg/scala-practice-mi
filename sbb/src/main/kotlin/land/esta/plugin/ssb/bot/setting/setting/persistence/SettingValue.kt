@@ -12,6 +12,9 @@ class SettingValue(
 {
     var randomizerMinMax = 0.0 to 0.0
 
+    fun getMin() = randomizerMinMax.first
+    fun getMax() = randomizerMinMax.second
+
     fun getObject() = value.internalValue
     fun setObject(possible: Any)
     {
