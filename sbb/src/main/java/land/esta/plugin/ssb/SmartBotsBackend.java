@@ -8,6 +8,7 @@ import gg.scala.commons.core.plugin.*;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue;
 import land.esta.plugin.ssb.utils.BukkitEvents;
 import land.esta.plugin.ssb.utils.DataManager;
@@ -81,7 +82,10 @@ public final class SmartBotsBackend extends ExtendedScalaPlugin {
             return null;
         });
 
-        GlobalsKt.getRoot();
+        GlobalsKt.getRoot().getChildren$sbb().values().forEach(setting -> {
+            getLogger().info(setting.composeId());
+        });
+        RootAccessor.INSTANCE.getAttackSettings();
 
         if (GameServer.is()) {
             botManager = new BotManager();
