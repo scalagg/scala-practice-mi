@@ -1,22 +1,36 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
 @Setter
-public class RotationSetting extends Setting {
+public class RotationSetting extends Category {
 
-    private SettingObject speed = new SettingObject("Speed", Material.EXP_BOTTLE,18,2);
-    private SettingObject jitterRotation = new SettingObject("Jitter Rotation", Material.FLINT,1.0);
-    private SettingObject speedRandom = new SettingObject("Speed Random", Material.FIREWORK,1.0);
+    private Option<Integer> speed = new Option<>("Speed", Material.EXP_BOTTLE,this,18,2);
+    private Option<Double> jitterRotation = new Option<>("Jitter Rotation", Material.FLINT,this,1.0);
+    private Option<Double> speedRandom = new Option<>("Speed Random", Material.FIREWORK,this,1.0);
 
     public RotationSetting() {
-        super(Material.WEB,"&c&lRotation Settings","Rotation", "rotationsettings", 13,true,"&f In this category","&f you are able to","&f modify the bot's","&f rotation settings.","","&aClick to select!");
+        super(
+                "rotationsettings",
+                Arrays.asList(
+                        "Configurable Rotation",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.WEB),
+                GlobalsKt.getRoot(),
+                "Rotation Settings",
+                "botgui.rotationsettings"
+        );
 
-        addSettings(speed,jitterRotation,speedRandom);
+        addChildren(speed, jitterRotation, speedRandom);
     }
 }

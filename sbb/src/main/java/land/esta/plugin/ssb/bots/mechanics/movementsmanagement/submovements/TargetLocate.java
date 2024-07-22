@@ -16,6 +16,8 @@ public class TargetLocate extends Manager {
 
     private boolean delayedPlayerLocation = true;
 
+    private Location aStarTarget = null;
+
     public TargetLocate(Bot bot, Player target) {
         super(bot);
         this.targetEntity = target;

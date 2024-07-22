@@ -1,16 +1,27 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
+import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.BlockManager;
 import land.esta.plugin.ssb.utils.RayTrace;
 import land.esta.plugin.ssb.utils.objects.AABB;
 import land.esta.plugin.ssb.utils.objects.CraftiFriction;
+import net.evilblock.cubed.entity.npc.pathfinding.AStar;
+import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.PacketPlayOutWorldParticles;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.util.List;
 
 public class Movements extends Manager {
     public Movements(Bot bot) {
@@ -22,6 +33,8 @@ public class Movements extends Manager {
         //boolean requireToMove = bot.getMovements().getLocation().distanceSquared(bot.getMovements().getTargetLocate().getTarget()) >=Math.pow(settingManager.getStrafeSettings().getDistance().getDoubleValue(), 2);
         //bot.getMovements().setRequiredToMove(requireToMove);
         //if (!requireToMove) bot.getAttackingManager().setHitSelecting(false);
+
+
         move();
     }
 

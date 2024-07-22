@@ -1,20 +1,35 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
-public class RodSettings extends Setting {
-    private final SettingObject enabled = new SettingObject("Rod Enabled",Material.FISHING_ROD,false);
-    private final SettingObject minRodDistance = new SettingObject("Minimum Rod Throwing Distance",Material.FISHING_ROD,5.0,0.1);
-    private final SettingObject maxRodDistance = new SettingObject("Maximum Rod Throwing Distance",Material.FISHING_ROD,7.5,0.1);
-    private final SettingObject rodDuration = new SettingObject("Rod Duration (MS)",Material.FISHING_ROD,750, 10);
-    private final SettingObject rodWhileInCombo = new SettingObject("Throw rod while in combo",Material.FISHING_ROD,false);
+public class RodSettings extends Category {
+    private final Option<Boolean> enabled = new Option<>("Rod Enabled",Material.FISHING_ROD, this,false);
+    private final Option<Double> minRodDistance = new Option<>("Minimum Rod Throwing Distance",Material.FISHING_ROD, this,5.0,0.1);
+    private final Option<Double> maxRodDistance = new Option<>("Maximum Rod Throwing Distance",Material.FISHING_ROD, this,7.5,0.1);
+    private final Option<Integer> rodDuration = new Option<>("Rod Duration (MS)",Material.FISHING_ROD, this,750, 10);
+    private final Option<Boolean> rodWhileInCombo = new Option<>("Throw rod while in combo",Material.FISHING_ROD, this,false);
 
     public RodSettings() {
-        super(Material.FISHING_ROD,"&c&lRod Settings","Rod", "rodsettings",20,false,"&f In this category","&f you are able to","&f modify the bot's","&f rod settings.","","&aClick to select!");
-        addSettings(enabled,minRodDistance,maxRodDistance,rodDuration,rodWhileInCombo);
+        super(
+                "rodsettings",
+                Arrays.asList(
+                        "Configurable Rod",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.FISHING_ROD),
+                GlobalsKt.getRoot(),
+                "Rod Settings",
+                "botgui.rodsettings"
+        );
+
+        addChildren(enabled, minRodDistance, maxRodDistance, rodDuration, rodWhileInCombo);
     }
 }

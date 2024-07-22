@@ -53,6 +53,12 @@ class AStarPathfinder @JvmOverloads constructor(
         // cycle through untested nodes until a exit condition is fulfilled
         while (checkedNodes.size < maxNodeTests && !pathFound && uncheckedNodes.size > 0)
         {
+            if ((System.nanoTime() - nsStart) / 1000000f > 2) {
+                if (debug) {
+                    printDebug(ChatColor.RED.toString() + "Took to much time to not find a path")
+                    return mutableListOf()
+                }
+            }
             var node = uncheckedNodes[0]
             for (unchecked in uncheckedNodes)
             {
@@ -157,7 +163,7 @@ class AStarPathfinder @JvmOverloads constructor(
             for (x in -1..1) for (z in -1..1) if (!(x == 0 && z == 0) && x * z == 0)
             {
                 val loc = Location(
-                    location.world,
+                    startLocation.world,
                     floor(location.blockX + x.toDouble()) + 0.5,
                     location.blockY.toDouble(),
                     floor(location.blockZ + z.toDouble()) + 0.5
