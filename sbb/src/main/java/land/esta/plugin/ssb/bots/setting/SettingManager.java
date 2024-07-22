@@ -264,9 +264,9 @@ public class SettingManager {
         return settingManager;
     }
 
-    public static SettingManager loadManagerFromSettings(BotSettingProfile profile, BotSetting settings) {
+    public static SettingManager loadManagerFromSettings(BotSettingProfile profile) {
         SettingManager settingManager = new SettingManager();
-        String botName = settings.getName();
+        String botName = profile.getName();
         String botSkin = profile.getSkin();
 
         if (botName.contains("&")) {
