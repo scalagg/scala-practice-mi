@@ -10,7 +10,7 @@ import gg.tropic.practice.namespace
 import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
 import land.esta.plugin.ssb.SmartBotsBackend
-import land.esta.plugin.ssb.bot.profile.BotSettingProfileService
+import land.esta.plugin.ssb.bot.profile.RobotProfileService
 import land.esta.plugin.ssb.utils.settings.DifficultiesSettings
 import net.kyori.adventure.key.Key
 import java.util.*
@@ -29,7 +29,7 @@ object BotSettingService: DataSyncService<BotSettingContainer>()
             runCatching { cached() }.getOrNull()?.map?.get(identifier) ?: BotSetting(identifier)
         } else
         {
-            BotSettingProfileService.findOrCreate(uuid).settings["default"] ?: BotSetting(identifier)
+            RobotProfileService.findOrCreate(uuid).settings["default"] ?: BotSetting(identifier)
         }
     }
 

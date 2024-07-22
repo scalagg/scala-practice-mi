@@ -31,3 +31,13 @@ data class IntValue(
 {
     override fun getAbstractType() = IntValue::class.java
 }
+
+fun Any.toInternalValue() = when (true)
+{
+    (this is Boolean) -> BooleanValue(this)
+    (this is Double) -> DoubleValue(this)
+    (this is Int) -> IntValue(this)
+    else -> throw IllegalStateException(
+        "Unsupported InternalValue type ${javaClass.name} was given"
+    )
+}

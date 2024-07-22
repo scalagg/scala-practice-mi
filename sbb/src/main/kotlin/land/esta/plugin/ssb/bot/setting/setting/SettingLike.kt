@@ -16,15 +16,19 @@ interface SettingLike : AbstractTypeSerializable
     val id: String
     val displayName: String
 
+    val permission: String?
     val description: List<String>
     val item: ItemStack
-    val parent: SettingLike?
+    val parent: Category?
 
-    fun toItemStack(player: Player, context: SettingProfile) = ItemBuilder
-        .copyOf(item)
-        .name("${CC.GREEN}$displayName")
-        .setLore(describe(player, context))
-        .build()
+    fun toItemStack(player: Player, context: SettingProfile): ItemStack
+    {
+        return ItemBuilder
+            .copyOf(item)
+            .name("${CC.GREEN}$displayName")
+            .setLore(describe(player, context))
+            .build()
+    }
 
     fun describe(player: Player, context: SettingProfile): List<String>
     {

@@ -1,0 +1,86 @@
+package land.esta.plugin.ssb.bot.menu.profiles
+
+import land.esta.plugin.ssb.bot.profile.RobotProfile
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
+import net.evilblock.cubed.menu.Button
+import net.evilblock.cubed.menu.pagination.PaginatedMenu
+import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
+import org.bukkit.Material
+import org.bukkit.entity.Player
+
+/**
+ * @author GrowlyX
+ * @since 7/22/2024
+ */
+class PlayerDescribeProfilesMenu(
+    private val robotProfile: RobotProfile,
+    private val action: (SettingProfile) -> Unit
+) : PaginatedMenu()
+{
+    init
+    {
+        placeholder = true
+    }
+
+    private fun Int.toRow() = (1..7).map { it + this * 9 }
+    override fun getAllPagesButtonSlots() = 1.toRow()
+
+    override fun size(buttons: Map<Int, Button>) = 27
+    override fun getGlobalButtons(player: Player) = mutableMapOf(
+        4 to ItemBuilder
+            .of(Material.EMERALD)
+            .toButton { _, _ ->
+                Button.playNeutral(player)
+                player.closeInventory()
+
+                InputPrompt()
+                    .withText("${CC.GREEN}Enter a profile name!")
+                    .acceptInput { _, newName ->
+                        val sanitized = newName.lowercase().replace(" ", "_")
+                        if (robotProfile.profiles[sanitized] != null)
+                        {
+                            Button.playFail(player)
+                            player.sendMessage("${CC.RED}You already have a profile with that name!")
+                            PlayerDescribeProfilesMenu(robotProfile, action).openMenu(player)
+                            return@acceptInput
+                        }
+
+                        Button.playSuccess(player)
+                        player.sendMessage("${CC.GREEN}Your profile has been created!")
+
+                        robotProfile.profiles[sanitized] = SettingProfile(sanitized)
+                        robotProfile.save()
+
+                        PlayerDescribeProfilesMenu(robotProfile, action).openMenu(player)
+                    }
+                    .start(player)
+            }
+    )
+
+    override fun getAllPagesButtons(player: Player): Map<Int, Button>
+    {
+        val buttons = mutableMapOf<Int, Button>()
+        for (settings in robotProfile.profiles.values)
+        {
+            buttons[buttons.size] = ItemBuilder
+                .of(Material.PAPER)
+                .name("${CC.B_GREEN}${settings.id}")
+                .addToLore(
+                    "",
+                    "${CC.GREEN}Click to select!"
+                )
+                .glow()
+                .toButton { _, _ ->
+                    action(settings)
+                }
+        }
+        return buttons
+    }
+
+    override fun getPrePaginatedTitle(player: Player): String
+    {
+        TODO("Not yet implemented")
+    }
+}
