@@ -69,7 +69,7 @@ class ProfileCategoryMenu(
                     .start(player)
             }
 
-        buttons[2] = ItemBuilder
+        buttons[4] = ItemBuilder
             .of(Material.ENDER_PORTAL_FRAME)
             .name("${CC.B_AQUA}Randomizer")
             .addToLore(
@@ -98,7 +98,7 @@ class ProfileCategoryMenu(
                 "",
                 "${CC.D_AQUA}Click to update!"
             )
-            .data(2)
+            .data(3)
             .toButton { _, _ ->
                 Button.playNeutral(player)
                 player.closeInventory()
@@ -184,14 +184,16 @@ class ProfileCategoryMenu(
     override fun getPrePaginatedTitle(player: Player) = category.displayName
     override fun onClose(player: Player, manualClose: Boolean)
     {
-        player.sendMessage(category.parent.toString())
-        if (category.parent == null)
+        if (manualClose)
         {
-            return
-        }
+            if (category.parent == null)
+            {
+                return
+            }
 
-        Tasks.delayed(1L) {
-            ProfileCategoryMenu(profile, backbone, category.parent!!).openMenu(player)
+            Tasks.delayed(1L) {
+                ProfileCategoryMenu(profile, backbone, category.parent!!).openMenu(player)
+            }
         }
     }
 }

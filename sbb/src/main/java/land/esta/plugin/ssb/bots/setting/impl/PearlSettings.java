@@ -18,7 +18,7 @@ public class PearlSettings extends Category {
     private Option<Integer> pearlThrowYawOffSet = new Option<>("Pearl Throw YawOffSet",Material.NAME_TAG,this,10,1);
     private Option<Integer> pearlingTicks = new Option<>("Pearling Ticks",Material.WATCH,this,10,1);
 
-    public PearlSettings() {
+    public PearlSettings(Category parent) {
         super(
                 "pearlsettings",
                 Arrays.asList(
@@ -26,7 +26,7 @@ public class PearlSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.ENDER_PEARL),
-                GlobalsKt.getRoot(),
+                parent,
                 "Pearl Settings",
                 "botgui.pearlsettings"
         );

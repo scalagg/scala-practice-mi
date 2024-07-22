@@ -1,7 +1,6 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
 import land.esta.plugin.ssb.bot.setting.setting.Category;
-import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +11,7 @@ import java.util.Arrays;
 
 @Getter
 @Setter
-    public class PotionSetting extends Category {
+    public class PotionSettings extends Category {
 
     //Health potion
     private Option<Integer> fleeHealth = new Option<>("Flee Health", Material.APPLE,this,4,1);
@@ -24,7 +23,7 @@ import java.util.Arrays;
     private Option<Boolean> secondPotion = new Option<>("Second Potion",Material.POTION,this, true);
     private Option<Double> cancelPotionDistance = new Option<>("Cancel Potion Distance",Material.HOPPER,this,3.0,0.1);
 
-    public PotionSetting() {
+    public PotionSettings(Category parent) {
         super(
                 "potionsettings",
                 Arrays.asList(
@@ -32,7 +31,7 @@ import java.util.Arrays;
                         "settings for the robot."
                 ),
                 new ItemStack(Material.POTION),
-                GlobalsKt.getRoot(),
+                parent,
                 "Potion Settings",
                 "botgui.potionsettings"
         );

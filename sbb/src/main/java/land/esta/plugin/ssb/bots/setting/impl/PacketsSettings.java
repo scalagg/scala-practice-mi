@@ -11,9 +11,9 @@ import java.util.Arrays;
 
 @Getter
 public class PacketsSettings extends Category {
-    private Option<Boolean> relativeMove = new Option<>("Relative Move", Material.STRING, this, false);
+    private final Option<Boolean> relativeMove = new Option<>("Relative Move", Material.STRING, this, false);
 
-    public PacketsSettings() {
+    public PacketsSettings(Category parent) {
         super(
                 "packetsettings",
                 Arrays.asList(
@@ -21,7 +21,7 @@ public class PacketsSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.STRING),
-                GlobalsKt.getRoot(),
+                parent,
                 "Packet Settings",
                 "botgui.packetsettings"
         );

@@ -22,7 +22,7 @@ public class VelocitySettings extends Category {
     private Option<Double> sprintMultiplier = new Option<>("Sprint Multiplier",Material.DIAMOND_HOE, this,1.2,0.1);
     private Option<Double> groundMultiplier = new Option<>("Ground Multiplier",Material.DIAMOND_SPADE, this,1.1,0.1);
 
-    public VelocitySettings() {
+    public VelocitySettings(Category parent) {
         super(
                 "velocitysettings",
                 Arrays.asList(
@@ -30,7 +30,7 @@ public class VelocitySettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.SLIME_BALL),
-                GlobalsKt.getRoot(),
+                parent,
                 "Velocity Settings",
                 "botgui.velocitysettings"
         );

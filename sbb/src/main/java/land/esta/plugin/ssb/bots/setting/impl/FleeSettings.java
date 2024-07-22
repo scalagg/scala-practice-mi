@@ -20,7 +20,7 @@ public class FleeSettings extends Category {
     private Option<Integer> runFromCombosTime = new Option<>("Run From Combo Ticks", Material.WATCH, this,20,1);
     private Option<Integer> runningRotationSpeed = new Option<>("Run Rotation Speed",Material.WEB, this,40,1);
 
-    public FleeSettings() {
+    public FleeSettings(Category parent) {
         super(
             "fleesettings",
                 Arrays.asList(
@@ -28,7 +28,7 @@ public class FleeSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.FEATHER),
-                GlobalsKt.getRoot(),
+                parent,
                 "Flee Settings",
                 "botgui.fleesettings"
         );

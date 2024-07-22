@@ -34,7 +34,7 @@ class PlayerDescribeProfilesMenu(
             .name("${CC.BD_GREEN}Create Profile")
             .addToLore(
                 "",
-                "${CC.D_GRAY}Click to create!"
+                "${CC.D_GREEN}Click to create!"
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)

@@ -26,7 +26,7 @@ public class AttackSettings extends Category {
         return cps > 0 ? 1000 / cps : 1000;
     }
 
-    public AttackSettings() {
+    public AttackSettings(Category parent) {
         super(
                 "attacksettings",
                 Arrays.asList(
@@ -34,7 +34,7 @@ public class AttackSettings extends Category {
                         "for the robot."
                 ),
                 new ItemStack(Material.DIAMOND_SWORD),
-                GlobalsKt.getRoot(),
+                parent,
                 "Attack Settings",
                 "botgui.attacksettings"
         );

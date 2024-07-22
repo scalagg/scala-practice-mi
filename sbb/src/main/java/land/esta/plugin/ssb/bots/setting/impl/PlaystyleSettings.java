@@ -36,7 +36,7 @@ public class PlaystyleSettings extends Category {
 
     private final Option<Integer> jumpComboHits = new Option<>("Jump Combo Hits",Material.SADDLE,this,4);
 
-    public PlaystyleSettings() {
+    public PlaystyleSettings(Category parent) {
         super(
                 "playstylesettings",
                 Arrays.asList(
@@ -44,7 +44,7 @@ public class PlaystyleSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.ENDER_PEARL),
-                GlobalsKt.getRoot(),
+                parent,
                 "Play Style Settings",
                 "botgui.playstyle"
         );

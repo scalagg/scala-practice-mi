@@ -18,7 +18,7 @@ public class ConnectionSettings extends Category {
     public Option<Boolean> delayedBotLocation = new Option<>("Delayed Bot Location", Material.WATCH, this, true);
     public Option<Integer> connectionPacketDelay = new Option<>("Rel-Move Simulation Ticks", Material.SPIDER_EYE, this, 3, 1);
 
-    public ConnectionSettings() {
+    public ConnectionSettings(Category parent) {
         super(
                 "connectionsettings",
                 Arrays.asList(
@@ -26,7 +26,7 @@ public class ConnectionSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.DIODE),
-                GlobalsKt.getRoot(),
+                parent,
                 "Connection Settings",
                 "botgui.connectionsettings"
         );

@@ -17,7 +17,7 @@ public class RodSettings extends Category {
     public final Option<Integer> rodDuration = new Option<>("Rod Duration (MS)",Material.FISHING_ROD, this,750, 10);
     public final Option<Boolean> rodWhileInCombo = new Option<>("Throw rod while in combo",Material.FISHING_ROD, this,false);
 
-    public RodSettings() {
+    public RodSettings(Category parent) {
         super(
                 "rodsettings",
                 Arrays.asList(
@@ -25,7 +25,7 @@ public class RodSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.FISHING_ROD),
-                GlobalsKt.getRoot(),
+                parent,
                 "Rod Settings",
                 "botgui.rodsettings"
         );

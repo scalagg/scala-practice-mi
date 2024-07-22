@@ -7,12 +7,12 @@ import land.esta.plugin.ssb.bots.setting.impl.FleeSettings
 import land.esta.plugin.ssb.bots.setting.impl.PacketsSettings
 import land.esta.plugin.ssb.bots.setting.impl.PearlSettings
 import land.esta.plugin.ssb.bots.setting.impl.PlaystyleSettings
-import land.esta.plugin.ssb.bots.setting.impl.PotionSetting
+import land.esta.plugin.ssb.bots.setting.impl.PotionSettings
 import land.esta.plugin.ssb.bots.setting.impl.RodSettings
-import land.esta.plugin.ssb.bots.setting.impl.RotationSetting
+import land.esta.plugin.ssb.bots.setting.impl.RotationSettings
 import land.esta.plugin.ssb.bots.setting.impl.StrafeSettings
 import land.esta.plugin.ssb.bots.setting.impl.VelocitySettings
-import land.esta.plugin.ssb.bots.setting.impl.WTapSetting
+import land.esta.plugin.ssb.bots.setting.impl.WTapSettings
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -29,19 +29,19 @@ val root = Category(
     null
 ).apply {
     addChildren(
-        AttackSettings(),
-        ConnectionSettings(),
-        EatingSettings(),
-        FleeSettings(),
-        PacketsSettings(),
-        PearlSettings(),
-        PlaystyleSettings(),
-        PotionSetting(),
-        RodSettings(),
-        RotationSetting(),
-        StrafeSettings(),
-        VelocitySettings(),
-        WTapSetting()
+        AttackSettings(this),
+        ConnectionSettings(this),
+        EatingSettings(this),
+        FleeSettings(this),
+        PacketsSettings(this),
+        PearlSettings(this),
+        PlaystyleSettings(this),
+        PotionSettings(this),
+        RodSettings(this),
+        RotationSettings(this),
+        StrafeSettings(this),
+        VelocitySettings(this),
+        WTapSettings(this)
     )
 }
 
@@ -54,10 +54,10 @@ object RootAccessor
     val packetSettings = root.childByType<PacketsSettings>("packetsettings")
     val pearlSettings = root.childByType<PearlSettings>("pearlsettings")
     val playStyleSettings = root.childByType<PlaystyleSettings>("playstylesettings")
-    val potionSettings = root.childByType<PotionSetting>("potionsettings")
+    val potionSettings = root.childByType<PotionSettings>("potionsettings")
     val rodSettings = root.childByType<RodSettings>("rodsettings")
-    val rotationSettings = root.childByType<RotationSetting>("rotationsettings")
+    val rotationSettings = root.childByType<RotationSettings>("rotationsettings")
     val strafeSettings = root.childByType<StrafeSettings>("strafesettings")
     val velocitySettings = root.childByType<VelocitySettings>("velocitysettings")
-    val wTapSettings = root.childByType<WTapSetting>("wtapsettings")
+    val wTapSettings = root.childByType<WTapSettings>("wtapsettings")
 }

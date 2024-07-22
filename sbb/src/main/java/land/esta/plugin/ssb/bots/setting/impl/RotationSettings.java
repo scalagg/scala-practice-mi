@@ -1,7 +1,6 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
 import land.esta.plugin.ssb.bot.setting.setting.Category;
-import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,13 +11,13 @@ import java.util.Arrays;
 
 @Getter
 @Setter
-public class RotationSetting extends Category {
+public class RotationSettings extends Category {
 
     private Option<Integer> speed = new Option<>("Speed", Material.EXP_BOTTLE,this,18,2);
     private Option<Double> jitterRotation = new Option<>("Jitter Rotation", Material.FLINT,this,1.0);
     private Option<Double> speedRandom = new Option<>("Speed Random", Material.FIREWORK,this,1.0);
 
-    public RotationSetting() {
+    public RotationSettings(Category parent) {
         super(
                 "rotationsettings",
                 Arrays.asList(
@@ -26,7 +25,7 @@ public class RotationSetting extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.WEB),
-                GlobalsKt.getRoot(),
+                parent,
                 "Rotation Settings",
                 "botgui.rotationsettings"
         );

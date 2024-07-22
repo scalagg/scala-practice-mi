@@ -20,7 +20,7 @@ public class EatingSettings extends Category {
     private Option<Double> cancelEatingDistance = new Option<>("Jump Eating Distance", Material.BARRIER, this, 4.5, 0.1);
     private Option<Boolean> preGap = new Option<>("Pre Gappling", Material.GOLDEN_CARROT, this, true);
 
-    public EatingSettings() {
+    public EatingSettings(Category parent) {
         super(
                 "gapplesettings",
                 Arrays.asList(
@@ -28,7 +28,7 @@ public class EatingSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.GOLDEN_APPLE),
-                GlobalsKt.getRoot(),
+                parent,
                 "Gapple Settings",
                 "botgui.gapplesettings"
         );

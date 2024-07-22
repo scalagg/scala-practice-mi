@@ -21,7 +21,7 @@ public class StrafeSettings extends Category {
     //private SettingObject distancing = new SettingObject("Distancing",Material.DIAMOND_BOOTS,false);
     //private SettingObject distance = new SettingObject("Distance",Material.IRON_BOOTS,0,0.1);
 
-    public StrafeSettings() {
+    public StrafeSettings(Category parent) {
         super(
                 "strafesettings",
                 Arrays.asList(
@@ -29,7 +29,7 @@ public class StrafeSettings extends Category {
                         "settings for the robot."
                 ),
                 new ItemStack(Material.SUGAR_CANE),
-                GlobalsKt.getRoot(),
+                parent,
                 "Strafe Settings",
                 "botgui.strafesettings"
         );
