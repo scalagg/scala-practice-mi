@@ -86,6 +86,7 @@ public class Bot {
         player.showPlayer(npc.getBukkitEntity());
 
         npc.getProfile().getProperties().put("textures", profile.getSkinProperties());
+        registerBot();
     }
 
     private void registerBot() {
