@@ -116,7 +116,7 @@ public class MovementsMain extends Manager {
         float yaw = location.getYaw();
         float pitch = location.getPitch();
 
-        if (isOnGround() && oldLoc.distance(updatedLoc) < 0.2 && oldLoc.distance(bot.getStartLocation()) > 0.1 && System.currentTimeMillis() - 500 > last && updatedLoc.distance(targetLocate.getTargetEntity().getLocation()) > 1 && System.currentTimeMillis() - 4000 > bot.getAttackingManager().getAttacked()) {
+        if (isOnGround() && oldLoc.distance(updatedLoc) < 0.2 && oldLoc.distance(bot.getStartLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getDistanceFromLastLocation()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getGetPathCooldown()) > last && updatedLoc.distance(targetLocate.getTargetEntity().getLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getMinDistanceFromPlayer()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getCooldownAfterAttack()) > bot.getAttackingManager().getAttacked()) {
             last = System.currentTimeMillis();
 
             TargetLocate target = bot.getMovements().getTargetLocate();

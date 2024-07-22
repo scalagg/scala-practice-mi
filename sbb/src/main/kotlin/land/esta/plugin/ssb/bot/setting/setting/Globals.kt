@@ -1,18 +1,6 @@
 package land.esta.plugin.ssb.bot.setting.setting
 
-import land.esta.plugin.ssb.bots.setting.impl.AttackSettings
-import land.esta.plugin.ssb.bots.setting.impl.ConnectionSettings
-import land.esta.plugin.ssb.bots.setting.impl.EatingSettings
-import land.esta.plugin.ssb.bots.setting.impl.FleeSettings
-import land.esta.plugin.ssb.bots.setting.impl.PacketsSettings
-import land.esta.plugin.ssb.bots.setting.impl.PearlSettings
-import land.esta.plugin.ssb.bots.setting.impl.PlaystyleSettings
-import land.esta.plugin.ssb.bots.setting.impl.PotionSettings
-import land.esta.plugin.ssb.bots.setting.impl.RodSettings
-import land.esta.plugin.ssb.bots.setting.impl.RotationSettings
-import land.esta.plugin.ssb.bots.setting.impl.StrafeSettings
-import land.esta.plugin.ssb.bots.setting.impl.VelocitySettings
-import land.esta.plugin.ssb.bots.setting.impl.WTapSettings
+import land.esta.plugin.ssb.bots.setting.impl.*
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -41,7 +29,8 @@ val root = Category(
         RotationSettings(this),
         StrafeSettings(this),
         VelocitySettings(this),
-        WTapSettings(this)
+        WTapSettings(this),
+        PathfindingSettings(this)
     )
 }
 
@@ -60,4 +49,5 @@ object RootAccessor
     val strafeSettings = root.childByType<StrafeSettings>("root.strafesettings")
     val velocitySettings = root.childByType<VelocitySettings>("root.velocitysettings")
     val wTapSettings = root.childByType<WTapSettings>("root.wtapsettings")
+    val pathfindingSetting = root.childByType<PathfindingSettings>("pathfindingsettings")
 }

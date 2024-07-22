@@ -14,10 +14,10 @@ import java.util.Arrays;
 @Setter
 public class StrafeSettings extends Category {
 
-    public Option<Boolean> enabled = new Option<>("Strafe", Material.SUGAR_CANE, this, false);
-    public Option<Integer> chance = new Option<>("Chance", Material.GOLDEN_CARROT, this, 100);
-    public Option<Boolean> strafeInCombo = new Option<>("Strafe In Combo", Material.SUGAR, this, false);
-    public Option<Integer> switchSideTicks = new Option<>("Switch Side Ticks", Material.TRAP_DOOR, this, 20, 1);
+    public Option<Boolean> enabled = new Option<>("Strafe", Material.SUGAR_CANE, this, false, -1);
+    public Option<Integer> chance = new Option<>("Chance", Material.GOLDEN_CARROT, this, 100, 1, 100);
+    public Option<Boolean> strafeInCombo = new Option<>("Strafe In Combo", Material.SUGAR, this, false, -1);
+    public Option<Integer> switchSideTicks = new Option<>("Switch Side Ticks", Material.TRAP_DOOR, this, 20, 1, 120);
     //private SettingObject distancing = new SettingObject("Distancing",Material.DIAMOND_BOOTS,false);
     //private SettingObject distance = new SettingObject("Distance",Material.IRON_BOOTS,0,0.1);
 

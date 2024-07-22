@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 @Getter
 public class PacketsSettings extends Category {
-    private final Option<Boolean> relativeMove = new Option<>("Relative Move", Material.STRING, this, false);
+    private final Option<Boolean> relativeMove = new Option<>("Relative Move", Material.STRING, this, false, -1);
 
     public PacketsSettings(Category parent) {
         super(

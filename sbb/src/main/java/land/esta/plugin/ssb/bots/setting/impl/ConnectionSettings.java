@@ -14,9 +14,9 @@ import java.util.Arrays;
 @Setter
 public class ConnectionSettings extends Category {
 
-    public Option<Integer> ping = new Option<>("Ping", Material.STRING, this, 100, 5);
-    public Option<Boolean> delayedBotLocation = new Option<>("Delayed Bot Location", Material.WATCH, this, true);
-    public Option<Integer> connectionPacketDelay = new Option<>("Rel-Move Simulation Ticks", Material.SPIDER_EYE, this, 3, 1);
+    public Option<Integer> ping = new Option<>("Ping", Material.STRING, this, 100, 5, 1000);
+    public Option<Boolean> delayedBotLocation = new Option<>("Delayed Bot Location", Material.WATCH, this, true, -1);
+    public Option<Integer> connectionPacketDelay = new Option<>("Rel-Move Simulation Ticks", Material.SPIDER_EYE, this, 3, 1, 20);
 
     public ConnectionSettings(Category parent) {
         super(

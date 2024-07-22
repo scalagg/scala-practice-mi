@@ -22,6 +22,7 @@ data class Option<T : Any>(
     override val displayName: String,
     val default: T,
     val increment: Double = 1.0,
+    val maxValue: Double,
     override val description: List<String> = listOf(),
     override val permission: String? = null
 ) : SettingLike
@@ -31,23 +32,30 @@ data class Option<T : Any>(
         material: Material,
         parent: Category?,
         default: T,
-        increment: Double
+        increment: Double,
+        maxValue: Double
     ) : this(
         display.lowercase()
             .replace("(", "_")
             .replace(")", "_")
             .replace(" ", "_"),
-        ItemStack((material)), parent, display, default, increment
+        ItemStack((material)), parent, display, default, increment, maxValue
     )
 
     constructor(
         display: String,
         material: Material,
         parent: Category?,
-        default: T
+        default: T,
+        maxValue: Double
     ) : this(
-        display, material, parent, default, 1.0
+        display, material, parent, default, 1.0, maxValue
     )
+
+    fun addDescription(description: List<String>): Option<T>
+    {
+        return this.copy(description = description)
+    }
 
     fun interact(
         player: Player,
@@ -98,11 +106,13 @@ data class Option<T : Any>(
                     if (setting.getObject() is Int)
                     {
                         val integer = setting.getObject() as Int
-                        setting.setObject(integer + increment.toInt())
+                        if (integer + increment.toInt() > maxValue) setting.setObject(maxValue)
+                        else setting.setObject(integer + increment.toInt())
                     } else
                     {
                         val integer = setting.getObject() as Double
-                        setting.setObject(integer + increment)
+                        if (integer + increment.toInt() > maxValue) setting.setObject(maxValue)
+                        else setting.setObject(integer + increment)
                     }
                     backbone.save()
                     return
@@ -113,11 +123,13 @@ data class Option<T : Any>(
                     if (setting.getObject() is Int)
                     {
                         val integer = setting.getObject() as Int
-                        setting.setObject(integer - increment.toInt())
+                        if (integer - increment.toInt() < 0) setting.setObject(0)
+                        else setting.setObject(integer - increment.toInt())
                     } else
                     {
                         val integer = setting.getObject() as Double
-                        setting.setObject(integer - increment)
+                        if (integer - increment.toInt() < 0) setting.setObject(0)
+                        else setting.setObject(integer - increment)
                     }
                     backbone.save()
                     return
