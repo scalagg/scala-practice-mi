@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.bot.MojangKt;
 import land.esta.plugin.ssb.bots.mechanics.*;
 import land.esta.plugin.ssb.bots.setting.SettingManager;
 import lombok.Getter;
@@ -78,9 +79,7 @@ public class Bot {
         //Registering
         registerNPC(name, loc);
 
-        Bukkit.getOnlinePlayers().forEach(other -> {
-            other.hidePlayer(npc.getBukkitEntity());
-        });
+        Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
 
         registerManagers(settings, player, loc);
 
@@ -90,12 +89,12 @@ public class Bot {
         loadManagers();
         player.showPlayer(npc.getBukkitEntity());
 
-        CompletableFuture.runAsync(() -> {
-            registerSkin(skin, player);
-        }).thenRun(() -> Tasks.sync(() -> {
-            registerBot();
-            return null;
-        }));
+        CompletableFuture
+                .runAsync(() -> registerSkin(skin))
+                .thenRun(() -> Tasks.sync(() -> {
+                    registerBot();
+                    return null;
+                }));
     }
 
     private void registerBot() {
@@ -145,86 +144,33 @@ public class Bot {
         npc.playerConnection = new NPCPlayerConnection(server, new NPCNetworkManager(EnumProtocolDirection.CLIENTBOUND), npc);
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());
+
         new BukkitRunnable() {
             @Override
             public void run() {
                 world.addEntity(npc);
             }
         }.runTask(SmartBotsBackend.getInstance());
-        //server.getPlayerList().players.add(npc);
     }
 
-    // TODO: Optimize registering skin (HTTP Open Stream) is tanking performance
-    private void registerSkin(String name, Player fallback) {
-        //If the skin is already registered to the server use it.
-        Property property;
-        try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (p.getName().equalsIgnoreCase(name)) {
-                    property = Nms.getPlayer(p).getProfile().getProperties().get("textures").iterator().next();
-                    if (property == null) continue;
-                    npc.getProfile().getProperties().put("textures", property);
-                    return;
-                }
-            }
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
+    private static final Property DEFAULT = new Property(
+            "textures",
+            "ewogICJ0aW1lc3RhbXAiIDogMTcyMTU5ODQ0MzU4MiwKICAicHJvZmlsZUlkIiA6ICI5OGYzMGY2OWExYTA0NWRhOWNmOGZjMDI3OThmOWEyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDaGVtaWNhbExvY2tlZCIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS82MmI1Mjk3ZjhjOTg1YTBkODU5ZjY5Zjc0YzE3ODAzMTcwZjFhMmU4NTk1ZGEyZWUzZWU4Nzk1N2VkMzQzZTMzIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=",
+            ""
+    );
 
-        //If the skin has already been registered to the map use it.
-        if (registeredSkins.containsKey(name)) {
-            property = registeredSkins.get(name);
-            npc.getProfile().getProperties().put("textures", property);
+    private void registerSkin(String name) {
+        final var profile = MojangKt.getProfile(name);
+        if (profile == null) {
+            npc.getProfile().getProperties().put("textures", DEFAULT);
             return;
         }
 
-        // To avoid errors
-        // At some points we should remove this warnings
-        InputStreamReader reader_0;
-
-        try {
-            //If the skin is not registered yet, Register it
-            URL url_0 = new URL("https://api.mojang.com/users/profiles/minecraft/" + name);
-            reader_0 = new InputStreamReader(url_0.openStream());
-        } catch (Exception ignore) {
-            //Bukkit.broadcastMessage("WARNING: Could not load skin " + name + " using fall back skin");
-            property = Nms.getPlayer(fallback).getProfile().getProperties().get("textures").iterator().next();
-            if (property == null) {
-                //Bukkit.broadcastMessage("WARNING: could not use fall back skin");
-                return;
-            }
-            npc.getProfile().getProperties().put("textures", property);
-            return;
-        }
-
-        String var1 = "Xecivity";
-        try {
-            var1 = new JsonParser().parse(reader_0).getAsJsonObject().get("id").getAsString();
-        } catch (Exception ignore) {
-            fallback.sendMessage(Color.code("&cThis is an invalid skin, there is no player that goes by &e" + name + "&c."));
-        }
-
-        InputStreamReader reader_1;
-
-        try {
-            URL url_1 = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + var1 + "?unsigned=false");
-            reader_1 = new InputStreamReader(url_1.openStream());
-        } catch (Exception ignore) {
-            property = Nms.getPlayer(fallback).getProfile().getProperties().get("textures").iterator().next();
-            if (property == null) {
-                //Bukkit.broadcastMessage("WARNING: could not use fall back skin");
-                return;
-            }
-            npc.getProfile().getProperties().put("textures", property);
-            return;
-        }
-        JsonObject textureProperty = new JsonParser().parse(reader_1).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
-        String texture = textureProperty.get("value").getAsString();
-        String signature = textureProperty.get("signature").getAsString();
-
-        property = new Property("textures", texture, signature);
-        npc.getProfile().getProperties().put("textures", property);
-        registeredSkins.put(name, property);
+        final var textures = profile.extractTextures();
+        npc.getProfile().getProperties().put(
+                "textures",
+                textures == null ? DEFAULT : textures
+        );
     }
 
     public void kill() {
@@ -236,11 +182,8 @@ public class Bot {
         damageManager.setInvaluable(true);
 
         //Calls the animation with the event
-        deathEvent(() -> {
-        });
+        deathEvent();
     }
-
-    public Runnable deathEvent = () -> {};
 
     public void silentKill() {
         if (!alive) {
@@ -249,46 +192,35 @@ public class Bot {
 
         alive = false;
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        deathEvent.run();
         SmartBotsBackend.getInstance().getBotManager().removeBot(this);
         packetsManager.sendRemovePackets();
         npc.getBukkitEntity().remove();
     }
 
-    public void deathEvent(Runnable executeAction) {
+    public void deathEvent() {
         //Animation
-        fakeDeath(npc.getBukkitEntity(), movements.getTargetLocate().getTargetEntity(), executeAction);
+        fakeDeath();
 
         //Event
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        deathEvent.run();
-
     }
 
-    public void fakeDeath(Player player, Player killer, Runnable finishAction) {
+    public void fakeDeath() {
         movements.setMove(false);
-
         packetsManager.sendDeathPackets();
-        //lightning();
-
-        Bot bot = this;
-
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 packetsManager.sendRemovePackets();
-                SmartBotsBackend.getInstance().getBotManager().removeBot(bot);
+                SmartBotsBackend.getInstance().getBotManager().removeBot(Bot.this);
+
                 alive = false;
                 npc.getBukkitEntity().remove();
-                Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(bot));
-                deathEvent.run();
+
+                Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
             }
         }.runTaskLater(SmartBotsBackend.getInstance(), 14);
-    }
-
-    public void lightning() {
-        movements.getLocation().getWorld().strikeLightningEffect(movements.getLocation());
     }
 
     public void tick() {

@@ -28,7 +28,7 @@ public class BotGui {
     public PlayerGui mainGui;
     private DataPlayer data;
     private SettingManager manager;
-    private HashMap<Setting,PlayerGui> guis;
+    private HashMap<Setting, PlayerGui> guis;
     private PlayerGui profilesGui;
     private int theme = 15;
     private final String message = "&aYou have modified &e%setting% &ato &e%value%&a.";
@@ -43,10 +43,10 @@ public class BotGui {
             @Override
             public void run() {
                 manager = SettingManager.loadSettings(dataPlayer.getPlayer().getUniqueId());
-                mainGui = new PlayerGui("&c&lBot Settings", (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 18,dataPlayer);
+                mainGui = new PlayerGui("&c&lBot Settings", (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 18, dataPlayer);
                 data = dataPlayer;
                 maxProfiles = 9;
-                profilesGui = new PlayerGui("&c&lBot Profiles",maxProfiles,dataPlayer);
+                profilesGui = new PlayerGui("&c&lBot Profiles", maxProfiles, dataPlayer);
                 guis = new HashMap<>();
 
                 profiles = new ArrayList<>();
@@ -66,88 +66,71 @@ public class BotGui {
         }
     }
 
-    public void resetSettings() {}
+    public void resetSettings() {
+    }
 
     public void createSubGuis() {
         manager.getSettings().forEach(setting -> {
             PlayerGui gui;
-            if (setting.getName().equalsIgnoreCase("PlayStyle")) gui = new PlayerGui(setting.getFancyName(), 9 * 5, data);
-            else gui = new PlayerGui(setting.getFancyName(), (int) MathUtils.floor(setting.getSettings().size() + 2,9,false) + 9 * 2, data);
+            if (setting.getName().equalsIgnoreCase("PlayStyle"))
+                gui = new PlayerGui(setting.getFancyName(), 9 * 5, data);
+            else
+                gui = new PlayerGui(setting.getFancyName(), (int) MathUtils.floor(setting.getSettings().size() + 2, 9, false) + 9 * 2, data);
 
             gui.setGui(() -> {
                 int slot = 10;
                 int index = 0;
                 for (SettingObject so : setting.getSettings()) {
                     if (setting.getEmpty().contains(index)) {
-                        gui.setBackGroundColorSlot(theme,slot);
+                        gui.setBackGroundColorSlot(theme, slot);
                         index++;
-                        slot+=1;
+                        slot += 1;
                         if ((slot - 8) % 9 == 0) slot += 2;
                     }
 
-                    gui.createGuiItem(so.getItem(),slot,"&c&l"+so.getName(), (player, pressedSlot) -> {
+                    gui.createGuiItem(so.getItem(), slot, "&c&l" + so.getName(), (player, pressedSlot) -> {
                         if (so.isHasPerm() && !player.hasPermission("botgui." + setting.getPermissionName() + "." + so.getName())) {
                             sendNoPerms(player);
                         }
                         if (so.getObject() instanceof Boolean) {
                             so.setObjectInferred(!so.isBooleanValue());
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.isBooleanValue() + "")));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.isBooleanValue() + "")));
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setObjectInferred((int) Math.max(so.getOriginalIntValue() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.getOriginalIntValue() + "")));
+                            so.setObjectInferred((int) Math.max(so.getOriginalIntValue() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.getOriginalIntValue() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setObjectInferred(Math.max(so.getOriginalDouble() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",MathUtils.stringOfDouble(so.getOriginalDouble(),3) + "")));
+                            so.setObjectInferred(Math.max(so.getOriginalDouble() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", MathUtils.stringOfDouble(so.getOriginalDouble(), 3))));
                         }
 
                         player.playSound(player.getLocation(), Sound.CLICK, 1.0F, 1.0F);
                         gui.minOpen();
-                    },(player, temp) -> {
+                    }, (player, temp) -> {
                         if (so.isHasPerm() && !player.hasPermission("botgui." + setting.getPermissionName() + "." + so.getName())) {
                             sendNoPerms(player);
                         }
                         if (so.getObject() instanceof Boolean) {
                             so.setObjectInferred(!so.isBooleanValue());
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.isBooleanValue() + "")));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.isBooleanValue() + "")));
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setObjectInferred((int) Math.max(so.getOriginalIntValue() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",so.getOriginalIntValue() + "")));
+                            so.setObjectInferred((int) Math.max(so.getOriginalIntValue() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", so.getOriginalIntValue() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setObjectInferred(Math.max(so.getOriginalDouble() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%",MathUtils.stringOfDouble(so.getOriginalDouble(),3) + "")));
+                            so.setObjectInferred(Math.max(so.getOriginalDouble() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName()).replace("%value%", MathUtils.stringOfDouble(so.getOriginalDouble(), 3))));
                         }
 
                         player.playSound(player.getLocation(), Sound.CLICK, 1.0F, 1.0F);
                         gui.minOpen();
-                    },(player, temp) -> {
-                        if (so.isHasPerm() && !player.hasPermission("botgui." + setting.getPermissionName() + "." + so.getName())) {
-                            sendNoPerms(player);
-                        }
-                        if (so.getObject() instanceof Boolean) {
-                           return;
-                        }
-
-                        if (so.getObject() instanceof Integer) {
-                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizerInt() + "")));
-                        }
-
-                        if (so.getObject() instanceof Double) {
-                            so.setRandomizerUpdate(Math.max(so.getRandomizer() + so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizer() + "")));
-                        }
-
-                        player.playSound(player.getLocation(), Sound.CLICK, 1.0F, 1.0F);
-                        gui.minOpen();
-                    },(player, temp) -> {
+                    }, (player, temp) -> {
                         if (so.isHasPerm() && !player.hasPermission("botgui." + setting.getPermissionName() + "." + so.getName())) {
                             sendNoPerms(player);
                         }
@@ -156,13 +139,33 @@ public class BotGui {
                         }
 
                         if (so.getObject() instanceof Integer) {
-                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizerInt() + "")));
+                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizerInt() + "")));
                         }
 
                         if (so.getObject() instanceof Double) {
-                            so.setRandomizerUpdate(Math.max(so.getRandomizer() - so.getUpdateBy(),0));
-                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%",so.getRandomizer() + "")));
+                            so.setRandomizerUpdate(Math.max(so.getRandomizer() + so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizer() + "")));
+                        }
+
+                        player.playSound(player.getLocation(), Sound.CLICK, 1.0F, 1.0F);
+                        gui.minOpen();
+                    }, (player, temp) -> {
+                        if (so.isHasPerm() && !player.hasPermission("botgui." + setting.getPermissionName() + "." + so.getName())) {
+                            sendNoPerms(player);
+                        }
+                        if (so.getObject() instanceof Boolean) {
+                            return;
+                        }
+
+                        if (so.getObject() instanceof Integer) {
+                            so.setRandomizerUpdate((int) Math.max(so.getRandomizerInt() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizerInt() + "")));
+                        }
+
+                        if (so.getObject() instanceof Double) {
+                            so.setRandomizerUpdate(Math.max(so.getRandomizer() - so.getUpdateBy(), 0));
+                            player.sendMessage(Color.code(message.replace("%setting%", so.getName() + " Randomizer").replace("%value%", so.getRandomizer() + "")));
                         }
 
                         player.playSound(player.getLocation(), Sound.CLICK, 1.0F, 1.0F);
@@ -174,11 +177,11 @@ public class BotGui {
                     if ((slot - 8) % 9 == 0) slot += 2;
                 }
 
-                gui.createGuiItem(new ItemStack(Material.CARPET),0,"&c&lLast Page", (player, pressedSlot) -> mainGui.minOpen());
+                gui.createGuiItem(new ItemStack(Material.CARPET), 0, "&c&lLast Page", (player, pressedSlot) -> mainGui.minOpen());
 
                 gui.setBackGroundColor(theme);
             });
-            guis.put(setting,gui);
+            guis.put(setting, gui);
         });
     }
 
@@ -188,7 +191,7 @@ public class BotGui {
             int slot = 0;
 
             for (Setting setting : manager.getSettings()) {
-                mainGui.createGuiItem(new ItemStack(setting.getMaterial(),1, (short) setting.getId()),setting.getSlot(), setting.getFancyName(),(player, temp) -> {
+                mainGui.createGuiItem(new ItemStack(setting.getMaterial(), 1, (short) setting.getId()), setting.getSlot(), setting.getFancyName(), (player, temp) -> {
                     if (data.isUpdatingGui()) {
                         player.sendMessage(Color.code("&cPlease wait for the menu to update!"));
                     } else {
@@ -196,15 +199,26 @@ public class BotGui {
                             PlayerGui gui = guis.get(setting);
                             if (gui == null) return;
                             gui.minOpen();
-                        } else if (setting.getPermissionName().equalsIgnoreCase("velocitysettings")) {
+                        } else if (
+                                setting.getPermissionName().equalsIgnoreCase("velocitysettings")
+                                        || setting.getPermissionName().equalsIgnoreCase("packetssettings")
+                                        || setting.getPermissionName().equalsIgnoreCase("eatingsettings")
+                        ) {
                             player.sendMessage(Color.code("&cYou need &5SIMP &crank to use this."));
                             player.sendMessage(Color.code("&cStore link: &estore.esta.land"));
                             player.closeInventory();
-                        } else if (setting.getPermissionName().equalsIgnoreCase("playstylesettings") || (setting.getPermissionName().equalsIgnoreCase("fleesettings") || (setting.getPermissionName().equalsIgnoreCase("wtapsettings") || (setting.getPermissionName().equalsIgnoreCase("rodsettings"))))) {
+                        } else if (
+                                setting.getPermissionName().equalsIgnoreCase("playstylesettings") ||
+                                        (setting.getPermissionName().equalsIgnoreCase("fleesettings") || (
+                                                setting.getPermissionName().equalsIgnoreCase("wtapsettings")
+                                                        || (setting.getPermissionName().equalsIgnoreCase("rodsettings"))))) {
                             player.sendMessage(Color.code("&cYou need &bMVP &crank to use this."));
                             player.sendMessage(Color.code("&cStore link: &estore.esta.land"));
                             player.closeInventory();
-                        } else if (setting.getPermissionName().equalsIgnoreCase("connectionsettings") || (setting.getPermissionName().equalsIgnoreCase("potionsettings") || (setting.getPermissionName().equalsIgnoreCase("gapplesettings")))) {
+                        } else if (
+                                setting.getPermissionName().equalsIgnoreCase("connectionsettings") ||
+                                        (setting.getPermissionName().equalsIgnoreCase("potionsettings") ||
+                                                (setting.getPermissionName().equalsIgnoreCase("gapplesettings")))) {
                             player.sendMessage(Color.code("&cYou need &9VIP+ &crank to use this."));
                             player.sendMessage(Color.code("&cStore link: &estore.esta.land"));
                             player.closeInventory();
@@ -215,12 +229,12 @@ public class BotGui {
                         }
                     }
                 }, setting.getDescription(), p.hasPermission("botgui." + setting.getPermissionName()));
-                slot+=2;
+                slot += 2;
             }
 
             //Name
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 6 + 9;
-            mainGui.createGuiItemUsingName(manager.getSkullItem(data.getPlayer().getName(),false),slot,"&cChange Bot Name",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 6 + 9;
+            mainGui.createGuiItemUsingName(manager.getSkullItem(data.getPlayer().getName(), false), slot, "&cChange Bot Name", (player, pressedSlot) -> {
                 if (player.hasPermission("botgui.name")) {
                     DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                     data.setChatUpdate((name) -> {
@@ -241,8 +255,8 @@ public class BotGui {
             });
 
             //Skin
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 7 + 9;
-            mainGui.createGuiItemUsingName(manager.getSkullItem(data.getPlayer().getName(),true),slot,"&cChange Bot Skin",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 7 + 9;
+            mainGui.createGuiItemUsingName(manager.getSkullItem(data.getPlayer().getName(), true), slot, "&cChange Bot Skin", (player, pressedSlot) -> {
                 if (player.hasPermission("botgui.skin")) {
                     DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                     data.setChatUpdate((name) -> {
@@ -263,8 +277,8 @@ public class BotGui {
             });
 
             //Save
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 1 + 9;
-            mainGui.createGuiItem(new ItemStack(Material.WOOL,1,(short) 5),slot,"&a&lSave",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 1 + 9;
+            mainGui.createGuiItem(new ItemStack(Material.WOOL, 1, (short) 5), slot, "&a&lSave", (player, pressedSlot) -> {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 if (!data.isUpdatingGui()) {
                     if (!data.isSaving()) {
@@ -277,8 +291,8 @@ public class BotGui {
             });
 
             //Reset
-            slot = (int) MathUtils.floor(manager.getSettings().size() * 2,9,false) + 4 + 9;
-            mainGui.createGuiItem(new ItemStack(Material.WOOL,1,(short) 14),slot,"&c&lReset",(player, pressedSlot) -> {
+            slot = (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 4 + 9;
+            mainGui.createGuiItem(new ItemStack(Material.WOOL, 1, (short) 14), slot, "&c&lReset", (player, pressedSlot) -> {
                 DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                 data.getGui().getManager().resetSettings(data);
                 manager.setSkin(data.getPlayer().getUniqueId(), "Xecivity");
@@ -305,13 +319,13 @@ public class BotGui {
 
             int slot = 0;
             for (SettingManager settingManager : managers) {
-                profilesGui.createGuiItemUsingName(manager.getSkullItem("crafticat",true),slot,manager.getBotName().replace("%player%","crafticat"),(player, pressedSlot) -> {
+                profilesGui.createGuiItemUsingName(manager.getSkullItem("crafticat", true), slot, manager.getBotName().replace("%player%", "crafticat"), (player, pressedSlot) -> {
                     this.manager.update(settingManager);
                     resetSettings();
-                    player.sendMessage(Color.code("&aYou've switched to &e#" + manager.getBotName().replace("%player%","crafticat") + "&a profile."));
+                    player.sendMessage(Color.code("&aYou've switched to &e#" + manager.getBotName().replace("%player%", "crafticat") + "&a profile."));
                 }, (player, pressedSlot) -> {
                     //SmartBotsBackend.getInstance().getSqlInfo().deletePreset(manager.getFoundPath());
-                    player.sendMessage(Color.code("&fDeleted preset &c" + manager.getBotName().replace("%player%","crafticat")));
+                    player.sendMessage(Color.code("&fDeleted preset &c" + manager.getBotName().replace("%player%", "crafticat")));
                     profiles.remove(settingManager);
                     player.closeInventory();
                 }, manager.getDescription());
