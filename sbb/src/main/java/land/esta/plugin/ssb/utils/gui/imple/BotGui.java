@@ -42,7 +42,8 @@ public class BotGui {
         new BukkitRunnable() {
             @Override
             public void run() {
-                manager = SettingManager.loadSettings(dataPlayer.getPlayer().getUniqueId());
+                var thing = BotSettingProfileService.INSTANCE.find(dataPlayer.getPlayer().getUniqueId());
+                manager = SettingManager.loadManagerFromSettings(thing);
                 mainGui = new PlayerGui("&c&lBot Settings", (int) MathUtils.floor(manager.getSettings().size() * 2, 9, false) + 18, dataPlayer);
                 data = dataPlayer;
                 maxProfiles = 9;
@@ -238,7 +239,9 @@ public class BotGui {
                 if (player.hasPermission("botgui.name")) {
                     DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
                     data.setChatUpdate((name) -> {
+                        var profile = BotSettingProfileService.INSTANCE.find(player);
                         manager.setBotName(data.getPlayer().getUniqueId(), Color.code(name));
+
                         player.sendMessage(Color.code("&aYou have changed the Bot Name to &e" + name + "&a."));
 
                         return true;
