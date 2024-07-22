@@ -34,6 +34,10 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .data(5)
             .name("&aEasy")
             .setLore(BotSettingService.loadDefaultProfile("EASY").describe())
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to start an Easy match!"
+            )
             .toButton { _, _ ->
                 BotKitMenu("EASY").openMenu(player)
             },
@@ -41,6 +45,10 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .data(4)
             .name("&eNormal")
             .setLore(BotSettingService.loadDefaultProfile("NORMAL").describe())
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to start a Normal match!"
+            )
             .toButton { _, _ ->
                 BotKitMenu("NORMAL").openMenu(player)
             },
@@ -48,6 +56,10 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .data(14)
             .name("&cHard")
             .setLore(BotSettingService.loadDefaultProfile("HARD").describe())
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to start a Hard match!"
+            )
             .toButton { _, _ ->
                 BotKitMenu("HARD").openMenu(player)
             },
@@ -55,6 +67,10 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .data(14)
             .name("&4Expert")
             .setLore(BotSettingService.loadDefaultProfile("EXPERT").describe())
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to start an Expert match!"
+            )
             .toButton { _, _ ->
                 BotKitMenu("EXPERT").openMenu(player)
             },
@@ -62,6 +78,10 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .data(10)
             .name("&5Nightmare")
             .setLore(BotSettingService.loadDefaultProfile("NIGHTMARE").describe())
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to start a Nightmare match!"
+            )
             .toButton { _, _ ->
                 BotKitMenu("NIGHTMARE").openMenu(player)
             },

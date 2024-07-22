@@ -25,13 +25,15 @@ class PlayerDescribeProfilesMenu(
     }
 
     private fun Int.toRow() = (1..7).map { it + this * 9 }
+
     override fun getAllPagesButtonSlots() = 1.toRow()
+    override fun getMaxItemsPerPage(player: Player) = getAllPagesButtonSlots().size
 
     override fun size(buttons: Map<Int, Button>) = 27
     override fun getGlobalButtons(player: Player) = mutableMapOf(
         4 to ItemBuilder
             .of(Material.EMERALD)
-            .name("${CC.BD_GREEN}Create Profile")
+            .name("${CC.BD_GREEN}New Profile")
             .addToLore(
                 "",
                 "${CC.D_GREEN}Click to create!"

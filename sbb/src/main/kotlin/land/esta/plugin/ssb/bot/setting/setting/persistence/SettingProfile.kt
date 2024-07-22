@@ -69,14 +69,14 @@ class SettingProfile(val id: String)
             value(RootAccessor.connectionSettings.ping)
         }ms",
         "",
-        "${CC.BD_AQUA}Traits:",
-        "${CC.D_AQUA}W-Tap: ${CC.WHITE}${
+        "${CC.B_AQUA}Traits:",
+        "${CC.AQUA}W-Tap: ${CC.WHITE}${
             if (value(RootAccessor.wTapSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
-        "${CC.D_AQUA}Rod: ${CC.WHITE}${
+        "${CC.AQUA}Rod: ${CC.WHITE}${
             if (value(RootAccessor.rodSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
-        "${CC.D_AQUA}Strafe: ${CC.WHITE}${
+        "${CC.AQUA}Strafe: ${CC.WHITE}${
             if (value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
     )

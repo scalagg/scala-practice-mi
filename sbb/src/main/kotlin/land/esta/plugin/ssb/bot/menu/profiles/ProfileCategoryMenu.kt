@@ -34,7 +34,9 @@ class ProfileCategoryMenu(
     }
 
     private fun Int.toRow() = (1..7).map { it + this * 9 }
+
     override fun getAllPagesButtonSlots() = (1..4).flatMap { it.toRow() }
+    override fun getMaxItemsPerPage(player: Player) = getAllPagesButtonSlots().size
 
     override fun getGlobalButtons(player: Player): Map<Int, Button>
     {
