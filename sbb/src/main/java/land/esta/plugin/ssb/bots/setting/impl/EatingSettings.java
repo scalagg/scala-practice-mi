@@ -24,7 +24,7 @@ public class EatingSettings extends Category {
         super(
                 "gapplesettings",
                 Arrays.asList(
-                        "Configurable food consumption",
+                        "Configurable gapple",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.GOLDEN_APPLE),

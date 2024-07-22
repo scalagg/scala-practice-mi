@@ -17,7 +17,7 @@ public class PacketsSettings extends Category {
         super(
                 "packetsettings",
                 Arrays.asList(
-                        "Configurable Packet",
+                        "Configurable packet",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.STRING),

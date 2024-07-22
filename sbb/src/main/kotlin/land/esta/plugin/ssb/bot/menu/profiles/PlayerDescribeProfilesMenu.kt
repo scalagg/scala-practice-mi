@@ -31,6 +31,11 @@ class PlayerDescribeProfilesMenu(
     override fun getGlobalButtons(player: Player) = mutableMapOf(
         4 to ItemBuilder
             .of(Material.EMERALD)
+            .name("${CC.BD_GREEN}Create Profile")
+            .addToLore(
+                "",
+                "${CC.D_GRAY}Click to create!"
+            )
             .toButton { _, _ ->
                 Button.playNeutral(player)
                 player.closeInventory()
@@ -68,11 +73,13 @@ class PlayerDescribeProfilesMenu(
                 .of(Material.PAPER)
                 .name("${CC.B_GREEN}${settings.id}")
                 .addToLore(
+                    *settings.describe().toTypedArray(),
                     "",
                     "${CC.GREEN}Click to select!"
                 )
                 .glow()
                 .toButton { _, _ ->
+                    Button.playNeutral(player)
                     action(settings)
                 }
         }

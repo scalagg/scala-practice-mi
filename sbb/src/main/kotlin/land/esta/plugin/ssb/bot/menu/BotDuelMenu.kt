@@ -4,6 +4,7 @@ import land.esta.plugin.ssb.bot.menu.profiles.PlayerDescribeProfilesMenu
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu
 import land.esta.plugin.ssb.bot.profile.RobotProfileService
+import land.esta.plugin.ssb.bot.setting.BotSettingService
 import land.esta.plugin.ssb.bot.setting.setting.root
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
@@ -32,48 +33,46 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         10 to ItemBuilder.of(Material.WOOL)
             .data(5)
             .name("&aEasy")
-            .setLore(/*SettingManager.defaultManager.getMenuDescription("EASY", "&aEasy")*/listOf())
+            .setLore(BotSettingService.loadDefaultProfile("EASY").describe())
             .toButton { _, _ ->
                 BotKitMenu("EASY").openMenu(player)
             },
         11 to ItemBuilder.of(Material.WOOL)
             .data(4)
             .name("&eNormal")
-            .setLore(/*SettingManager.defaultManager.getMenuDescription("NORMAL", "&eNormal")*/listOf())
+            .setLore(BotSettingService.loadDefaultProfile("NORMAL").describe())
             .toButton { _, _ ->
                 BotKitMenu("NORMAL").openMenu(player)
             },
         12 to ItemBuilder.of(Material.WOOL)
             .data(14)
             .name("&cHard")
-            .setLore(/*SettingManager.defaultManager.getMenuDescription("HARD", "&cHard")*/listOf())
+            .setLore(BotSettingService.loadDefaultProfile("HARD").describe())
             .toButton { _, _ ->
                 BotKitMenu("HARD").openMenu(player)
             },
         13 to ItemBuilder.of(Material.WOOL)
             .data(14)
             .name("&4Expert")
-            .setLore(/*SettingManager.defaultManager.getMenuDescription("EXPERT", "&cExpert")*/listOf())
+            .setLore(BotSettingService.loadDefaultProfile("EXPERT").describe())
             .toButton { _, _ ->
                 BotKitMenu("EXPERT").openMenu(player)
             },
         14 to ItemBuilder.of(Material.WOOL)
             .data(10)
             .name("&5Nightmare")
-            .setLore(/*SettingManager.defaultManager.getMenuDescription("NIGHTMARE", "&5Nightmare")*/listOf())
+            .setLore(BotSettingService.loadDefaultProfile("NIGHTMARE").describe())
             .toButton { _, _ ->
                 BotKitMenu("NIGHTMARE").openMenu(player)
             },
         16 to ItemBuilder.of(Material.NETHER_STAR)
-            .name("&6Custom")
-            .addToLore("${CC.GRAY}Available for ${CC.D_AQUA}VIP${CC.GRAY} and up!")
-            .setLore(
-                /**SettingManager.defaultManager
-                    .getMenuDescription(player.uniqueId.toString(), "&6Custom")
-                    .toTypedArray()*/
-                    listOf()
+            .name("&6&lCustom")
+            .addToLore(
+                "${CC.GRAY}Available for ${CC.D_AQUA}VIP${CC.GRAY} and up!",
+                "",
+                "${CC.GREEN}Left-Click to play!",
+                "${CC.GOLD}Right-Click to customize!"
             )
-            .addToLore("${CC.YELLOW}Right-Click to customize!")
             .toButton { _, type ->
                 if (!player.hasPermission("botgui.use"))
                 {

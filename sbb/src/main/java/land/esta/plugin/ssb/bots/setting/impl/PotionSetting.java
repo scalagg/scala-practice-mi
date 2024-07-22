@@ -28,7 +28,7 @@ import java.util.Arrays;
         super(
                 "potionsettings",
                 Arrays.asList(
-                        "Configurable Potion",
+                        "Configurable potion",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.POTION),

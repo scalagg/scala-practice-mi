@@ -189,22 +189,31 @@ data class Option<T : Any>(
         {
             (setting.getObject() is Int), (setting.getObject() is Double) ->
             {
+                val value = context.value(this)
+
                 listOf(
                     "",
-                    "${CC.AQUA}Value: ${CC.WHITE}${context.value(this)}",
-                    "${CC.GREEN}Randomizer: ${CC.WHITE}${setting.randomizer}",
-                    "            ${CC.GRAY}(${CC.WHITE}${setting.randomizerMinMax.first} ${CC.GREEN}◀▶${CC.WHITE}${setting.randomizerMinMax.second}${CC.GRAY})",
+                    "${CC.AQUA}Value: ${CC.WHITE}${
+                        when (true)
+                        {
+                            (value is Double) -> "%.2f".format(value.toFloat())
+                            else -> "$value"
+                        }
+                    }",
+                    "${CC.GREEN}Randomizer: ${CC.WHITE}${setting.randomizer} ${
+                        "${CC.GRAY}(${CC.WHITE}${setting.randomizerMinMax.first} ${CC.GREEN}◀▶ ${CC.WHITE}${setting.randomizerMinMax.second}${CC.GRAY})"
+                    }",
                     "",
                     "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                         "Left Click for Value"
                     }",
-                    "${CC.GREEN}  ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
+                    "${CC.GREEN}   ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                         "Shift Left Click for Randomizer"
                     }",
                     "${CC.RED}▼ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                         "Right Click for Value"
                     }",
-                    "${CC.RED}  ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
+                    "${CC.RED}   ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                         "Shift Right Click for Randomizer"
                     }"
                 )

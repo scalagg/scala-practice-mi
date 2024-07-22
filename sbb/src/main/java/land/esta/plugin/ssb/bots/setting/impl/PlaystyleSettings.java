@@ -40,12 +40,12 @@ public class PlaystyleSettings extends Category {
         super(
                 "playstylesettings",
                 Arrays.asList(
-                        "Configurable PlayStle",
+                        "Configurable playstyle",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.ENDER_PEARL),
                 GlobalsKt.getRoot(),
-                "PlayStyle Settings",
+                "Play Style Settings",
                 "botgui.playstyle"
         );
 

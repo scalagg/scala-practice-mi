@@ -11,12 +11,12 @@ import java.util.Arrays;
 
 @Getter
 public class WTapSetting extends Category {
-    private final Option<Boolean> enabled = new Option<>("W-Tap", Material.DIAMOND_HELMET, this, true);
-    private final Option<Integer> chance = new Option<>("Chance", Material.DIAMOND_CHESTPLATE, this, 100, 25);
-    private final Option<Integer> tapLong = new Option<>("Tap Long", Material.DIAMOND_LEGGINGS, this, 1, 1);
-    private final Option<Integer> comboTapLong = new Option<>("Combo Tap Long", Material.DIAMOND_AXE, this, 1, 1);
-    private final Option<Integer> tapStart = new Option<>("Tap Start", Material.DIAMOND_BOOTS, this, 3, 1);
-    private final Option<Boolean> blockingHitting = new Option<>("Block Hitting", Material.DIAMOND_SWORD, this, false);
+    public final Option<Boolean> enabled = new Option<>("W-Tap", Material.DIAMOND_HELMET, this, true);
+    public final Option<Integer> chance = new Option<>("Chance", Material.DIAMOND_CHESTPLATE, this, 100, 25);
+    public final Option<Integer> tapLong = new Option<>("Tap Long", Material.DIAMOND_LEGGINGS, this, 1, 1);
+    public final Option<Integer> comboTapLong = new Option<>("Combo Tap Long", Material.DIAMOND_AXE, this, 1, 1);
+    public final Option<Integer> tapStart = new Option<>("Tap Start", Material.DIAMOND_BOOTS, this, 3, 1);
+    public final Option<Boolean> blockingHitting = new Option<>("Block Hitting", Material.DIAMOND_SWORD, this, false);
 
     public WTapSetting() {
         super(

@@ -22,7 +22,7 @@ public class RotationSetting extends Category {
         super(
                 "rotationsettings",
                 Arrays.asList(
-                        "Configurable Rotation",
+                        "Configurable rotation",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.WEB),

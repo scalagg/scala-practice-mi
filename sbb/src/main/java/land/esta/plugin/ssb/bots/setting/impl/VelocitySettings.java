@@ -26,7 +26,7 @@ public class VelocitySettings extends Category {
         super(
                 "velocitysettings",
                 Arrays.asList(
-                        "Configurable Velocity",
+                        "Configurable velocity",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.SLIME_BALL),

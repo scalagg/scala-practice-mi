@@ -15,11 +15,11 @@ import java.util.Arrays;
 @Setter
 public class AttackSettings extends Category {
 
-    private Option<Double> reach = new Option<>("Reach", Material.DIAMOND_SWORD, this, 2.7, 0.1);
-    private Option<Integer> cps = new Option<>("CPS", Material.DIAMOND_CHESTPLATE, this, 6);
-    private Option<Integer> swingRange = new Option<>("Swing Range", Material.IRON_SWORD, this, 6);
-    private Option<Double> playerHitBox = new Option<>("Player Hitbox", Material.IRON_CHESTPLATE, this, 0.3, 0.1);
-    private Option<Boolean> advancedReduce = new Option<>("Reduce", Material.STICK, this, false);
+    public Option<Double> reach = new Option<>("Reach", Material.DIAMOND_SWORD, this, 2.7, 0.1);
+    public Option<Integer> cps = new Option<>("CPS", Material.DIAMOND_CHESTPLATE, this, 6);
+    public Option<Integer> swingRange = new Option<>("Swing Range", Material.IRON_SWORD, this, 6);
+    public Option<Double> playerHitBox = new Option<>("Player Hitbox", Material.IRON_CHESTPLATE, this, 0.3, 0.1);
+    public Option<Boolean> advancedReduce = new Option<>("Reduce", Material.STICK, this, false);
 
     public int getDelay(SettingProfile profile) {
         int cps = profile.value(this.cps);

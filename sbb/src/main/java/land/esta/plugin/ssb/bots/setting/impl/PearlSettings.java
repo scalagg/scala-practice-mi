@@ -22,7 +22,7 @@ public class PearlSettings extends Category {
         super(
                 "pearlsettings",
                 Arrays.asList(
-                        "Configurable Pearl",
+                        "Configurable pearl",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.ENDER_PEARL),

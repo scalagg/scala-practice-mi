@@ -24,7 +24,7 @@ public class FleeSettings extends Category {
         super(
             "fleesettings",
                 Arrays.asList(
-                        "Configurable Flee",
+                        "Configurable flee",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.FEATHER),

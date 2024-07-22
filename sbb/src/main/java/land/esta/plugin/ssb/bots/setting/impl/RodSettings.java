@@ -11,17 +11,17 @@ import java.util.Arrays;
 
 @Getter
 public class RodSettings extends Category {
-    private final Option<Boolean> enabled = new Option<>("Rod Enabled",Material.FISHING_ROD, this,false);
-    private final Option<Double> minRodDistance = new Option<>("Minimum Rod Throwing Distance",Material.FISHING_ROD, this,5.0,0.1);
-    private final Option<Double> maxRodDistance = new Option<>("Maximum Rod Throwing Distance",Material.FISHING_ROD, this,7.5,0.1);
-    private final Option<Integer> rodDuration = new Option<>("Rod Duration (MS)",Material.FISHING_ROD, this,750, 10);
-    private final Option<Boolean> rodWhileInCombo = new Option<>("Throw rod while in combo",Material.FISHING_ROD, this,false);
+    public final Option<Boolean> enabled = new Option<>("Rod Enabled",Material.FISHING_ROD, this,false);
+    public final Option<Double> minRodDistance = new Option<>("Minimum Rod Throwing Distance",Material.FISHING_ROD, this,5.0,0.1);
+    public final Option<Double> maxRodDistance = new Option<>("Maximum Rod Throwing Distance",Material.FISHING_ROD, this,7.5,0.1);
+    public final Option<Integer> rodDuration = new Option<>("Rod Duration (MS)",Material.FISHING_ROD, this,750, 10);
+    public final Option<Boolean> rodWhileInCombo = new Option<>("Throw rod while in combo",Material.FISHING_ROD, this,false);
 
     public RodSettings() {
         super(
                 "rodsettings",
                 Arrays.asList(
-                        "Configurable Rod",
+                        "Configurable rod",
                         "settings for the robot."
                 ),
                 new ItemStack(Material.FISHING_ROD),
