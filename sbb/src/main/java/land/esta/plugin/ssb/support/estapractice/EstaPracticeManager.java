@@ -21,7 +21,6 @@ import me.lucko.helper.Schedulers;
 import net.evilblock.cubed.ScalaCommonsSpigot;
 import net.evilblock.cubed.util.CC;
 import org.bukkit.Location;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -156,13 +155,11 @@ public class EstaPracticeManager {
                 }
 
                 if (event instanceof BotAttackLandEvent) {
-                    event.bot.getInventoryManager().getItemInMainHand().containsEnchantment(Enchantment.FIRE_ASPECT);
                     robot.setGameLifecycleArbitraryObjectiveProgress(
                             robot.getGameLifecycleArbitraryObjectiveProgress() + 1
                     );
 
                     game.humanSide().getPlayerCombos().clear();
-                    game.counter(player).reset("combo");
 
                     var dataPlayer = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
                     if (dataPlayer != null) {
