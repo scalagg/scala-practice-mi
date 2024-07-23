@@ -14,7 +14,6 @@ import java.util.UUID
  * @author GrowlyX
  * @since 7/21/2024
  */
-@JvmRecord
 data class MojangProfile(
     val id: String,
     val name: String,
