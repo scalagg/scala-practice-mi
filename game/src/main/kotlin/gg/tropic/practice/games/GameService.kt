@@ -569,7 +569,7 @@ object GameService
         }
 
         Events
-            .subscribe(PlayerItemConsumeEvent::class.java)
+            .subscribe(PlayerInteractEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)
                     ?: return@handler
