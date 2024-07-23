@@ -70,7 +70,6 @@ public class Bot {
         this.player = player;
         //Registering
         registerNPC(name, loc);
-        npc.getProfile().getProperties().put("textures", profile.getSkinProperties());
 
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
 
@@ -119,12 +118,14 @@ public class Bot {
     }
 
     private void registerNPC(String name, Location loc) {
-        GameProfile profile = new GameProfile(UUID.randomUUID(), name);
+        GameProfile profile = new GameProfile(uniqueId, name);
+        profile.getProperties().put("textures", this.profile.getSkinProperties());
+
         MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
         WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
         PlayerInteractManager interactManager = new PlayerInteractManager(world);
 
-        npc = new NPCEntity(server, new WeakReference<>(world), profile, interactManager);
+        npc = new NPCEntity(server, world, profile, interactManager);
         npc.playerConnection = new NPCPlayerConnection(server, new NPCNetworkManager(EnumProtocolDirection.CLIENTBOUND), npc);
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());
