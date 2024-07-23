@@ -106,7 +106,11 @@ public class AttackingManager extends Manager {
         double offSet = getBot().getMovements().getCollision().getXzHitBoxOffset();
 
         Vector to = from.clone().add(loc.getDirection().normalize().multiply(getBot().getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) + 0.05));
-        AABB collision = getHitBox(getBot().getLagCompensatorManager().getClientLocation(), (float) offSet);
+        var clientLocation = getBot().getLagCompensatorManager().getClientLocation();
+        if (clientLocation == null) {
+            return false;
+        }
+        AABB collision = getHitBox(clientLocation, (float) offSet);
 
         //Block collision check
         Vector bc = traceWithBlocks(loc.toVector(), to.toLocation(loc.getWorld()), 0.5);

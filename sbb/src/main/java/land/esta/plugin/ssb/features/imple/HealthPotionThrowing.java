@@ -98,6 +98,9 @@ public class HealthPotionThrowing extends Feature {
     //Checks if a player is close by
     public boolean nearTarget(Bot bot) {
         Location target = bot.getLagCompensatorManager().getClientLocation();
+        if (target == null) {
+            return false;
+        }
         Location loc = bot.getMovements().getLocation();
         double distance = target.distance(loc);
 

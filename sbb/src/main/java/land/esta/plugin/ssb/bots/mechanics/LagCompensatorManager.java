@@ -9,28 +9,28 @@ import land.esta.plugin.ssb.utils.objects.DataLocation;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 @Getter
 @Setter
 public class LagCompensatorManager extends Manager {
 
-    private List<DataLocation> locations;
+    private NavigableMap<Long, DataLocation> locations = new TreeMap<>();
+
     private int maxLocations = 20;
     private UUID lastPlayer;
 
+    @Nullable
     public Player getPlayer() {
-        if (getBot().getMovements() == null) return null;
-        if (getBot().getMovements().getTargetLocate() == null) return null;
         return getBot().getMovements().getTargetLocate().getTargetEntity();
     }
 
     public LagCompensatorManager(Bot bot) {
         super(bot);
-        locations = new ArrayList<>();
 
         Schedulers
                 .sync()
@@ -40,43 +40,75 @@ public class LagCompensatorManager extends Manager {
                         return;
                     }
 
-                    Player p = getPlayer();
-                    if (p == null) return;
-                    if (lastPlayer == null) lastPlayer = p.getUniqueId();
-                    if (lastPlayer != p.getUniqueId()) locations.clear();
+                    Player player = getPlayer();
+                    if (player == null) return;
+                    if (lastPlayer == null) lastPlayer = player.getUniqueId();
+                    if (lastPlayer != player.getUniqueId()) {
+                        locations.clear();
+                    }
 
-                    lastPlayer = p.getUniqueId();
-                    movePacket(p.getLocation());
+                    lastPlayer = player.getUniqueId();
+                    movePacket(player.getLocation());
                 }, 1L, 1L)
                 .bindWith(getBot().getTerminable());
     }
 
-    public void movePacket(Location loc) {
-        if (loc.getX() == 0 && loc.getY() == 0 && loc.getZ() == 0) return;
-        locations.add(new DataLocation(loc));
+    public void movePacket(Location location) {
+        if (location.getX() == 0 && location.getY() == 0 && location.getZ() == 0)
+        {
+            return;
+        }
 
-        if (locations.size() > maxLocations) locations.remove(locations.get(0));
+        locations.put(
+                System.currentTimeMillis(),
+                new DataLocation(location)
+        );
+
+        if (locations.size() > maxLocations) {
+            locations.pollFirstEntry();
+        }
     }
 
     public DataLocation getPrevLocation(long time) {
-        DataLocation orElse = new DataLocation(getPlayer().getLocation());
-        if (locations.size() > 0) orElse = locations.get(locations.size() - 1);
+        final long targetTime = System.currentTimeMillis() - time;
+        final Long floorKey = locations.floorKey(targetTime);
+        final Long ceilingKey = locations.ceilingKey(targetTime);
 
-        long min = Long.MAX_VALUE;
-        DataLocation result = orElse;
-        for (int i = 0; i < locations.size(); i++) {
-            DataLocation loc = locations.get(i);
-            long value = Math.abs(loc.getTime() - (System.currentTimeMillis() - time));
-            if (value < min) {
-                min = value;
-                result = loc;
+        if (floorKey == null && ceilingKey == null) {
+            var player = getPlayer();
+            if (player == null) {
+                return null;
             }
+
+            return new DataLocation(getPlayer().getLocation());
         }
 
-        return result;
+        if (floorKey == null) {
+            return locations.get(ceilingKey);
+        }
+
+        if (ceilingKey == null) {
+            return locations.get(floorKey);
+        }
+
+        return Math.abs(floorKey - targetTime) < Math.abs(ceilingKey - targetTime) ?
+                locations.get(floorKey) :
+                locations.get(ceilingKey);
     }
 
+    @Nullable
     public Location getClientLocation() {
-        return getPrevLocation(getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) + getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getConnectionPacketDelay())).toLocation(getBot().getMovements().getLocation().getWorld());
+        var botPing = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing());
+        var packetDelay = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getConnectionPacketDelay());
+
+        var previousLocation = getPrevLocation(botPing + packetDelay);
+        if (previousLocation == null) {
+            return null;
+        }
+
+        return previousLocation
+                .toLocation(
+                        getBot().getMovements().getLocation().getWorld()
+                );
     }
 }
