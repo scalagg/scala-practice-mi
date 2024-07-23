@@ -173,29 +173,22 @@ public class Bot {
     public void destroy() {
         alive = false;
         packetsManager.sendRemovePackets();
-        EstaRobotsPlugin.getInstance().getBotManager().removeBot(Bot.this);
+        EstaRobotsPlugin.getInstance().getBotManager().removeBot(this);
 
         terminable.closeAndReportException();
 
         npc.getBukkitEntity().remove();
-        npc = null;
-
-        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
+        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
     }
 
     public void tick() {
-        if (npc == null) {
-            return;
-        }
-
         velocityCalculator.setPre(true);
+        
         eventManager.queueUpdate();
         eventManager.tickPre();
         eventManager.tickMid();
         eventManager.tickPost();
-
-        if (!movements.getTargetLocate().getTargetEntity().getWorld().equals(movements.getLocation().getWorld()))
-            return;
+        
         velocityCalculator.setPre(false);
         eventManager.callEvents();
     }
