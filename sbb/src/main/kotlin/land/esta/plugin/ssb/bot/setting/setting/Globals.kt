@@ -49,5 +49,5 @@ object RootAccessor
     val strafeSettings = root.childByType<StrafeSettings>("root.strafesettings")
     val velocitySettings = root.childByType<VelocitySettings>("root.velocitysettings")
     val wTapSettings = root.childByType<WTapSettings>("root.wtapsettings")
-    val pathfindingSetting = root.childByType<PathfindingSettings>("pathfindingsettings")
+    val pathfindingSetting = root.childByType<PathfindingSettings>("root.pathfindingsettings")
 }
