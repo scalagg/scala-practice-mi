@@ -206,26 +206,40 @@ open class GameImpl(
             val opponents = opponent.toBukkitPlayers()
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
-                .onEach {
-                    it.useKitStatistics(this) {
-                        plays += 1
-
-                        streakUpdates().apply(false)
+                .apply {
+                    if (robot())
+                    {
+                        return@apply
                     }
-                    it.globalStatistics.userPlayedGameAndLost().apply()
+
+                    onEach {
+                        it.useKitStatistics(this@GameImpl) {
+                            plays += 1
+
+                            streakUpdates().apply(false)
+                        }
+                        it.globalStatistics.userPlayedGameAndLost().apply()
+                    }
                 }
 
             val winners = winner.toBukkitPlayers()
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
-                .onEach {
-                    it.useKitStatistics(this) {
-                        wins += 1
-                        plays += 1
-
-                        streakUpdates().apply(true)
+                .apply {
+                    if (robot())
+                    {
+                        return@apply
                     }
-                    it.globalStatistics.userPlayedGameAndWon().apply()
+
+                    onEach {
+                        it.useKitStatistics(this@GameImpl) {
+                            wins += 1
+                            plays += 1
+
+                            streakUpdates().apply(true)
+                        }
+                        it.globalStatistics.userPlayedGameAndWon().apply()
+                    }
                 }
 
             if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)

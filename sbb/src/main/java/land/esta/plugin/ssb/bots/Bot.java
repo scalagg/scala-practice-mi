@@ -28,7 +28,6 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 
 @Getter
@@ -48,7 +47,7 @@ public class Bot {
     private HealthManager healthManager;
     private LagCompensatorManager lagCompensatorManager;
     private FleeManager fleeManager;
-    private EventRunnable eventListener;
+    private EventRunnable eventListener = (event) -> {};
     private DamageCalculator damageCalculator;
 
     private boolean alive = true;
@@ -59,23 +58,19 @@ public class Bot {
     private final SettingProfile profile;
     private Location startLocation;
 
-    public Bot(Location loc, String name, Player player, SettingProfile profile, Kit kit) {
-        this.startLocation = loc;
-
+    public Bot(Location location, String name, Player player, SettingProfile profile, Kit kit) {
+        this.startLocation = location;
         this.kit = kit;
-        this.eventListener = (e) -> {
-        };
-
         this.profile = profile;
         this.player = player;
-        //Registering
-        registerNPC(name, loc);
 
-        Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
+        registerNPC(name, location);
+        Bukkit.getOnlinePlayers().forEach(other ->
+                other.hidePlayer(npc.getBukkitEntity())
+        );
 
-        registerManagers(player, loc);
+        registerManagers(player, location);
 
-        //Create packets
         packetsManager.sendCreatesPackets();
 
         loadManagers();
@@ -102,18 +97,18 @@ public class Bot {
         eventManager.addEvent(effectsManager);
     }
 
-    private void registerManagers(Player pla, Location loc) {
+    private void registerManagers(Player player, Location location) {
         lagCompensatorManager = new LagCompensatorManager(this);
         eventManager = new MEventManager(this);
         effectsManager = new EffectsManager(this);
         velocityCalculator = new VelocityCalculator(this);
-        movements = new MovementsMain(this, pla, loc);
+        movements = new MovementsMain(this, player, location);
         packetsManager = new PacketsManager(this);
         inventoryManager = new InventoryManager(this);
         fleeManager = new FleeManager(this);
 
         final List<Player> players = new ArrayList<>();
-        players.add(pla);
+        players.add(player);
         viewsManager = new ViewsManager(this, players);
     }
 
@@ -182,14 +177,14 @@ public class Bot {
     }
 
     public void tick() {
-        velocityCalculator.setPre(true);
-        
+        velocityCalculator.setEarly(true);
+
         eventManager.queueUpdate();
-        eventManager.tickPre();
-        eventManager.tickMid();
-        eventManager.tickPost();
-        
-        velocityCalculator.setPre(false);
+        eventManager.tickEarly();
+        eventManager.tick();
+        eventManager.tickLate();
+
+        velocityCalculator.setEarly(false);
         eventManager.callEvents();
     }
 }

@@ -74,7 +74,7 @@ public class MovementsMain extends Manager {
     private boolean delayedBotLocation = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());
 
     @Override
-    public void tickMid() {
+    public void tick() {
         if (sentLocationUpdate) {
             if (delayedBotLocation) {
                 final Location location = getBot().getMovements().getLocation();

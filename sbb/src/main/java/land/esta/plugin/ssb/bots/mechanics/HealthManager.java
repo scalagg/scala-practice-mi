@@ -28,7 +28,7 @@ public class HealthManager extends Manager {
     private double healthChangeAfter;
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         if (!getBot().getNpc().isAlive()) {
             getBot().getNpc().dead = false;
             deathEvent();

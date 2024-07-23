@@ -32,7 +32,7 @@ public class Rotations extends Manager {
 
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         var data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
         if (data == null) {
             return;

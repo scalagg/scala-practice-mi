@@ -27,11 +27,11 @@ public class VelocityCalculator extends Manager {
     private boolean damage;
     private EntityPlayer attacker;
     private boolean sprinting;
-    private boolean pre;
+    private boolean early;
     private boolean next;
 
     public void attack(EntityPlayer attacker) {
-        if (pre) next = true;
+        if (early) next = true;
         damage = true;
         this.attacker = attacker;
         velocityReplace = true;

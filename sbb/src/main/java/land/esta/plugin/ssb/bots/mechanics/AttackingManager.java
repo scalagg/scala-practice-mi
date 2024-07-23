@@ -9,7 +9,6 @@ import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.botevents.events.BotAttackEvent;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
-import land.esta.plugin.ssb.bots.setting.impl.AttackSettings;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.AABB;
 import land.esta.plugin.ssb.utils.raycast.RayCasting;
@@ -45,7 +44,7 @@ public class AttackingManager extends Manager {
     private long lastAttackedOrDamaged = System.currentTimeMillis();
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         if (!landAttack) return;
         landAttack = false;
         Event event = new BotAttackLandEvent(getBot(), getBot().getMovements().getTargetLocate().getTargetEntity());
@@ -54,7 +53,7 @@ public class AttackingManager extends Manager {
     }
 
     @Override
-    public void tickPost() {
+    public void tickLate() {
         attackTicks++;
         if (!attacking) return;
         if (getBot().getFleeManager().isActive()) return;
@@ -106,7 +105,11 @@ public class AttackingManager extends Manager {
         double offSet = getBot().getMovements().getCollision().getXzHitBoxOffset();
 
         Vector to = from.clone().add(loc.getDirection().normalize().multiply(getBot().getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) + 0.05));
-        AABB collision = getHitBox(getBot().getLagCompensatorManager().getClientLocation(), (float) offSet);
+        var clientLocation = getBot().getLagCompensatorManager().getClientLocation();
+        if (clientLocation == null) {
+            return false;
+        }
+        AABB collision = getHitBox(clientLocation, (float) offSet);
 
         //Block collision check
         Vector bc = traceWithBlocks(loc.toVector(), to.toLocation(loc.getWorld()), 0.5);

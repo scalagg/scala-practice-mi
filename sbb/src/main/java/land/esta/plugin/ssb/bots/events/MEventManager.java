@@ -4,7 +4,6 @@ import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import me.lucko.helper.Schedulers;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,25 +29,25 @@ public class MEventManager {
         }
     }
 
-    public void tickPre() {
+    public void tickEarly() {
         try {
-            managers.forEach(Manager::tickPre);
+            managers.forEach(Manager::tickEarly);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
 
-    public void tickPost() {
+    public void tickLate() {
         try {
-            managers.forEach(Manager::tickPost);
+            managers.forEach(Manager::tickLate);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
 
-    public void tickMid() {
+    public void tick() {
         try {
-            managers.forEach(Manager::tickMid);
+            managers.forEach(Manager::tick);
         } catch (Exception exception) {
             exception.printStackTrace();
         }

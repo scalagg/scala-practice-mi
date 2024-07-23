@@ -30,7 +30,7 @@ public class Movements extends Manager {
     }
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         //boolean requireToMove = bot.getMovements().getLocation().distanceSquared(bot.getMovements().getTargetLocate().getTarget()) >=Math.pow(settingManager.getStrafeSettings().getDistance().getDoubleValue(), 2);
         //bot.getMovements().setRequiredToMove(requireToMove);
         //if (!requireToMove) bot.getAttackingManager().setHitSelecting(false);

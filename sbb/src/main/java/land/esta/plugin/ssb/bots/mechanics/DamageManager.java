@@ -34,7 +34,7 @@ public class DamageManager extends Manager {
     private boolean allowGlobalAttacks;
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         damageTicks++;
     }
 
