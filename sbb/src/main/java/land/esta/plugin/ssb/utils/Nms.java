@@ -15,7 +15,7 @@ public class Nms {
         return  ((CraftPlayer) player).getHandle();
     }
 
-    public static void sendPacket(Player player, Packet packet) {
+    public static void sendPacket(@NotNull Player player, @NotNull Packet<?> packet) {
         getPlayer(player).playerConnection.sendPacket(packet);
     }
 

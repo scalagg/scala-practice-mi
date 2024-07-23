@@ -40,12 +40,12 @@ public class PacketsManager extends Manager {
     }
 
     public void sendCreatesPackets(Player player, int temp) {
-        Nms.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, getBot().getNpc()));
-        Nms.sendPacket(player, new PacketPlayOutNamedEntitySpawn(getBot().getNpc()));
-        Nms.sendPacket(player, new PacketPlayOutEntityHeadRotation(getBot().getNpc(), (byte) (getBot().getNpc().yaw * 256 / 360)));
-
         var npc = getBot().getNpc();
         if (npc != null) {
+            Nms.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
+            Nms.sendPacket(player, new PacketPlayOutNamedEntitySpawn(npc));
+            Nms.sendPacket(player, new PacketPlayOutEntityHeadRotation(npc, (byte) (npc.yaw * 256 / 360)));
+
             Schedulers
                     .async()
                     .runLater(() -> {
@@ -53,15 +53,15 @@ public class PacketsManager extends Manager {
                             if (!otherPlayer.getUniqueId().equals(player.getUniqueId())) {
                                 Nms.sendPacket(
                                         otherPlayer,
-                                        new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, getBot().getNpc())
+                                        new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc)
                                 );
                             }
                         });
                     }, 20L)
                     .bindWith(getBot().getTerminable());
-        }
 
-        skinUpdate(player);
+            skinUpdate(player);
+        }
     }
 
     public void sendRemovePackets() {
@@ -69,21 +69,27 @@ public class PacketsManager extends Manager {
     }
 
     public void sendDeathPackets() {
-        for (Player player : getBot().getViewsManager().getPlayers()) {
-            Nms.sendPacket(player, new PacketPlayOutEntityStatus(bot.getNpc(), (byte) 3));
+        if (bot.getNpc() != null) {
+            for (Player player : getBot().getViewsManager().getPlayers()) {
+                Nms.sendPacket(player, new PacketPlayOutEntityStatus(bot.getNpc(), (byte) 3));
+            }
         }
     }
 
     public void sendRemovePackets(Player player) {
-        Nms.sendPacket(player, new PacketPlayOutEntityDestroy(getBot().getNpc().getId()));
-        Nms.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, getBot().getNpc()));
+        if (bot.getNpc() != null) {
+            Nms.sendPacket(player, new PacketPlayOutEntityDestroy(getBot().getNpc().getId()));
+            Nms.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, getBot().getNpc()));
+        }
     }
 
     public void skinUpdate(Player player) {
-        DataWatcher watcher = getBot().getNpc().getDataWatcher();
-        watcher.watch(10, (byte) 127);
-        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(getBot().getNpc().getId(), watcher, true);
-        Nms.sendPacket(player, packet);
+        if (getBot().getNpc() != null) {
+            DataWatcher watcher = getBot().getNpc().getDataWatcher();
+            watcher.watch(10, (byte) 127);
+            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(getBot().getNpc().getId(), watcher, true);
+            Nms.sendPacket(player, packet);
+        }
     }
 
     public void updateLocation(Location location) {
@@ -101,69 +107,75 @@ public class PacketsManager extends Manager {
 
     public void sendUpdateLocationPackets(Player player, int temp) {
         EntityPlayer npc = getBot().getNpc();
-        if (!relativeMovement) Nms.sendPacket(player, new PacketPlayOutEntityTeleport(npc));
-        Nms.sendPacket(player, new PacketPlayOutEntityHeadRotation(npc, (byte) (npc.yaw * 256 / 360)));
+        if (npc != null) {
+            if (!relativeMovement) Nms.sendPacket(player, new PacketPlayOutEntityTeleport(npc));
+            Nms.sendPacket(player, new PacketPlayOutEntityHeadRotation(npc, (byte) (npc.yaw * 256 / 360)));
+        }
     }
 
     public void sendBlockHittingPackets(boolean enabled) {
-        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata();
-        DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0, 0, (byte) (enabled ? 16 : 0));
-        ArrayList<DataWatcher.WatchableObject> list = new ArrayList<>();
-        list.add(watchableObject);
+        if (getBot().getNpc() != null) {
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata();
+            DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0, 0, (byte) (enabled ? 16 : 0));
+            ArrayList<DataWatcher.WatchableObject> list = new ArrayList<>();
+            list.add(watchableObject);
 
-        for (Field field : metadata.getClass().getDeclaredFields()) {
-            if (field.getName().equals("a")) {
-                field.setAccessible(true);
-                try {
-                    field.set(metadata, bot.getNpc().getBukkitEntity().getEntityId());
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+            for (Field field : metadata.getClass().getDeclaredFields()) {
+                if (field.getName().equals("a")) {
+                    field.setAccessible(true);
+                    try {
+                        field.set(metadata, bot.getNpc().getBukkitEntity().getEntityId());
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (field.getName().equals("b")) {
+                    field.setAccessible(true);
+                    try {
+                        field.set(metadata, list);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
-            if (field.getName().equals("b")) {
-                field.setAccessible(true);
-                try {
-                    field.set(metadata, list);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            globalAction((player, temp) -> {
+                Nms.sendPacket(player, metadata);
+            });
         }
-
-        globalAction((player, temp) -> {
-            Nms.sendPacket(player, metadata);
-        });
     }
 
     public void setPlayerOnFirePackets(boolean fire) {
-        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata();
-        DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0, 0, (byte) (fire ? 1 : 0));
-        ArrayList<DataWatcher.WatchableObject> list = new ArrayList<>();
-        list.add(watchableObject);
+        if (getBot().getNpc() != null) {
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata();
+            DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0, 0, (byte) (fire ? 1 : 0));
+            ArrayList<DataWatcher.WatchableObject> list = new ArrayList<>();
+            list.add(watchableObject);
 
-        for (Field field : metadata.getClass().getDeclaredFields()) {
-            if (field.getName().equals("a")) {
-                field.setAccessible(true);
-                try {
-                    field.set(metadata, bot.getNpc().getBukkitEntity().getEntityId());
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+            for (Field field : metadata.getClass().getDeclaredFields()) {
+                if (field.getName().equals("a")) {
+                    field.setAccessible(true);
+                    try {
+                        field.set(metadata, bot.getNpc().getBukkitEntity().getEntityId());
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (field.getName().equals("b")) {
+                    field.setAccessible(true);
+                    try {
+                        field.set(metadata, list);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
-            if (field.getName().equals("b")) {
-                field.setAccessible(true);
-                try {
-                    field.set(metadata, list);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            globalAction((player, temp) -> {
+                Nms.sendPacket(player, metadata);
+            });
         }
-
-        globalAction((player, temp) -> {
-            Nms.sendPacket(player, metadata);
-        });
     }
 }

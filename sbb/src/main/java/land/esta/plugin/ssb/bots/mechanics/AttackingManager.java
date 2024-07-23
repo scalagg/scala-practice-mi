@@ -146,7 +146,10 @@ public class AttackingManager extends Manager {
     }
 
     public void swing() {
-        globalAction((player, temp) -> Nms.sendPacket(player, new PacketPlayOutAnimation(getBot().getNpc(), 0)));
+        var npc = getBot().getNpc();
+        if (npc != null) {
+            globalAction((player, temp) -> Nms.sendPacket(player, new PacketPlayOutAnimation(npc, 0)));
+        }
     }
 
     double calculateItemAttackDamage(ItemStack item) {
