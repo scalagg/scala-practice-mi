@@ -222,9 +222,12 @@ public class AttackingManager extends Manager {
     public void attack(Entity player) {
         bot.getMovements().attack();
         int damage = (int) calculateItemAttackDamage(bot.getInventoryManager().getItemInMainHand());
-        if (bot.getInventoryManager().getItemInMainHand().getEnchantments().containsKey(Enchantment.FIRE_ASPECT)) {
-            player.setFireTicks(80);
+        if (bot.getInventoryManager().getItemInMainHand() != null) {
+            if (bot.getInventoryManager().getItemInMainHand().getEnchantments().containsKey(Enchantment.FIRE_ASPECT)) {
+                player.setFireTicks(80);
+            }
         }
+
         ((Damageable) player).damage(damage,bot.getNpc().getBukkitEntity());
         callEvent(new BotAttackEvent(bot));
         this.attacked = System.currentTimeMillis();
