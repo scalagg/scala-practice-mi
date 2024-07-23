@@ -399,7 +399,7 @@ object GameService
                     }
             }
 
-            val killerPlayer = event.killerPlayerOverride ?: killedBy()
+            val killerPlayer = if (game.robot()) null else (event.killerPlayerOverride ?: killedBy())
             val killer = if (killerPlayer !is Player || killerPlayer == this)
             {
                 game.getOpponent(this)
@@ -1436,6 +1436,9 @@ object GameService
                     {
                         if (it.block.type == Material.SNOW_BLOCK)
                         {
+                            it.isCancelled = true
+                            it.block.type = Material.AIR
+
                             it.player.inventory.addItem(
                                 ItemBuilder
                                     .of(Material.SNOW_BALL)

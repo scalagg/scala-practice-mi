@@ -111,9 +111,26 @@ object EstaPracticeIntegrator
             game.kit
         )
 
-        bot.damageManager.isAllowGlobalAttacks = false
+        val noDamageMatch = game.flagMetaData(FeatureFlag.DoNotTakeDamage, "doDamageTick") == "true"
 
-        bot.damageManager.isNoDamage = game.flag(FeatureFlag.WinWhenNHitsReached)
+        if (noDamageMatch)
+        {
+            Events
+                .subscribe(EntityDamageByEntityEvent::class.java)
+                .handler { event ->
+                    if (event.entity is Player)
+                    {
+                        if (event.entity == player)
+                        {
+                            event.damage = 0.0
+                        }
+                    }
+                }
+                .bindWith(game)
+        }
+
+        bot.damageManager.isAllowGlobalAttacks = false
+        bot.damageManager.isNoDamage = noDamageMatch
         bot.movements.isMove = false
 
         if (game.flag(FeatureFlag.DeathOnLiquidInteraction))
@@ -165,6 +182,7 @@ object EstaPracticeIntegrator
                         event.isCanceled = true
                     }
                 }
+
                 if (event is BotAttackLandEvent)
                 {
                     robot.gameLifecycleArbitraryObjectiveProgress += 1
@@ -179,19 +197,6 @@ object EstaPracticeIntegrator
                     }
                 }
             })
-
-            Events
-                .subscribe(EntityDamageByEntityEvent::class.java)
-                .handler { event ->
-                    if (event.entity is Player)
-                    {
-                        if (event.entity == player)
-                        {
-                            event.damage = 0.0
-                        }
-                    }
-                }
-                .bindWith(game)
         }
 
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
