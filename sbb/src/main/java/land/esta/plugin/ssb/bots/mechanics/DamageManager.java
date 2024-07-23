@@ -39,7 +39,7 @@ public class DamageManager extends Manager {
     }
 
     public void damage(DamageSource source, float damage) {
-        bot.getAttackingManager().setLastAttackedOrDamaged( System.currentTimeMillis());
+        bot.getAttackingManager().setLastAttackedOrDamaged(System.currentTimeMillis());
         if (invaluable) return;
         //Attack delay
         long attackDelay = 475;
@@ -57,14 +57,14 @@ public class DamageManager extends Manager {
 
         //Damage
         if (source.i().getBukkitEntity() instanceof Player player) {
-            playerAttack(player,damage);
-        } else if (source.i().getBukkitEntity() instanceof Projectile projectile){
+            playerAttack(player, damage);
+        } else if (source.i().getBukkitEntity() instanceof Projectile projectile) {
             if (projectile.getType().equals(EntityType.FISHING_HOOK)) {
                 bot.getNpc().getBukkitEntity().setPassenger(projectile);
             } else
                 projectile.remove();
 
-            projectileAttack(projectile,damage,source);
+            projectileAttack(projectile, damage, source);
         }
     }
 
@@ -94,7 +94,7 @@ public class DamageManager extends Manager {
             String damageMessage = String.format(" &f(&4-%.1f❤&f)", damageDealt / 2);
 
             String botName = bot.getNpc().getName();
-            attacker.sendMessage(Color.code("&c" + botName +  " &f➡ &c" + healthMessage + damageMessage));
+            attacker.sendMessage(Color.code("&c" + botName + " &f➡ &c" + healthMessage + damageMessage));
         } else playSound();
 
         //Calls
@@ -102,24 +102,25 @@ public class DamageManager extends Manager {
     }
 
     public void playerAttack(Player attacker, float damage) {
-        if (!attacker.getUniqueId().equals(bot.getMovements().getTargetLocate().getTargetEntity().getUniqueId()) && !allowGlobalAttacks) return;
+        if (!attacker.getUniqueId().equals(bot.getMovements().getTargetLocate().getTargetEntity().getUniqueId()) && !allowGlobalAttacks)
+            return;
 
         velocity(attacker);
         damageEffect();
         playSound();
         sprintReset(attacker);
-        if (!noDamage) removeHealth(damage,attacker);
+        if (!noDamage) removeHealth(damage, attacker);
     }
 
     public void removeHealth(Player attacker) {
         float swordAttackDamage = (float) Nms.getPlayer(attacker).getAttributeInstance(GenericAttributes.ATTACK_DAMAGE).getValue();
         float sharp = attacker.getItemInHand().getEnchantmentLevel(Enchantment.DAMAGE_ALL);
         swordAttackDamage += sharp * 1.25;
-        bot.getDamageCalculator().damage(DamageSource.playerAttack(Nms.getPlayer(attacker)),swordAttackDamage);
+        bot.getDamageCalculator().damage(DamageSource.playerAttack(Nms.getPlayer(attacker)), swordAttackDamage);
     }
 
-    public void removeHealth(float damage,Player attacker) {
-        bot.getDamageCalculator().damage(DamageSource.playerAttack(Nms.getPlayer(attacker)),damage);
+    public void removeHealth(float damage, Player attacker) {
+        bot.getDamageCalculator().damage(DamageSource.playerAttack(Nms.getPlayer(attacker)), damage);
     }
 
     public void sprintReset(Player attacker) {
@@ -132,11 +133,18 @@ public class DamageManager extends Manager {
         int type = 4; //4 If server allows diff particle depends on sprint
         if (Nms.getPlayer(attacker).isSprinting()) type = 5;
         int finalType = type;
-        globalAction((player, temp) -> Nms.sendPacket(player,new PacketPlayOutAnimation(bot.getNpc(), finalType)));
+
+        var npc = bot.getNpc();
+        if (npc != null) {
+            globalAction((player, temp) -> Nms.sendPacket(player, new PacketPlayOutAnimation(npc, finalType)));
+        }
     }
 
     public void damageEffect() {
-        globalAction((player, temp) -> Nms.sendPacket(player,new PacketPlayOutAnimation(bot.getNpc(),1)));
+        var npc = bot.getNpc();
+        if (npc != null) {
+            globalAction((player, temp) -> Nms.sendPacket(player, new PacketPlayOutAnimation(npc, 1)));
+        }
     }
 
     public void velocity(Player attacker) {
@@ -146,11 +154,11 @@ public class DamageManager extends Manager {
     }
 
     public void playProjectileSound(Player shooter) {
-        shooter.playSound(bot.getMovements().getLocation(), Sound.ORB_PICKUP,10F,0.5f);
+        shooter.playSound(bot.getMovements().getLocation(), Sound.ORB_PICKUP, 10F, 0.5f);
     }
 
     public void playSound() {
-        globalAction((player, temp) -> player.playSound(bot.getMovements().getLocation(), Sound.HURT_FLESH,100F,1));
+        globalAction((player, temp) -> player.playSound(bot.getMovements().getLocation(), Sound.HURT_FLESH, 100F, 1));
     }
 
 }

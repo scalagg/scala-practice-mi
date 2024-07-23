@@ -21,9 +21,7 @@ public class Manager {
     }
 
     public void globalAction(PlayerRunnable runnable) {
-        getBot().getViewsManager().getPlayers().forEach(player -> {
-            runnable.run(player, 0);
-        });
+        getBot().getViewsManager().getPlayers().forEach(player -> runnable.run(player, 0));
     }
 
     public void addPlayerToList(Player player) {}
