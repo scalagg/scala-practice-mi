@@ -13,12 +13,12 @@ import java.util.List;
 
 @Getter
 public class PathfindingSettings extends Category {
-    private Option<Double> distanceFromLastLocation = new Option<>("Distance From Last Location", Material.STRING, this, 0.1, 0.05, 2);
-    private Option<Integer> getPathCooldown = new Option<>("Get Path Cooldown", Material.BLAZE_POWDER, this, 500, 100, 5000)
-            .addDescription(List.of(CC.GRAY + "(1000 = 1 Second)"));
-    private Option<Double> minDistanceFromPlayer = new Option<>("Min Distance From Player", Material.BOWL, this, 1.0, 0.1, 10);
-    private Option<Integer> cooldownAfterAttack = new Option<>("Cooldown After Attack", Material.GOLD_NUGGET, this, 4000, 250, 15000)
-            .addDescription(List.of(CC.GRAY + "(1000 = 1 Second)"));
+    private final Option<Double> distanceFromLastLocation = new Option<>("Distance From Last Location", Material.STRING, this, 0.1, 0.05, 2);
+    private final Option<Integer> getPathCooldown = new Option<>("Get Path Cooldown", Material.BLAZE_POWDER, this, 500, 100, 5000)
+            .addDescription(CC.GRAY + "(1000 = 1 Second)");
+    private final Option<Double> minDistanceFromPlayer = new Option<>("Min Distance From Player", Material.BOWL, this, 1.0, 0.1, 10);
+    private final Option<Integer> cooldownAfterAttack = new Option<>("Cooldown After Attack", Material.GOLD_NUGGET, this, 4000, 250, 15000)
+            .addDescription(CC.GRAY + "(1000 = 1 Second)");
 
     public PathfindingSettings(Category parent) {
         super(

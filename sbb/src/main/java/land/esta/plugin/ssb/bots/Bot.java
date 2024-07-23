@@ -4,8 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.SmartBotsBackend;
-import land.esta.plugin.ssb.bot.MojangKt;
-import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.bots.mechanics.*;
 import lombok.Getter;
@@ -18,7 +16,6 @@ import land.esta.plugin.ssb.npc.NPCEntity;
 import land.esta.plugin.ssb.npc.NPCNetworkManager;
 import land.esta.plugin.ssb.npc.NPCPlayerConnection;
 import land.esta.plugin.ssb.utils.objects.EventRunnable;
-import net.evilblock.cubed.util.bukkit.Tasks;
 import net.minecraft.server.v1_8_R3.EnumProtocolDirection;
 import net.minecraft.server.v1_8_R3.MinecraftServer;
 import net.minecraft.server.v1_8_R3.PlayerInteractManager;
@@ -32,7 +29,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
@@ -44,7 +40,7 @@ public class Bot {
     public ViewsManager viewsManager;
     private EffectsManager effectsManager;
     private VelocityCalculator velocityCalculator;
-    private MEventManager MEventManager;
+    private MEventManager eventManager;
     private DamageManager damageManager;
     private InventoryManager inventoryManager;
     private AttackingManager attackingManager;
@@ -95,21 +91,21 @@ public class Bot {
     }
 
     private void loadManagers() {
-        MEventManager.addEvent(movements);
-        MEventManager.addEvent(viewsManager);
-        MEventManager.addEvent(inventoryManager);
-        MEventManager.addEvent(packetsManager);
-        MEventManager.addEvent(damageManager = new DamageManager(this));
-        MEventManager.addEvent(attackingManager = new AttackingManager(this));
-        MEventManager.addEvent(healthManager = new HealthManager(this));
-        MEventManager.addEvent(damageCalculator = new DamageCalculator(this));
-        MEventManager.addEvent(fleeManager);
-        MEventManager.addEvent(effectsManager);
+        eventManager.addEvent(movements);
+        eventManager.addEvent(viewsManager);
+        eventManager.addEvent(inventoryManager);
+        eventManager.addEvent(packetsManager);
+        eventManager.addEvent(damageManager = new DamageManager(this));
+        eventManager.addEvent(attackingManager = new AttackingManager(this));
+        eventManager.addEvent(healthManager = new HealthManager(this));
+        eventManager.addEvent(damageCalculator = new DamageCalculator(this));
+        eventManager.addEvent(fleeManager);
+        eventManager.addEvent(effectsManager);
     }
 
     private void registerManagers(Player pla, Location loc) {
         lagCompensatorManager = new LagCompensatorManager(this);
-        MEventManager = new MEventManager(this);
+        eventManager = new MEventManager(this);
         effectsManager = new EffectsManager(this);
         velocityCalculator = new VelocityCalculator(this);
         movements = new MovementsMain(this, pla, loc);
@@ -201,15 +197,19 @@ public class Bot {
     }
 
     public void tick() {
+        if (npc == null) {
+            return;
+        }
+
         velocityCalculator.setPre(true);
-        MEventManager.queueUpdate();
-        MEventManager.tickPre();
-        MEventManager.tickMid();
-        MEventManager.tickPost();
+        eventManager.queueUpdate();
+        eventManager.tickPre();
+        eventManager.tickMid();
+        eventManager.tickPost();
 
         if (!movements.getTargetLocate().getTargetEntity().getWorld().equals(movements.getLocation().getWorld()))
             return;
         velocityCalculator.setPre(false);
-        MEventManager.callEvents();
+        eventManager.callEvents();
     }
 }

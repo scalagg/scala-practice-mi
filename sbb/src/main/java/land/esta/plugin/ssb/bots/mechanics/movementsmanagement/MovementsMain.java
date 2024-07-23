@@ -9,12 +9,7 @@ import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import net.minecraft.server.v1_8_R3.EnumParticle;
-import net.minecraft.server.v1_8_R3.PacketPlayOutWorldParticles;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -68,11 +63,11 @@ public class MovementsMain extends Manager {
         super(bot);
         location = loc;
 
-        bot.getMEventManager().addEvent(collision = new Collision(bot));
-        bot.getMEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
-        bot.getMEventManager().addEvent(movements = new Movements(bot));
-        bot.getMEventManager().addEvent(rotations = new Rotations(bot));
-        bot.getMEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
+        bot.getEventManager().addEvent(collision = new Collision(bot));
+        bot.getEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
+        bot.getEventManager().addEvent(movements = new Movements(bot));
+        bot.getEventManager().addEvent(rotations = new Rotations(bot));
+        bot.getEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
     }
 
     private boolean delayedBotLocation = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());

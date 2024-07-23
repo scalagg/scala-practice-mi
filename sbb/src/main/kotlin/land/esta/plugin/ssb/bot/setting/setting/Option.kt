@@ -52,10 +52,8 @@ data class Option<T : Any>(
         display, material, parent, default, 1.0, maxValue
     )
 
-    fun addDescription(description: List<String>): Option<T>
-    {
-        return this.copy(description = description)
-    }
+    fun addDescription(vararg description: String) = copy(description = description.toList())
+    fun addDescription(description: List<String>) = copy(description = description)
 
     fun interact(
         player: Player,

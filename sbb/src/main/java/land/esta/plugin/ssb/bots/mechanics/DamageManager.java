@@ -7,7 +7,6 @@ import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.FileManager;
 import land.esta.plugin.ssb.utils.Nms;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
@@ -101,9 +100,7 @@ public class DamageManager extends Manager {
         } else playSound();
 
         //Calls
-        if (SmartBotsBackend.getInstance().getBukkitEvents().isProjectileHitEvent()) {
-            Bukkit.getServer().getPluginManager().callEvent(new ProjectileHitEvent(projectile));
-        }
+        Bukkit.getServer().getPluginManager().callEvent(new ProjectileHitEvent(projectile));
     }
 
     public void playerAttack(Player attacker, float damage) {
@@ -135,7 +132,7 @@ public class DamageManager extends Manager {
 
     public void playSwingEffect(Player attacker) {
         int type = 4; //4 If server allows diff particle depends on sprint
-        if (Nms.getPlayer(attacker).isSprinting() || !FileManager.getOrDefault(SmartBotsBackend.getInstance(),"serversettings.changeParticleDependsOnSprint",false)) type = 5;
+        if (Nms.getPlayer(attacker).isSprinting()) type = 5;
         int finalType = type;
         globalAction((player, temp) -> Nms.sendPacket(player,new PacketPlayOutAnimation(bot.getNpc(), finalType)));
     }
