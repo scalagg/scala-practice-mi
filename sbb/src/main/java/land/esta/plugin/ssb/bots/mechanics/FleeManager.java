@@ -30,7 +30,7 @@ public class FleeManager extends Manager {
     //TODO if blocks in way
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         //Active
         TargetLocate finder = getBot().getMovements().getTargetLocate();
         active = check();

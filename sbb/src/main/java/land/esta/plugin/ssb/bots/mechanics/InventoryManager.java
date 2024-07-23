@@ -381,7 +381,7 @@ public class InventoryManager extends Manager {
     }
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         PlayerInventory inventory = bot.getNpc().inventory;
         inventory.armor = armorStacks;
         inventory.items = itemStacks;

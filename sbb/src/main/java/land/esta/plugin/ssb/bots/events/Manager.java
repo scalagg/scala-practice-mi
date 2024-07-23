@@ -7,18 +7,15 @@ import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.utils.objects.PlayerRunnable;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 
 @Getter
+@RequiredArgsConstructor
 public class Manager {
 
-    private final SettingProfile profile;
     protected final Bot bot;
-
-    public Manager(Bot bot) {
-        this.bot = bot;
-        profile = bot.getProfile();
-    }
+    private final SettingProfile profile = bot.getProfile();
 
     public void globalAction(PlayerRunnable runnable) {
         getBot().getViewsManager().getPlayers().forEach(player -> runnable.run(player, 0));
@@ -40,12 +37,18 @@ public class Manager {
 
 
     public void queueUpdate() {}
-    public void tickPre() {}
-    public void tickPost() {}
-    public void tickMid() {}
+    public void tickEarly() {}
+    public void tickLate() {}
+    public void tick() {}
 
     public double getDistance() {
-        if (!bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getWorld().equals(bot.getMovements().getLocation().getWorld())) return -1;
-        return bot.getMovements().getTargetLocate().getTargetEntity().getLocation().distance(bot.getMovements().getLocation());
+        var location = bot.getMovements().getTargetLocate().getTargetEntity().getLocation();
+        var expectedLocation = bot.getMovements().getLocation();
+        if (!location.getWorld().equals(expectedLocation.getWorld()))
+        {
+            return -1;
+        }
+
+        return location.distance(expectedLocation);
     }
 }

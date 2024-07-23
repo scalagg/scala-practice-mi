@@ -26,7 +26,7 @@ public class TargetLocate extends Manager {
     }
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         if (overwriteLocation) {
             target = bot.getLagCompensatorManager().getClientLocation();
         }

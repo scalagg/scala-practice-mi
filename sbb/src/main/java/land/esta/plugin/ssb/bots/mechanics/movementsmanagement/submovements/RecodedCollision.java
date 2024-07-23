@@ -29,7 +29,7 @@ public class RecodedCollision extends Manager {
     private boolean jump;
 
     @Override
-    public void tickPre() {
+    public void tickEarly() {
         if (bot.getMovements().isJumpCombo() && bot.getMovements().isOnGround()) bot.getMovements().setJumpCombo(false);
     }
 

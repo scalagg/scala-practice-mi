@@ -28,7 +28,6 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 
 @Getter
@@ -178,14 +177,14 @@ public class Bot {
     }
 
     public void tick() {
-        velocityCalculator.setPre(true);
-        
+        velocityCalculator.setEarly(true);
+
         eventManager.queueUpdate();
-        eventManager.tickPre();
-        eventManager.tickMid();
-        eventManager.tickPost();
-        
-        velocityCalculator.setPre(false);
+        eventManager.tickEarly();
+        eventManager.tick();
+        eventManager.tickLate();
+
+        velocityCalculator.setEarly(false);
         eventManager.callEvents();
     }
 }
