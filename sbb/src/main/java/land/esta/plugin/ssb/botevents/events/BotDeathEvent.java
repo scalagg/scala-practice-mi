@@ -10,7 +10,7 @@ public class BotDeathEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
-    public final Bot bot;
+    private final Bot bot;
 
     public BotDeathEvent(Bot bot) {
         this.bot = bot;

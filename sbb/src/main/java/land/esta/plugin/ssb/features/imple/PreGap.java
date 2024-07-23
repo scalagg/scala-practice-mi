@@ -14,7 +14,7 @@ public class PreGap extends Feature {
     @Override
     public void listen(Event event) {
         if (event instanceof SpawnEvent) {
-            Bot bot = event.bot;
+            Bot bot = event.getBot();
             //Run a tick later so the practice plugin has time to provide you with the items
 
             Schedulers

@@ -1,6 +1,5 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import land.esta.plugin.ssb.utils.objects.DataLocation;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +23,9 @@ public class LagCompensatorManager extends Manager {
     private UUID lastPlayer;
 
     public Player getPlayer() {
-        if (bot.getMovements() == null) return null;
-        if (bot.getMovements().getTargetLocate() == null) return null;
-        return bot.getMovements().getTargetLocate().getTargetEntity();
+        if (getBot().getMovements() == null) return null;
+        if (getBot().getMovements().getTargetLocate() == null) return null;
+        return getBot().getMovements().getTargetLocate().getTargetEntity();
     }
 
     public LagCompensatorManager(Bot bot) {
@@ -37,7 +35,7 @@ public class LagCompensatorManager extends Manager {
         Schedulers
                 .sync()
                 .runRepeating(task -> {
-                    if (!bot.isAlive()) {
+                    if (!getBot().isAlive()) {
                         task.closeAndReportException();
                         return;
                     }
@@ -50,7 +48,7 @@ public class LagCompensatorManager extends Manager {
                     lastPlayer = p.getUniqueId();
                     movePacket(p.getLocation());
                 }, 1L, 1L)
-                .bindWith(bot.getTerminable());
+                .bindWith(getBot().getTerminable());
     }
 
     public void movePacket(Location loc) {
@@ -79,6 +77,6 @@ public class LagCompensatorManager extends Manager {
     }
 
     public Location getClientLocation() {
-        return getPrevLocation(bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) + bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getConnectionPacketDelay())).toLocation(bot.getMovements().getLocation().getWorld());
+        return getPrevLocation(getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) + getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getConnectionPacketDelay())).toLocation(getBot().getMovements().getLocation().getWorld());
     }
 }

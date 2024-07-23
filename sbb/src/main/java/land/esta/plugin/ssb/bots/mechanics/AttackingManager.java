@@ -48,8 +48,8 @@ public class AttackingManager extends Manager {
     public void tickPre() {
         if (!landAttack) return;
         landAttack = false;
-        Event event = new BotAttackLandEvent(bot,bot.getMovements().getTargetLocate().getTargetEntity());
-        bot.getEventListener().run(event); // Additional calling
+        Event event = new BotAttackLandEvent(getBot(), getBot().getMovements().getTargetLocate().getTargetEntity());
+        getBot().getEventListener().run(event); // Additional calling
         callEvent(event);
     }
 
@@ -57,18 +57,20 @@ public class AttackingManager extends Manager {
     public void tickPost() {
         attackTicks++;
         if (!attacking) return;
-        if (bot.getFleeManager().isActive()) return;
-        TargetLocate targetLocate = bot.getMovements().getTargetLocate();
-        int delay = RootAccessor.INSTANCE.getAttackSettings().getDelay(bot.getProfile());
-        if (bot.getMovements().isJumpCombo()) delay = 1000 / bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpComboCPS());
+        if (getBot().getFleeManager().isActive()) return;
+        TargetLocate targetLocate = getBot().getMovements().getTargetLocate();
+        int delay = RootAccessor.INSTANCE.getAttackSettings().getDelay(getBot().getProfile());
+        if (getBot().getMovements().isJumpCombo())
+            delay = 1000 / getBot().getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpComboCPS());
         int clicks = 0;
 
-        tickCounter+=50;
+        tickCounter += 50;
 
-        if (bot.getDamageManager().getDamageTicks() >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelectTicks())  && bot.getDamageManager().getDamageTicks() < 10) hitSelecting = false;
+        if (getBot().getDamageManager().getDamageTicks() >= getBot().getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelectTicks()) && getBot().getDamageManager().getDamageTicks() < 10)
+            hitSelecting = false;
 
         //Do not attack if hit selecting
-        if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelect()) && hitSelectingTicks > bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelectDelay()) && attackTicks > 20) {
+        if (getBot().getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelect()) && hitSelectingTicks > getBot().getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelectDelay()) && attackTicks > 20) {
             hitSelecting = true;
             hitSelectingTicks = 0;
         }
@@ -81,10 +83,10 @@ public class AttackingManager extends Manager {
             clicks++;
         }
 
-        for (int i = 0; i < clicks;i ++) {
+        for (int i = 0; i < clicks; i++) {
             double dist = getDistance();
             if (dist == -1) return;
-            if (dist >= bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getSwingRange())) return;
+            if (dist >= getBot().getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getSwingRange())) return;
 
             swing();
             if (!rayTrace()) return;
@@ -94,40 +96,40 @@ public class AttackingManager extends Manager {
     }
 
     public boolean rayTrace() {
-        Location loc = bot.getMovements().getLocation().clone();
+        Location loc = getBot().getMovements().getLocation().clone();
         Vector from = loc.toVector();
 
         double eyeHeight = 1.62;
         loc.setY(loc.getY() + eyeHeight);
         loc.add(loc.getDirection().normalize().multiply(-0.05));
 
-        double offSet = bot.getMovements().getCollision().getXzHitBoxOffset();
+        double offSet = getBot().getMovements().getCollision().getXzHitBoxOffset();
 
-        Vector to = from.clone().add(loc.getDirection().normalize().multiply(bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) + 0.05));
-        AABB collision = getHitBox(bot.getLagCompensatorManager().getClientLocation(), (float) offSet);
+        Vector to = from.clone().add(loc.getDirection().normalize().multiply(getBot().getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) + 0.05));
+        AABB collision = getHitBox(getBot().getLagCompensatorManager().getClientLocation(), (float) offSet);
 
         //Block collision check
-        Vector bc = traceWithBlocks(loc.toVector(),to.toLocation(loc.getWorld()),0.5);
+        Vector bc = traceWithBlocks(loc.toVector(), to.toLocation(loc.getWorld()), 0.5);
         double dist = 100;
         if (bc != null) dist = bc.distance(loc.toVector());
         if (dist <= 0.3) dist = 0.3;
 
-        Vector result = RayCasting.hitboxIntersection(loc.toVector(),to,collision);
+        Vector result = RayCasting.hitboxIntersection(loc.toVector(), to, collision);
         if (result == null) return false;
 
         double reach = result.distance(from);
         boolean attack = dist > reach;
 
-        return reach <= bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) && attack;
+        return reach <= getBot().getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) && attack;
     }
 
-    public Vector traceWithBlocks(Vector from,Location to,double accurate) {
+    public Vector traceWithBlocks(Vector from, Location to, double accurate) {
         Vector dir = to.toVector().subtract(from).normalize();
         double reach = to.toVector().distance(from);
         World world = to.getWorld();
         Vector lastResult = from;
 
-        for (double i = 0;i < reach; i+= accurate) {
+        for (double i = 0; i < reach; i += accurate) {
             Vector newPos = from.clone().add(dir.clone().multiply(i));
 
             if (newPos.toLocation(world).getBlock().getType().isSolid()) return lastResult;
@@ -140,11 +142,11 @@ public class AttackingManager extends Manager {
     public AABB getHitBox(Location location, float offSet) {
         Vector targetPos = location.toVector();
 
-        return new AABB(new Vector(targetPos.getX() - offSet,targetPos.getY(),targetPos.getZ() - offSet),new Vector(targetPos.getX() + offSet,targetPos.getY() + 2,targetPos.getZ() + offSet));
+        return new AABB(new Vector(targetPos.getX() - offSet, targetPos.getY(), targetPos.getZ() - offSet), new Vector(targetPos.getX() + offSet, targetPos.getY() + 2, targetPos.getZ() + offSet));
     }
 
     public void swing() {
-        globalAction((player, temp) -> Nms.sendPacket(player,new PacketPlayOutAnimation(bot.getNpc(),0)));
+        globalAction((player, temp) -> Nms.sendPacket(player, new PacketPlayOutAnimation(getBot().getNpc(), 0)));
     }
 
     double calculateItemAttackDamage(ItemStack item) {
@@ -206,7 +208,7 @@ public class AttackingManager extends Manager {
         }
 
         //Player has strength effect
-        int strenghteffectLVL = bot.getEffectsManager().getLevel(PotionEffectType.INCREASE_DAMAGE);
+        int strenghteffectLVL = getBot().getEffectsManager().getLevel(PotionEffectType.INCREASE_DAMAGE);
         attackDamage += 3 * strenghteffectLVL;
 
         //Get sharpness enchantment level
@@ -220,16 +222,16 @@ public class AttackingManager extends Manager {
     }
 
     public void attack(Entity player) {
-        bot.getMovements().attack();
-        int damage = (int) calculateItemAttackDamage(bot.getInventoryManager().getItemInMainHand());
-        if (bot.getInventoryManager().getItemInMainHand() != null) {
-            if (bot.getInventoryManager().getItemInMainHand().getEnchantments().containsKey(Enchantment.FIRE_ASPECT)) {
+        getBot().getMovements().attack();
+        int damage = (int) calculateItemAttackDamage(getBot().getInventoryManager().getItemInMainHand());
+        if (getBot().getInventoryManager().getItemInMainHand() != null) {
+            if (getBot().getInventoryManager().getItemInMainHand().getEnchantments().containsKey(Enchantment.FIRE_ASPECT)) {
                 player.setFireTicks(80);
             }
         }
 
-        ((Damageable) player).damage(damage,bot.getNpc().getBukkitEntity());
-        callEvent(new BotAttackEvent(bot));
+        ((Damageable) player).damage(damage, getBot().getNpc().getBukkitEntity());
+        callEvent(new BotAttackEvent(getBot()));
         this.attacked = System.currentTimeMillis();
         this.lastAttackedOrDamaged = System.currentTimeMillis();
     }

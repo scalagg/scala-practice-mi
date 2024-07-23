@@ -17,7 +17,7 @@ public class ArmorEquipFeature extends Feature {
             BotArmorBreakEvent e = (BotArmorBreakEvent) event;
 
             int index = e.getArmorSlot();
-            Bot bot = e.bot;
+            Bot bot = e.getBot();
 
             // 1 second delay
             Schedulers

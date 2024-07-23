@@ -71,14 +71,14 @@ public class MovementsMain extends Manager {
         bot.getEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
     }
 
-    private boolean delayedBotLocation = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());
+    private boolean delayedBotLocation = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());
 
     @Override
     public void tickMid() {
         if (sentLocationUpdate) {
             if (delayedBotLocation) {
                 final Location location = getBot().getMovements().getLocation();
-                final var ticks = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100;
+                final var ticks = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100;
 
                 Schedulers
                         .sync()

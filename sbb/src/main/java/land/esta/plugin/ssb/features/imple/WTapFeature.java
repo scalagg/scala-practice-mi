@@ -17,7 +17,7 @@ public class WTapFeature extends Feature {
     public void listen(Event event) {
         if (event instanceof BotAttackLandEvent) {
             BotAttackLandEvent e = (BotAttackLandEvent) event;
-            Bot bot = e.bot;
+            Bot bot = e.getBot();
             int random = (ThreadLocalRandom.current().nextInt(100));
 
             bot.getMovements().setAttackSprint(false);

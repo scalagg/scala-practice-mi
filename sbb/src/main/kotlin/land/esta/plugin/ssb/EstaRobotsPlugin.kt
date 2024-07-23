@@ -8,8 +8,8 @@ import land.esta.plugin.ssb.bot.setting.setting.RootAccessor.attackSettings
 import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue
 import land.esta.plugin.ssb.botevents.EventManager
 import land.esta.plugin.ssb.bots.BotManager
+import land.esta.plugin.ssb.estapractice.EstaPracticeSupport
 import land.esta.plugin.ssb.features.FeatureManager
-import land.esta.plugin.ssb.support.SupportManager
 import land.esta.plugin.ssb.utils.DataManager
 import land.esta.plugin.ssb.utils.GameServer
 import land.esta.plugin.ssb.utils.PacketListener
@@ -74,11 +74,11 @@ class EstaRobotsPlugin : ExtendedScalaPlugin()
         }
 
         eventManager = EventManager()
-        SupportManager()
 
         if (GameServer.`is`())
         {
             featureManager = FeatureManager()
+            EstaPracticeSupport.enable()
         }
     }
 

@@ -6,16 +6,14 @@ import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.objects.PlayerRunnable;
 import org.bukkit.entity.Player;
 
 @Getter
 public class Manager {
 
-    public SettingProfile profile;
-
-    public final Bot bot;
+    private final SettingProfile profile;
+    protected final Bot bot;
 
     public Manager(Bot bot) {
         this.bot = bot;

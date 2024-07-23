@@ -24,7 +24,7 @@ public class Feature extends BotEvent implements Listener {
     /*  Known events */
     public void listen(Event event) {
         if (event instanceof FinalMoveEvent e) {
-            finalMoveEvent(e, event.bot);
+            finalMoveEvent(e, event.getBot());
         }
     }
 

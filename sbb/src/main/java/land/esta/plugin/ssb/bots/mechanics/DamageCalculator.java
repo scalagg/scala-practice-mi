@@ -18,13 +18,13 @@ public class DamageCalculator extends Manager {
     //Taken from minecraft src
     protected void damage(final DamageSource damagesource, float f) {
         float originalDamage = f;
-        InventoryManager manager = bot.getInventoryManager();
+        InventoryManager manager = getBot().getInventoryManager();
 
         double d = (damagesource == DamageSource.ANVIL || damagesource == DamageSource.FALLING_BLOCK) && manager.getHelmet()  != null ? -(f - f * 0.75D) : -0.0D;
         f += d;
 
         //Ignore armor (Blocking)
-        double d2 = bot.getAttackingManager().isBlocking() && f > 0.0D ? -(f - (1.0D + f) * 0.5D) : -0.0D;
+        double d2 = getBot().getAttackingManager().isBlocking() && f > 0.0D ? -(f - (1.0D + f) * 0.5D) : -0.0D;
         f += d2;
 
         double d3 = -(f - (double) applyArmor(damagesource, f,manager));
@@ -33,8 +33,8 @@ public class DamageCalculator extends Manager {
         Function<Double, Double> resistance = new Function<Double, Double>() {
             public Double apply(Double f) {
                 //!damagesource.isStarvation() &&
-                if (bot.getEffectsManager().getLevel(PotionEffectType.DAMAGE_RESISTANCE) != 0 && damagesource != DamageSource.OUT_OF_WORLD) {
-                    int i = (bot.getEffectsManager().getLevel(PotionEffectType.DAMAGE_RESISTANCE) + 1) * 5;
+                if (getBot().getEffectsManager().getLevel(PotionEffectType.DAMAGE_RESISTANCE) != 0 && damagesource != DamageSource.OUT_OF_WORLD) {
+                    int i = (getBot().getEffectsManager().getLevel(PotionEffectType.DAMAGE_RESISTANCE) + 1) * 5;
                     int j = 25 - i;
                     float f1 = f.floatValue() * (float)j;
                     return -(f - (double)(f1 / 25.0F));
@@ -49,7 +49,7 @@ public class DamageCalculator extends Manager {
         double d4 = -(f - (double) applyEnchants(damagesource, f, manager));
         f += d4;
 
-        double d5 = -Math.max(f - Math.max(f - (double) bot.getHealthManager().getAbsHearts(), 0.0D), 0.0D);
+        double d5 = -Math.max(f - Math.max(f - (double) getBot().getHealthManager().getAbsHearts(), 0.0D), 0.0D);
         float absorptionModifier = (float) d5;
 
         Random random = ThreadLocalRandom.current();
@@ -67,10 +67,10 @@ public class DamageCalculator extends Manager {
         //}
 
         absorptionModifier = (float)(-absorptionModifier);
-        bot.getHealthManager().setAbsHearts(Math.max(bot.getHealthManager().getAbsHearts() - absorptionModifier, 0.0F));
+        getBot().getHealthManager().setAbsHearts(Math.max(getBot().getHealthManager().getAbsHearts() - absorptionModifier, 0.0F));
         if (f == 0.0F) return;
 
-        bot.getHealthManager().removeHealth((int) f);
+        getBot().getHealthManager().removeHealth((int) f);
     }
 
     public float applyArmor(DamageSource damagesource, float f, InventoryManager manager) {

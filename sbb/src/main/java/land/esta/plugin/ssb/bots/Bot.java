@@ -27,7 +27,6 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -36,10 +35,10 @@ import java.util.*;
 @Setter
 public class Bot {
     private MovementsMain movements;
-    public NPCEntity npc;
+    private NPCEntity npc;
     private Kit kit;
     private PacketsManager packetsManager;
-    public ViewsManager viewsManager;
+    private ViewsManager viewsManager;
     private EffectsManager effectsManager;
     private VelocityCalculator velocityCalculator;
     private MEventManager eventManager;
@@ -51,15 +50,13 @@ public class Bot {
     private FleeManager fleeManager;
     private EventRunnable eventListener;
     private DamageCalculator damageCalculator;
-    public boolean alive = true;
 
-    public final UUID uniqueId = UUID.randomUUID();
+    private boolean alive = true;
+    private final UUID uniqueId = UUID.randomUUID();
     private final CompositeTerminable terminable = CompositeTerminable.create();
 
     private final Player player;
-
-    public final SettingProfile profile;
-
+    private final SettingProfile profile;
     private Location startLocation;
 
     public Bot(Location loc, String name, Player player, SettingProfile profile, Kit kit) {
@@ -73,6 +70,7 @@ public class Bot {
         this.player = player;
         //Registering
         registerNPC(name, loc);
+        npc.getProfile().getProperties().put("textures", profile.getSkinProperties());
 
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
 
@@ -84,7 +82,6 @@ public class Bot {
         loadManagers();
         player.showPlayer(npc.getBukkitEntity());
 
-        npc.getProfile().getProperties().put("textures", profile.getSkinProperties());
         registerBot();
     }
 

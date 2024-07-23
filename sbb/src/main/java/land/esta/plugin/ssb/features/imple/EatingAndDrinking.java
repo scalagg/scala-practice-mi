@@ -24,7 +24,7 @@ public class EatingAndDrinking extends Feature {
 
     @Override
     public void listen(Event event) {
-        Bot bot = event.bot;
+        Bot bot = event.getBot();
 
         if (event instanceof SpawnEvent) {
             Schedulers

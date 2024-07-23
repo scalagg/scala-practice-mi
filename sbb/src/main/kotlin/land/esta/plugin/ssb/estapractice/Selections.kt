@@ -1,4 +1,4 @@
-package land.esta.plugin.ssb.support.estapractice
+package land.esta.plugin.ssb.estapractice
 
 import land.esta.plugin.ssb.bot.profile.RobotProfileService
 import land.esta.plugin.ssb.bot.setting.BotSettingService
