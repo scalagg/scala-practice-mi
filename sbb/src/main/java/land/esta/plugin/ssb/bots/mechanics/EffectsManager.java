@@ -28,20 +28,18 @@ public class EffectsManager extends Manager {
 
     public void updateEffects() {
         bot.getNpc().effects.clear();
-        effects.keySet().forEach(effect -> {
-            Schedulers.sync()
-                    .run(() -> {
-                        if (bot.getNpc() != null) {
-                            bot.getNpc().addEffect(new MobEffect(
-                                    effect.getId(),
-                                    100,
-                                    effects.get(effect),
-                                    true, true
-                            ));
-                        }
-                    })
-                    .bindWith(bot.getTerminable());
-        });
+        effects.keySet().forEach(effect -> Schedulers.sync()
+                .run(() -> {
+                    if (bot.getNpc() != null) {
+                        bot.getNpc().addEffect(new MobEffect(
+                                effect.getId(),
+                                100,
+                                effects.get(effect),
+                                true, true
+                        ));
+                    }
+                })
+                .bindWith(bot.getTerminable()));
     }
 
     public void addEffect(PotionEffectType type, Integer level) {

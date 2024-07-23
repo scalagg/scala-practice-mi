@@ -1,6 +1,5 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import land.esta.plugin.ssb.utils.objects.DataLocation;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;

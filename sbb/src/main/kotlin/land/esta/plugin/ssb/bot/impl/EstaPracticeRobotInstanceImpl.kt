@@ -4,18 +4,16 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.robot.RobotInstance
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
-import land.esta.plugin.ssb.support.estapractice.EstaPracticeManager
+import land.esta.plugin.ssb.estapractice.EstaPracticeIntegrator
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.Color
-import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.entity.Player
 
 /**
  * @author GrowlyX
  * @since 7/20/2024
  */
-class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val practiceManager: EstaPracticeManager) :
-    RobotInstance()
+class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotInstance()
 {
     private var spawnedBot: Bot? = null
 
@@ -47,7 +45,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     {
         if (spawnedBot == null)
         {
-            spawnedBot = practiceManager.spawn(
+            spawnedBot = EstaPracticeIntegrator.spawn(
                 gameImpl.map
                     .findSpawnLocationMatchingTeam(
                         gameImpl.robotSide().side

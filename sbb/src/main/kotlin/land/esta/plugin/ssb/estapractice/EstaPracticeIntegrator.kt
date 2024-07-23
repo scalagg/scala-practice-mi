@@ -1,296 +1,248 @@
-package land.esta.plugin.ssb.support.estapractice;
+package land.esta.plugin.ssb.estapractice
 
-import gg.tropic.practice.Globals;
-import gg.tropic.practice.games.GameImpl;
-import gg.tropic.practice.kit.feature.FeatureFlag;
-import gg.tropic.practice.profile.PracticeProfileService;
-import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
-import land.esta.plugin.ssb.bot.setting.setting.Option;
-import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
-import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
-import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
-import land.esta.plugin.ssb.utils.RandomUtil;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
-import land.esta.plugin.ssb.utils.Color;
-import me.lucko.helper.Events;
-import me.lucko.helper.Schedulers;
-import net.evilblock.cubed.ScalaCommonsSpigot;
-import net.evilblock.cubed.util.CC;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
+import gg.tropic.practice.Globals.PLAYER_BOT_UNIQUE_ID
+import gg.tropic.practice.games.GameImpl
+import gg.tropic.practice.kit.feature.FeatureFlag
+import land.esta.plugin.ssb.EstaRobotsPlugin.Companion.instance
+import land.esta.plugin.ssb.bot.setting.setting.root
+import land.esta.plugin.ssb.botevents.Event
+import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
+import land.esta.plugin.ssb.botevents.events.BotDamageEvent
+import land.esta.plugin.ssb.bots.Bot
+import land.esta.plugin.ssb.utils.Color
+import land.esta.plugin.ssb.utils.RandomUtil
+import land.esta.plugin.ssb.utils.objects.EventRunnable
+import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
+import net.evilblock.cubed.ScalaCommonsSpigot
+import org.bukkit.Location
+import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
+import java.util.logging.Logger
 
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
+object EstaPracticeIntegrator
+{
+    fun spawn(
+        location: Location,
+        game: GameImpl,
+        player: Player
+    ): Bot?
+    {
+        val selectedBot = ScalaCommonsSpigot.instance.kvConnection.sync()
+            .get(
+                "tropicpractice:bot-selection:${game.humanSide().players[0]}"
+            )
 
-@Getter
-@AllArgsConstructor
-public class EstaPracticeManager {
-
-    private final EstaPracticeSupport support;
-
-    public Bot spawn(
-            Location loc,
-            GameImpl game,
-            Player player
-    ) {
-        String selectedBot = ScalaCommonsSpigot.getInstance().getKvConnection().sync()
-                .get(
-                        "tropicpractice:bot-selection:" + game.humanSide().getPlayers().get(0)
-                );
-        if (selectedBot == null) {
-            Logger.getGlobal().info("No bot configuration was found!");
-            return null;
+        if (selectedBot == null)
+        {
+            Logger.getGlobal().info("No bot configuration was found!")
+            return null
         }
 
-        var split = selectedBot.split(":");
-        SettingProfile settings = SelectionsKt.loadSettingsFromSelection(
-                player,
-                split[0],
-                split.length == 1 ? null : split[1]
-        );
+        val split = selectedBot.split(":")
+        val settings = loadSettingsFromSelection(
+            player,
+            split[0],
+            split.getOrNull(1)
+        )
 
-        if (settings == null) {
-            Logger.getGlobal().info("No bot configuration was found!");
-            return null;
+        if (settings == null)
+        {
+            Logger.getGlobal().info("No bot configuration was found!")
+            return null
         }
 
-        if (/*settings.isGameRandomizer()*/false) {
-            for (Option<?> option : GlobalsKt.getRoot().recursiveOptions()) {
-                var profileValue = settings.setting(option);
+        if (settings.randomizerEnabled == true)
+        {
+            for (option in root.recursiveOptions())
+            {
+                val profileValue = settings.setting(option)
 
-                if (profileValue.getRandomizerMinMax().getFirst() <= 0 || profileValue.getRandomizerMinMax().getSecond() <= 0) continue;
+                if (profileValue.randomizerMinMax.first <= 0 || profileValue.randomizerMinMax.second <= 0) continue
 
-                if (profileValue.getObject() instanceof Boolean) {
-                    profileValue.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1);
-                } else if (profileValue.getObject() instanceof Double) {
-                    if ((Double) profileValue.getObject() % 1 == 0)
-                        if (RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()) != -1)
-                            profileValue.setObject(RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()));
-                        else if (RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()) != -1)
-                            profileValue.setObject(RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()));
-                } else {
-                    if (RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()) != -1)
-                        profileValue.setObject(RandomUtil.randInt((int) profileValue.getMin(), (int) profileValue.getMax()));
+                if (profileValue.getObject() is Boolean)
+                {
+                    profileValue.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1)
+                } else if (profileValue.getObject() is Double)
+                {
+                    if (profileValue.getObject() as Double % 1 == 0.0) if (RandomUtil.randInt(
+                            profileValue.getMin().toInt(), profileValue.getMax().toInt()
+                        ) != -1
+                    ) profileValue.setObject(
+                        RandomUtil.randInt(
+                            profileValue.getMin().toInt(),
+                            profileValue.getMax().toInt()
+                        )
+                    )
+                    else if (RandomUtil.randDouble(
+                            profileValue.getMin(),
+                            profileValue.getMax()
+                        ) != -1.0
+                    ) profileValue.setObject(RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()))
+                } else
+                {
+                    if (RandomUtil.randInt(
+                            profileValue.getMin().toInt(),
+                            profileValue.getMax().toInt()
+                        ) != -1
+                    ) profileValue.setObject(
+                        RandomUtil.randInt(
+                            profileValue.getMin().toInt(),
+                            profileValue.getMax().toInt()
+                        )
+                    )
                 }
             }
         }
 
-        String name = settings.getBotName();
-        if (name.length() > 16) {
-            name = name.substring(0, 16);
+        var name = settings.botName
+        if (name.length > 16)
+        {
+            name = name.substring(0, 16)
         }
 
-        Bot bot = new Bot(loc, Color.code(name), player, settings, game.getKit()); // ADDED: Applies the bot skin and name
-        if (game.flag(FeatureFlag.DeathOnLiquidInteraction)) {
-            bot.getMovements().setEdgeDetector(true);
+        val bot = Bot(
+            location,
+            Color.code(name),
+            player,
+            settings,
+            game.kit
+        )
+
+        bot.damageManager.isAllowGlobalAttacks = false
+
+        bot.damageManager.isNoDamage = game.flag(FeatureFlag.WinWhenNHitsReached)
+        bot.movements.isMove = false
+
+        if (game.flag(FeatureFlag.DeathOnLiquidInteraction))
+        {
+            bot.movements.isEdgeDetector = true
+            bot.movements.collision.waterEnterEvent = Runnable { bot.silentKill() }
         }
-
-        bot.getDamageManager().setAllowGlobalAttacks(false);
-//        bot.lightning();
-        bot.getMovements().getCollision().setWaterEnterEvent(bot::silentKill);
-        bot.getDamageManager().setNoDamage(game.flag(FeatureFlag.WinWhenNHitsReached));
-        bot.getMovements().setMove(false);
-
-//        if (combo) bot.getDamageManager().setCombo(combo);
 
         //Boxing support
+        if (game.flag(FeatureFlag.WinWhenNHitsReached))
+        {
+            val robot = game.robotSide()
+            val metadata = game.flagMetaData(FeatureFlag.WinWhenNHitsReached, "hits")!!
+                .toInt()
 
-        if (game.flag(FeatureFlag.WinWhenNHitsReached)) {
-            var robot = game.robotSide();
-            var metadata = Integer.parseInt(
-                    game.flagMetaData(FeatureFlag.WinWhenNHitsReached, "hits")
-            );
+            bot.eventListener = (EventRunnable { event: Event? ->
+                if (event is BotDamageEvent)
+                {
+                    if (event.source != null && event.source.entity != null &&
+                        event.source.entity.uniqueID == player.uniqueId
+                    )
+                    {
+                        val playerCounter = game.counter(player)
+                        game.humanSide().gameLifecycleArbitraryObjectiveProgress += 1
+                        game.humanSide().playerCombos.compute(player.uniqueId) { _, combo -> (combo ?: 0) + 1 }
 
-            bot.setEventListener((event -> {
-                if (event instanceof BotDamageEvent) {
-                    if (
-                            ((BotDamageEvent) event).getSource() != null &&
-                                    ((BotDamageEvent) event).getSource().getEntity() != null &&
-                                    ((BotDamageEvent) event).getSource().getEntity().getUniqueID().equals(player.getUniqueId())
-                    ) {
-                        var playerCounter = game.counter(player);
-                        game.humanSide().setGameLifecycleArbitraryObjectiveProgress(
-                                game.humanSide().getGameLifecycleArbitraryObjectiveProgress() + 1
-                        );
+                        playerCounter.increment("totalHits")
+                        playerCounter.increment("combo")
 
-                        game.humanSide().getPlayerCombos().compute(
-                                player.getUniqueId(),
-                                (k, combo) -> (combo == null ? 0 : combo) + 1
-                        );
-
-                        playerCounter.increment("totalHits");
-                        playerCounter.increment("combo");
-
-                        if (playerCounter.valueOf("combo") > playerCounter.valueOf("highestCombo")) {
+                        if (playerCounter.valueOf("combo") > playerCounter.valueOf("highestCombo"))
+                        {
                             playerCounter.update(
-                                    "highestCombo",
-                                    playerCounter.valueOf("combo")
-                            );
+                                "highestCombo",
+                                playerCounter.valueOf("combo")
+                            )
                         }
 
-                        var dataPlayer = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
-                        if (dataPlayer != null) {
-                            dataPlayer.hit();
-                        }
+                        val dataPlayer = instance!!.dataManager.getPlayer(player)
+                        dataPlayer?.hit()
 
-                        robot.getPlayerCombos().put(Globals.getPLAYER_BOT_UNIQUE_ID(), 0);
+                        robot.playerCombos[PLAYER_BOT_UNIQUE_ID] = 0
 
-                        if (game.humanSide().getGameLifecycleArbitraryObjectiveProgress() >= metadata) {
-                            bot.kill();
+                        if (game.humanSide().gameLifecycleArbitraryObjectiveProgress >= metadata)
+                        {
+                            bot.kill()
                         }
-                    } else {
-                        BotDamageEvent damageEvent = (BotDamageEvent) event;
-                        damageEvent.setCanceled(true);
+                    } else
+                    {
+                        event.isCanceled = true
                     }
                 }
+                if (event is BotAttackLandEvent)
+                {
+                    robot.gameLifecycleArbitraryObjectiveProgress += 1
+                    game.humanSide().playerCombos.clear()
 
-                if (event instanceof BotAttackLandEvent) {
-                    robot.setGameLifecycleArbitraryObjectiveProgress(
-                            robot.getGameLifecycleArbitraryObjectiveProgress() + 1
-                    );
+                    val dataPlayer = instance!!.dataManager.getPlayer(player)
+                    dataPlayer?.botHit()
 
-                    game.humanSide().getPlayerCombos().clear();
-
-                    var dataPlayer = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
-                    if (dataPlayer != null) {
-                        dataPlayer.botHit();
-                    }
-
-                    if (robot.getGameLifecycleArbitraryObjectiveProgress() >= metadata) {
-                        game.complete(robot, "");
+                    if (robot.gameLifecycleArbitraryObjectiveProgress >= metadata)
+                    {
+                        game.complete(robot, "")
                     }
                 }
-            }));
+            })
 
             Events
-                    .subscribe(EntityDamageByEntityEvent.class)
-                    .handler(event -> {
-                        if (event.getEntity() instanceof Player other) {
-                            if (other.equals(player)) {
-                                event.setDamage(0.0);
-                            }
-                        }
-                    })
-                    .bindWith(game);
-        }/* else
-        {
-            bot.setEventListener((event -> {
-                if (event instanceof BotDamageEvent) {
-                    if (
-                            ((BotDamageEvent) event).getSource() != null &&
-                                    ((BotDamageEvent) event).getSource().getEntity() != null &&
-                                    ((BotDamageEvent) event).getSource().getEntity().getUniqueID().equals(player.getUniqueId())
-                    ) {
-                        var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
-                        if (dataPlayer != null) {
-                            dataPlayer.hit();
+                .subscribe(EntityDamageByEntityEvent::class.java)
+                .handler { event ->
+                    if (event.entity is Player)
+                    {
+                        if (event.entity == player)
+                        {
+                            event.damage = 0.0
                         }
                     }
                 }
-
-                if (event instanceof BotAttackLandEvent) {
-                    var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
-                    if (dataPlayer != null) {
-                        dataPlayer.botHit();
-                    }
-                }
-            }));
-        }*/
+                .bindWith(game)
+        }
 
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {
-            if (bot.isAlive()) {
-                bot.getMovements().setMove(true);
+            if (bot.isAlive)
+            {
+                bot.movements.isMove = true
             }
-        } else {
+        } else
+        {
             Schedulers
-                    .sync()
-                    .runLater(() -> {
-                        if (bot.isAlive()) {
-                            bot.getMovements().setMove(true);
-                        }
-                    }, 5 * 20L)
-                    .bindWith(bot.getTerminable());
+                .sync()
+                .runLater({
+                    if (bot.isAlive)
+                    {
+                        bot.movements.isMove = true
+                    }
+                }, 5 * 20L)
+                .bindWith(bot.terminable)
         }
 
-        InventoryManager inventoryManager = bot.getInventoryManager();
-        try {
-            inventoryManager.applyItemList(
-                    Stream
-                            .of(game.getKit().getContents())
-                            .map(ItemStack::clone)
-                            .toList()
-            );
-        } catch (Exception ignored) {
+        val inventoryManager = bot.inventoryManager
+        inventoryManager.applyItemList(game.kit.contents.toList())
 
-        }
+        game.kit.armorContents
+            .forEachIndexed { index, itemStack ->
+                if (itemStack == null)
+                {
+                    return@forEachIndexed
+                }
 
-        if (game.getKit().getArmorContents()[3] != null) {
-            // inventoryManager.updateHelmet(helmet.clone());
-            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[3].clone(), 4);
-        }
-        if (game.getKit().getArmorContents()[2] != null) {
-            // inventoryManager.updateChestPlate(chestPlate.clone());
-            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[2].clone(), 3);
-        }
-        if (game.getKit().getArmorContents()[1] != null) {
-            // inventoryManager.updateLeggings(leggings.clone());
-            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[1].clone(), 2);
-        }
-        if (game.getKit().getArmorContents()[0] != null) {
-            // inventoryManager.updateBoots(boots.clone());
-            inventoryManager.updateArmorContents(game.getKit().getArmorContents()[0].clone(), 1);
-        }
+                inventoryManager.updateArmorContents(itemStack.clone(), index + 1)
+            }
 
         Schedulers
-                .sync()
-                .runLater(() -> bot.getEffectsManager().addEffects(
-                        game.getKit()
-                                .getPotionEffects()
-                                .entrySet()
-                                .stream()
-                                .map(pair -> new PotionEffect(
-                                        PotionEffectType.getByName(pair.getKey()), Integer.MAX_VALUE, pair.getValue()
-                                ))
-                                .toList()
-                ), 1L)
-                .bindWith(bot.getTerminable());
-
-        //TODO combo mode support.
-        return bot;
-    }
-
-
-    public void kill(int id) {
-        Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromId(id);
-        if (bot != null && bot.isAlive()) bot.silentKill();
-    }
-
-    public int getElo(Player player, String kitName) {
-        var rankedStats = PracticeProfileService.INSTANCE
-                .find(player)
-                .getRankedStatistics()
-                .get(kitName);
-
-        if (rankedStats == null) {
-            return 1000;
-        }
-
-        int playerKitElo = rankedStats.getElo();
-
-        int elo1 = playerKitElo - 100;
-        int elo2 = playerKitElo + 100;
-
-        return ThreadLocalRandom.current().nextInt(elo2 - elo1) + elo1;
+            .sync()
+            .runLater({
+                bot.effectsManager.addEffects(
+                    game.kit
+                        .potionEffects
+                        .entries
+                        .stream()
+                        .map { pair: Map.Entry<String?, Int?> ->
+                            PotionEffect(
+                                PotionEffectType.getByName(pair.key), Int.MAX_VALUE, pair.value!!
+                            )
+                        }
+                        .toList()
+                )
+            }, 1L)
+            .bindWith(bot.terminable)
+        return bot
     }
 }
