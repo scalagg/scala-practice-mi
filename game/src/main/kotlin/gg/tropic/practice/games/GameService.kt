@@ -73,13 +73,6 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
 
-val ensureCauseDenied = EnumSet.of(
-    DamageCause.BLOCK_EXPLOSION,
-    DamageCause.FIRE,
-    DamageCause.LAVA,
-    DamageCause.STARVATION,
-    DamageCause.LIGHTNING
-)
 
 /**
  * @author GrowlyX
@@ -110,6 +103,14 @@ object GameService
     val playerToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
     val spectatorToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
 
+    private val ensureCauseDenied = EnumSet.of(
+        DamageCause.BLOCK_EXPLOSION,
+        DamageCause.FIRE,
+        DamageCause.LAVA,
+        DamageCause.STARVATION,
+        DamageCause.LIGHTNING
+    )
+
     @Configure
     fun configure()
     {
@@ -120,7 +121,9 @@ object GameService
         Events
             .subscribe(ServerShutdownEvent::class.java)
             .handler {
-                gameMappings.values.forEach { game -> game.complete(null, "Server rebooting") }
+                gameMappings.values.forEach { game ->
+                    game.complete(null, "Server rebooting")
+                }
             }
 
         AnticheatFeature.configureAlertFilter {
@@ -164,6 +167,8 @@ object GameService
                     .toList()
                     .map {
                         val players = it.toBukkitPlayers()
+                            .filterNotNull()
+                            .toList()
 
                         val majoritySpectatorsEnabled = players
                             .mapNotNull(BasicsProfileService::find)
@@ -283,7 +288,7 @@ object GameService
 
             val killEffectCosmetic = killerCosmetic as KillEffect
             killEffectCosmetic.applyTo(
-                game.toBukkitPlayers(),
+                game.toBukkitPlayers().filterNotNull(),
                 player, target
             )
 
@@ -386,10 +391,12 @@ object GameService
 
             if (!noAlive)
             {
-                game.toBukkitPlayers().forEach { other ->
-                    VisibilityHandler.update(other)
-                    NametagHandler.reloadPlayer(this, other)
-                }
+                game.toBukkitPlayers()
+                    .filterNotNull()
+                    .forEach { other ->
+                        VisibilityHandler.update(other)
+                        NametagHandler.reloadPlayer(this, other)
+                    }
             }
 
             val killerPlayer = event.killerPlayerOverride ?: killedBy()
@@ -932,34 +939,59 @@ object GameService
                 }
             }
 
-        Schedulers.async().runRepeating({ _ ->
-            gameMappings.values.forEach {
-                if (it.state != GameState.Playing) return@runRepeating
+        Schedulers
+            .async()
+            .runRepeating({ _ ->
+                gameMappings.values.forEach {
+                    if (it.state != GameState.Playing)
+                    {
+                        return@runRepeating
+                    }
 
-                if (it.toBukkitPlayers().isEmpty())
-                {
-                    Tasks.sync {
-                        kotlin.runCatching {
-                            it.complete(null, reason = "Zero players alive in match")
-                        }.onFailure(Throwable::printStackTrace)
+                    if (it.toBukkitPlayers().all { player -> player == null })
+                    {
+                        Tasks.sync {
+                            kotlin.runCatching {
+                                it.complete(null, reason = "Zero players alive in match")
+                            }.onFailure(Throwable::printStackTrace)
+                        }
                     }
                 }
-            }
-        }, 0L, 20L)
+            }, 0L, 20L)
 
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
-                val game = byPlayer(it.player) ?: return@handler
+                val game = byPlayer(it.player)
+                    ?: return@handler
 
-                checkForGamePlaying(game, it)
-                if (
-                    game.state(GameState.Starting) ||
-                    game.state(GameState.Waiting)
-                )
+                if (game.ensurePlaying())
                 {
-                    game.state = GameState.Completed
-                    game.closeAndCleanup()
+                    val team = game.getTeamOf(it.player)
+                    val noAlive = if (team.players.size > 1)
+                        team.nonSpectators().isEmpty() else true
+
+                    game.takeSnapshot(it.player)
+                    game.sendMessage(
+                        "${CC.RED}${it.player.name}${CC.GRAY} left the game."
+                    )
+
+                    if (noAlive)
+                    {
+                        game.complete(
+                            game.getOpponent(it.player)
+                        )
+                    }
+                } else
+                {
+                    if (
+                        game.state(GameState.Starting) ||
+                        game.state(GameState.Waiting)
+                    )
+                    {
+                        game.state = GameState.Completed
+                        game.closeAndCleanup()
+                    }
                 }
             }
             .bindWith(plugin)
@@ -974,7 +1006,7 @@ object GameService
                     return@handler
                 }
 
-                if (ensureCauseDenied.contains(it.cause))
+                if (it.cause in ensureCauseDenied)
                 {
                     it.isCancelled = true
                     return@handler
@@ -1565,28 +1597,6 @@ object GameService
                 }
             }
             .bindWith(plugin)
-    }
-
-    private fun checkForGamePlaying(game: GameImpl, it: PlayerQuitEvent)
-    {
-        if (game.ensurePlaying())
-        {
-            val team = game.getTeamOf(it.player)
-            val noAlive = if (team.players.size > 1)
-                team.nonSpectators().isEmpty() else true
-
-            game.takeSnapshot(it.player)
-            game.sendMessage(
-                "${CC.RED}${it.player.name}${CC.GRAY} left the game."
-            )
-
-            if (noAlive)
-            {
-                game.complete(
-                    game.getOpponent(it.player)
-                )
-            }
-        }
     }
 
     fun byPlayer(player: Player) =

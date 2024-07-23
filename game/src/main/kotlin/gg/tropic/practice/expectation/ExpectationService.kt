@@ -121,6 +121,7 @@ object ExpectationService
                 {
                     game
                         .toBukkitPlayers()
+                        .filterNotNull()
                         .first().location
                 }
 

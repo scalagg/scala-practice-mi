@@ -120,7 +120,6 @@ object MapReplicationService
             scheduledMap.inUse = true
 
             newGame.arenaWorldName = scheduledMap.world.name
-            newGame.arenaWorld = scheduledMap.world
 
             if (newGame.robot())
             {
