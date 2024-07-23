@@ -120,7 +120,7 @@ data class Option<T : Any>(
                     if (setting.getObject() is Int)
                     {
                         val integer = setting.getObject() as Int
-                        if (integer - increment.toInt() < 0.0) setting.setObject(0.0)
+                        if (integer - increment.toInt() < 0) setting.setObject(0)
                         else setting.setObject(integer - increment.toInt())
                     } else
                     {
