@@ -99,7 +99,7 @@ public class Movements extends Manager {
         updateValues(motion.clone(),true);
     }
 
-    public static void sendMove(Vector motion,boolean addLastMotion) {
+    public void sendMove(Vector motion,boolean addLastMotion) {
         bot.getMovements().move(motion,addLastMotion);
     }
 

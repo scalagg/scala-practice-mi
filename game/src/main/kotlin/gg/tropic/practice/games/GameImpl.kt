@@ -78,9 +78,7 @@ open class GameImpl(
         get() = MapService.mapWithID(mapId)!!
 
     var arenaWorldName: String? = null
-
-    val arenaWorld: World?
-        get() = Bukkit.getWorld(this.arenaWorldName)
+    var arenaWorld: World? = null
 
     val audiences: BukkitAudiences
         get() = ExpectationService.audiences
@@ -581,7 +579,7 @@ open class GameImpl(
                     it.kickPlayer("You should not be on this server!")
                 }
 
-                Tasks.delayed(10L, this::unloadWorld);
+                Tasks.delayed(10L, this::unloadWorld)
                 return@delayed
             }
 
@@ -592,6 +590,7 @@ open class GameImpl(
     private fun unloadWorld()
     {
         Bukkit.unloadWorld(arenaWorld, false)
+        arenaWorld = null
     }
 
     fun ensurePlaying() = this.state == GameState.Playing

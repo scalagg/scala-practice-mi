@@ -19,6 +19,7 @@ import land.esta.plugin.ssb.utils.Color;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import net.evilblock.cubed.ScalaCommonsSpigot;
+import net.evilblock.cubed.util.CC;
 import org.bukkit.Location;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;

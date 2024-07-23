@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -21,7 +22,6 @@ public class VelocityCalculator extends Manager {
         super(bot);
     }
 
-    @Getter
     private boolean velocityReplace;
     private Vector velocity = null;
     private boolean damage;
@@ -37,6 +37,10 @@ public class VelocityCalculator extends Manager {
         velocityReplace = true;
     }
 
+    public boolean isVelocityReplace() {
+        return velocityReplace;
+    }
+
     public Vector getReplacedVelocity(Vector motion) {
         if (velocity == null) return getVelocityBot(attacker, bot, sprinting, motion);
         Vector clonedVelocity = velocity.clone();
@@ -47,13 +51,13 @@ public class VelocityCalculator extends Manager {
     public Vector getVelocityBot(EntityPlayer attacker, Bot bot, boolean sprinting, Vector motion) {
         Vector dir = MathUtils.getDirection(attacker.yaw);
 
-        VelocitySettings velocitySettings = settingManager.getVelocitySettings();
+        VelocitySettings velocitySettings = RootAccessor.INSTANCE.getVelocitySettings();
 
-        double horizontalKnockback = velocitySettings.getHorizontal().getDoubleValue();
-        double reach = velocitySettings.getDependentRange().getDoubleValue();
-        double distMultiplier = velocitySettings.getDependentRangeMultiplier().getDoubleValue();
-        double verticalKnockback = velocitySettings.getVertical().getDoubleValue();
-        double motionMultiplier = velocitySettings.getMotionFriction().getDoubleValue();
+        double h = bot.getProfile().value(velocitySettings.getHorizontal());
+        double reach = bot.getProfile().value(velocitySettings.getDependentRange());
+        double distMultiplier = bot.getProfile().value(velocitySettings.getDependentRangeMultiplier());
+        double v = bot.getProfile().value(velocitySettings.getVertical());
+        double motionMultiplier = bot.getProfile().value(velocitySettings.getMotionFriction());
         double extraH = 0;
         Location botLocation = bot.getMovements().getLocation();
         Location attackerLocation = attacker.getBukkitEntity().getLocation();
@@ -63,25 +67,25 @@ public class VelocityCalculator extends Manager {
             extraH = Math.min(Math.max((reach - (botLocation.distance(attackerLocation) - 0.3)) * distMultiplier, 0), 0.4);
         }
 
-        if (sprinting) horizontalKnockback *= velocitySettings.getSprintMultiplier().getDoubleValue();
+        if (sprinting) h *= bot.getProfile().value(velocitySettings.getSprintMultiplier());
 
         // Calculate the distance between the bot and the attacker
         double distance = bot.getMovements().getLocation().distance(attacker.getBukkitEntity().getLocation());
 
         // Calculate the reduction percentage (max 2%)
-        double reductionPercentage = Math.min(2, distance); // 1% reduction per block, max 2%
+        double reductionPercentage = Math.min(2, distance * 1.0); // 1% reduction per block, max 2%
 
         // Adjust the horizontal velocity components by the reduction percentage
-        horizontalKnockback *= (1 - reductionPercentage / 100.0);
+        h *= (1 - reductionPercentage / 100.0);
 
-        if (bot.getMovements().isOnGround()) horizontalKnockback *= velocitySettings.getGroundMultiplier().getDoubleValue();
-        horizontalKnockback += extraH;
-        horizontalKnockback -= velocitySettings.getHorizontal().getDoubleValue();
+        if (bot.getMovements().isOnGround()) h *= bot.getProfile().value(velocitySettings.getGroundMultiplier());
+        h += extraH;
+        h -= bot.getProfile().value(velocitySettings.getHorizontal());
 
-        Vector velocity = dir.clone().multiply(new Vector(horizontalKnockback, 1, horizontalKnockback));
+        Vector velocity = dir.clone().multiply(new Vector(h, 1, h));
         motion.multiply(-motionMultiplier);
         motion.setY(0);
-        velocity.setY(verticalKnockback);
+        velocity.setY(v);
 
         if (bot.getDamageManager().isCombo()) {
             // Bukkit.broadcastMessage("Combo!");
@@ -107,17 +111,17 @@ public class VelocityCalculator extends Manager {
         }
 
         if (!bot.getDamageManager().isCombo()) {
-            velocity.add(getBasedVelocity(distanceX, distanceZ, velocitySettings.getHorizontal().getDoubleValue()));
+            velocity.add(getBasedVelocity(distanceX, distanceZ, bot.getProfile().value(velocitySettings.getHorizontal())));
         }
 
         return velocity;
     }
 
-    public static Vector getBasedVelocity(double d0, double d1, double horizontal) {
-        double magnitude = Math.sqrt(d0 * d0 + d1 * d1);
+    public Vector getBasedVelocity(double d0, double d1, double horizontal) {
+        float magnitude = MathHelper.sqrt(d0 * d0 + d1 * d1);
 
-        double x = d0 / magnitude * horizontal;
-        double z = d1 / magnitude * horizontal;
+        double x = d0 / (double) magnitude * horizontal;
+        double z = d1 / (double) magnitude * horizontal;
 
         return new Vector(x, 0, z);
     }
