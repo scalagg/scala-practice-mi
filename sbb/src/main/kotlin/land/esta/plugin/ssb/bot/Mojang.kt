@@ -40,7 +40,7 @@ fun getProfile(username: String): MojangProfile?
     }
 
     val sessionServerResponse = runCatching {
-        URL("https://sessionserver.mojang.com/session/minecraft/profile/$uniqueId")
+        URL("https://sessionserver.mojang.com/session/minecraft/profile/$uniqueId?unsigned=false")
             .readText()
     }.getOrNull()
         ?: return null
