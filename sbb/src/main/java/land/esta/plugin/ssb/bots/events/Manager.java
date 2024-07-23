@@ -1,7 +1,7 @@
 package land.esta.plugin.ssb.bots.events;
 
 import land.esta.plugin.ssb.EstaRobotsPlugin;
-import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
+import land.esta.plugin.ssb.bot.impl.ParallelKt;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 public class Manager {
 
     protected final Bot bot;
-    private final SettingProfile profile = bot.getProfile();
 
     public void globalAction(PlayerRunnable runnable) {
         getBot().getViewsManager().getPlayers().forEach(player -> runnable.run(player, 0));
@@ -24,9 +23,11 @@ public class Manager {
     public void addPlayerToList(Player player) {}
 
     public void callEventAsync(Event event) {
-        for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
-            events.call(event);
-        }
+        ParallelKt.getAsyncEventThreadPool().submit(() -> {
+            for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
+                events.call(event);
+            }
+        });
     }
 
     public void callEvent(Event event) {
@@ -34,7 +35,6 @@ public class Manager {
             events.call(event);
         }
     }
-
 
     public void queueUpdate() {}
     public void tickEarly() {}

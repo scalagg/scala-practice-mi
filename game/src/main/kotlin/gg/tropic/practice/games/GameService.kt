@@ -424,7 +424,7 @@ object GameService
                 }"
             }!"
 
-            if (killerPlayer is Player)
+            if (killerPlayer is Player && !game.robot())
             {
                 with(PracticeProfileService.find(killerPlayer)) {
                     if (this != null)
@@ -456,15 +456,18 @@ object GameService
                 }
             }
 
-            with(PracticeProfileService.find(this)) {
-                if (this != null)
-                {
-                    useKitStatistics(game) {
-                        deaths += 1
-                    }
+            if (!game.robot())
+            {
+                with(PracticeProfileService.find(this)) {
+                    if (this != null)
+                    {
+                        useKitStatistics(game) {
+                            deaths += 1
+                        }
 
-                    globalStatistics.userWasKilled().apply()
-                    save()
+                        globalStatistics.userWasKilled().apply()
+                        save()
+                    }
                 }
             }
 
