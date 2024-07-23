@@ -1,10 +1,6 @@
 package land.esta.plugin.ssb.support.estapractice;
 
-import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.games.robot.RobotGameLifecycle;
-import gg.tropic.practice.games.robot.RobotInstance;
-import gg.tropic.practice.map.metadata.anonymous.BukkitExtKt;
-import kotlin.jvm.functions.Function1;
 import land.esta.plugin.ssb.bot.impl.EstaPracticeRobotInstanceImpl;
 import lombok.Getter;
 import lombok.Setter;

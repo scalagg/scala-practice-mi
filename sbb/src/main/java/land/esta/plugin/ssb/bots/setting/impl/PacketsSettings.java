@@ -1,17 +1,31 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
-public class PacketsSettings extends Setting {
-    private final SettingObject relativeMove = new SettingObject("Relative Move",Material.STRING,false);
+public class PacketsSettings extends Category {
+    private final Option<Boolean> relativeMove = new Option<>("Relative Move", Material.STRING, this, false, -1);
 
-    public PacketsSettings() {
-        super(Material.STRING,"&c&lPackets Settings","Packets", "packetssettings",0,false,"&f In this category","&f you are able to","&f modify the bot's","&f packets settings.","","&aClick to select!");
+    public PacketsSettings(Category parent) {
+        super(
+                "packetsettings",
+                Arrays.asList(
+                        "Configurable packet",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.STRING),
+                parent,
+                "Packet Settings",
+                "botgui.packetsettings"
+        );
 
-        addSetting(relativeMove);
+        addChildren(relativeMove);
     }
 }

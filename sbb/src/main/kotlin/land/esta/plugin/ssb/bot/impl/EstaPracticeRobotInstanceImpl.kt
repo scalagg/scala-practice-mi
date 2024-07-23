@@ -22,7 +22,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     init
     {
         terminable.with {
-            if (spawnedBot?.killed == true)
+            if (spawnedBot?.alive == false)
             {
                 return@with
             }
@@ -42,7 +42,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
             .bindWith(terminable)
     }
 
-    override fun name(): String = spawnedBot?.settingManager?.botName?.let(Color::translate) ?: ""
+    override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
     override fun participantConnected(player: Player)
     {
         if (spawnedBot == null)
@@ -69,14 +69,6 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
 
     override fun destroy()
     {
-        if (spawnedBot?.killed == true)
-        {
-            runCatching {
-                spawnedBot?.npc?.bukkitEntity?.remove()
-            }
-            return
-        }
-
         spawnedBot?.silentKill()
     }
 }

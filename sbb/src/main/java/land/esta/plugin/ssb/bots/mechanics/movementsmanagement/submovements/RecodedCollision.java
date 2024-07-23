@@ -1,10 +1,10 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import land.esta.plugin.ssb.bots.setting.impl.PlaystyleSettings;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.objects.AABB;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
@@ -110,17 +110,16 @@ public class RecodedCollision extends Manager {
         from.setX(x);
 
         //Jumping
-        PlaystyleSettings styleManager = bot.getSettingManager().getPlaystyleSettings();
-        if (bot.getSettingManager().getPlaystyleSettings().getAlwaysJump().isBooleanValue()) {
+        if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getAlwaysJump())) {
             //Jump when combed
-            if (styleManager.getJumpWhileCombo().isBooleanValue() && SmartBotsBackend.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot,0) >= styleManager.getJumpWhileComboHits().getIntValue()) {
+            if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileCombo()) && EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(),0) >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileComboHits())) {
                 bot.getMovements().setJump(true);
             }
 
             //Jump when attacking
-            int combo = SmartBotsBackend.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity()).getBotCombo();
-            int required = styleManager.getJumpComboHits().getIntValue() + 1;
-            if (styleManager.getJumpCombo().isBooleanValue() && combo > required && combo % (required - 1) == 0 && last != combo) {
+            int combo = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity()).getBotCombo();
+            int required = bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpComboHits()) + 1;
+            if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpCombo()) && combo > required && combo % (required - 1) == 0 && last != combo) {
                 jump = true;
             }
 

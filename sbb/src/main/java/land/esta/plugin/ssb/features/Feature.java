@@ -4,8 +4,7 @@ import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.SettingManager;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -13,23 +12,21 @@ import org.bukkit.plugin.Plugin;
 public class Feature extends BotEvent implements Listener {
 
     public Feature() {
-        SmartBotsBackend.getInstance().getEventManager().registerEvent(this);
-        Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
+        EstaRobotsPlugin.getInstance().getEventManager().registerEvent(this);
+        Bukkit.getServer().getPluginManager().registerEvents(this, EstaRobotsPlugin.getInstance());
     }
 
     public Feature(Plugin plugin) {
-        SmartBotsBackend.getInstance().getEventManager().registerEvent(this);
+        EstaRobotsPlugin.getInstance().getEventManager().registerEvent(this);
         Bukkit.getServer().getPluginManager().registerEvents(this,plugin);
     }
 
     /*  Known events */
-
     public void listen(Event event) {
-        if (event instanceof FinalMoveEvent) {
-            FinalMoveEvent e = (FinalMoveEvent) event;
-            finalMoveEvent(e, event.bot,event.bot.getSettingManager());
+        if (event instanceof FinalMoveEvent e) {
+            finalMoveEvent(e, event.bot);
         }
     }
 
-    public void finalMoveEvent(FinalMoveEvent event, Bot bot, SettingManager setting) {}
+    public void finalMoveEvent(FinalMoveEvent event, Bot bot) {}
 }

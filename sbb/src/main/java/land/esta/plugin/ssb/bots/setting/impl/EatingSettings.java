@@ -1,23 +1,37 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
 @Setter
-public class EatingSettings extends Setting {
+public class EatingSettings extends Category {
 
-    private SettingObject startEatingTimer = new SettingObject("Start Eating Timer",Material.GOLDEN_APPLE,40,2);
-    private SettingObject startEatingDistance = new SettingObject("Start Eating Distance",Material.MUSHROOM_SOUP,3.0,1);
-    private SettingObject eatingGappleHealth = new SettingObject("Eating Gapple Health",Material.GOLDEN_APPLE,15,1);
-    private SettingObject cancelEatingDistance = new SettingObject("Jump Eating Distance", Material.BARRIER,4.5,0.1);
-    private SettingObject preGap = new SettingObject("Pre Gappling", Material.GOLDEN_CARROT,true);
+    private Option<Integer> startEatingTimer = new Option<>("Start Eating Timer", Material.GOLDEN_APPLE, this, 40, 2, 300);
+    private Option<Double> startEatingDistance = new Option<>("Start Eating Distance", Material.MUSHROOM_SOUP, this, 3.0, 1, 20);
+    private Option<Integer> eatingGappleHealth = new Option<>("Eating Gapple Health", Material.GOLDEN_APPLE, this, 15, 1, 30);
+    private Option<Double> cancelEatingDistance = new Option<>("Jump Eating Distance", Material.BARRIER, this, 4.5, 0.1, 15);
+    private Option<Boolean> preGap = new Option<>("Pre Gappling", Material.GOLDEN_CARROT, this, true, -1);
 
-    public EatingSettings() {
-        super(Material.GOLDEN_APPLE,"&c&lGapple Settings","Gapple", "gapplesettings", 14,false,"&f In this category","&f you are able to","&f modify the bot's","&f gapple settings.","","&aClick to select!");
-        addSettings(preGap,startEatingDistance,startEatingTimer,eatingGappleHealth,cancelEatingDistance);
+    public EatingSettings(Category parent) {
+        super(
+                "gapplesettings",
+                Arrays.asList(
+                        "Configurable gapple",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.GOLDEN_APPLE),
+                parent,
+                "Gapple Settings",
+                "botgui.gapplesettings"
+        );
+        addChildren(preGap, startEatingDistance, startEatingTimer, eatingGappleHealth, cancelEatingDistance);
     }
 }

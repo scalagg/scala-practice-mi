@@ -4,7 +4,8 @@ import lombok.Getter;
 import land.esta.plugin.ssb.botevents.events.EffectEndEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.MobEffect;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -17,49 +18,55 @@ import java.util.Map;
 @Getter
 public class EffectsManager extends Manager {
 
-    private final Map<PotionEffectType,Integer> effects;
+    private final Map<PotionEffectType, Integer> effects = new HashMap<>();
     private final Bot bot;
 
     public EffectsManager(Bot bot) {
         super(bot);
-        effects = new HashMap<>();
         this.bot = bot;
     }
 
     public void updateEffects() {
         bot.getNpc().effects.clear();
         effects.keySet().forEach(effect -> {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    bot.getNpc().addEffect(new MobEffect(effect.getId(),100,effects.get(effect),true,true));
-
-                }
-            }.runTask(SmartBotsBackend.getInstance());
+            Schedulers.sync()
+                    .run(() -> {
+                        if (bot.getNpc() != null) {
+                            bot.getNpc().addEffect(new MobEffect(
+                                    effect.getId(),
+                                    100,
+                                    effects.get(effect),
+                                    true, true
+                            ));
+                        }
+                    })
+                    .bindWith(bot.getTerminable());
         });
     }
 
     public void addEffect(PotionEffectType type, Integer level) {
         effects.put(type, level);
-        addEffectEvent(type, level,true);
+        addEffectEvent(type, level, true);
     }
 
     public void removeEffect(PotionEffectType type) {
-        effects.put(type,0);
-        bot.getMovements().callEventAsync(new EffectEndEvent(bot,type));
+        effects.put(type, 0);
+        bot.getMovements().callEventAsync(new EffectEndEvent(bot, type));
         updateEffects();
     }
 
-    public void addEffect(PotionEffectType type,Integer level,int time,boolean update) {
-        effects.put(type,level);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!bot.isAlive()) return;
-                removeEffect(type);
-            }
-        }.runTaskLater(SmartBotsBackend.getInstance(), time / 20);
-        addEffectEvent(type,level,update);
+    public void addEffect(PotionEffectType type, Integer level, int time, boolean update) {
+        effects.put(type, level);
+
+        Schedulers
+                .sync()
+                .runLater(() -> {
+                    if (!bot.isAlive()) return;
+                    removeEffect(type);
+                }, time / 20)
+                .bindWith(bot.getTerminable());
+
+        addEffectEvent(type, level, update);
     }
 
     public int getLevel(PotionEffectType type) {
@@ -69,7 +76,7 @@ public class EffectsManager extends Manager {
 
     public void addEffects(Collection<PotionEffect> effects) {
         for (PotionEffect effect : effects) {
-            addEffect(effect.getType(),effect.getAmplifier() + 1, effect.getDuration() * 20,false);
+            addEffect(effect.getType(), effect.getAmplifier() + 1, effect.getDuration() * 20, false);
         }
         updateEffects();
     }
@@ -83,11 +90,11 @@ public class EffectsManager extends Manager {
         return true;
     }
 
-    public void addEffectEvent(PotionEffectType type,int level,boolean update) {
+    public void addEffectEvent(PotionEffectType type, int level, boolean update) {
         if (type == PotionEffectType.ABSORPTION) {
             int extraHealth = 4 * level;
             bot.getHealthManager().setAbsHearts(extraHealth);
         }
-        if (update)updateEffects();
+        if (update) updateEffects();
     }
 }

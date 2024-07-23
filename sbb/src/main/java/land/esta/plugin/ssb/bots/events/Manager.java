@@ -1,11 +1,11 @@
 package land.esta.plugin.ssb.bots.events;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.SettingManager;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.objects.PlayerRunnable;
 import org.bukkit.entity.Player;
@@ -13,13 +13,13 @@ import org.bukkit.entity.Player;
 @Getter
 public class Manager {
 
-    public SettingManager settingManager;
+    public SettingProfile profile;
 
     public final Bot bot;
 
     public Manager(Bot bot) {
         this.bot = bot;
-        settingManager = bot.getSettingManager();
+        profile = bot.getProfile();
     }
 
     public void globalAction(PlayerRunnable runnable) {
@@ -28,20 +28,16 @@ public class Manager {
         });
     }
 
-    public void debug(String string) {
-        getBot().getViewsManager().getPlayers().forEach(player -> player.sendMessage(Color.code("&3Debug&7: " + string)));
-    }
-
     public void addPlayerToList(Player player) {}
 
     public void callEventAsync(Event event) {
-        for (BotEvent events : SmartBotsBackend.getInstance().getEventManager().getEvents()) {
+        for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
             events.call(event);
         }
     }
 
     public void callEvent(Event event) {
-        for (BotEvent events : SmartBotsBackend.getInstance().getEventManager().getEvents()) {
+        for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
             events.call(event);
         }
     }

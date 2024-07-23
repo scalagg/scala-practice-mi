@@ -9,18 +9,15 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Close
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.tropic.practice.autoscale.ReplicationAutoScaleTask
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.robot.RobotGameLifecycle
-import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.map.metadata.anonymous.toBlockFace
 import gg.tropic.practice.map.metadata.impl.MapBedMetadata
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
-import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
 import gg.tropic.practice.services.ReplicationManagerService
@@ -30,13 +27,11 @@ import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
-import org.bukkit.block.BlockFace
 import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import kotlin.concurrent.thread
 
@@ -55,7 +50,7 @@ object MapReplicationService
     private lateinit var loader: SlimeLoader
 
     private val readyMaps = mutableMapOf<String, ReadyMapTemplate>()
-    internal val mapReplications = CopyOnWriteArrayList<BuiltMapReplication>()
+    val mapReplications = CopyOnWriteArrayList<BuiltMapReplication>()
 
     fun removeReplicationMatchingWorld(world: World) = mapReplications
         .removeIf {
@@ -123,6 +118,7 @@ object MapReplicationService
                 .join()
 
             scheduledMap.inUse = true
+
             newGame.arenaWorldName = scheduledMap.world.name
 
             if (newGame.robot())

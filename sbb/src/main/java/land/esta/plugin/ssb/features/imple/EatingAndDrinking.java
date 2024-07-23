@@ -1,10 +1,12 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.*;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
+import me.lucko.helper.Schedulers;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
@@ -18,35 +20,44 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EatingAndDrinking extends Feature {
 
-    private int runningTicks = 40;
+    private final int runningTicks = 40;
 
     @Override
     public void listen(Event event) {
         Bot bot = event.bot;
 
         if (event instanceof SpawnEvent) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    runEat(bot);
-                }
-            }.runTaskLater(SmartBotsBackend.getInstance(),1);
+            Schedulers
+                    .sync()
+                    .runLater(() -> runEat(bot), 1L)
+                    .bindWith(bot.getTerminable());
         }
 
+        int eatingGappleHealth = bot.getProfile().value(
+                RootAccessor.INSTANCE.getEatingSettings().getEatingGappleHealth()
+        );
+
+        double startEatingDistance = bot.getProfile().value(
+                RootAccessor.INSTANCE.getEatingSettings().getStartEatingDistance()
+        );
+
+        int startEatingTimer = bot.getProfile().value(
+                RootAccessor.INSTANCE.getEatingSettings().getStartEatingTimer()
+        );
+
         boolean lowHealth = false;
-        if (event instanceof BotHealthChangeEvent) {
-            BotHealthChangeEvent e = (BotHealthChangeEvent) event;
-            if (e.getAfter() <= bot.getSettingManager().getEatingSettings().getEatingGappleHealth().getIntValue()) lowHealth = true;
+        if (event instanceof BotHealthChangeEvent e) {
+            if (e.getAfter() <= eatingGappleHealth) lowHealth = true;
         }
 
         if (event instanceof FinishEatingEvent || event instanceof EffectEndEvent || event instanceof BotRequiredToEatEvent || lowHealth) {
-            boolean able = ableToEat(bot.getSettingManager().getEatingSettings().getStartEatingDistance().getDoubleValue(),bot) || bot.getFleeManager().getTicks() > bot.getSettingManager().getEatingSettings().getStartEatingTimer().getIntValue();
-            boolean needsHealth = bot.getHealthManager().getHealth() + bot.getHealthManager().getAbsHearts() < bot.getSettingManager().getEatingSettings().getEatingGappleHealth().getIntValue() && bot.getInventoryManager().hasItem(322).size() > 0;
+            boolean able = ableToEat(startEatingDistance, bot) || bot.getFleeManager().getTicks() > startEatingTimer;
+            boolean needsHealth = bot.getHealthManager().getHealth() + bot.getHealthManager().getAbsHearts() < eatingGappleHealth && !bot.getInventoryManager().hasItem(322).isEmpty();
 
             if (needsHealth) {
                 // Prefer to splash potions
                 if (!getPotions(bot).isEmpty()) {
-                    SmartBotsBackend.getInstance().getFeatureManager().getHealthPotionThrowing().splash(bot, bot.getFleeManager().getTicks());
+                    EstaRobotsPlugin.getInstance().getFeatureManager().getHealthPotionThrowing().splash(bot, bot.getFleeManager().getTicks());
                     return;
                 }
 
@@ -58,7 +69,7 @@ public class EatingAndDrinking extends Feature {
         }
 
         if (event instanceof FinishEatingEvent || event instanceof EffectEndEvent || event instanceof BotRequiredToEatEvent) {
-            boolean able = ableToEat(bot.getSettingManager().getEatingSettings().getStartEatingDistance().getDoubleValue(),bot) || bot.getFleeManager().getTicks() > bot.getSettingManager().getEatingSettings().getStartEatingTimer().getIntValue();
+            boolean able = ableToEat(startEatingDistance, bot) || bot.getFleeManager().getTicks() > startEatingTimer;
 
             if (needsToDrink(bot)) {
                 if (able) {
@@ -107,12 +118,17 @@ public class EatingAndDrinking extends Feature {
 
     @Override
     public void tickEvent(Bot bot) {
-        boolean able = ableToEat(bot.getSettingManager().getEatingSettings().getCancelEatingDistance().getDoubleValue(),bot);
+        var cancelEatingDistance = bot.getProfile().value(
+                RootAccessor.INSTANCE.getEatingSettings().getCancelEatingDistance()
+        );
+
+        boolean able = ableToEat(cancelEatingDistance, bot);
         if (!able && bot.getInventoryManager().isEating()) bot.getMovements().setJump(true);
     }
 
-    public boolean ableToEat(double dist,Bot bot) {
-        if (!bot.getMovements().getTargetLocate().getTargetEntity().getWorld().equals(bot.getMovements().getLocation().getWorld())) return true;
+    public boolean ableToEat(double dist, Bot bot) {
+        if (!bot.getMovements().getTargetLocate().getTargetEntity().getWorld().equals(bot.getMovements().getLocation().getWorld()))
+            return true;
         return bot.getMovements().getTargetLocate().getTargetEntity().getLocation().distance(bot.getMovements().getLocation()) > dist;
     }
 
@@ -122,7 +138,8 @@ public class EatingAndDrinking extends Feature {
         List<ItemStack> result = new ArrayList<>();
 
         for (ItemStack item : potions) {
-            if (Potion.fromItemStack(item).isSplash() && Potion.fromItemStack(item).getType().equals(PotionType.INSTANT_HEAL)) result.add(item);
+            if (Potion.fromItemStack(item).isSplash() && Potion.fromItemStack(item).getType().equals(PotionType.INSTANT_HEAL))
+                result.add(item);
         }
 
         return result;

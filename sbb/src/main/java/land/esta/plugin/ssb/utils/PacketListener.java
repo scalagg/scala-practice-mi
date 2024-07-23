@@ -3,11 +3,10 @@ package land.esta.plugin.ssb.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.data.DataPlayer;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -51,7 +50,7 @@ public class PacketListener implements Listener {
                     }
 
                     if (packet instanceof PacketPlayInFlying) {
-                        DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                        DataPlayer data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
                         if (data != null) {
                             data.handleFlying((PacketPlayInFlying) packet);
                         }
@@ -65,7 +64,7 @@ public class PacketListener implements Listener {
 
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-                DataPlayer data = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                DataPlayer data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
 
                 //OverWrites Player velocity
 
@@ -106,7 +105,7 @@ public class PacketListener implements Listener {
                     wrapper.b(packetData);
                     int id = packetData.e();
 
-                    Bot bot = SmartBotsBackend.getInstance().getBotManager().getNpcFromTargetView(player);
+                    Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromTargetView(player);
 
                     if (bot != null && bot.getNpc().getId() == id && !bot.getPacketsManager().isRelativeMovement())
                         return;
@@ -148,11 +147,11 @@ public class PacketListener implements Listener {
     }
 
     public void attack(int id,Player attacker) {
-        if (SmartBotsBackend.getInstance() == null) {
+        if (EstaRobotsPlugin.getInstance() == null) {
             return;
         }
 
-        for (Bot bot : SmartBotsBackend.getInstance().getBotManager().getBots()) {
+        for (Bot bot : EstaRobotsPlugin.getInstance().getBotManager().getBots()) {
             if (bot.getNpc().getId() == id) {
                 //Nms already does this for us
                 //bot.getDamageManager().damage(attacker,true);

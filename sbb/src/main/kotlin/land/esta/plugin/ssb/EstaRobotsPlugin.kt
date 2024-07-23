@@ -1,0 +1,98 @@
+package land.esta.plugin.ssb
+
+import gg.scala.commons.ExtendedScalaPlugin
+import gg.scala.commons.annotations.container.ContainerDisable
+import gg.scala.commons.annotations.container.ContainerEnable
+import gg.scala.commons.core.plugin.*
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor.attackSettings
+import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue
+import land.esta.plugin.ssb.botevents.EventManager
+import land.esta.plugin.ssb.bots.BotManager
+import land.esta.plugin.ssb.features.FeatureManager
+import land.esta.plugin.ssb.support.SupportManager
+import land.esta.plugin.ssb.utils.DataManager
+import land.esta.plugin.ssb.utils.GameServer
+import land.esta.plugin.ssb.utils.PacketListener
+import net.evilblock.cubed.serializers.Serializers.create
+import net.evilblock.cubed.serializers.impl.AbstractTypeSerializable
+import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
+import org.bukkit.Bukkit
+
+@Plugin(
+    name = "EstaPractice-SmartBots",
+    version = "%remote%/%branch%/%id%"
+)
+@PluginAuthorComposite(
+    PluginAuthor("crafticat"),
+    PluginAuthor("GrowlyX"),
+    PluginAuthor("TastyCake")
+)
+@PluginWebsite("https://esta.land")
+@PluginDependencyComposite(
+    PluginDependency("scala-commons"),
+    PluginDependency("Lemon"),
+    PluginDependency("EstaPractice")
+)
+class EstaRobotsPlugin : ExtendedScalaPlugin()
+{
+    companion object
+    {
+        @JvmStatic
+        var instance: EstaRobotsPlugin? = null
+    }
+
+    lateinit var botManager: BotManager
+    lateinit var eventManager: EventManager
+    lateinit var featureManager: FeatureManager
+    lateinit var dataManager: DataManager
+
+    @ContainerEnable
+    fun containerEnable()
+    {
+        // Plugin startup logic
+        instance = this
+
+        create {
+            registerTypeAdapter(
+                InternalValue::class.java,
+                AbstractTypeSerializer<AbstractTypeSerializable>()
+            )
+        }
+
+        // Pre-initializes the root category
+        attackSettings
+
+        if (GameServer.`is`())
+        {
+            botManager = BotManager(this)
+            dataManager = DataManager(this)
+
+            if (GameServer.`is`())
+            {
+                Bukkit.getServer().pluginManager.registerEvents(PacketListener(), this)
+            }
+        }
+
+        eventManager = EventManager()
+        SupportManager()
+
+        if (GameServer.`is`())
+        {
+            featureManager = FeatureManager()
+        }
+    }
+
+    @ContainerDisable
+    fun containerDisable()
+    {
+        if (GameServer.`is`())
+        {
+            for (bot in botManager.bots)
+            {
+                bot.silentKill()
+            }
+        }
+
+        instance = null
+    }
+}

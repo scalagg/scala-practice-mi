@@ -1,13 +1,11 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.FileManager;
 import land.esta.plugin.ssb.utils.Nms;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
@@ -18,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -40,6 +39,7 @@ public class DamageManager extends Manager {
     }
 
     public void damage(DamageSource source, float damage) {
+        bot.getAttackingManager().setLastAttackedOrDamaged( System.currentTimeMillis());
         if (invaluable) return;
         //Attack delay
         long attackDelay = 475;
@@ -56,11 +56,9 @@ public class DamageManager extends Manager {
         damageTicks = 0;
 
         //Damage
-        if (source.i().getBukkitEntity() instanceof Player) {
-            Player player = (Player) source.i().getBukkitEntity();
+        if (source.i().getBukkitEntity() instanceof Player player) {
             playerAttack(player,damage);
-        } else if (source.i().getBukkitEntity() instanceof Projectile){
-            Projectile projectile = (Projectile) source.i().getBukkitEntity();
+        } else if (source.i().getBukkitEntity() instanceof Projectile projectile){
             if (projectile.getType().equals(EntityType.FISHING_HOOK)) {
                 bot.getNpc().getBukkitEntity().setPassenger(projectile);
             } else
@@ -70,11 +68,11 @@ public class DamageManager extends Manager {
         }
     }
 
-    public void projectileAttack(Projectile projectile, float damage, DamageSource source) {
+    public void projectileAttack(@NotNull Projectile projectile, float damage, DamageSource source) {
         Vector direction = projectile.getVelocity().setY(0).normalize();
-        double v = 0.35;
-        double h = 0.6;
-        direction.multiply(h).setY(v);
+        double verticalKnockback = 0.35;
+        double horizontalKnockback = 0.6;
+        direction.multiply(horizontalKnockback).setY(verticalKnockback);
         bot.getVelocityCalculator().setVelocity(direction);
 
         // Store health before damage
@@ -100,9 +98,7 @@ public class DamageManager extends Manager {
         } else playSound();
 
         //Calls
-        if (SmartBotsBackend.getInstance().getBukkitEvents().isProjectileHitEvent()) {
-            Bukkit.getServer().getPluginManager().callEvent(new ProjectileHitEvent(projectile));
-        }
+        Bukkit.getServer().getPluginManager().callEvent(new ProjectileHitEvent(projectile));
     }
 
     public void playerAttack(Player attacker, float damage) {
@@ -134,7 +130,7 @@ public class DamageManager extends Manager {
 
     public void playSwingEffect(Player attacker) {
         int type = 4; //4 If server allows diff particle depends on sprint
-        if (Nms.getPlayer(attacker).isSprinting() || !FileManager.getOrDefault(SmartBotsBackend.getInstance(),"serversettings.changeParticleDependsOnSprint",false)) type = 5;
+        if (Nms.getPlayer(attacker).isSprinting()) type = 5;
         int finalType = type;
         globalAction((player, temp) -> Nms.sendPacket(player,new PacketPlayOutAnimation(bot.getNpc(), finalType)));
     }

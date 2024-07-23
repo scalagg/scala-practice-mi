@@ -1,21 +1,35 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
-public class PearlSettings extends Setting {
+public class PearlSettings extends Category {
 
     //TODO add pearl chance.
-    private SettingObject pearlDelay = new SettingObject("Pearl Delay",Material.ENDER_PEARL,600,5);
-    private SettingObject angleDifference = new SettingObject("Angle Difference",Material.NETHER_STAR,130,5);
-    private SettingObject pearlThrowYawOffSet = new SettingObject("Pearl Throw YawOffSet",Material.NAME_TAG,10,1);
-    private SettingObject pearlingTicks = new SettingObject("Pearling Ticks",Material.WATCH,10,1);
+    private Option<Integer> pearlDelay = new Option<>("Pearl Delay",Material.ENDER_PEARL,this,600,5,2000);
+    private Option<Integer> angleDifference = new Option<>("Angle Difference",Material.NETHER_STAR,this,130,5, 400);
+    private Option<Integer> pearlThrowYawOffSet = new Option<>("Pearl Throw YawOffSet",Material.NAME_TAG,this,10,1, 40);
+    private Option<Integer> pearlingTicks = new Option<>("Pearling Ticks",Material.WATCH,this,10,1, 60);
 
-    public PearlSettings() {
-        super(Material.ENDER_PEARL,"&c&lPearl Settings","Pearl", "pearlsettings",12,false,"&f In this category","&f you are able to","&f modify the bot's","&f pearl settings.","","&aClick to select!");
-        addSettings(angleDifference,pearlThrowYawOffSet,pearlDelay,pearlingTicks);
+    public PearlSettings(Category parent) {
+        super(
+                "pearlsettings",
+                Arrays.asList(
+                        "Configurable pearl",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.ENDER_PEARL),
+                parent,
+                "Pearl Settings",
+                "botgui.pearlsettings"
+        );
+        addChildren(pearlDelay, angleDifference, pearlThrowYawOffSet, pearlingTicks);
     }
 }

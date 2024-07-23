@@ -56,16 +56,13 @@ data class PracticeProfile(
     fun getLoadoutsFromKit(kit: Kit) = customLoadouts[kit.id] ?: mutableListOf()
 
     fun hasActiveRankedBan() = rankedBan != null && rankedBan!!.isEffective()
+
     fun applyRankedBan(duration: Duration)
     {
-        if (duration.isPermanent())
-        {
-            rankedBan = RankedBan(effectiveUntil = null)
-            return
-        }
+        val banDuration = if (duration.isPermanent()) null else System.currentTimeMillis() + duration.get()
 
         rankedBan = RankedBan(
-            effectiveUntil = System.currentTimeMillis() + duration.get()
+            effectiveUntil = banDuration
         )
     }
 

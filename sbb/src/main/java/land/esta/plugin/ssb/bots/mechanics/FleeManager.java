@@ -1,11 +1,13 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
+import net.evilblock.cubed.entity.npc.pathfinding.AStar;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -14,7 +16,7 @@ import org.bukkit.util.Vector;
 public class FleeManager extends Manager {
 
     private boolean active;
-    private double clcBlocks = settingManager.getFleeSettings().getCalculatedDistance().getDoubleValue();
+    private double clcBlocks = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getCalculatedDistance());
     private boolean enabled = true;
     private int ticks;
     private int offTicks;

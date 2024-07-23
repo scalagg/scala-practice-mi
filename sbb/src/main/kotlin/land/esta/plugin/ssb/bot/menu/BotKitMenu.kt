@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotKitMenu(private val identifier: String) : TemplateKitMenu()
+class BotKitMenu(private val identifier: String, private val selection: String? = null) : TemplateKitMenu()
 {
     private var kitSelectionLock = false
     private var regionSelection: Region? = null
@@ -121,7 +121,7 @@ class BotKitMenu(private val identifier: String) : TemplateKitMenu()
             ScalaCommonsSpigot.instance.kvConnection.sync()
                 .set(
                     "${namespace()}:bot-selection:${player.uniqueId}",
-                    identifier
+                    if (selection == null) identifier else "$identifier:$selection"
                 )
         }.thenAccept {
             QueueService.joinQueue(kit, QueueType.Robot, 1, player)

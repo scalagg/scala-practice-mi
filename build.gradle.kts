@@ -39,12 +39,11 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        if (project.name == "sbb") {
-            annotationProcessor("gg.scala.commons:bukkit:3.5.2")
-        } else {
-            kapt("gg.scala.commons:bukkit:3.5.2")
-        }
+        kapt("gg.scala.commons:bukkit:3.5.2")
         compileOnly("gg.scala.commons:bukkit:3.5.2")
+
+        compileOnly("org.projectlombok:lombok:1.18.24")
+        annotationProcessor("org.projectlombok:lombok:1.18.24")
 
         compileOnly("gg.scala.cgs:parties:1.4.3")
         compileOnly("gg.scala.store:spigot:0.1.8")
@@ -56,6 +55,8 @@ subprojects {
 
         compileOnly("gg.scala.lemon:bukkit:1.8.1")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
+
+        compileOnly("org.jetbrains:annotations:24.0.1")
     }
 
     kapt {

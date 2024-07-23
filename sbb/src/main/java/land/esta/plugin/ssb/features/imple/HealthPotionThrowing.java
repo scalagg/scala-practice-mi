@@ -1,11 +1,13 @@
 package land.esta.plugin.ssb.features.imple;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
@@ -55,7 +57,7 @@ public class HealthPotionThrowing extends Feature {
 
     public boolean splash(Bot bot, int ticks) {
         //Throwing
-        if (ticks == bot.getSettingManager().getPotionSetting().getFirstPotionTick().getIntValue() || ticks == bot.getSettingManager().getPotionSetting().getSecondPotionTick().getIntValue() && bot.getSettingManager().getPotionSetting().getSecondPotion().isBooleanValue()) {
+        if (ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFirstPotionTick()) || ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotionTick()) && bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotion())) {
             List<ItemStack> potions = getPotions(bot);
             bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(potions.get(0)));
             throwPotion(potions.get(0), bot);
@@ -72,7 +74,7 @@ public class HealthPotionThrowing extends Feature {
         }
 
         //Cancel
-        if (bot.getHealthManager().getHealth() > bot.getSettingManager().getPotionSetting().getFleeHealth().getIntValue() && nearTarget(bot) || ticks > bot.getSettingManager().getPotionSetting().getFinishPotionTick().getIntValue()) {
+        if (bot.getHealthManager().getHealth() > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFleeHealth()) && nearTarget(bot) || ticks > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFinishPotionTick())) {
             bot.getInventoryManager().setMainHand(1);
             return true;
         }
@@ -99,7 +101,7 @@ public class HealthPotionThrowing extends Feature {
         Location loc = bot.getMovements().getLocation();
         double distance = target.distance(loc);
 
-        return distance < bot.getSettingManager().getPotionSetting().getCancelPotionDistance().getDoubleValue();
+        return distance < bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getCancelPotionDistance());
     }
 
     //Throws potions
@@ -113,20 +115,19 @@ public class HealthPotionThrowing extends Feature {
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
     public void launchProjectile(ItemStack item, Vector velocity, CraftPlayer entity) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                World world = ((CraftWorld) entity.getWorld()).getHandle();
-                net.minecraft.server.v1_8_R3.Entity launch;
-                launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
+        Schedulers
+                .sync()
+                .run(() -> {
+                    World world = ((CraftWorld) entity.getWorld()).getHandle();
+                    net.minecraft.server.v1_8_R3.Entity launch;
+                    launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
-                Validate.notNull(launch, "Projectile not supported");
-                if (velocity != null) {
-                    ((Projectile) launch.getBukkitEntity()).setVelocity(velocity);
-                }
+                    Validate.notNull(launch, "Projectile not supported");
+                    if (velocity != null) {
+                        ((Projectile) launch.getBukkitEntity()).setVelocity(velocity);
+                    }
 
-                world.addEntity(launch);
-            }
-        }.runTask(SmartBotsBackend.getInstance());
+                    world.addEntity(launch);
+                });
     }
 }

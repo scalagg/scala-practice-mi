@@ -6,12 +6,11 @@ import lombok.Getter;
 import land.esta.plugin.ssb.support.estapractice.EstaPracticeSupport;
 import net.evilblock.cubed.util.Reflection;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 
 @Getter
-public class SupportManager implements Listener {
+public class SupportManager {
 
     private final ArrayList<PluginSupport> pluginSupports = new ArrayList<>();
 

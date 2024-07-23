@@ -2,48 +2,46 @@ package land.esta.plugin.ssb.bots;
 
 import land.esta.plugin.ssb.utils.GameServer;
 import lombok.Getter;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import me.lucko.helper.Schedulers;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 @Getter
 public class BotManager {
-    private final ArrayList<Bot> bots;
-    @Nullable
-    private BukkitTask task;
-    private final boolean async = false;
 
-    public BotManager() {
-        bots = new ArrayList<>();
+    public final ArrayList<Bot> bots = new ArrayList<>();
 
+    public BotManager(EstaRobotsPlugin plugin) {
         if (GameServer.is()) {
-            task = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ArrayList<Bot> cloned = new ArrayList<>(bots);
-                    for (Bot bot : cloned) {
-                        if (bot == null) {
-                            //Bukkit.broadcastMessage("A problem was found");
-                            continue;
-                        }
+            Schedulers.sync()
+                    .runRepeating(() -> {
+                        final ArrayList<Bot> cloned = new ArrayList<>(bots);
+                        for (Bot bot : cloned) {
+                            if (bot == null) {
+                                continue;
+                            }
 
-                        if (!bot.getPlayer().isOnline()) {
-                            continue;
-                        }
+                            if (!bot.getPlayer().isOnline()) {
+                                continue;
+                            }
 
-                        // Cannot measure distance between diff words patch
-                        if (bot.getMovements().getLocation().getWorld().equals(bot.getMovements().getTargetLocate().getTarget().getWorld()) && bot.isAlive()) {
-                            bot.tick();
-                            continue;
+                            // Cannot measure distance between diff words patch
+                            if (
+                                    bot.getMovements().getLocation().getWorld().equals(
+                                            bot.getMovements().getTargetLocate().getTarget().getWorld()
+                                    ) &&
+                                            bot.isAlive()
+                            ) {
+                                bot.tick();
+                                continue;
+                            }
+
+                            bot.silentKill();
                         }
-                        bot.silentKill();
-                    }
-                }
-            }.runTaskTimer(SmartBotsBackend.getInstance(), 1, 1);
+                    }, 1L, 1L)
+                    .bindWith(plugin);
         }
     }
 

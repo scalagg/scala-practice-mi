@@ -1,21 +1,27 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.*;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
+import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.List;
+import java.util.Random;
+
 @Getter
 @Setter
 public class MovementsMain extends Manager {
-    private Location location;
+    public Location location;
     private float strafe = 0;
     private Vector lastMotion = new Vector(0,0,0);
     private TargetLocate targetLocate;
@@ -49,30 +55,35 @@ public class MovementsMain extends Manager {
     private boolean requiredToMove = true;
     private boolean jumpCombo = false;
 
+    private long last = System.currentTimeMillis();
+    private int times = 0;
+
+    private Random random = new Random();
+
     public MovementsMain(Bot bot, Player player, Location loc) {
         super(bot);
         location = loc;
 
-        bot.getMEventManager().addEvent(collision = new Collision(bot));
-        bot.getMEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
-        bot.getMEventManager().addEvent(movements = new Movements(bot));
-        bot.getMEventManager().addEvent(rotations = new Rotations(bot));
-        bot.getMEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
+        bot.getEventManager().addEvent(collision = new Collision(bot));
+        bot.getEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
+        bot.getEventManager().addEvent(movements = new Movements(bot));
+        bot.getEventManager().addEvent(rotations = new Rotations(bot));
+        bot.getEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
     }
 
-    private boolean delayedBotLocation = bot.getSettingManager().getConnectionSettings().getDelayedBotLocation().isBooleanValue();
+    private boolean delayedBotLocation = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());
 
     @Override
     public void tickMid() {
         if (sentLocationUpdate) {
             if (delayedBotLocation) {
-                new BukkitRunnable() {
-                    final Location location = getBot().getMovements().getLocation();
+                final Location location = getBot().getMovements().getLocation();
+                final var ticks = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100;
 
-                    public void run() {
-                        getBot().getPacketsManager().updateLocation(location);
-                    }
-                }.runTaskLater(SmartBotsBackend.getInstance(), settingManager.getConnectionSettings().getPing().getIntValue() / 100);
+                Schedulers
+                        .sync()
+                        .runLater(() -> getBot().getPacketsManager().updateLocation(location), ticks)
+                        .bindWith(getBot().getTerminable());
             } else {
                 getBot().getPacketsManager().updateLocation(getBot().getMovements().getLocation());
             }
@@ -98,13 +109,85 @@ public class MovementsMain extends Manager {
 
         updatedLoc = recodedCollision.cast(oldLoc.clone(),newLoc.clone());
 
+        float yaw = location.getYaw();
+        float pitch = location.getPitch();
 
-        updatedLoc.setYaw(location.getYaw());
-        updatedLoc.setPitch(location.getPitch());
+        if (isOnGround() && oldLoc.distance(updatedLoc) < 0.2 && oldLoc.distance(bot.getStartLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getDistanceFromLastLocation()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getGetPathCooldown()) > last && updatedLoc.distance(targetLocate.getTargetEntity().getLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getMinDistanceFromPlayer()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getCooldownAfterAttack()) > bot.getAttackingManager().getAttacked()) {
+            last = System.currentTimeMillis();
+
+            TargetLocate target = bot.getMovements().getTargetLocate();
+            AStarPathfinder aStar = new AStarPathfinder(bot.getNpc().getBukkitEntity().getLocation(), target.getTargetEntity().getLocation(), 1000, false, 100);
+
+            List<Location> path = aStar.getPath();
+
+            if (path.isEmpty()) {
+                rotate(random.nextInt(-180, 180), 0);
+
+                updatedLoc.setYaw(yaw);
+                updatedLoc.setPitch(pitch);
+
+                target.setAStarTarget(updatedLoc);
+                return;
+            }
+
+            target.setTarget(path.get(0));
+            updatedLoc = path.get(0);
+
+            // x = -90, -x = 90, z = 0, -z = -180
+            int index = 0;
+            while (true) {
+                if (path.size() - 1 <= index) {
+                    yaw = random.nextInt(-180, 180);
+                    break;
+                }
+                Location l = path.get(index);
+                if (l.getX() > location.getX()) {
+                    yaw = -90;
+                    updatedLoc = l;
+                    break;
+                } else if (l.getX() < location.getX()) {
+                    yaw = 90;
+                    updatedLoc = l;
+                    break;
+                } else if (l.getZ() > location.getZ()) {
+                    yaw = 0;
+                    updatedLoc = l;
+                    break;
+                } else if (l.getZ() < location.getZ()) {
+                    yaw = -180;
+                    updatedLoc = l;
+                    break;
+                } else {
+                    index++;
+                }
+            }
+
+            pitch = 0;
+
+            rotate(yaw, pitch);
+
+            updatedLoc.setYaw(yaw);
+            updatedLoc.setPitch(pitch);
+
+            target.setAStarTarget(updatedLoc);
+
+            return;
+        } else {
+            if (times > 1) {
+                targetLocate.setAStarTarget(null);
+                times = 0;
+            }
+            else times++;
+        }
+
+        updatedLoc.setYaw(yaw);
+        updatedLoc.setPitch(pitch);
 
         callEventAsync(new FinalMoveEvent(bot,updatedLoc,location));
 
         location = updatedLoc;
+
+        rotate(yaw, pitch);
 
         Vector offSet = location.toVector().clone().subtract(oldLoc.toVector().clone());
         motion = offSet;
@@ -125,13 +208,13 @@ public class MovementsMain extends Manager {
 
     public void setAttackSprint(boolean sprint) {
         this.sprint = sprint;
-        //Nms update
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                bot.getNpc().setSprinting(attackSprint);
-            }
-        }.runTask(SmartBotsBackend.getInstance());
+
+        Schedulers
+                .sync()
+                .run(() -> {
+                    bot.getNpc().setSprinting(attackSprint);
+                })
+                .bindWith(bot.getTerminable());
     }
 
     public void attack() {

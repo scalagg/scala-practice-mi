@@ -1,8 +1,7 @@
 package land.esta.plugin.ssb.support;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import lombok.Getter;
-import land.esta.plugin.ssb.utils.Color;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
@@ -15,7 +14,7 @@ public class PluginSupport implements Listener {
     public PluginSupport(String name) {
         this.name = name;
         this.api = null;
-        Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(this, EstaRobotsPlugin.getInstance());
     }
 
     public PluginSupport enable() {

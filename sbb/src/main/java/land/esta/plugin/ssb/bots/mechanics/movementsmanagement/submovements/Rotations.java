@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.RotationEvent;
@@ -9,7 +10,6 @@ import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.WorldUtils;
-import net.evilblock.cubed.entity.npc.pathfinding.AStar;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -23,59 +23,56 @@ public class Rotations extends Manager {
         super(bot);
     }
 
-    private double JitterRotation = bot.getSettingManager().getRotationSetting().getJitterRotation().getDoubleValue();
-    private double rotationSpeedRandom = bot.getSettingManager().getRotationSetting().getSpeedRandom().getDoubleValue();
+    private double JitterRotation = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getJitterRotation());
+    private double rotationSpeedRandom = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getSpeedRandom());
 
     private Location targetPos = null;
 
     private float lastYaw;
 
+
     @Override
     public void tickPre() {
-        var data = SmartBotsBackend.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
+        var data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
         if (data == null) {
             return;
         }
 
-        float speed = bot.getSettingManager().getRotationSetting().getSpeed().getIntValue();
+        float speed = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getSpeed());
         if (bot.getFleeManager().getOffTicks() < 5) {
-            speed = bot.getSettingManager().getFleeSettings().getRunningRotationSpeed().getIntValue();
+            speed = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunningRotationSpeed());
         }
 
         float yaw = bot.getMovements().getLocation().getYaw();
         float pitch = bot.getMovements().getLocation().getPitch();
 
         MovementsMain movements = bot.getMovements();
-        Location tPos = movements.getTargetLocate().getTarget();
+        Location tPos = movements.getTargetLocate().getAStarTarget() == null ? movements.getTargetLocate().getTarget() : movements.getTargetLocate().getAStarTarget();
 
         //Flips
         double flipYaw = 0;
         double flipPitch = 0;
 
         //Flip check
-        boolean bool1 = bot.getAttackingManager().getAttackTicks() <= bot.getSettingManager().getPlaystyleSettings().getFlipLong().getIntValue();
-        boolean bool2 = bot.getSettingManager().getPlaystyleSettings().getFlipSync().isBooleanValue();
+        boolean bool1 = bot.getAttackingManager().getAttackTicks() <= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getFlipLong());
+        boolean bool2 = bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getFlipSync());
         boolean bool3 = bot.getMovements().isWtap();
         boolean bool4 = data.getBotCombo() > 3; //If necessary could be made into a setting
         boolean flip = bool2 && bool3 && bool4;
 
         if (!bool2 && bool1 && bool4) flip = true;
 
-        if (bot.getSettingManager().getPlaystyleSettings().getFlips().isBooleanValue() && flip) {
+        if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getFlips()) && flip) {
             //Flip chance
-            if (MathUtils.getRandom(0, 100) <= bot.getSettingManager().getPlaystyleSettings().getFlipChance().getIntValue()) {
+            if (MathUtils.getRandom(0, 100) <= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getFlipChance())) {
                 double size = 1;
                 size = generateSize();
 
-                flipYaw = bot.getSettingManager().getPlaystyleSettings().getFlipYaw().getIntValue() * size;
-                flipPitch = bot.getSettingManager().getPlaystyleSettings().getFlipPitch().getIntValue() * size;
+                flipYaw = bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getFlipYaw()) * size;
+                flipPitch = bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getFlipPitch()) * size;
             }
         }
 
-
-        // TODO: Instead get direction of next best possible block if
-//        AStar aStar = new AStar(bot.getMovements().getLocation(), movements.getTargetLocate().getTarget());
-//        final var path = aStar.getPath();
         Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), tPos);
 
         this.lastYaw = yaw;

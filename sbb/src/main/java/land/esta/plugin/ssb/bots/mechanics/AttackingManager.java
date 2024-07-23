@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.Event;
@@ -41,6 +42,8 @@ public class AttackingManager extends Manager {
     private int hitSelectingTicks;
     private boolean projectile;
 
+    private long lastAttackedOrDamaged = System.currentTimeMillis();
+
     @Override
     public void tickPre() {
         if (!landAttack) return;
@@ -56,17 +59,16 @@ public class AttackingManager extends Manager {
         if (!attacking) return;
         if (bot.getFleeManager().isActive()) return;
         TargetLocate targetLocate = bot.getMovements().getTargetLocate();
-        AttackSettings clickSetting = bot.getSettingManager().getClickSetting();
-        int delay = clickSetting.getDelay();
-        if (bot.getMovements().isJumpCombo()) delay = 1000 / bot.getSettingManager().getPlaystyleSettings().getJumpComboCPS().getIntValue();
+        int delay = RootAccessor.INSTANCE.getAttackSettings().getDelay(bot.getProfile());
+        if (bot.getMovements().isJumpCombo()) delay = 1000 / bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpComboCPS());
         int clicks = 0;
 
         tickCounter+=50;
 
-        if (bot.getDamageManager().getDamageTicks() >= bot.getSettingManager().getPlaystyleSettings().getHitSelectTicks().getIntValue()  && bot.getDamageManager().getDamageTicks() < 10) hitSelecting = false;
+        if (bot.getDamageManager().getDamageTicks() >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelectTicks())  && bot.getDamageManager().getDamageTicks() < 10) hitSelecting = false;
 
         //Do not attack if hit selecting
-        if (bot.getSettingManager().getPlaystyleSettings().getHitSelect().isBooleanValue() && hitSelectingTicks > bot.getSettingManager().getPlaystyleSettings().getHitSelectDelay().getIntValue() && attackTicks > 20) {
+        if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelect()) && hitSelectingTicks > bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getHitSelectDelay()) && attackTicks > 20) {
             hitSelecting = true;
             hitSelectingTicks = 0;
         }
@@ -82,7 +84,7 @@ public class AttackingManager extends Manager {
         for (int i = 0; i < clicks;i ++) {
             double dist = getDistance();
             if (dist == -1) return;
-            if (dist >= bot.getSettingManager().getClickSetting().getSwingRange().getDoubleValue()) return;
+            if (dist >= bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getSwingRange())) return;
 
             swing();
             if (!rayTrace()) return;
@@ -101,7 +103,7 @@ public class AttackingManager extends Manager {
 
         double offSet = bot.getMovements().getCollision().getXzHitBoxOffset();
 
-        Vector to = from.clone().add(loc.getDirection().normalize().multiply(bot.getSettingManager().getClickSetting().getReach().getDoubleValue() + 0.05));
+        Vector to = from.clone().add(loc.getDirection().normalize().multiply(bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) + 0.05));
         AABB collision = getHitBox(bot.getLagCompensatorManager().getClientLocation(), (float) offSet);
 
         //Block collision check
@@ -116,7 +118,7 @@ public class AttackingManager extends Manager {
         double reach = result.distance(from);
         boolean attack = dist > reach;
 
-        return reach <= bot.getSettingManager().getClickSetting().getReach().getDoubleValue() && attack;
+        return reach <= bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getReach()) && attack;
     }
 
     public Vector traceWithBlocks(Vector from,Location to,double accurate) {
@@ -220,8 +222,12 @@ public class AttackingManager extends Manager {
     public void attack(Entity player) {
         bot.getMovements().attack();
         int damage = (int) calculateItemAttackDamage(bot.getInventoryManager().getItemInMainHand());
+        if (bot.getInventoryManager().getItemInMainHand().getEnchantments().containsKey(Enchantment.FIRE_ASPECT)) {
+            player.setFireTicks(80);
+        }
         ((Damageable) player).damage(damage,bot.getNpc().getBukkitEntity());
         callEvent(new BotAttackEvent(bot));
         this.attacked = System.currentTimeMillis();
+        this.lastAttackedOrDamaged = System.currentTimeMillis();
     }
 }

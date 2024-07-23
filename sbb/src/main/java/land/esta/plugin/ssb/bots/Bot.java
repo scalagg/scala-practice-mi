@@ -1,14 +1,11 @@
 package land.esta.plugin.ssb.bots;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.kit.Kit;
-import land.esta.plugin.ssb.SmartBotsBackend;
-import land.esta.plugin.ssb.bot.MojangKt;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.bots.mechanics.*;
-import land.esta.plugin.ssb.bots.setting.SettingManager;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
@@ -18,10 +15,9 @@ import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
 import land.esta.plugin.ssb.npc.NPCEntity;
 import land.esta.plugin.ssb.npc.NPCNetworkManager;
 import land.esta.plugin.ssb.npc.NPCPlayerConnection;
-import land.esta.plugin.ssb.utils.Color;
-import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.EventRunnable;
-import net.evilblock.cubed.util.bukkit.Tasks;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import net.minecraft.server.v1_8_R3.EnumProtocolDirection;
 import net.minecraft.server.v1_8_R3.MinecraftServer;
 import net.minecraft.server.v1_8_R3.PlayerInteractManager;
@@ -33,24 +29,20 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
 public class Bot {
     private MovementsMain movements;
-    private static Map<String, Property> registeredSkins = new HashMap<>();
     public NPCEntity npc;
     private Kit kit;
-    public SettingManager settingManager;
     private PacketsManager packetsManager;
     public ViewsManager viewsManager;
     private EffectsManager effectsManager;
     private VelocityCalculator velocityCalculator;
-    private MEventManager MEventManager;
+    private MEventManager eventManager;
     private DamageManager damageManager;
     private InventoryManager inventoryManager;
     private AttackingManager attackingManager;
@@ -59,31 +51,32 @@ public class Bot {
     private FleeManager fleeManager;
     private EventRunnable eventListener;
     private DamageCalculator damageCalculator;
-    private boolean alive = true;
-    public boolean killed;
+    public boolean alive = true;
 
     public final UUID uniqueId = UUID.randomUUID();
+    private final CompositeTerminable terminable = CompositeTerminable.create();
+
     private final Player player;
 
-    private final String skin;
-    private final SettingManager settings;
+    public final SettingProfile profile;
 
-    public Bot(Location loc, String name, Player player, String skin, SettingManager settings, Kit kit) {
+    private Location startLocation;
+
+    public Bot(Location loc, String name, Player player, SettingProfile profile, Kit kit) {
+        this.startLocation = loc;
+
         this.kit = kit;
         this.eventListener = (e) -> {
         };
 
-        this.skin = skin;
-        this.settings = settings;
+        this.profile = profile;
         this.player = player;
         //Registering
         registerNPC(name, loc);
 
-        Bukkit.getOnlinePlayers().forEach(other -> {
-            other.hidePlayer(npc.getBukkitEntity());
-        });
+        Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(npc.getBukkitEntity()));
 
-        registerManagers(settings, player, loc);
+        registerManagers(player, loc);
 
         //Create packets
         packetsManager.sendCreatesPackets();
@@ -91,39 +84,31 @@ public class Bot {
         loadManagers();
         player.showPlayer(npc.getBukkitEntity());
 
-        CompletableFuture
-                .runAsync(() -> registerSkin(skin))
-                .thenRun(() -> Tasks.sync(() -> {
-                    registerBot();
-                    return null;
-                }));
+        npc.getProfile().getProperties().put("textures", profile.getSkinProperties());
+        registerBot();
     }
 
     private void registerBot() {
-        SmartBotsBackend.getInstance().getBotManager().addBot(this);
+        EstaRobotsPlugin.getInstance().getBotManager().addBot(this);
         movements.callEventAsync(new SpawnEvent(this));
     }
 
     private void loadManagers() {
-        MEventManager.addEvent(movements);
-        MEventManager.addEvent(viewsManager);
-        MEventManager.addEvent(inventoryManager);
-        MEventManager.addEvent(packetsManager);
-        MEventManager.addEvent(damageManager = new DamageManager(this));
-        MEventManager.addEvent(attackingManager = new AttackingManager(this));
-        MEventManager.addEvent(healthManager = new HealthManager(this));
-        MEventManager.addEvent(damageCalculator = new DamageCalculator(this));
-        MEventManager.addEvent(fleeManager);
-        MEventManager.addEvent(effectsManager);
+        eventManager.addEvent(movements);
+        eventManager.addEvent(viewsManager);
+        eventManager.addEvent(inventoryManager);
+        eventManager.addEvent(packetsManager);
+        eventManager.addEvent(damageManager = new DamageManager(this));
+        eventManager.addEvent(attackingManager = new AttackingManager(this));
+        eventManager.addEvent(healthManager = new HealthManager(this));
+        eventManager.addEvent(damageCalculator = new DamageCalculator(this));
+        eventManager.addEvent(fleeManager);
+        eventManager.addEvent(effectsManager);
     }
 
-    private void registerManagers(SettingManager settings, Player pla, Location loc) {
-        if (settings != null) settingManager = settings;
-        //Load the SettingsManager first in order for other managers to read from it.
-        if (settings == null) settingManager = new SettingManager();
-        //Load LagCompensatorManager in order for other managers to read from it.
+    private void registerManagers(Player pla, Location loc) {
         lagCompensatorManager = new LagCompensatorManager(this);
-        MEventManager = new MEventManager(this);
+        eventManager = new MEventManager(this);
         effectsManager = new EffectsManager(this);
         velocityCalculator = new VelocityCalculator(this);
         movements = new MovementsMain(this, pla, loc);
@@ -142,114 +127,78 @@ public class Bot {
         WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
         PlayerInteractManager interactManager = new PlayerInteractManager(world);
 
-        npc = new NPCEntity(server, world, profile, interactManager);
+        npc = new NPCEntity(server, new WeakReference<>(world), profile, interactManager);
         npc.playerConnection = new NPCPlayerConnection(server, new NPCNetworkManager(EnumProtocolDirection.CLIENTBOUND), npc);
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                world.addEntity(npc);
-            }
-        }.runTask(SmartBotsBackend.getInstance());
-        //server.getPlayerList().players.add(npc);
+
+        Schedulers
+                .sync()
+                .run(() -> world.addEntity(npc))
+                .bindWith(terminable);
     }
 
-    private static final Property DEFAULT = new Property(
+    public static final Property DEFAULT = new Property(
             "textures",
             "ewogICJ0aW1lc3RhbXAiIDogMTcyMTU5ODQ0MzU4MiwKICAicHJvZmlsZUlkIiA6ICI5OGYzMGY2OWExYTA0NWRhOWNmOGZjMDI3OThmOWEyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDaGVtaWNhbExvY2tlZCIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS82MmI1Mjk3ZjhjOTg1YTBkODU5ZjY5Zjc0YzE3ODAzMTcwZjFhMmU4NTk1ZGEyZWUzZWU4Nzk1N2VkMzQzZTMzIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=",
             ""
     );
 
-    private void registerSkin(String name) {
-        final var profile = MojangKt.getProfile(name);
-        if (profile == null) {
-            npc.getProfile().getProperties().put("textures", DEFAULT);
-            return;
-        }
-
-        final var textures = profile.extractTextures();
-        npc.getProfile().getProperties().put(
-                "textures",
-                textures == null ? DEFAULT : textures
-        );
-    }
-
     public void kill() {
-        if (killed) return;
-        killed = true;
-
-        //Disables attacking
-        attackingManager.setAttacking(false);
-        damageManager.setInvaluable(true);
-
-        //Calls the animation with the event
-        deathEvent(() -> {
-        });
-    }
-
-    public Runnable deathEvent = () -> {
-    };
-
-    public void silentKill() {
         if (!alive) {
             return;
         }
 
-        alive = false;
-        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        deathEvent.run();
-        SmartBotsBackend.getInstance().getBotManager().removeBot(this);
-        packetsManager.sendRemovePackets();
-        npc.getBukkitEntity().remove();
-    }
+        attackingManager.setAttacking(false);
+        damageManager.setInvaluable(true);
 
-    public void deathEvent(Runnable executeAction) {
         //Animation
-        fakeDeath(npc.getBukkitEntity(), movements.getTargetLocate().getTargetEntity(), executeAction);
+        fakeDeath();
 
         //Event
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        deathEvent.run();
-
     }
 
-    public void fakeDeath(Player player, Player killer, Runnable finishAction) {
+    public void silentKill() {
+        if (alive) {
+            destroy();
+        }
+    }
+
+    public void fakeDeath() {
         movements.setMove(false);
-
         packetsManager.sendDeathPackets();
-        //lightning();
 
-        Bot bot = this;
-
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                packetsManager.sendRemovePackets();
-                SmartBotsBackend.getInstance().getBotManager().removeBot(bot);
-                alive = false;
-                npc.getBukkitEntity().remove();
-                Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(bot));
-                deathEvent.run();
-            }
-        }.runTaskLater(SmartBotsBackend.getInstance(), 14);
+        Schedulers.sync().runLater(this::destroy, 14L);
     }
 
-    public void lightning() {
-        movements.getLocation().getWorld().strikeLightningEffect(movements.getLocation());
+    public void destroy() {
+        alive = false;
+        packetsManager.sendRemovePackets();
+        EstaRobotsPlugin.getInstance().getBotManager().removeBot(Bot.this);
+
+        terminable.closeAndReportException();
+
+        npc.getBukkitEntity().remove();
+        npc = null;
+
+        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
     }
 
     public void tick() {
+        if (npc == null) {
+            return;
+        }
+
         velocityCalculator.setPre(true);
-        MEventManager.queueUpdate();
-        MEventManager.tickPre();
-        MEventManager.tickMid();
-        MEventManager.tickPost();
+        eventManager.queueUpdate();
+        eventManager.tickPre();
+        eventManager.tickMid();
+        eventManager.tickPost();
 
         if (!movements.getTargetLocate().getTargetEntity().getWorld().equals(movements.getLocation().getWorld()))
             return;
         velocityCalculator.setPre(false);
-        MEventManager.callEvents();
+        eventManager.callEvents();
     }
 }

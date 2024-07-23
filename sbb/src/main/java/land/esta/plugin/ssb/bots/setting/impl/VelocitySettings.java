@@ -1,27 +1,40 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
-import land.esta.plugin.ssb.bots.setting.Setting;
-import land.esta.plugin.ssb.bots.setting.SettingObject;
+import land.esta.plugin.ssb.bot.setting.setting.Category;
+import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
+import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 @Getter
 @Setter
-public class VelocitySettings extends Setting {
+public class VelocitySettings extends Category {
 
-    private SettingObject horizontal = new SettingObject("Horizontal", Material.ANVIL,0.47,0.01);
-    private SettingObject vertical = new SettingObject("Vertical", Material.ANVIL,0.35,0.01);
-    private SettingObject dependentRange = new SettingObject("Dependent Range",Material.BLAZE_ROD,3.2,0.1);
-    private SettingObject dependentRangeMultiplier = new SettingObject("Dependent Range Multiplier",Material.BLAZE_POWDER,0.15,0.01);
-    private SettingObject motionFriction = new SettingObject("Motion Friction",Material.GOLD_BLOCK,1.0,0.02);
-    private SettingObject sprintMultiplier = new SettingObject("Sprint Multiplier",Material.DIAMOND_HOE,1.2,0.1);
-    private SettingObject groundMultiplier = new SettingObject("Ground Multiplier",Material.DIAMOND_SPADE,1.1,0.1);
+    private Option<Double> horizontal = new Option<>("Horizontal", Material.ANVIL, this,0.47,0.01, 5);
+    private Option<Double> vertical = new Option<>("Vertical", Material.ANVIL, this,0.35,0.01, 5);
+    private Option<Double> dependentRange = new Option<>("Dependent Range",Material.BLAZE_ROD, this,3.2,0.1, 10);
+    private Option<Double> dependentRangeMultiplier = new Option<>("Dependent Range Multiplier",Material.BLAZE_POWDER, this,0.15,0.01, 5);
+    private Option<Double> motionFriction = new Option<>("Motion Friction",Material.GOLD_BLOCK, this,1.0,0.02, 5);
+    private Option<Double> sprintMultiplier = new Option<>("Sprint Multiplier",Material.DIAMOND_HOE, this,1.2,0.1, 10);
+    private Option<Double> groundMultiplier = new Option<>("Ground Multiplier",Material.DIAMOND_SPADE, this,1.1,0.1, 10);
 
-    public VelocitySettings() {
-        super(Material.SLIME_BALL,"&c&lVelocity Settings","Velocity", "velocitysettings",24,false,"&f In this category","&f you are able to","&f modify the bot's","&f velocity settings.","","&aClick to select!");
+    public VelocitySettings(Category parent) {
+        super(
+                "velocitysettings",
+                Arrays.asList(
+                        "Configurable velocity",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.SLIME_BALL),
+                parent,
+                "Velocity Settings",
+                "botgui.velocitysettings"
+        );
 
-        addSettings(horizontal,vertical,dependentRange,dependentRangeMultiplier,motionFriction,sprintMultiplier,groundMultiplier);
-
+        addChildren(horizontal, vertical, dependentRange, dependentRangeMultiplier, motionFriction, sprintMultiplier, groundMultiplier);
     }
 }

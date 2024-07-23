@@ -1,10 +1,12 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.Nms;
+import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,7 +20,7 @@ import java.util.List;
 @Getter
 public class PacketsManager extends Manager {
 
-    private final boolean relativeMovement = bot.getSettingManager().getPacketsSettings().getRelativeMove().isBooleanValue();
+    private final boolean relativeMovement = bot.getProfile().value(RootAccessor.INSTANCE.getPacketSettings().getRelativeMove());
     private final List<Packet> queue;
 
     public PacketsManager(Bot bot) {
@@ -41,20 +43,24 @@ public class PacketsManager extends Manager {
         Nms.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, getBot().getNpc()));
         Nms.sendPacket(player, new PacketPlayOutNamedEntitySpawn(getBot().getNpc()));
         Nms.sendPacket(player, new PacketPlayOutEntityHeadRotation(getBot().getNpc(), (byte) (getBot().getNpc().yaw * 256 / 360)));
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (p != player) Nms.sendPacket(p, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, getBot().getNpc()));
-//                    Nms.sendPacket(p, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, getBot().getNpc()));
-//                    try {
-//                        getBot().registerSkin(bot.getSkin(), p);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-                }
-            }.runTaskLaterAsynchronously(SmartBotsBackend.getInstance(), 20);
+
+        var npc = getBot().getNpc();
+        if (npc != null) {
+            Schedulers
+                    .async()
+                    .runLater(() -> {
+                        Bukkit.getOnlinePlayers().forEach(otherPlayer -> {
+                            if (!otherPlayer.getUniqueId().equals(player.getUniqueId())) {
+                                Nms.sendPacket(
+                                        otherPlayer,
+                                        new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, getBot().getNpc())
+                                );
+                            }
+                        });
+                    }, 20L)
+                    .bindWith(getBot().getTerminable());
         }
+
         skinUpdate(player);
     }
 
@@ -64,7 +70,7 @@ public class PacketsManager extends Manager {
 
     public void sendDeathPackets() {
         for (Player player : getBot().getViewsManager().getPlayers()) {
-            Nms.sendPacket(player,new PacketPlayOutEntityStatus(bot.getNpc(), (byte) 3));
+            Nms.sendPacket(player, new PacketPlayOutEntityStatus(bot.getNpc(), (byte) 3));
         }
     }
 
@@ -87,20 +93,22 @@ public class PacketsManager extends Manager {
         final float yaw = location.getYaw();
         final float pitch = location.getPitch();
 
-        bot.getNpc().setLocation(x,y,z,yaw,pitch);
+        if (bot.getNpc() != null) {
+            bot.getNpc().setLocation(x, y, z, yaw, pitch);
+        }
 
         globalAction(this::sendUpdateLocationPackets);
     }
 
     public void sendUpdateLocationPackets(Player player, int temp) {
         EntityPlayer npc = getBot().getNpc();
-        if (!relativeMovement) Nms.sendPacket(player,new PacketPlayOutEntityTeleport(npc));
+        if (!relativeMovement) Nms.sendPacket(player, new PacketPlayOutEntityTeleport(npc));
         Nms.sendPacket(player, new PacketPlayOutEntityHeadRotation(npc, (byte) (npc.yaw * 256 / 360)));
     }
 
     public void sendBlockHittingPackets(boolean enabled) {
         PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata();
-        DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0,0,(byte) (enabled ? 16 : 0));
+        DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0, 0, (byte) (enabled ? 16 : 0));
         ArrayList<DataWatcher.WatchableObject> list = new ArrayList<>();
         list.add(watchableObject);
 
@@ -108,7 +116,7 @@ public class PacketsManager extends Manager {
             if (field.getName().equals("a")) {
                 field.setAccessible(true);
                 try {
-                    field.set(metadata,bot.getNpc().getBukkitEntity().getEntityId());
+                    field.set(metadata, bot.getNpc().getBukkitEntity().getEntityId());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -117,7 +125,7 @@ public class PacketsManager extends Manager {
             if (field.getName().equals("b")) {
                 field.setAccessible(true);
                 try {
-                    field.set(metadata,list);
+                    field.set(metadata, list);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -131,7 +139,7 @@ public class PacketsManager extends Manager {
 
     public void setPlayerOnFirePackets(boolean fire) {
         PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata();
-        DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0,0,(byte) (fire ? 1 : 0));
+        DataWatcher.WatchableObject watchableObject = new DataWatcher.WatchableObject(0, 0, (byte) (fire ? 1 : 0));
         ArrayList<DataWatcher.WatchableObject> list = new ArrayList<>();
         list.add(watchableObject);
 
@@ -139,7 +147,7 @@ public class PacketsManager extends Manager {
             if (field.getName().equals("a")) {
                 field.setAccessible(true);
                 try {
-                    field.set(metadata,bot.getNpc().getBukkitEntity().getEntityId());
+                    field.set(metadata, bot.getNpc().getBukkitEntity().getEntityId());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -148,7 +156,7 @@ public class PacketsManager extends Manager {
             if (field.getName().equals("b")) {
                 field.setAccessible(true);
                 try {
-                    field.set(metadata,list);
+                    field.set(metadata, list);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -156,7 +164,7 @@ public class PacketsManager extends Manager {
         }
 
         globalAction((player, temp) -> {
-            Nms.sendPacket(player,metadata);
+            Nms.sendPacket(player, metadata);
         });
     }
 }

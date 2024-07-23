@@ -1,16 +1,28 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
+import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.BlockManager;
 import land.esta.plugin.ssb.utils.RayTrace;
 import land.esta.plugin.ssb.utils.objects.AABB;
 import land.esta.plugin.ssb.utils.objects.CraftiFriction;
+import net.evilblock.cubed.entity.npc.pathfinding.AStar;
+import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.PacketPlayOutWorldParticles;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.util.List;
 
 public class Movements extends Manager {
     public Movements(Bot bot) {
@@ -22,11 +34,13 @@ public class Movements extends Manager {
         //boolean requireToMove = bot.getMovements().getLocation().distanceSquared(bot.getMovements().getTargetLocate().getTarget()) >=Math.pow(settingManager.getStrafeSettings().getDistance().getDoubleValue(), 2);
         //bot.getMovements().setRequiredToMove(requireToMove);
         //if (!requireToMove) bot.getAttackingManager().setHitSelecting(false);
+
+
         move();
     }
 
     private final double blockingMultiplier = 0.2;
-    private final boolean advancedReduce = bot.getSettingManager().getClickSetting().getAdvancedReduce().isBooleanValue();
+    private final boolean advancedReduce = bot.getProfile().value(RootAccessor.INSTANCE.getAttackSettings().getAdvancedReduce());
 
     private boolean lastOnGround;
 
@@ -107,7 +121,7 @@ public class Movements extends Manager {
         }
     }
 
-    public boolean onGround(Location loc) {
+    public static boolean onGround(Location loc) {
         AABB playerBox = new AABB(new Vector(-0.29,0.0,-0.29),new Vector(0.29,1.8,0.29));
         World world = loc.getWorld();
         Location min = loc.toVector().add(playerBox.getMin()).toLocation(world);
@@ -120,7 +134,7 @@ public class Movements extends Manager {
         return RayTrace.blockCollidesCheck(min,max);
     }
 
-    public Vector getDirection(float yaw,float pitch) {
+    public static Vector getDirection(float yaw,float pitch) {
         Vector result = new Vector(0,0,0);
         double xz = Math.cos(Math.toRadians(pitch));
         result.setX(-xz * Math.sin(Math.toRadians(yaw)));
