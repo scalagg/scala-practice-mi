@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
+import me.lucko.helper.Schedulers;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,41 +30,40 @@ public class WTapFeature extends Feature {
             } else {
                 tapLong = bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getComboTapLong());
             }
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!bot.isAlive()) return;
 
-
-                    if (bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getBlockingHitting())) {
-                        //Block hitting handling
-                        bot.getPacketsManager().sendBlockHittingPackets(true);
-                        bot.getMovements().setUse(true);
-                    } else {
-                        //W tap handing
-                        bot.getMovements().setMove(false);
-                    }
-                    bot.getMovements().setWtap(true);
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            if (!bot.isAlive()) return;
-
-                            if (bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getBlockingHitting())) {
-                                //Block hitting handling
-                                bot.getPacketsManager().sendBlockHittingPackets(false);
-                                bot.getMovements().setUse(false);
-                            } else {
-                                //W tap handing
-                                bot.getMovements().setMove(true);
-                            }
-
-                            bot.getMovements().setWtap(false);
+            Schedulers
+                    .sync()
+                    .runLater(() -> {
+                        if (!bot.isAlive()) return;
+                        if (bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getBlockingHitting())) {
+                            //Block hitting handling
+                            bot.getPacketsManager().sendBlockHittingPackets(true);
+                            bot.getMovements().setUse(true);
+                        } else {
+                            //W tap handing
+                            bot.getMovements().setMove(false);
                         }
-                    }.runTaskLater(EstaRobotsPlugin.getInstance(),tapLong);
-                }
-            }.runTaskLater(EstaRobotsPlugin.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getTapStart()));
+                        bot.getMovements().setWtap(true);
+
+                        Schedulers
+                                .sync()
+                                .runLater(() -> {
+                                    if (!bot.isAlive()) return;
+
+                                    if (bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getBlockingHitting())) {
+                                        //Block hitting handling
+                                        bot.getPacketsManager().sendBlockHittingPackets(false);
+                                        bot.getMovements().setUse(false);
+                                    } else {
+                                        //W tap handing
+                                        bot.getMovements().setMove(true);
+                                    }
+
+                                    bot.getMovements().setWtap(false);
+                                }, tapLong)
+                                .bindWith(bot.getTerminable());
+                    }, bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getTapStart()))
+                    .bindWith(bot.getTerminable());
         }
     }
 }

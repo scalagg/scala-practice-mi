@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
 import land.esta.plugin.ssb.features.Feature;
+import me.lucko.helper.Schedulers;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,15 +32,15 @@ public class Soups extends Feature {
                 int slot = manager.getItemSlot(soup);
                 manager.setMainHand(slot);
 
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (!bot.isAlive()) return;
-                        manager.setMainHand(1);
-                        bot.getHealthManager().addHealth(6);
-                        manager.removeItem(slot);
-                    }
-                }.runTaskLater(EstaRobotsPlugin.getInstance(),soupTime);
+                Schedulers
+                        .sync()
+                        .runLater(() -> {
+                            if (!bot.isAlive()) return;
+                            manager.setMainHand(1);
+                            bot.getHealthManager().addHealth(6);
+                            manager.removeItem(slot);
+                        }, soupTime)
+                        .bindWith(bot.getTerminable());
             }
         }
     }

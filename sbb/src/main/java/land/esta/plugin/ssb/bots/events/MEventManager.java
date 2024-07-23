@@ -3,6 +3,7 @@ package land.esta.plugin.ssb.bots.events;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.bots.Bot;
+import me.lucko.helper.Schedulers;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -53,18 +54,16 @@ public class MEventManager {
         }
     }
 
-
     public void callEvents() {
         // Run async
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                List<BotEvent> botEvents = EstaRobotsPlugin.getInstance().getEventManager().getEvents();
-                for (int i = 0;i < botEvents.size();i++) {
-                    BotEvent event = botEvents.get(i);
-                    event.callTick(bot);
-                }
-            }
-        }.runTaskAsynchronously(EstaRobotsPlugin.getInstance());
+        Schedulers
+                .async()
+                .run(() -> {
+                    List<BotEvent> botEvents = EstaRobotsPlugin.getInstance().getEventManager().getEvents();
+                    for (BotEvent event : botEvents) {
+                        event.callTick(bot);
+                    }
+                })
+                .bindWith(bot.getTerminable());
     }
 }

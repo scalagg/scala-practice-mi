@@ -13,6 +13,7 @@ import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.Durability;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.BooleanRunnable;
+import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,8 +27,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Setter
@@ -47,7 +50,7 @@ public class InventoryManager extends Manager {
     private boolean requiredToEat;
     private long gappleDelay;
     private net.minecraft.server.v1_8_R3.ItemStack[] armorStacks = new net.minecraft.server.v1_8_R3.ItemStack[4];
-    private  net.minecraft.server.v1_8_R3.ItemStack[] itemStacks = new net.minecraft.server.v1_8_R3.ItemStack[36];
+    private net.minecraft.server.v1_8_R3.ItemStack[] itemStacks = new net.minecraft.server.v1_8_R3.ItemStack[36];
 
     public void updateArmorStacks() {
         armorStacks = new net.minecraft.server.v1_8_R3.ItemStack[4];
@@ -87,7 +90,7 @@ public class InventoryManager extends Manager {
     public void updateMainHandNMS() {
         PlayerInventory inv = bot.getNpc().inventory;
         inv.itemInHandIndex = mainHand - 1;
-        inv.setItem(inv.itemInHandIndex,CraftItemStack.asNMSCopy(getItemInMainHand()));
+        inv.setItem(inv.itemInHandIndex, CraftItemStack.asNMSCopy(getItemInMainHand()));
     }
 
     // New version for damageArmor()
@@ -150,11 +153,11 @@ public class InventoryManager extends Manager {
         return slots.get(mainHand);
     }
 
-    public void setItem(int slot,ItemStack item) {
+    public void setItem(int slot, ItemStack item) {
         if (slot > lines * 9) return;
         if (item == null) return;
         if (item.getType().equals(Material.AIR)) return;
-        slots.put(slot,item);
+        slots.put(slot, item);
 
         itemUpdate();
         updateItemStacks();
@@ -163,7 +166,7 @@ public class InventoryManager extends Manager {
     public void addItem(ItemStack item) {
         for (int slot = 1; slot <= lines * 9; lines++) {
             if (!slots.containsKey(slot)) {
-                setItem(slot,item);
+                setItem(slot, item);
                 break;
             }
         }
@@ -182,13 +185,13 @@ public class InventoryManager extends Manager {
         }
 
         //Removes all if there is only 1
-        slots.put(slot,null);
+        slots.put(slot, null);
         itemUpdate();
         updateItemStacks();
     }
 
     public void deleteItem(int slot) {
-        slots.put(slot,null);
+        slots.put(slot, null);
         itemUpdate();
         updateItemStacks();
     }
@@ -198,9 +201,9 @@ public class InventoryManager extends Manager {
 
         for (ItemStack item : items) {
             if (item == null) {
-                setItem(counter + 1,null);
+                setItem(counter + 1, null);
             } else {
-                setItem(counter + 1,item.clone());
+                setItem(counter + 1, item.clone());
             }
             counter++;
         }
@@ -218,13 +221,13 @@ public class InventoryManager extends Manager {
     public List<ItemStack> hasArmor(int index) {
         List<ItemStack> list = new ArrayList<>();
         slots.values().forEach(value -> {
-            if (value != null && hasArmor(index,value.getType())) list.add(value);
+            if (value != null && hasArmor(index, value.getType())) list.add(value);
         });
 
         return list;
     }
 
-    public boolean hasArmor(int index,Material material) {
+    public boolean hasArmor(int index, Material material) {
         if (index == 1) return isBoots(material);
         if (index == 2) return isChestplate(material);
         if (index == 3) return isLeggings(material);
@@ -245,8 +248,7 @@ public class InventoryManager extends Manager {
         if (material == Material.DIAMOND_BOOTS) return true;
         if (material == Material.IRON_BOOTS) return true;
         if (material == Material.GOLD_BOOTS) return true;
-        if (material == Material.LEATHER_BOOTS) return true;
-        return false;
+        return material == Material.LEATHER_BOOTS;
     }
 
     public boolean isChestplate(Material material) {
@@ -255,8 +257,7 @@ public class InventoryManager extends Manager {
         if (material == Material.DIAMOND_CHESTPLATE) return true;
         if (material == Material.IRON_CHESTPLATE) return true;
         if (material == Material.GOLD_CHESTPLATE) return true;
-        if (material == Material.LEATHER_CHESTPLATE) return true;
-        return false;
+        return material == Material.LEATHER_CHESTPLATE;
     }
 
     public boolean isLeggings(Material material) {
@@ -265,8 +266,7 @@ public class InventoryManager extends Manager {
         if (material == Material.DIAMOND_LEGGINGS) return true;
         if (material == Material.IRON_LEGGINGS) return true;
         if (material == Material.GOLD_LEGGINGS) return true;
-        if (material == Material.LEATHER_LEGGINGS) return true;
-        return false;
+        return material == Material.LEATHER_LEGGINGS;
     }
 
     public boolean isHelmet(Material material) {
@@ -275,21 +275,20 @@ public class InventoryManager extends Manager {
         if (material == Material.DIAMOND_HELMET) return true;
         if (material == Material.IRON_HELMET) return true;
         if (material == Material.GOLD_HELMET) return true;
-        if (material == Material.LEATHER_HELMET) return true;
-        return false;
+        return material == Material.LEATHER_HELMET;
     }
 
     //public boolean isArmor(Material material) {
-      //if(isHelmet(material)) return true;
-      //if(isChestplate(material)) return true;
-      //if(isLeggings(material)) return true;
-      //if(isBoots(material)) return true;
+    //if(isHelmet(material)) return true;
+    //if(isChestplate(material)) return true;
+    //if(isLeggings(material)) return true;
+    //if(isBoots(material)) return true;
     //}
 
     public List<ItemStack> hasItem(int material) {
         List<ItemStack> list = new ArrayList<>();
         slots.values().forEach(value -> {
-            if (value != null &&value.getTypeId() == (material)) list.add(value);
+            if (value != null && value.getTypeId() == (material)) list.add(value);
         });
 
         return list;
@@ -300,7 +299,7 @@ public class InventoryManager extends Manager {
             ItemStack stack = inventory.getItem(slot);
             if (stack == null) continue;
 
-            setItem(slot + 1,stack);
+            setItem(slot + 1, stack);
         }
 
         itemUpdate();
@@ -318,25 +317,25 @@ public class InventoryManager extends Manager {
 
     public void updateHelmet(ItemStack helmet) {
         this.helmet = helmet;
-        if (helmet != null) updateItemPacket(helmet,1);
+        if (helmet != null) updateItemPacket(helmet, 1);
         updateArmorStacks();
     }
 
     public void updateChestPlate(ItemStack chestPlate) {
         this.chestPlate = chestPlate;
-        if (chestPlate != null) updateItemPacket(chestPlate,2);
+        if (chestPlate != null) updateItemPacket(chestPlate, 2);
         updateArmorStacks();
     }
 
     public void updateLeggings(ItemStack leggings) {
         this.leggings = leggings;
-        if (leggings != null) updateItemPacket(leggings,3);
+        if (leggings != null) updateItemPacket(leggings, 3);
         updateArmorStacks();
     }
 
     public void updateBoots(ItemStack boots) {
         this.boots = boots;
-        if (boots != null) updateItemPacket(boots,4);
+        if (boots != null) updateItemPacket(boots, 4);
         updateArmorStacks();
     }
 
@@ -349,7 +348,7 @@ public class InventoryManager extends Manager {
             if (Potion.fromItemStack(item).isSplash()) return;
             if (bot.getEffectsManager().hasEffects(effects)) return;
 
-            eatEffects(effects,item,true);
+            eatEffects(effects, item, true);
             return;
         }
 
@@ -358,14 +357,14 @@ public class InventoryManager extends Manager {
             Collection<PotionEffect> effects = new ArrayList<>();
             if (item.getData().getData() == 1) {
                 //Enchanted golden apple
-                effects.add(new PotionEffect(PotionEffectType.REGENERATION,20 * 30,5));
-                effects.add(new PotionEffect(PotionEffectType.ABSORPTION,20 * 120,1));
-                effects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,20 * 60 * 5,1));
-                effects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE,20 * 60 * 5,1));
+                effects.add(new PotionEffect(PotionEffectType.REGENERATION, 20 * 30, 5));
+                effects.add(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 120, 1));
+                effects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * 60 * 5, 1));
+                effects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 60 * 5, 1));
             } else {
                 //Normal gapple
-                effects.add(new PotionEffect(PotionEffectType.ABSORPTION,20 * 120,1));
-                effects.add(new PotionEffect(PotionEffectType.REGENERATION,20 * 5,2));
+                effects.add(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 120, 1));
+                effects.add(new PotionEffect(PotionEffectType.REGENERATION, 20 * 5, 2));
             }
 
             eatEffects(effects, item, false);
@@ -407,7 +406,7 @@ public class InventoryManager extends Manager {
         requiredToEat = false;
     }
 
-    public void eatEffects(Collection<PotionEffect> effects,ItemStack item,boolean drink) {
+    public void eatEffects(Collection<PotionEffect> effects, ItemStack item, boolean drink) {
         bot.getMovements().setUse(true);
         BooleanRunnable f1 = switchSlowTemp(item);
         eating = true;
@@ -419,39 +418,45 @@ public class InventoryManager extends Manager {
             }
             bot.getMovements().setUse(false);
             eating = false;
-            callEventAsync(new FinishEatingEvent(bot,item));
+            callEventAsync(new FinishEatingEvent(bot, item));
         };
-        eatEffect(f3,item,drink);
+        eatEffect(f3, item, drink);
     }
 
-    public void eatEffect(BooleanRunnable done,ItemStack item,boolean drink) {
-        new BukkitRunnable() {
-            int ticks = 0;
-            final int max = 32;
-            final int soundTicks = 4;
-            @SneakyThrows
-            public void run() {
-                if (!bot.isAlive()) {
-                    // Cancel eating if the bot died.
-                    this.cancel();
-                    return;
-                }
+    public void eatEffect(BooleanRunnable done, ItemStack item, boolean drink) {
+        final AtomicInteger ticks = new AtomicInteger();
+        final int max = 32;
+        final int soundTicks = 4;
 
-                if (ticks % soundTicks == 0) runEffect(item,drink);
-
-                if (ticks++ > max || !allowToEat) {
-                    this.cancel();
-                    done.run(allowToEat);
-                    if (!allowToEat) {
-                        callEventAsync(new EatingCancelEvent(bot));
-                        allowToEat = true;
+        Schedulers
+                .sync()
+                .runRepeating(task -> {
+                    if (!bot.isAlive()) {
+                        task.closeAndReportException();
+                        return;
                     }
-                }
-            }
-        }.runTaskTimer(EstaRobotsPlugin.getInstance(),0,1);
+
+                    if (ticks.get() % soundTicks == 0) runEffect(item, drink);
+
+                    if (ticks.getAndIncrement() > max || !allowToEat) {
+                        task.closeAndReportException();
+
+                        try {
+                            done.run(allowToEat);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if (!allowToEat) {
+                            callEventAsync(new EatingCancelEvent(bot));
+                            allowToEat = true;
+                        }
+                    }
+                }, 0L, 1L)
+                .bindWith(bot.getTerminable());
     }
 
-    public void runEffect(ItemStack item,boolean drink) {
+    public void runEffect(ItemStack item, boolean drink) {
         //TODO run effect
         bot.getViewsManager().getPlayers().forEach(player -> {
             Sound sound = Sound.EAT;
@@ -459,8 +464,10 @@ public class InventoryManager extends Manager {
             Random random = ThreadLocalRandom.current();
             Location loc = bot.getMovements().getLocation();
 
-            if (drink) player.playSound(bot.getMovements().getLocation(), sound,0.5F, random.nextFloat() * 0.1F + 0.9F);
-            if (!drink) player.playSound(bot.getMovements().getLocation(), sound, 0.5F + 0.5F * random.nextInt(2), (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+            if (drink)
+                player.playSound(bot.getMovements().getLocation(), sound, 0.5F, random.nextFloat() * 0.1F + 0.9F);
+            if (!drink)
+                player.playSound(bot.getMovements().getLocation(), sound, 0.5F + 0.5F * random.nextInt(2), (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
 
             //Eating effects
             if (!drink) {
@@ -474,7 +481,7 @@ public class InventoryManager extends Manager {
     public int getItemSlot(ItemStack item) {
         for (int key : getSlots().keySet()) {
             ItemStack stack = slots.get(key);
-            if (stack != null && stack.equals(item))  return key;
+            if (stack != null && stack.equals(item)) return key;
         }
 
         return 1;
@@ -483,14 +490,14 @@ public class InventoryManager extends Manager {
     @Override
     public void addPlayerToList(Player player) {
         updateItemPacket(getItemInMainHand());
-        if (helmet != null) updateItemPacket(helmet,1);
-        if (chestPlate != null) updateItemPacket(chestPlate,2);
-        if (leggings != null) updateItemPacket(leggings,3);
-        if (boots != null) updateItemPacket(boots,4);
+        if (helmet != null) updateItemPacket(helmet, 1);
+        if (chestPlate != null) updateItemPacket(chestPlate, 2);
+        if (leggings != null) updateItemPacket(leggings, 3);
+        if (boots != null) updateItemPacket(boots, 4);
     }
 
     public void updateItemPacket(ItemStack updated) {
-        updateItemPacket(updated,0);
+        updateItemPacket(updated, 0);
     }
 
     public void updateItemPacket(ItemStack updated, int slot) {
@@ -522,14 +529,14 @@ public class InventoryManager extends Manager {
     public void updateArmorPacket(int slot) {
         PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment(bot.getNpc().getId(), slot, armorStacks[slot]);
 
-        globalAction((player, temp) -> Nms.sendPacket(player,entityEquipment));
+        globalAction((player, temp) -> Nms.sendPacket(player, entityEquipment));
     }
 
     public org.bukkit.inventory.Inventory toBukkitInv(org.bukkit.inventory.PlayerInventory inventory) {
         inventory.clear();
 
         for (Integer slot : slots.keySet()) {
-            inventory.setItem(slot - 1,slots.get(slot));
+            inventory.setItem(slot - 1, slots.get(slot));
         }
 
         return inventory;

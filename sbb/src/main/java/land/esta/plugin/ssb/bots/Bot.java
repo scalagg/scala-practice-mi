@@ -16,6 +16,8 @@ import land.esta.plugin.ssb.npc.NPCEntity;
 import land.esta.plugin.ssb.npc.NPCNetworkManager;
 import land.esta.plugin.ssb.npc.NPCPlayerConnection;
 import land.esta.plugin.ssb.utils.objects.EventRunnable;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import net.minecraft.server.v1_8_R3.EnumProtocolDirection;
 import net.minecraft.server.v1_8_R3.MinecraftServer;
 import net.minecraft.server.v1_8_R3.PlayerInteractManager;
@@ -49,10 +51,11 @@ public class Bot {
     private FleeManager fleeManager;
     private EventRunnable eventListener;
     private DamageCalculator damageCalculator;
-    private boolean alive = true;
-    public boolean killed;
+    public boolean alive = true;
 
     public final UUID uniqueId = UUID.randomUUID();
+    private final CompositeTerminable terminable = CompositeTerminable.create();
+
     private final Player player;
 
     public final SettingProfile profile;
@@ -129,12 +132,10 @@ public class Bot {
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                world.addEntity(npc);
-            }
-        }.runTask(EstaRobotsPlugin.getInstance());
+        Schedulers
+                .sync()
+                .run(() -> world.addEntity(npc))
+                .bindWith(terminable);
     }
 
     public static final Property DEFAULT = new Property(
@@ -144,32 +145,13 @@ public class Bot {
     );
 
     public void kill() {
-        if (killed) return;
-        killed = true;
-
-        //Disables attacking
-        attackingManager.setAttacking(false);
-        damageManager.setInvaluable(true);
-
-        //Calls the animation with the event
-        deathEvent();
-    }
-
-    public void silentKill() {
         if (!alive) {
             return;
         }
 
-        alive = false;
-        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        EstaRobotsPlugin.getInstance().getBotManager().removeBot(this);
-        packetsManager.sendRemovePackets();
+        attackingManager.setAttacking(false);
+        damageManager.setInvaluable(true);
 
-        npc.getBukkitEntity().remove();
-        npc = null;
-    }
-
-    public void deathEvent() {
         //Animation
         fakeDeath();
 
@@ -177,23 +159,30 @@ public class Bot {
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
     }
 
+    public void silentKill() {
+        if (alive) {
+            destroy();
+        }
+    }
+
     public void fakeDeath() {
         movements.setMove(false);
         packetsManager.sendDeathPackets();
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                packetsManager.sendRemovePackets();
-                EstaRobotsPlugin.getInstance().getBotManager().removeBot(Bot.this);
+        Schedulers.sync().runLater(this::destroy, 14L);
+    }
 
-                alive = false;
-                npc.getBukkitEntity().remove();
-                npc = null;
+    public void destroy() {
+        alive = false;
+        packetsManager.sendRemovePackets();
+        EstaRobotsPlugin.getInstance().getBotManager().removeBot(Bot.this);
 
-                Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
-            }
-        }.runTaskLater(EstaRobotsPlugin.getInstance(), 14);
+        terminable.closeAndReportException();
+
+        npc.getBukkitEntity().remove();
+        npc = null;
+
+        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
     }
 
     public void tick() {

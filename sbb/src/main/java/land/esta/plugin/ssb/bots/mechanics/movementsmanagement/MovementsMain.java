@@ -9,6 +9,7 @@ import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
+import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -76,13 +77,13 @@ public class MovementsMain extends Manager {
     public void tickMid() {
         if (sentLocationUpdate) {
             if (delayedBotLocation) {
-                new BukkitRunnable() {
-                    final Location location = getBot().getMovements().getLocation();
+                final Location location = getBot().getMovements().getLocation();
+                final var ticks = bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100;
 
-                    public void run() {
-                        getBot().getPacketsManager().updateLocation(location);
-                    }
-                }.runTaskLater(EstaRobotsPlugin.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100);
+                Schedulers
+                        .sync()
+                        .runLater(() -> getBot().getPacketsManager().updateLocation(location), ticks)
+                        .bindWith(getBot().getTerminable());
             } else {
                 getBot().getPacketsManager().updateLocation(getBot().getMovements().getLocation());
             }
@@ -207,13 +208,13 @@ public class MovementsMain extends Manager {
 
     public void setAttackSprint(boolean sprint) {
         this.sprint = sprint;
-        //Nms update
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                bot.getNpc().setSprinting(attackSprint);
-            }
-        }.runTask(EstaRobotsPlugin.getInstance());
+
+        Schedulers
+                .sync()
+                .run(() -> {
+                    bot.getNpc().setSprinting(attackSprint);
+                })
+                .bindWith(bot.getTerminable());
     }
 
     public void attack() {

@@ -22,7 +22,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
     init
     {
         terminable.with {
-            if (spawnedBot?.killed == true)
+            if (spawnedBot?.alive == false)
             {
                 return@with
             }
@@ -69,14 +69,6 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl, private val 
 
     override fun destroy()
     {
-        if (spawnedBot?.killed == true)
-        {
-            runCatching {
-                spawnedBot?.npc?.bukkitEntity?.remove()
-            }
-            return
-        }
-
         spawnedBot?.silentKill()
     }
 }

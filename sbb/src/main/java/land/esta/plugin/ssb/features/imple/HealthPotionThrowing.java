@@ -7,6 +7,7 @@ import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
+import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
@@ -114,20 +115,19 @@ public class HealthPotionThrowing extends Feature {
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
     public void launchProjectile(ItemStack item, Vector velocity, CraftPlayer entity) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                World world = ((CraftWorld) entity.getWorld()).getHandle();
-                net.minecraft.server.v1_8_R3.Entity launch;
-                launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
+        Schedulers
+                .sync()
+                .run(() -> {
+                    World world = ((CraftWorld) entity.getWorld()).getHandle();
+                    net.minecraft.server.v1_8_R3.Entity launch;
+                    launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
-                Validate.notNull(launch, "Projectile not supported");
-                if (velocity != null) {
-                    ((Projectile) launch.getBukkitEntity()).setVelocity(velocity);
-                }
+                    Validate.notNull(launch, "Projectile not supported");
+                    if (velocity != null) {
+                        ((Projectile) launch.getBukkitEntity()).setVelocity(velocity);
+                    }
 
-                world.addEntity(launch);
-            }
-        }.runTask(EstaRobotsPlugin.getInstance());
+                    world.addEntity(launch);
+                });
     }
 }

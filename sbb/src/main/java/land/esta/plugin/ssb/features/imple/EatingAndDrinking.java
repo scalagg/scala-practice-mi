@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.*;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
+import me.lucko.helper.Schedulers;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
@@ -26,12 +27,10 @@ public class EatingAndDrinking extends Feature {
         Bot bot = event.bot;
 
         if (event instanceof SpawnEvent) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    runEat(bot);
-                }
-            }.runTaskLater(EstaRobotsPlugin.getInstance(), 1);
+            Schedulers
+                    .sync()
+                    .runLater(() -> runEat(bot), 1L)
+                    .bindWith(bot.getTerminable());
         }
 
         int eatingGappleHealth = bot.getProfile().value(

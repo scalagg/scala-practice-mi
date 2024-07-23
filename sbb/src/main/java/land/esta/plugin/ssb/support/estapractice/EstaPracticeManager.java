@@ -17,6 +17,7 @@ import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.utils.Color;
 import me.lucko.helper.Events;
+import me.lucko.helper.Schedulers;
 import net.evilblock.cubed.ScalaCommonsSpigot;
 import org.bukkit.Location;
 import org.bukkit.enchantments.Enchantment;
@@ -214,14 +215,14 @@ public class EstaPracticeManager {
                 bot.getMovements().setMove(true);
             }
         } else {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (bot.isAlive()) {
-                        bot.getMovements().setMove(true);
-                    }
-                }
-            }.runTaskLater(EstaRobotsPlugin.getInstance(), 5 * 20);
+            Schedulers
+                    .sync()
+                    .runLater(() -> {
+                        if (bot.isAlive()) {
+                            bot.getMovements().setMove(true);
+                        }
+                    }, 5 * 20L)
+                    .bindWith(bot.getTerminable());
         }
 
         InventoryManager inventoryManager = bot.getInventoryManager();
@@ -253,10 +254,9 @@ public class EstaPracticeManager {
             inventoryManager.updateArmorContents(game.getKit().getArmorContents()[0].clone(), 1);
         }
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                bot.getEffectsManager().addEffects(
+        Schedulers
+                .sync()
+                .runLater(() -> bot.getEffectsManager().addEffects(
                         game.getKit()
                                 .getPotionEffects()
                                 .entrySet()
@@ -265,9 +265,9 @@ public class EstaPracticeManager {
                                         PotionEffectType.getByName(pair.getKey()), Integer.MAX_VALUE, pair.getValue()
                                 ))
                                 .toList()
-                );
-            }
-        }.runTaskLater(EstaRobotsPlugin.getInstance(), 1);
+                ), 1L)
+                .bindWith(bot.getTerminable());
+
         //TODO combo mode support.
         return bot;
     }

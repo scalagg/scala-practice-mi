@@ -2,8 +2,10 @@ package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
+import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
+import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EnderPearl;
@@ -23,6 +25,11 @@ import java.util.UUID;
 public class Pearling extends Feature {
 
     private final Map<UUID, Integer> pearlTick = new HashMap<>();
+
+    @EventHandler
+    public void botDeath(BotDeathEvent event) {
+        pearlTick.remove(event.getBot().getUniqueId());
+    }
 
     @Override
     public void tickEvent(Bot bot) {
@@ -45,22 +52,22 @@ public class Pearling extends Feature {
         this.pearlTick.put(bot.getUniqueId(), 0);
         bot.getInventoryManager().setMainHand(itemSlot(pearl, bot));
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!bot.isAlive()) return;
-                Location location = bot.getMovements().getLocation();
-                location.setYaw(location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()));
-                location.setPitch(3);
-                updateLocation(bot, location);
-                bot.getInventoryManager().setMainHand(1);
+        Schedulers
+                .sync()
+                .runLater(() -> {
+                    if (!bot.isAlive()) return;
+                    Location location = bot.getMovements().getLocation();
+                    location.setYaw(location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()));
+                    location.setPitch(3);
+                    updateLocation(bot, location);
+                    bot.getInventoryManager().setMainHand(1);
 
-                if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))
-                    return;
-                bot.getInventoryManager().removeItem(itemSlot(pearl, bot));
-                bot.getNpc().getBukkitEntity().launchProjectile(EnderPearl.class);
-            }
-        }.runTaskLater(EstaRobotsPlugin.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()));
+                    if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))
+                        return;
+                    bot.getInventoryManager().removeItem(itemSlot(pearl, bot));
+                    bot.getNpc().getBukkitEntity().launchProjectile(EnderPearl.class);
+                }, bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()))
+                .bindWith(bot.getTerminable());
     }
 
     public void updateLocation(Bot bot, Location location) {
@@ -74,22 +81,24 @@ public class Pearling extends Feature {
     }
 
     @EventHandler
-    public void teleport(ProjectileLaunchEvent e) {
-        if (!e.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
-        if (e.getEntity().getShooter() instanceof LivingEntity shooter) {
+    public void teleport(ProjectileLaunchEvent event) {
+        if (!event.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
+        if (event.getEntity().getShooter() instanceof LivingEntity shooter) {
             Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
             if (bot == null) return;
+            final Location[] trackedLoc = {event.getEntity().getLocation()};
 
-            new BukkitRunnable() {
-                Location trackedLoc = e.getEntity().getLocation();
-
-                public void run() {
-                    if (e.getEntity().isDead()) {
-                        updateLocation(bot, trackedLoc);
-                        this.cancel();
-                    } else trackedLoc = e.getEntity().getLocation();
-                }
-            }.runTaskTimer(EstaRobotsPlugin.getInstance(), 1, 1);
+            Schedulers
+                    .sync()
+                    .runRepeating(task -> {
+                        if (event.getEntity().isDead()) {
+                            updateLocation(bot, trackedLoc[0]);
+                            task.closeAndReportException();
+                        } else {
+                            trackedLoc[0] = event.getEntity().getLocation();
+                        }
+                    }, 1L, 1L)
+                    .bindWith(bot.getTerminable());
         }
     }
 

@@ -39,7 +39,8 @@ public class EffectsManager extends Manager {
                                     true, true
                             ));
                         }
-                    });
+                    })
+                    .bindWith(bot.getTerminable());
         });
     }
 
@@ -56,13 +57,15 @@ public class EffectsManager extends Manager {
 
     public void addEffect(PotionEffectType type, Integer level, int time, boolean update) {
         effects.put(type, level);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!bot.isAlive()) return;
-                removeEffect(type);
-            }
-        }.runTaskLater(EstaRobotsPlugin.getInstance(), time / 20);
+
+        Schedulers
+                .sync()
+                .runLater(() -> {
+                    if (!bot.isAlive()) return;
+                    removeEffect(type);
+                }, time / 20)
+                .bindWith(bot.getTerminable());
+
         addEffectEvent(type, level, update);
     }
 

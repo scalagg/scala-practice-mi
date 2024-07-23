@@ -112,7 +112,7 @@ public class RecodedCollision extends Manager {
         //Jumping
         if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getAlwaysJump())) {
             //Jump when combed
-            if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileCombo()) && EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot,0) >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileComboHits())) {
+            if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileCombo()) && EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(),0) >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileComboHits())) {
                 bot.getMovements().setJump(true);
             }
 

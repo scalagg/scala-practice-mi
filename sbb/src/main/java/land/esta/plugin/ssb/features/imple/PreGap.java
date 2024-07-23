@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.botevents.events.SpawnEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
+import me.lucko.helper.Schedulers;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PreGap extends Feature {
@@ -16,19 +17,19 @@ public class PreGap extends Feature {
             Bot bot = event.bot;
             //Run a tick later so the practice plugin has time to provide you with the items
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    boolean a = bot.getInventoryManager().hasItem(322).size() > 0;
-                    boolean b = bot.getProfile().value(RootAccessor.INSTANCE.getEatingSettings().getPreGap());
+            Schedulers
+                    .async()
+                    .runLater(() -> {
+                        boolean a = !bot.getInventoryManager().hasItem(322).isEmpty();
+                        boolean b = bot.getProfile().value(RootAccessor.INSTANCE.getEatingSettings().getPreGap());
 
-                    //Bukkit.broadcastMessage("a " + a + " b " + b);
-                    if (a && b) {
-                        //Bukkit.broadcastMessage("pre Gap");
-                        EatingAndDrinking.eatGap(bot);
-                    }
-                }
-            }.runTaskLaterAsynchronously(EstaRobotsPlugin.getInstance(),20 * 6);
+                        //Bukkit.broadcastMessage("a " + a + " b " + b);
+                        if (a && b) {
+                            //Bukkit.broadcastMessage("pre Gap");
+                            EatingAndDrinking.eatGap(bot);
+                        }
+                    }, 20 * 6)
+                    .bindWith(bot.getTerminable());
         }
     }
 }

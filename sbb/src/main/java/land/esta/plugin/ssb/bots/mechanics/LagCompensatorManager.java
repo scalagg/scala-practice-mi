@@ -7,6 +7,7 @@ import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.utils.objects.DataLocation;
+import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,22 +34,23 @@ public class LagCompensatorManager extends Manager {
         super(bot);
         locations = new ArrayList<>();
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!bot.isAlive()) {
-                    this.cancel();
-                    return;
-                }
-                Player p = getPlayer();
-                if (p == null) return;
-                if (lastPlayer == null) lastPlayer = p.getUniqueId();
-                if (lastPlayer != p.getUniqueId()) locations.clear();
+        Schedulers
+                .sync()
+                .runRepeating(task -> {
+                    if (!bot.isAlive()) {
+                        task.closeAndReportException();
+                        return;
+                    }
 
-                lastPlayer = p.getUniqueId();
-                movePacket(p.getLocation());
-            }
-        }.runTaskTimer(EstaRobotsPlugin.getInstance(),1,1);
+                    Player p = getPlayer();
+                    if (p == null) return;
+                    if (lastPlayer == null) lastPlayer = p.getUniqueId();
+                    if (lastPlayer != p.getUniqueId()) locations.clear();
+
+                    lastPlayer = p.getUniqueId();
+                    movePacket(p.getLocation());
+                }, 1L, 1L)
+                .bindWith(bot.getTerminable());
     }
 
     public void movePacket(Location loc) {
@@ -64,7 +66,7 @@ public class LagCompensatorManager extends Manager {
 
         long min = Long.MAX_VALUE;
         DataLocation result = orElse;
-        for (int i = 0; i < locations.size();i++) {
+        for (int i = 0; i < locations.size(); i++) {
             DataLocation loc = locations.get(i);
             long value = Math.abs(loc.getTime() - (System.currentTimeMillis() - time));
             if (value < min) {
