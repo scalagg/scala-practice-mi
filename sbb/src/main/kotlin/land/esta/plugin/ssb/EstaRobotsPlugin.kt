@@ -64,7 +64,7 @@ class EstaRobotsPlugin : ExtendedScalaPlugin()
 
         if (GameServer.`is`())
         {
-            botManager = BotManager()
+            botManager = BotManager(this)
             dataManager = DataManager(this)
 
             if (GameServer.`is`())
