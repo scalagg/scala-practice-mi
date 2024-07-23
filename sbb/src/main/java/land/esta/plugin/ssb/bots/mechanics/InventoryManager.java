@@ -294,6 +294,15 @@ public class InventoryManager extends Manager {
         return list;
     }
 
+    public ItemStack hasSingleItem(int material) {
+        List<ItemStack> list = new ArrayList<>();
+        for (var value : slots.values()) {
+            if (value != null && value.getTypeId() == (material)) return value;
+        };
+
+        return null;
+    }
+
     public void applyInv(org.bukkit.inventory.Inventory inventory) {
         for (int slot = 0; slot < lines * 9; lines++) {
             ItemStack stack = inventory.getItem(slot);

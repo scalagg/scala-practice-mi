@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -55,11 +56,9 @@ public class DamageManager extends Manager {
         damageTicks = 0;
 
         //Damage
-        if (source.i().getBukkitEntity() instanceof Player) {
-            Player player = (Player) source.i().getBukkitEntity();
+        if (source.i().getBukkitEntity() instanceof Player player) {
             playerAttack(player,damage);
-        } else if (source.i().getBukkitEntity() instanceof Projectile){
-            Projectile projectile = (Projectile) source.i().getBukkitEntity();
+        } else if (source.i().getBukkitEntity() instanceof Projectile projectile){
             if (projectile.getType().equals(EntityType.FISHING_HOOK)) {
                 bot.getNpc().getBukkitEntity().setPassenger(projectile);
             } else
@@ -69,11 +68,11 @@ public class DamageManager extends Manager {
         }
     }
 
-    public void projectileAttack(Projectile projectile, float damage, DamageSource source) {
+    public void projectileAttack(@NotNull Projectile projectile, float damage, DamageSource source) {
         Vector direction = projectile.getVelocity().setY(0).normalize();
-        double v = 0.35;
-        double h = 0.6;
-        direction.multiply(h).setY(v);
+        double verticalKnockback = 0.35;
+        double horizontalKnockback = 0.6;
+        direction.multiply(horizontalKnockback).setY(verticalKnockback);
         bot.getVelocityCalculator().setVelocity(direction);
 
         // Store health before damage

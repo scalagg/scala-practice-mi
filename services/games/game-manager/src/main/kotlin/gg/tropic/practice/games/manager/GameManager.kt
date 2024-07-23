@@ -29,7 +29,7 @@ object GameManager
     private val dpsCache = DPSRedisShared.keyValueCache
 
     fun allGames() = allGameStatuses()
-        .thenApply {
+        .thenApply { it ->
             it.values
                 .flatMap(GameStatus::games)
         }

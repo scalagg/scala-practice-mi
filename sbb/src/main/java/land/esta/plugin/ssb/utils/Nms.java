@@ -7,6 +7,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 public class Nms {
 
@@ -27,6 +28,7 @@ public class Nms {
     }
 
 
+    @NotNull
     public static AABB entityHitBox(org.bukkit.entity.Entity entity) {
         AxisAlignedBB bb = ((CraftEntity) entity).getHandle().getBoundingBox();
         Vector min = new Vector(bb.a,bb.b,bb.c);

@@ -47,8 +47,5 @@ class GameTeam(
             !it.hasMetadata("spectator")
         }
 
-    fun toBukkitPlayers() = this.players
-        .map {
-            Bukkit.getPlayer(it) ?: null
-        }
+    fun toBukkitPlayers() = this.players.mapNotNull(Bukkit::getPlayer)
 }

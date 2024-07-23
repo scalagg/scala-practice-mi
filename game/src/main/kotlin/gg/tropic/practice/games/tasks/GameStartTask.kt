@@ -40,12 +40,10 @@ class GameStartTask(
         {
             this.game.state = GameState.Starting
 
-            this.game.toBukkitPlayers()
-                .filterNotNull()
-                .forEach { player ->
-                    game.resetPlayerForFight(player)
-                    game.enterLoadoutSelection(player)
-                }
+            this.game.toBukkitPlayers().forEach { player ->
+                game.resetPlayerForFight(player)
+                game.enterLoadoutSelection(player)
+            }
 
             val teamVersus = this.game.teams.values
                 .reversed()
@@ -199,43 +197,39 @@ class GameStartTask(
                         )
                     }
 
-                    game.toBukkitPlayers()
-                        .filterNotNull()
-                        .forEach { player ->
-                            AnticheatFeature
-                                .subscribeToSixtySecondSampleOf(
-                                    player = player,
-                                    check = AnticheatCheck.DOUBLE_CLICK,
-                                    evaluate = { sample ->
-                                        val thresholds = PracticeConfigurationService.cached().dataSampleThresholds()
+                    game.toBukkitPlayers().forEach { player ->
+                        AnticheatFeature.subscribeToSixtySecondSampleOf(
+                            player = player,
+                            check = AnticheatCheck.DOUBLE_CLICK,
+                            evaluate = { sample ->
+                                val thresholds = PracticeConfigurationService.cached().dataSampleThresholds()
 
-                                        // If the player typically gets 3 or more violations in a 10-second period,
-                                        // the player must be banned
-                                        if (sample.accumulatedMedianOf() > thresholds.doubleClick)
-                                        {
-                                            player.runAutoBanFor("SADC")
-                                        }
-                                    }
-                                )
-                                .bindWith(game)
+                                // If the player typically gets 3 or more violations in a 10-second period,
+                                // the player must be banned
+                                if (sample.accumulatedMedianOf() > thresholds.doubleClick)
+                                {
+                                    player.runAutoBanFor("SADC")
+                                }
+                            }
+                        )
+                        .bindWith(game)
 
-                            AnticheatFeature
-                                .subscribeToSixtySecondSampleOf(
-                                    player = player,
-                                    check = AnticheatCheck.AUTO_CLICKER,
-                                    evaluate = { sample ->
-                                        val thresholds = PracticeConfigurationService.cached().dataSampleThresholds()
+                        AnticheatFeature.subscribeToSixtySecondSampleOf(
+                            player = player,
+                            check = AnticheatCheck.AUTO_CLICKER,
+                            evaluate = { sample ->
+                                val thresholds = PracticeConfigurationService.cached().dataSampleThresholds()
 
-                                        // If the player typically gets 5 or more violations in a 10-second period,
-                                        // the player must be banned
-                                        if (sample.accumulatedMedianOf() > thresholds.autoClick)
-                                        {
-                                            player.runAutoBanFor("SAAC")
-                                        }
-                                    }
-                                )
-                                .bindWith(game)
-                        }
+                                // If the player typically gets 5 or more violations in a 10-second period,
+                                // the player must be banned
+                                if (sample.accumulatedMedianOf() > thresholds.autoClick)
+                                {
+                                    player.runAutoBanFor("SAAC")
+                                }
+                            }
+                        )
+                        .bindWith(game)
+                    }
                 }
             }
 

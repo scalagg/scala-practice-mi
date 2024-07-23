@@ -14,7 +14,6 @@ import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.math.Numbers
@@ -31,6 +30,11 @@ import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.math.abs
+
+val reQueueItem = ItemBuilder
+    .of(Material.PAPER)
+    .name("${CC.GREEN}Click to join queue ${CC.GRAY}(Right-Click)")
+    .build()
 
 /**
  * @author GrowlyX
@@ -136,8 +140,7 @@ class GameStopTask(
 
             this.game.sendMessage("")
 
-            val spectators = game.expectedSpectators
-                .mapNotNull(Bukkit::getPlayer)
+            val spectators = game.expectedSpectators.mapNotNull(Bukkit::getPlayer)
                 .filter {
                     !it.hasMetadata("vanished") && !it.isASilentSpectator()
                 }
@@ -249,58 +252,18 @@ class GameStopTask(
                 )
             }
 
-            game.toBukkitPlayers()
-                .filterNotNull()
-                .forEach { player ->
-                    MapRatingService.sendMapRatingRequest(player, game.map)
-                        .thenRun {
-                            val feedback = playerFeedback[player.uniqueId]
-                                ?: return@thenRun
-
-                            if (feedback.isNotEmpty())
-                            {
-                                Tasks.delayed(10L) {
-                                    feedback.forEach(player::sendMessage)
-                                }
-                            }
-                        }
+            game.toBukkitPlayers().forEach {
+                player -> MapRatingService.sendMapRatingRequest(player, game.map).thenRun {
+                    val feedback = playerFeedback[player.uniqueId] ?: return@thenRun
+                    if (feedback.isEmpty()) return@thenRun
+                    Tasks.delayed(10L) { feedback.forEach(player::sendMessage) }
                 }
+            }
         }
 
         if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueId != "party")
         {
-            if (game.expectationModel.queueId != null)
-            {
-                val reQueueItem = ItemBuilder
-                    .of(Material.PAPER)
-                    .name("${CC.GREEN}Click to join queue ${CC.GRAY}(Right-Click)")
-                    .build()
-
-                game.toBukkitPlayers()
-                    .filterNotNull()
-                    .forEach {
-                        it.itemInHand = reQueueItem
-                        it.updateInventory()
-                    }
-
-                Events
-                    .subscribe(PlayerInteractEvent::class.java)
-                    .filter {
-                        it.action.name.contains("RIGHT") &&
-                            it.hasItem() && it.item.isSimilar(reQueueItem)
-                    }
-                    .handler {
-                        it.player.itemInHand = ItemStack(Material.AIR)
-                        it.player.updateInventory()
-                        it.player.sendMessage(
-                            "${CC.GREEN}You will be queued again when you return to spawn!"
-                        )
-
-                        game.expectedQueueRejoin += it.player.uniqueId
-                        Button.playNeutral(it.player)
-                    }
-                    .bindWith(game)
-            }
+            addRequeueItem()
         }
 
         if (this.game.activeCountdown <= 0)
@@ -310,5 +273,32 @@ class GameStopTask(
         }
 
         this.game.activeCountdown--
+    }
+
+    private fun addRequeueItem(): Boolean
+    {
+        if (game.expectationModel.queueId == null) return true
+        game.toBukkitPlayers().forEach {
+            it.itemInHand = reQueueItem
+            it.updateInventory()
+        }
+
+        Events
+            .subscribe(PlayerInteractEvent::class.java)
+            .filter {
+                it.action.name.contains("RIGHT") && it.hasItem() && it.item.isSimilar(reQueueItem)
+            }
+            .handler {
+                it.player.itemInHand = ItemStack(Material.AIR)
+                it.player.updateInventory()
+                it.player.sendMessage(
+                    "${CC.GREEN}You will be queued again when you return to spawn!"
+                )
+
+                game.expectedQueueRejoin += it.player.uniqueId
+                Button.playNeutral(it.player)
+            }
+            .bindWith(game)
+        return false
     }
 }
