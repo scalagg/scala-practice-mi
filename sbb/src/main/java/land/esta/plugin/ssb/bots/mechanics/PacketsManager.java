@@ -95,9 +95,8 @@ public class PacketsManager extends Manager {
 
         if (bot.getNpc() != null) {
             bot.getNpc().setLocation(x, y, z, yaw, pitch);
+            globalAction(this::sendUpdateLocationPackets);
         }
-
-        globalAction(this::sendUpdateLocationPackets);
     }
 
     public void sendUpdateLocationPackets(Player player, int temp) {
