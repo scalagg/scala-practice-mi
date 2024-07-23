@@ -4,7 +4,7 @@ import lombok.Getter;
 import land.esta.plugin.ssb.botevents.events.EffectEndEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import net.minecraft.server.v1_8_R3.MobEffect;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,7 +35,7 @@ public class EffectsManager extends Manager {
                     bot.getNpc().addEffect(new MobEffect(effect.getId(),100,effects.get(effect),true,true));
 
                 }
-            }.runTask(SmartBotsBackend.getInstance());
+            }.runTask(EstaRobotsPlugin.getInstance());
         });
     }
 
@@ -58,7 +58,7 @@ public class EffectsManager extends Manager {
                 if (!bot.isAlive()) return;
                 removeEffect(type);
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(), time / 20);
+        }.runTaskLater(EstaRobotsPlugin.getInstance(), time / 20);
         addEffectEvent(type,level,update);
     }
 

@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
@@ -54,7 +54,7 @@ public class PacketsManager extends Manager {
 //                        e.printStackTrace();
 //                    }
                 }
-            }.runTaskLaterAsynchronously(SmartBotsBackend.getInstance(), 20);
+            }.runTaskLaterAsynchronously(EstaRobotsPlugin.getInstance(), 20);
         }
         skinUpdate(player);
     }

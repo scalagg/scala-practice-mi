@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotArmorBreakEvent;
 import land.esta.plugin.ssb.bots.Bot;
@@ -31,7 +31,7 @@ public class ArmorEquipFeature extends Feature {
                     bot.getInventoryManager().updateArmorContents(stack.get(0), index);
                     bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(stack.get(0)));
                 }
-            }.runTaskLater(SmartBotsBackend.getInstance(),20);
+            }.runTaskLater(EstaRobotsPlugin.getInstance(),20);
         }
     }
 }

@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -448,7 +448,7 @@ public class InventoryManager extends Manager {
                     }
                 }
             }
-        }.runTaskTimer(SmartBotsBackend.getInstance(),0,1);
+        }.runTaskTimer(EstaRobotsPlugin.getInstance(),0,1);
     }
 
     public void runEffect(ItemStack item,boolean drink) {

@@ -4,9 +4,8 @@ import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.impl.RodSettings;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.npc.nms.FixedEntityFishingHook;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
@@ -40,7 +39,7 @@ public class RodFeature extends Feature {
                 if (distance >= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMinRodDistance()) && distance <= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMaxRodDistance()) && !e.bot.getFleeManager().isActive()) {
                     if (mainHand == null) return;
                     if (mainHand.getType().equals(Material.FISHING_ROD)) return;
-                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && SmartBotsBackend.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(e.bot, 0) > 2 && e.bot.getDamageManager().getDamageTicks() < 10) return;
+                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(e.bot, 0) > 2 && e.bot.getDamageManager().getDamageTicks() < 10) return;
                     List<ItemStack> rods = e.bot.getInventoryManager().hasItem(Material.FISHING_ROD);
                     if (rods.isEmpty()) return;
 
@@ -57,7 +56,7 @@ public class RodFeature extends Feature {
 
                             e.bot.getAttackingManager().setProjectile(true); // Special velocity for the projectile
                         }
-                    }.runTask(SmartBotsBackend.getInstance());
+                    }.runTask(EstaRobotsPlugin.getInstance());
                 } else {
                     if (System.currentTimeMillis() - lastSwitch.getOrDefault(e.bot, 0L) < bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodDuration())) return;
                     if (mainHand == null) return;

@@ -2,7 +2,7 @@ package land.esta.plugin.ssb.bots;
 
 import land.esta.plugin.ssb.utils.GameServer;
 import lombok.Getter;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -43,7 +43,7 @@ public class BotManager {
                         bot.silentKill();
                     }
                 }
-            }.runTaskTimer(SmartBotsBackend.getInstance(), 1, 1);
+            }.runTaskTimer(EstaRobotsPlugin.getInstance(), 1, 1);
         }
     }
 

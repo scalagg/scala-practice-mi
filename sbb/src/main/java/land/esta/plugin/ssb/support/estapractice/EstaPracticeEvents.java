@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.support.estapractice;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import lombok.Getter;
 import land.esta.plugin.ssb.utils.Nms;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
@@ -19,7 +19,7 @@ public class EstaPracticeEvents implements Listener {
 
     public EstaPracticeEvents(EstaPracticeSupport support) {
         this.support = support;
-        Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(this, EstaRobotsPlugin.getInstance());
     }
 
 

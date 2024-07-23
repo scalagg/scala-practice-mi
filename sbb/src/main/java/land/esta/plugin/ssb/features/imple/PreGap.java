@@ -5,7 +5,7 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.SpawnEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PreGap extends Feature {
@@ -28,7 +28,7 @@ public class PreGap extends Feature {
                         EatingAndDrinking.eatGap(bot);
                     }
                 }
-            }.runTaskLaterAsynchronously(SmartBotsBackend.getInstance(),20 * 6);
+            }.runTaskLaterAsynchronously(EstaRobotsPlugin.getInstance(),20 * 6);
         }
     }
 }

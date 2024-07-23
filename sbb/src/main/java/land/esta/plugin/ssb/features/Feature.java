@@ -4,7 +4,7 @@ import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -12,12 +12,12 @@ import org.bukkit.plugin.Plugin;
 public class Feature extends BotEvent implements Listener {
 
     public Feature() {
-        SmartBotsBackend.getInstance().getEventManager().registerEvent(this);
-        Bukkit.getServer().getPluginManager().registerEvents(this, SmartBotsBackend.getInstance());
+        EstaRobotsPlugin.getInstance().getEventManager().registerEvent(this);
+        Bukkit.getServer().getPluginManager().registerEvents(this, EstaRobotsPlugin.getInstance());
     }
 
     public Feature(Plugin plugin) {
-        SmartBotsBackend.getInstance().getEventManager().registerEvent(this);
+        EstaRobotsPlugin.getInstance().getEventManager().registerEvent(this);
         Bukkit.getServer().getPluginManager().registerEvents(this,plugin);
     }
 

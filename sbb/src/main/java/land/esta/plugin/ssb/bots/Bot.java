@@ -3,7 +3,7 @@ package land.esta.plugin.ssb.bots;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.kit.Kit;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.bots.mechanics.*;
 import lombok.Getter;
@@ -86,7 +86,7 @@ public class Bot {
     }
 
     private void registerBot() {
-        SmartBotsBackend.getInstance().getBotManager().addBot(this);
+        EstaRobotsPlugin.getInstance().getBotManager().addBot(this);
         movements.callEventAsync(new SpawnEvent(this));
     }
 
@@ -134,7 +134,7 @@ public class Bot {
             public void run() {
                 world.addEntity(npc);
             }
-        }.runTask(SmartBotsBackend.getInstance());
+        }.runTask(EstaRobotsPlugin.getInstance());
     }
 
     public static final Property DEFAULT = new Property(
@@ -162,7 +162,7 @@ public class Bot {
 
         alive = false;
         Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
-        SmartBotsBackend.getInstance().getBotManager().removeBot(this);
+        EstaRobotsPlugin.getInstance().getBotManager().removeBot(this);
         packetsManager.sendRemovePackets();
 
         npc.getBukkitEntity().remove();
@@ -185,7 +185,7 @@ public class Bot {
             @Override
             public void run() {
                 packetsManager.sendRemovePackets();
-                SmartBotsBackend.getInstance().getBotManager().removeBot(Bot.this);
+                EstaRobotsPlugin.getInstance().getBotManager().removeBot(Bot.this);
 
                 alive = false;
                 npc.getBukkitEntity().remove();
@@ -193,7 +193,7 @@ public class Bot {
 
                 Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(Bot.this));
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(), 14);
+        }.runTaskLater(EstaRobotsPlugin.getInstance(), 14);
     }
 
     public void tick() {

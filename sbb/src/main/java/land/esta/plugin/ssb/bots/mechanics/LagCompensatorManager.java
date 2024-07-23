@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,7 +48,7 @@ public class LagCompensatorManager extends Manager {
                 lastPlayer = p.getUniqueId();
                 movePacket(p.getLocation());
             }
-        }.runTaskTimer(SmartBotsBackend.getInstance(),1,1);
+        }.runTaskTimer(EstaRobotsPlugin.getInstance(),1,1);
     }
 
     public void movePacket(Location loc) {

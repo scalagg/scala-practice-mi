@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.*;
@@ -31,7 +31,7 @@ public class EatingAndDrinking extends Feature {
                 public void run() {
                     runEat(bot);
                 }
-            }.runTaskLater(SmartBotsBackend.getInstance(), 1);
+            }.runTaskLater(EstaRobotsPlugin.getInstance(), 1);
         }
 
         int eatingGappleHealth = bot.getProfile().value(
@@ -58,7 +58,7 @@ public class EatingAndDrinking extends Feature {
             if (needsHealth) {
                 // Prefer to splash potions
                 if (!getPotions(bot).isEmpty()) {
-                    SmartBotsBackend.getInstance().getFeatureManager().getHealthPotionThrowing().splash(bot, bot.getFleeManager().getTicks());
+                    EstaRobotsPlugin.getInstance().getFeatureManager().getHealthPotionThrowing().splash(bot, bot.getFleeManager().getTicks());
                     return;
                 }
 

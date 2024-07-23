@@ -6,7 +6,6 @@ import gg.tropic.practice.kit.feature.FeatureFlag;
 import gg.tropic.practice.profile.PracticeProfileService;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
-import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
@@ -15,7 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.utils.Color;
 import me.lucko.helper.Events;
 import net.evilblock.cubed.ScalaCommonsSpigot;
@@ -138,7 +137,7 @@ public class EstaPracticeManager {
                             );
                         }
 
-                        var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                        var dataPlayer = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
                         if (dataPlayer != null) {
                             dataPlayer.hit();
                         }
@@ -163,7 +162,7 @@ public class EstaPracticeManager {
                     game.humanSide().getPlayerCombos().clear();
                     game.counter(player).reset("combo");
 
-                    var dataPlayer = SmartBotsBackend.getInstance().getDataManager().getPlayer(player);
+                    var dataPlayer = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(player);
                     if (dataPlayer != null) {
                         dataPlayer.botHit();
                     }
@@ -222,7 +221,7 @@ public class EstaPracticeManager {
                         bot.getMovements().setMove(true);
                     }
                 }
-            }.runTaskLater(SmartBotsBackend.getInstance(), 5 * 20);
+            }.runTaskLater(EstaRobotsPlugin.getInstance(), 5 * 20);
         }
 
         InventoryManager inventoryManager = bot.getInventoryManager();
@@ -268,14 +267,14 @@ public class EstaPracticeManager {
                                 .toList()
                 );
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(), 1);
+        }.runTaskLater(EstaRobotsPlugin.getInstance(), 1);
         //TODO combo mode support.
         return bot;
     }
 
 
     public void kill(int id) {
-        Bot bot = SmartBotsBackend.getInstance().getBotManager().getNpcFromId(id);
+        Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromId(id);
         if (bot != null && bot.isAlive()) bot.silentKill();
     }
 

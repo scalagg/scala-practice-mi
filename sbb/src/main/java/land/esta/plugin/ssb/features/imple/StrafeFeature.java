@@ -6,10 +6,8 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.botevents.events.BotAttackEvent;
-import land.esta.plugin.ssb.bots.setting.impl.FleeSettings;
-import land.esta.plugin.ssb.bots.setting.impl.StrafeSettings;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -80,7 +78,7 @@ public class StrafeFeature extends Feature {
                     public void run() {
                         event.bot.getFleeManager().setRunningFromCombo(false);
                     }
-                }.runTaskLater(SmartBotsBackend.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosTime()));
+                }.runTaskLater(EstaRobotsPlugin.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosTime()));
             }
         }
         if (event instanceof BotAttackEvent) {

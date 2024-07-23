@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.*;
@@ -82,7 +82,7 @@ public class MovementsMain extends Manager {
                     public void run() {
                         getBot().getPacketsManager().updateLocation(location);
                     }
-                }.runTaskLater(SmartBotsBackend.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100);
+                }.runTaskLater(EstaRobotsPlugin.getInstance(), bot.getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getPing()) / 100);
             } else {
                 getBot().getPacketsManager().updateLocation(getBot().getMovements().getLocation());
             }
@@ -213,7 +213,7 @@ public class MovementsMain extends Manager {
             public void run() {
                 bot.getNpc().setSprinting(attackSprint);
             }
-        }.runTask(SmartBotsBackend.getInstance());
+        }.runTask(EstaRobotsPlugin.getInstance());
     }
 
     public void attack() {

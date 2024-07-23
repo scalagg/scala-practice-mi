@@ -1,9 +1,8 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.setting.impl.PearlSettings;
 import land.esta.plugin.ssb.features.Feature;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,7 +55,7 @@ public class Pearling extends Feature {
                 bot.getInventoryManager().removeItem(itemSlot(pearl,bot));
                 bot.getNpc().getBukkitEntity().launchProjectile(EnderPearl.class);
             }
-        }.runTaskLater(SmartBotsBackend.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()));
+        }.runTaskLater(EstaRobotsPlugin.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()));
     }
 
     public void updateLocation(Bot bot,Location location) {
@@ -74,7 +73,7 @@ public class Pearling extends Feature {
         if (!e.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
         if (e.getEntity().getShooter() instanceof LivingEntity) {
             LivingEntity shooter = (LivingEntity) e.getEntity().getShooter();
-            Bot bot = SmartBotsBackend.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
+            Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
             if (bot == null) return;
 
             new BukkitRunnable() {
@@ -85,7 +84,7 @@ public class Pearling extends Feature {
                         this.cancel();
                     } else trackedLoc = e.getEntity().getLocation();
                 }
-            }.runTaskTimer(SmartBotsBackend.getInstance(),1,1);
+            }.runTaskTimer(EstaRobotsPlugin.getInstance(),1,1);
         }
     }
 

@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.utils;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public class DataManager {
     private final Map<UUID, DataPlayer> players = new HashMap<>();
-    public DataManager(SmartBotsBackend plugin) {
+    public DataManager(EstaRobotsPlugin plugin) {
         Events
                 .subscribe(PlayerJoinEvent.class)
                 .handler(event -> {

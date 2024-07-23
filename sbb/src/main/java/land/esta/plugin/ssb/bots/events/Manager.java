@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.events;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
@@ -35,13 +35,13 @@ public class Manager {
     public void addPlayerToList(Player player) {}
 
     public void callEventAsync(Event event) {
-        for (BotEvent events : SmartBotsBackend.getInstance().getEventManager().getEvents()) {
+        for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
             events.call(event);
         }
     }
 
     public void callEvent(Event event) {
-        for (BotEvent events : SmartBotsBackend.getInstance().getEventManager().getEvents()) {
+        for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
             events.call(event);
         }
     }

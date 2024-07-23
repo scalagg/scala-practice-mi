@@ -6,7 +6,7 @@ import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
@@ -128,6 +128,6 @@ public class HealthPotionThrowing extends Feature {
 
                 world.addEntity(launch);
             }
-        }.runTask(SmartBotsBackend.getInstance());
+        }.runTask(EstaRobotsPlugin.getInstance());
     }
 }

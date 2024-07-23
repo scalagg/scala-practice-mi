@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.bots.Bot;
@@ -39,7 +39,7 @@ public class Soups extends Feature {
                         bot.getHealthManager().addHealth(6);
                         manager.removeItem(slot);
                     }
-                }.runTaskLater(SmartBotsBackend.getInstance(),soupTime);
+                }.runTaskLater(EstaRobotsPlugin.getInstance(),soupTime);
             }
         }
     }

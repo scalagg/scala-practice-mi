@@ -5,7 +5,7 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -24,7 +24,7 @@ public class WTapFeature extends Feature {
             if (random > bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getChance())) return;
 
             final long tapLong;
-            if (SmartBotsBackend.getInstance().getDataManager().getPlayer(e.getPlayer()).getBotCombo() > 3) {
+            if (EstaRobotsPlugin.getInstance().getDataManager().getPlayer(e.getPlayer()).getBotCombo() > 3) {
                 tapLong = bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getComboTapLong());
             } else {
                 tapLong = bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getComboTapLong());
@@ -61,9 +61,9 @@ public class WTapFeature extends Feature {
 
                             bot.getMovements().setWtap(false);
                         }
-                    }.runTaskLater(SmartBotsBackend.getInstance(),tapLong);
+                    }.runTaskLater(EstaRobotsPlugin.getInstance(),tapLong);
                 }
-            }.runTaskLater(SmartBotsBackend.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getTapStart()));
+            }.runTaskLater(EstaRobotsPlugin.getInstance(),bot.getProfile().value(RootAccessor.INSTANCE.getWTapSettings().getTapStart()));
         }
     }
 }

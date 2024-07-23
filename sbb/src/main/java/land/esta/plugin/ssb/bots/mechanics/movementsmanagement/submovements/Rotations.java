@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,6 @@ import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.WorldUtils;
-import net.evilblock.cubed.entity.npc.pathfinding.AStar;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -34,7 +33,7 @@ public class Rotations extends Manager {
 
     @Override
     public void tickPre() {
-        var data = SmartBotsBackend.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
+        var data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
         if (data == null) {
             return;
         }

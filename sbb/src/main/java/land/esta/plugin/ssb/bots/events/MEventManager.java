@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.events;
 
-import land.esta.plugin.ssb.SmartBotsBackend;
+import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -59,12 +59,12 @@ public class MEventManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                List<BotEvent> botEvents = SmartBotsBackend.getInstance().getEventManager().getEvents();
+                List<BotEvent> botEvents = EstaRobotsPlugin.getInstance().getEventManager().getEvents();
                 for (int i = 0;i < botEvents.size();i++) {
                     BotEvent event = botEvents.get(i);
                     event.callTick(bot);
                 }
             }
-        }.runTaskAsynchronously(SmartBotsBackend.getInstance());
+        }.runTaskAsynchronously(EstaRobotsPlugin.getInstance());
     }
 }
