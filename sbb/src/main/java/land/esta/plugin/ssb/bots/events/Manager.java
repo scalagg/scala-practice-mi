@@ -13,23 +13,19 @@ import org.bukkit.entity.Player;
 @Getter
 public class Manager {
 
-    public SettingProfile settingManager;
+    public SettingProfile profile;
 
     public final Bot bot;
 
     public Manager(Bot bot) {
         this.bot = bot;
-        settingManager = bot.getProfile();
+        profile = bot.getProfile();
     }
 
     public void globalAction(PlayerRunnable runnable) {
         getBot().getViewsManager().getPlayers().forEach(player -> {
             runnable.run(player, 0);
         });
-    }
-
-    public void debug(String string) {
-        getBot().getViewsManager().getPlayers().forEach(player -> player.sendMessage(Color.code("&3Debug&7: " + string)));
     }
 
     public void addPlayerToList(Player player) {}

@@ -88,7 +88,9 @@ public class PacketsManager extends Manager {
         final float yaw = location.getYaw();
         final float pitch = location.getPitch();
 
-        bot.getNpc().setLocation(x,y,z,yaw,pitch);
+        if (bot.getNpc() != null) {
+            bot.getNpc().setLocation(x,y,z,yaw,pitch);
+        }
 
         globalAction(this::sendUpdateLocationPackets);
     }
