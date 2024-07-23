@@ -1,7 +1,6 @@
 package land.esta.plugin.ssb.bots.setting.impl;
 
 import land.esta.plugin.ssb.bot.setting.setting.Category;
-import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
 import lombok.Getter;
 import lombok.Setter;

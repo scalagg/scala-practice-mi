@@ -29,7 +29,6 @@ import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.suffixWhenDev
 import gg.tropic.practice.utilities.formatPlayerPing
 import io.lettuce.core.api.sync.RedisCommands
-import land.esta.plugin.ssb.utils.GameServer
 import net.evilblock.cubed.serializers.Serializers
 import net.md_5.bungee.api.chat.ClickEvent
 import java.util.*
@@ -318,7 +317,7 @@ object GameQueueManager
         dpsQueueRedis.configure {
             listen("force-specific-region") {
                 val regionID = retrieve<String>("region-id")
-                if (regionID != "__RESET__")
+                forceSpecificRegionGames = if (regionID != "__RESET__")
                 {
                     Region.valueOf(regionID)
                 } else
