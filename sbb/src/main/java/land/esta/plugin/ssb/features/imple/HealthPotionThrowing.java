@@ -29,7 +29,7 @@ public class HealthPotionThrowing extends Feature {
     @Override
     public void listen(Event event) {
         if (event instanceof BotHealthChangeEvent e) {
-            Bot bot = e.bot;
+            Bot bot = e.getBot();
 
             //Health & agro checks
             if (e.getAfter() > 4 || bot.getHealthManager().getHealth() > bot.getMovements().getTargetLocate().getTargetEntity().getHealth())
@@ -48,9 +48,9 @@ public class HealthPotionThrowing extends Feature {
 
         if (event instanceof RunningEvent e) {
 
-            if (splash(e.bot, e.getTicks())) {
+            if (splash(e.getBot(), e.getTicks())) {
                 e.setForceEnd(true);
-                e.bot.getFleeManager().setRunning(false);
+                e.getBot().getFleeManager().setRunning(false);
             }
         }
     }

@@ -20,7 +20,7 @@ class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotInsta
     init
     {
         terminable.with {
-            if (spawnedBot?.alive == false)
+            if (spawnedBot?.isAlive == false)
             {
                 return@with
             }

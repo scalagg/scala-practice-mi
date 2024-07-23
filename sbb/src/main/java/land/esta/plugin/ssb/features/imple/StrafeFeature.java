@@ -76,23 +76,23 @@ public class StrafeFeature extends Feature {
 
     @Override
     public void listen(Event event) {
-        Bot bot = event.bot;
+        Bot bot = event.getBot();
         //Combo calculation.
         if (event instanceof BotDamageEvent) {
-            combo.put(event.bot.getUniqueId(), combo.getOrDefault(event.bot.getUniqueId(), 0) + 1);
-            if (combo.get(event.bot.getUniqueId()) > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.bot.getFleeManager().isRunning()) {
-                event.bot.getFleeManager().setRunningFromCombo(true);
-                combo.put(event.bot.getUniqueId(), 0);
+            combo.put(event.getBot().getUniqueId(), combo.getOrDefault(event.getBot().getUniqueId(), 0) + 1);
+            if (combo.get(event.getBot().getUniqueId()) > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.getBot().getFleeManager().isRunning()) {
+                event.getBot().getFleeManager().setRunningFromCombo(true);
+                combo.put(event.getBot().getUniqueId(), 0);
 
                 var time = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosTime());
                 Schedulers
                         .sync()
-                        .runLater(() -> event.bot.getFleeManager().setRunningFromCombo(false), time)
-                        .bindWith(event.bot.getTerminable());
+                        .runLater(() -> event.getBot().getFleeManager().setRunningFromCombo(false), time)
+                        .bindWith(event.getBot().getTerminable());
             }
         }
         if (event instanceof BotAttackEvent) {
-            combo.put(event.bot.getUniqueId(), 0);
+            combo.put(event.getBot().getUniqueId(), 0);
         }
     }
 }

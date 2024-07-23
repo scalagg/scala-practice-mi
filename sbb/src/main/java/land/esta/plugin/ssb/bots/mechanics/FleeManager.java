@@ -7,7 +7,6 @@ import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
-import net.evilblock.cubed.entity.npc.pathfinding.AStar;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -16,7 +15,7 @@ import org.bukkit.util.Vector;
 public class FleeManager extends Manager {
 
     private boolean active;
-    private double clcBlocks = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getCalculatedDistance());
+    private double clcBlocks = getBot().getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getCalculatedDistance());
     private boolean enabled = true;
     private int ticks;
     private int offTicks;
@@ -33,7 +32,7 @@ public class FleeManager extends Manager {
     @Override
     public void tickPre() {
         //Active
-        TargetLocate finder = bot.getMovements().getTargetLocate();
+        TargetLocate finder = getBot().getMovements().getTargetLocate();
         active = check();
 
         //Ticks system
@@ -49,7 +48,7 @@ public class FleeManager extends Manager {
         //Event
         if (running) {
             RunningEvent runningEvent;
-            callEvent(runningEvent = new RunningEvent(bot,ticks));
+            callEvent(runningEvent = new RunningEvent(getBot(), ticks));
             if (runningEvent.isForceEnd()) {
                 running = false;
                 active = false;
@@ -60,14 +59,14 @@ public class FleeManager extends Manager {
         finder.setOverwriteLocation(!active);
 
         if (!active) return;
-        Vector direction = bot.getMovements().getLocation().toVector().subtract(finder.getTargetEntity().getLocation().toVector()).setY(0).normalize();
-        Location oppositeLoc = direction.multiply(clcBlocks).add(bot.getMovements().getLocation().toVector()).toLocation(bot.getMovements().getLocation().getWorld());
+        Vector direction = getBot().getMovements().getLocation().toVector().subtract(finder.getTargetEntity().getLocation().toVector()).setY(0).normalize();
+        Location oppositeLoc = direction.multiply(clcBlocks).add(getBot().getMovements().getLocation().toVector()).toLocation(getBot().getMovements().getLocation().getWorld());
 
         finder.setTarget(oppositeLoc);
     }
 
     public boolean check() {
         if (!enabled) return false;
-        return bot.getInventoryManager().isRequiredToEat() || running || bot.getInventoryManager().isEating() || runningFromCombo;
+        return getBot().getInventoryManager().isRequiredToEat() || running || getBot().getInventoryManager().isEating() || runningFromCombo;
     }
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @Getter
 public class BotManager {
 
-    public final ArrayList<Bot> bots = new ArrayList<>();
+    private final ArrayList<Bot> bots = new ArrayList<>();
 
     public BotManager(EstaRobotsPlugin plugin) {
         if (GameServer.is()) {

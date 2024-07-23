@@ -23,7 +23,7 @@ public class Soups extends Feature {
         if (event instanceof BotHealthChangeEvent) {
             BotHealthChangeEvent e = (BotHealthChangeEvent) event;
             if (e.getAfter() <= soupHealth) {
-                Bot bot = e.bot;
+                Bot bot = e.getBot();
                 InventoryManager manager = bot.getInventoryManager();
                 List<ItemStack> soups = manager.hasItem(Material.MUSHROOM_SOUP);
                 if (soups.size() <= 0) return;

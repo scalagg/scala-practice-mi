@@ -29,15 +29,15 @@ public class HealthManager extends Manager {
 
     @Override
     public void tickPre() {
-        if (!bot.getNpc().isAlive()) {
-            bot.getNpc().dead = false;
+        if (!getBot().getNpc().isAlive()) {
+            getBot().getNpc().dead = false;
             deathEvent();
             return;
         }
-        bot.getNpc().setHealth(Math.min((float) health,1));
-        if (health <= 0 && !bot.isAlive()) bot.getNpc().setHealth((float) health);
+        getBot().getNpc().setHealth(Math.min((float) health, 1));
+        if (health <= 0 && !getBot().isAlive()) getBot().getNpc().setHealth((float) health);
 
-        int regenLevel = bot.getEffectsManager().getLevel(PotionEffectType.REGENERATION);
+        int regenLevel = getBot().getEffectsManager().getLevel(PotionEffectType.REGENERATION);
 
         //Effects
         regenerationCheck(regenLevel);
@@ -52,7 +52,7 @@ public class HealthManager extends Manager {
 
     // Checks if the bot has abs effect
     public void absCheck() {
-        if (bot.getEffectsManager().getLevel(PotionEffectType.ABSORPTION) == 0) absHearts = 0;
+        if (getBot().getEffectsManager().getLevel(PotionEffectType.ABSORPTION) == 0) absHearts = 0;
     }
 
     //Regen Effect
@@ -75,23 +75,23 @@ public class HealthManager extends Manager {
             requireTicks = 1;
         }
 
-        if(regenTicks++ != 0 && regenTicks % requireTicks == 0)
+        if (regenTicks++ != 0 && regenTicks % requireTicks == 0)
             addHealth(1);
     }
 
     //Fire check
     public void fireCheck() {
-        int fireRess = bot.getEffectsManager().getLevel(PotionEffectType.FIRE_RESISTANCE);
-        fireTicks = Math.max(0,fireTicks - 1);
-        if (fireTicks == 0 && onFireUpdate) bot.getPacketsManager().setPlayerOnFirePackets(false);
+        int fireRess = getBot().getEffectsManager().getLevel(PotionEffectType.FIRE_RESISTANCE);
+        fireTicks = Math.max(0, fireTicks - 1);
+        if (fireTicks == 0 && onFireUpdate) getBot().getPacketsManager().setPlayerOnFirePackets(false);
 
         if (fireRess >= 1 || fireTicks == 0) return;
         if (fireTicks % 10 == 0) removeHealth(1);
     }
 
     public void removeHealth(double amount) {
-        healthChangeEvent(health,health - amount);
-        health-= amount;
+        healthChangeEvent(health, health - amount);
+        health -= amount;
         if (health < 0) {
             deathEvent();
             //Bukkit.broadcastMessage("d1");
@@ -99,11 +99,11 @@ public class HealthManager extends Manager {
     }
 
     public void deathEvent() {
-        bot.kill();
+        getBot().kill();
     }
 
-    public void healthChangeEvent(double before,double after) {
-        callEventAsync(new BotHealthChangeEvent(bot,after,before));
+    public void healthChangeEvent(double before, double after) {
+        callEventAsync(new BotHealthChangeEvent(getBot(), after, before));
     }
 
     public void addHealth(double amount) {
@@ -114,7 +114,7 @@ public class HealthManager extends Manager {
     }
 
     public void fire(int ticks) {
-        bot.getPacketsManager().setPlayerOnFirePackets(true);
+        getBot().getPacketsManager().setPlayerOnFirePackets(true);
         fireTicks = ticks;
         onFireUpdate = true;
     }
