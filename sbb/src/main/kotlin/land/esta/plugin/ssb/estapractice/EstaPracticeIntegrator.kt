@@ -246,6 +246,20 @@ object EstaPracticeIntegrator
                     bot.healthManager.removeHealth(amountHarmed)
                 }
 
+                val poisonEffect = it.potion.effects
+                    .firstOrNull { effect -> effect.type == PotionEffectType.POISON }
+
+                if (poisonEffect != null) {
+                    bot.healthManager.addPoisonTicks(poisonEffect.amplifier)
+                }
+
+                val slownessEffect = it.potion.effects
+                    .firstOrNull { effect -> effect.type == PotionEffectType.SLOW }
+
+                if (slownessEffect != null) {
+                    bot.healthManager.addSlownessTicks(slownessEffect.amplifier)
+                }
+
                 val remainingEffects = it.potion.effects
                     .filter { effect ->
                         effect.type != PotionEffectType.HARM &&

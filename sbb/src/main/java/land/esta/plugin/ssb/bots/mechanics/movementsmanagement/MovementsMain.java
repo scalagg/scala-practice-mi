@@ -1,6 +1,5 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.*;
@@ -12,7 +11,6 @@ import land.esta.plugin.ssb.bots.events.Manager;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -94,6 +92,12 @@ public class MovementsMain extends Manager {
     }
 
     public void move(Vector motion,boolean addLastMotion) {
+        int slownessPercentage = bot.getHealthManager().getSlownessPercentage();
+
+        if (slownessPercentage != -1) {
+            motion.subtract(motion.clone().multiply(slownessPercentage / 100));
+        }
+
         disableJumps = Math.min(disableJumps - 1,0);
 
         Location oldLoc = location.clone();
