@@ -17,6 +17,8 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +77,7 @@ public class HealthPotionThrowing extends Feature {
                             .getItemSlot(available)
             );
 
-            Schedulers.sync().run(() ->
-                    launchProjectile(available, bot.getNpc().getBukkitEntity())
-            );
+            launchProjectilePotion(bot, available);
 
             // Set holding
             if (potions.size() > 1) {
@@ -90,6 +90,21 @@ public class HealthPotionThrowing extends Feature {
                 returnToPlayer.run();
             }
         }
+    }
+
+    private void launchProjectilePotion(@NotNull Bot bot, @NotNull ItemStack itemStack) {
+        var direction = bot.getNpc().getBukkitEntity().getLocation().getDirection();
+        var motion = bot.getNpc().getBukkitEntity().getVelocity();
+
+        Schedulers.sync()
+                .run(() ->
+                        launchPotion(
+                                itemStack,
+                                bot.getNpc().getBukkitEntity(),
+                                direction, motion
+                        )
+                )
+                .bindWith(bot.getTerminable());
     }
 
     // Gets all the splash potions of a specific type
@@ -125,16 +140,14 @@ public class HealthPotionThrowing extends Feature {
     public static final double CATCH_UP_SCALING = 0.32;
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
-    public void launchProjectile(ItemStack item, CraftPlayer entity) {
+    public void launchPotion(ItemStack item, CraftPlayer entity, Vector direction, Vector motion) {
         World world = ((CraftWorld) entity.getWorld()).getHandle();
         net.minecraft.server.v1_8_R3.Entity launch;
         launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
         Validate.notNull(launch, "Projectile not supported");
 
-        var initialThrowVelocity = entity.getLocation().getDirection();
-        var playerMotion = entity.getVelocity();
-        var combinedVelocity = initialThrowVelocity.add(playerMotion);
+        var combinedVelocity = direction.add(motion);
         var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
 
         ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
