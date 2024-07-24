@@ -53,6 +53,6 @@ public class PotionSettings extends Category {
                 "botgui.potionsettings"
         );
 
-        addChildren(fleeHealth, agroPotion, firstPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion, cancelPotionDistance);
+        addChildren(fleeHealth, agroPotion, firstPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion, cancelPotionDistance, hotbarRefillTime);
     }
 }

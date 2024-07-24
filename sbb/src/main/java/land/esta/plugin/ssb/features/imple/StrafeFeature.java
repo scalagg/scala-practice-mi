@@ -49,7 +49,10 @@ public class StrafeFeature extends Feature {
         boolean chance = ThreadLocalRandom.current().nextInt(100) <= bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getChance());
 
         //Enable & Combo & Close check
-        if (!bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getEnabled()) || inCombo && !bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getStrafeInCombo()) || !close || bot.getMovements().isEdge()) {
+        if (!bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getEnabled()) ||
+                (inCombo && !bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getStrafeInCombo()))
+                || !close || bot.getMovements().isEdge()
+        ) {
             strafe.put(bot.getUniqueId(), 0f);
             bot.getMovements().setStrafe(0);
             return;

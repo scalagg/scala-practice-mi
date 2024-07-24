@@ -88,23 +88,12 @@ public class HealthPotionThrowing extends Feature {
                     if (refillTime != 0) {
                         bot.setPotionsThrown(bot.getPotionsThrown() + 1);
 
-                        if (!bot.isHasInitialPotionSetThrown()) {
-                            if (bot.getPotionsThrown() == 4) {
-                                pauseRobotForRefill(bot);
-                                pause.run();
+                        if (bot.getPotionsThrown() == 6) {
+                            pauseRobotForRefill(bot);
+                            pause.run();
 
-                                bot.setHasInitialPotionSetThrown(true);
-                                bot.setPotionsThrown(0);
-                                return;
-                            }
-                        } else {
-                            if (bot.getPotionsThrown() == 6) {
-                                pauseRobotForRefill(bot);
-                                pause.run();
-
-                                bot.setPotionsThrown(0);
-                                return;
-                            }
+                            bot.setPotionsThrown(0);
+                            return;
                         }
                     }
                 }
@@ -178,7 +167,7 @@ public class HealthPotionThrowing extends Feature {
      * speed of the entity, so that the potion doesn't go flying forward and more
      * so splashes near the entity, even if the entity is running.
      */
-    public static final double CATCH_UP_SCALING = 0.32;
+    public static final double CATCH_UP_SCALING = 0.38;
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
     public void launchPotion(ItemStack item, CraftPlayer entity, Vector direction, Vector motion) {

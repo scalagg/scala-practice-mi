@@ -58,7 +58,10 @@ public class Bot {
     private final SettingProfile profile;
     private Location startLocation;
 
-    private boolean hasInitialPotionSetThrown;
+    /**
+     * Keeps track of how many potions have been used in the hotbar
+     * so we can trigger the refill pause system.
+     */
     private int potionsThrown = 0;
 
     public Bot(Location location, String name, Player player, SettingProfile profile, Kit kit) {
