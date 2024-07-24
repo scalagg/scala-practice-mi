@@ -74,7 +74,10 @@ public class HealthPotionThrowing extends Feature {
                     bot.getInventoryManager()
                             .getItemSlot(available)
             );
-            launchProjectile(available, bot.getNpc().getBukkitEntity());
+
+            Schedulers.sync().run(() ->
+                    launchProjectile(available, bot.getNpc().getBukkitEntity())
+            );
 
             // Set holding
             if (potions.size() > 1) {
@@ -123,23 +126,19 @@ public class HealthPotionThrowing extends Feature {
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
     public void launchProjectile(ItemStack item, CraftPlayer entity) {
-        Schedulers
-                .sync()
-                .run(() -> {
-                    World world = ((CraftWorld) entity.getWorld()).getHandle();
-                    net.minecraft.server.v1_8_R3.Entity launch;
-                    launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
+        World world = ((CraftWorld) entity.getWorld()).getHandle();
+        net.minecraft.server.v1_8_R3.Entity launch;
+        launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
-                    Validate.notNull(launch, "Projectile not supported");
+        Validate.notNull(launch, "Projectile not supported");
 
-                    var initialThrowVelocity = entity.getLocation().getDirection();
-                    var playerMotion = entity.getVelocity();
-                    var combinedVelocity = initialThrowVelocity.add(playerMotion);
-                    var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
+        var initialThrowVelocity = entity.getLocation().getDirection();
+        var playerMotion = entity.getVelocity();
+        var combinedVelocity = initialThrowVelocity.add(playerMotion);
+        var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
 
-                    ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
+        ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
 
-                    world.addEntity(launch);
-                });
+        world.addEntity(launch);
     }
 }
