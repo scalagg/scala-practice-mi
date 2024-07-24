@@ -58,6 +58,9 @@ public class Bot {
     private final SettingProfile profile;
     private Location startLocation;
 
+    private boolean hasInitialPotionSetThrown;
+    private int potionsThrown = 0;
+
     public Bot(Location location, String name, Player player, SettingProfile profile, Kit kit) {
         this.startLocation = location;
         this.kit = kit;

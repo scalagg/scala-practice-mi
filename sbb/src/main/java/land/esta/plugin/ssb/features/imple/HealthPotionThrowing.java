@@ -49,11 +49,13 @@ public class HealthPotionThrowing extends Feature {
             splash(runningEvent.getBot(), runningEvent.getTicks(), () -> {
                 runningEvent.setForceEnd(true);
                 runningEvent.getBot().getFleeManager().setRunning(false);
+            }, true, () -> {
+                runningEvent.setShouldPause(true);
             });
         }
     }
 
-    public void splash(Bot bot, int ticks, Runnable returnToPlayer) {
+    public void splash(Bot bot, int ticks, Runnable returnToPlayer, boolean shouldPause, Runnable pause) {
         //Throwing
         var firstPotionTime = ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFirstPotionTick());
         var secondPotionTime = (ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotionTick()) &&
@@ -81,6 +83,32 @@ public class HealthPotionThrowing extends Feature {
 
             // Set holding
             if (potions.size() > 1) {
+                if (shouldPause) {
+                    var refillTime = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillTime());
+                    if (refillTime != 0) {
+                        bot.setPotionsThrown(bot.getPotionsThrown() + 1);
+
+                        if (!bot.isHasInitialPotionSetThrown()) {
+                            if (bot.getPotionsThrown() == 4) {
+                                pauseRobotForRefill(bot);
+                                pause.run();
+
+                                bot.setHasInitialPotionSetThrown(true);
+                                bot.setPotionsThrown(0);
+                                return;
+                            }
+                        } else {
+                            if (bot.getPotionsThrown() == 6) {
+                                pauseRobotForRefill(bot);
+                                pause.run();
+
+                                bot.setPotionsThrown(0);
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 bot.getInventoryManager().setMainHand(
                         bot.getInventoryManager().getItemSlot(potions.get(1))
                 );
@@ -90,6 +118,19 @@ public class HealthPotionThrowing extends Feature {
                 returnToPlayer.run();
             }
         }
+    }
+
+    private void pauseRobotForRefill(Bot bot) {
+        var refillTime = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillTime());
+        bot.getMovements().setMove(false);
+
+        Schedulers
+                .async()
+                .runLater(() -> {
+                    bot.getMovements().setMove(true);
+                    bot.getFleeManager().setPaused(false);
+                }, refillTime * 20)
+                .bindWith(bot.getTerminable());
     }
 
     private void launchProjectilePotion(@NotNull Bot bot, @NotNull ItemStack itemStack) {
