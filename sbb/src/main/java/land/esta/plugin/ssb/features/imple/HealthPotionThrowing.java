@@ -69,11 +69,12 @@ public class HealthPotionThrowing extends Feature {
 
         if (firstPotionTime || secondPotionTime) {
             List<ItemStack> potions = getPotions(bot);
+            var available = potions.get(0);
             bot.getInventoryManager().removeItem(
                     bot.getInventoryManager()
-                            .getItemSlot(potions.get(0))
+                            .getItemSlot(available)
             );
-            throwPotion(potions.get(0), bot);
+            launchProjectile(available, bot.getNpc().getBukkitEntity());
 
             // Set holding
             if (potions.size() > 1) {
@@ -113,18 +114,12 @@ public class HealthPotionThrowing extends Feature {
         return distance < bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getCancelPotionDistance());
     }
 
-    //Throws potions
-    public void throwPotion(ItemStack potion, Bot bot) {
-        // Spawn the potion
-        launchProjectile(potion, bot.getNpc().getBukkitEntity());
-    }
-
     /**
      * Responsible for scaling the thrown potion velocity to match the current
      * speed of the entity, so that the potion doesn't go flying forward and more
      * so splashes near the entity, even if the entity is running.
      */
-    public static final double CATCH_UP_SCALING = 0.25;
+    public static final double CATCH_UP_SCALING = 0.32;
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
     public void launchProjectile(ItemStack item, CraftPlayer entity) {
