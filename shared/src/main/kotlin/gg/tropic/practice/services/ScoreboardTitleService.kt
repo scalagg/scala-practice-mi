@@ -1,5 +1,6 @@
 package gg.tropic.practice.services
 
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.scoreboard.TextAnimator
 import gg.scala.commons.scoreboard.animations.TextFadeAnimation
 import gg.scala.flavor.service.Close
@@ -17,7 +18,7 @@ object ScoreboardTitleService
 {
     private val titleAnimator = TextAnimator.of(
         TextFadeAnimation(
-            "${CC.BOLD}PRACTICE",
+            "${CC.BOLD}${if ("mipdev" in ServerSync.getLocalGameServer().groups) "DEV " else ""}PRACTICE",
             ChatColor.RED,
             ChatColor.GRAY,
             ChatColor.DARK_GRAY

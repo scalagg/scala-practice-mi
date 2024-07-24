@@ -86,6 +86,46 @@ object LobbyAdminCommands : ScalaCommand()
         )
     }
 
+    @CommandPermission("op")
+    @Subcommand("enter-dev-mode")
+    @Description("Send yourself to dev game servers upon queuing by entering dev mode.")
+    fun onJoinDevMode(player: ScalaPlayer)
+    {
+        LobbyPlayerService
+            .createMessage(
+                "enter-dev-mode",
+                "uniqueId" to player.uniqueId.toString()
+            )
+            .publish(
+                AwareThreadContext.ASYNC,
+                channel = "practice:queue".suffixWhenDev()
+            )
+
+        player.sendMessage(
+            "${CC.GOLD}Your queue will now prefer development instances of game servers."
+        )
+    }
+
+    @CommandPermission("op")
+    @Subcommand("leave-dev-mode")
+    @Description("Leave dev mode.")
+    fun onLeaveDevMode(player: ScalaPlayer)
+    {
+        LobbyPlayerService
+            .createMessage(
+                "leave-dev-mode",
+                "uniqueId" to player.uniqueId.toString()
+            )
+            .publish(
+                AwareThreadContext.ASYNC,
+                channel = "practice:queue".suffixWhenDev()
+            )
+
+        player.sendMessage(
+            "${CC.RED}You will no longer be sent to dev instances."
+        )
+    }
+
     @AssignPermission
     @Subcommand("export-player-list")
     @Description("Export a list of MIP players.")
