@@ -61,6 +61,8 @@ public class EatingAndDrinking extends Feature {
                             .splash(
                                     bot,
                                     bot.getFleeManager().getTicks(),
+                                    () -> { },
+                                    false,
                                     () -> { }
                             );
                     return;

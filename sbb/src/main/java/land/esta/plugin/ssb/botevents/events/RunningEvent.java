@@ -10,6 +10,7 @@ import land.esta.plugin.ssb.bots.Bot;
 public class RunningEvent extends Event {
 
     private boolean forceEnd;
+    private boolean shouldPause;
     private int ticks;
 
     public RunningEvent(Bot bot,int ticks) {

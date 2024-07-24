@@ -49,11 +49,13 @@ public class HealthPotionThrowing extends Feature {
             splash(runningEvent.getBot(), runningEvent.getTicks(), () -> {
                 runningEvent.setForceEnd(true);
                 runningEvent.getBot().getFleeManager().setRunning(false);
+            }, true, () -> {
+                runningEvent.setShouldPause(true);
             });
         }
     }
 
-    public void splash(Bot bot, int ticks, Runnable returnToPlayer) {
+    public void splash(Bot bot, int ticks, Runnable returnToPlayer, boolean shouldPause, Runnable pause) {
         //Throwing
         var firstPotionTime = ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFirstPotionTick());
         var secondPotionTime = (ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotionTick()) &&
@@ -81,6 +83,25 @@ public class HealthPotionThrowing extends Feature {
 
             // Set holding
             if (potions.size() > 1) {
+                if (shouldPause) {
+                    var refillTime = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillPausing()) ?
+                            bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillTime()) : 0;
+                    if (refillTime != 0) {
+                        bot.setPotionsThrown(bot.getPotionsThrown() + 1);
+
+                        var requiredPotionsLeft = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillAmountRequired());
+                        var availableHotbarPotions = 6 - bot.getPotionsThrown();
+
+                        if (availableHotbarPotions == requiredPotionsLeft) {
+                            pauseRobotForRefill(bot, refillTime);
+                            pause.run();
+
+                            bot.setPotionsThrown(0);
+                            return;
+                        }
+                    }
+                }
+
                 bot.getInventoryManager().setMainHand(
                         bot.getInventoryManager().getItemSlot(potions.get(1))
                 );
@@ -90,6 +111,18 @@ public class HealthPotionThrowing extends Feature {
                 returnToPlayer.run();
             }
         }
+    }
+
+    private void pauseRobotForRefill(Bot bot, Integer timeInSeconds) {
+        bot.getMovements().setMove(false);
+
+        Schedulers
+                .async()
+                .runLater(() -> {
+                    bot.getMovements().setMove(true);
+                    bot.getFleeManager().setPaused(false);
+                }, timeInSeconds * 20)
+                .bindWith(bot.getTerminable());
     }
 
     private void launchProjectilePotion(@NotNull Bot bot, @NotNull ItemStack itemStack) {
@@ -137,7 +170,7 @@ public class HealthPotionThrowing extends Feature {
      * speed of the entity, so that the potion doesn't go flying forward and more
      * so splashes near the entity, even if the entity is running.
      */
-    public static final double CATCH_UP_SCALING = 0.32;
+    public static final double CATCH_UP_SCALING = 0.38;
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
     public void launchPotion(ItemStack item, CraftPlayer entity, Vector direction, Vector motion) {

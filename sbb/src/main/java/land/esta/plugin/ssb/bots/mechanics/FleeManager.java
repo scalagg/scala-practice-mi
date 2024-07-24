@@ -17,6 +17,7 @@ public class FleeManager extends Manager {
     private boolean active;
     private double clcBlocks = getBot().getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getCalculatedDistance());
     private boolean enabled = true;
+    private boolean paused = false;
     private int ticks;
     private int offTicks;
 
@@ -36,22 +37,31 @@ public class FleeManager extends Manager {
         active = check();
 
         //Ticks system
-        if (active) {
-            ticks++;
-            offTicks = 0;
-        }
-        if (!active) {
-            ticks = 0;
-            offTicks++;
+        if (!paused) {
+            if (active) {
+                ticks++;
+                offTicks = 0;
+            }
+
+            if (!active) {
+                ticks = 0;
+                offTicks++;
+            }
+        } else {
+            return;
         }
 
         //Event
         if (running) {
             RunningEvent runningEvent;
             callEvent(runningEvent = new RunningEvent(getBot(), ticks));
-            if (runningEvent.isForceEnd()) {
-                running = false;
-                active = false;
+            if (runningEvent.isShouldPause()) {
+                paused = true;
+            } else {
+                if (runningEvent.isForceEnd()) {
+                    running = false;
+                    active = false;
+                }
             }
         }
 
