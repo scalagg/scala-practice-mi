@@ -18,6 +18,7 @@ import net.evilblock.cubed.ScalaCommonsSpigot
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.logging.Logger
@@ -217,6 +218,46 @@ object EstaPracticeIntegrator
                 }, 5 * 20L)
                 .bindWith(bot.terminable)
         }
+
+        Events
+            .subscribe(PotionSplashEvent::class.java)
+            .handler {
+                val affectedEntity = it.affectedEntities
+                    .firstOrNull { affected -> affected == bot.npc.bukkitEntity }
+                    ?: return@handler
+
+                val healEffect = it.potion.effects
+                    .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
+
+                if (healEffect != null)
+                {
+                    val intensity = it.getIntensity(affectedEntity)
+                    val amountHealed = (intensity * (4 shl healEffect.amplifier) + 0.5)
+                    bot.healthManager.addHealth(amountHealed)
+                }
+
+                val harmEffect = it.potion.effects
+                    .firstOrNull { effect -> effect.type == PotionEffectType.HARM }
+
+                if (harmEffect != null)
+                {
+                    val intensity = it.getIntensity(affectedEntity)
+                    val amountHarmed = (intensity * (4 shl harmEffect.amplifier) + 0.5)
+                    bot.healthManager.removeHealth(amountHarmed)
+                }
+
+                val remainingEffects = it.potion.effects
+                    .filter { effect ->
+                        effect.type != PotionEffectType.HARM &&
+                            effect.type != PotionEffectType.HEAL
+                    }
+
+                if (remainingEffects.isNotEmpty())
+                {
+                    bot.effectsManager.addEffects(remainingEffects)
+                }
+            }
+            .bindWith(bot.terminable)
 
         val inventoryManager = bot.inventoryManager
         inventoryManager.applyItemList(game.kit.contents.toList())

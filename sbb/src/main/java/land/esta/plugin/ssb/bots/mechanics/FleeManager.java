@@ -67,6 +67,8 @@ public class FleeManager extends Manager {
 
     public boolean check() {
         if (!enabled) return false;
-        return getBot().getInventoryManager().isRequiredToEat() || running || getBot().getInventoryManager().isEating() || runningFromCombo;
+        return getBot().getInventoryManager().isRequiredToEat() ||
+                running || getBot().getInventoryManager().isEating() ||
+                runningFromCombo;
     }
 }
