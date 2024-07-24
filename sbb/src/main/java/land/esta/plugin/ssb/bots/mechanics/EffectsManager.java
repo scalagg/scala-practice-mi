@@ -14,11 +14,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class EffectsManager extends Manager {
 
-    private final Map<PotionEffectType, Integer> effects = new HashMap<>();
+    private final Map<PotionEffectType, Integer> effects = new ConcurrentHashMap<>();
     private final Bot bot;
 
     public EffectsManager(Bot bot) {
@@ -27,19 +28,17 @@ public class EffectsManager extends Manager {
     }
 
     public void updateEffects() {
-        bot.getNpc().effects.clear();
-        effects.keySet().forEach(effect -> Schedulers.sync()
-                .run(() -> {
-                    if (bot.getNpc() != null) {
-                        bot.getNpc().addEffect(new MobEffect(
-                                effect.getId(),
-                                100,
-                                effects.get(effect),
-                                true, true
-                        ));
-                    }
-                })
-                .bindWith(bot.getTerminable()));
+        Schedulers.sync()
+                .run(() -> effects.keySet().forEach(effect -> {
+                    bot.getNpc().addEffect(new MobEffect(
+                            effect.getId(),
+                            100,
+                            effects.get(effect),
+                            true,
+                            true
+                    ));
+                }))
+                .bindWith(bot.getTerminable());
     }
 
     public void addEffect(PotionEffectType type, Integer level) {

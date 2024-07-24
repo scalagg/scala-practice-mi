@@ -13,9 +13,9 @@ import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
+import kotlin.concurrent.thread
 import kotlin.math.max
 import kotlin.math.min
 
@@ -37,18 +37,8 @@ open class GameQueue(
         }
     }
 
-    private var thread: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor { _ ->
-        val thread = Thread("queues-${queueId()}")
-        thread.isDaemon = true
-        thread
-    }
-
-    private var periodicUpdateThread: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor { _ ->
-        val thread = Thread("queue-periodic-${queueId()}")
-        thread.isDaemon = true
-        thread
-    }
-
+    private var thread: Thread? = null
+    private var periodicUpdateThread: Thread? = null
     private val metadataUpdateThread = Executors
         .newSingleThreadScheduledExecutor()
 
@@ -139,33 +129,50 @@ open class GameQueue(
         }
     }
 
-    private fun expandRangeBlock()
+    fun expandRangeBlock()
     {
-        runCatching {
-            expandRanges()
-        }.onFailure {
-            it.printStackTrace()
+        while (true)
+        {
+            runCatching {
+                expandRanges()
+            }.onFailure {
+                it.printStackTrace()
+            }
+
+            Thread.sleep(1000L)
         }
     }
 
     open fun start()
     {
+        check(thread == null)
         Logger.getGlobal()
             .info(
-                "[queue] Built a queue with id: ${queueId()}"
+                "[queue] Building a queue with id: ${queueId()}"
             )
+
+        thread = thread(
+            isDaemon = true,
+            name = "queues-${queueId()}",
+            block = this
+        )
+
         Logger.getGlobal()
             .info(
                 "[queue] Started queue iterator"
             )
 
+        check(periodicUpdateThread == null)
+        periodicUpdateThread = thread(
+            isDaemon = true,
+            name = "queue-periodic-${queueId()}",
+            block = ::expandRangeBlock
+        )
+
         Logger.getGlobal()
             .info(
                 "[queue] Started adjacent periodic thread"
             )
-
-        thread.scheduleAtFixedRate(this, 0, 100, TimeUnit.MILLISECONDS)
-        periodicUpdateThread.scheduleAtFixedRate(::expandRangeBlock, 0, 200, TimeUnit.MILLISECONDS)
 
         metadataUpdateThread.scheduleAtFixedRate({
             with(DPSRedisShared.keyValueCache.sync()) {
@@ -204,7 +211,7 @@ open class GameQueue(
                     }
 
                 GameQueueManager.getQueueEntriesFromId(queueId())
-                    .forEach { (_, u) ->
+                    .forEach { (t, u) ->
                         if (System.currentTimeMillis() - u.joinQueueTimestamp >= 60_000L)
                         {
                             val isPlayerOnline = DPSRedisShared.keyValueCache.sync()
@@ -257,8 +264,16 @@ open class GameQueue(
 
     fun destroy()
     {
-        thread.shutdownNow()
-        periodicUpdateThread.shutdownNow()
+        checkNotNull(thread)
+        thread?.interrupt()
+        thread = null
+
+        if (periodicUpdateThread != null)
+        {
+            periodicUpdateThread?.interrupt()
+            periodicUpdateThread = null
+        }
+
         metadataUpdateThread.shutdownNow()
     }
 
@@ -429,10 +444,13 @@ open class GameQueue(
 
     override fun invoke()
     {
-        runCatching {
-            run()
-        }.onFailure {
-            it.printStackTrace()
+        while (true)
+        {
+            runCatching {
+                run()
+            }.onFailure {
+                it.printStackTrace()
+            }
         }
     }
 }

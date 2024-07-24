@@ -57,7 +57,12 @@ public class EatingAndDrinking extends Feature {
             if (needsHealth) {
                 // Prefer to splash potions
                 if (!getPotions(bot).isEmpty()) {
-                    EstaRobotsPlugin.getInstance().getFeatureManager().getHealthPotionThrowing().splash(bot, bot.getFleeManager().getTicks());
+                    EstaRobotsPlugin.getInstance().getFeatureManager().getHealthPotionThrowing()
+                            .splash(
+                                    bot,
+                                    bot.getFleeManager().getTicks(),
+                                    () -> { }
+                            );
                     return;
                 }
 

@@ -5,6 +5,7 @@ import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
+import me.lucko.helper.Schedulers;
 import org.bukkit.potion.PotionEffectType;
 
 @Getter
@@ -26,6 +27,8 @@ public class HealthManager extends Manager {
     private boolean triggerHealthChangeEvent = false;
     private double healthChangeBefore;
     private double healthChangeAfter;
+    private boolean poisoned = false;
+    private int slownessPercentage = -1;
 
     @Override
     public void tickEarly() {
@@ -117,5 +120,44 @@ public class HealthManager extends Manager {
         getBot().getPacketsManager().setPlayerOnFirePackets(true);
         fireTicks = ticks;
         onFireUpdate = true;
+    }
+
+    public void addPoisonTicks(int amplifier) {
+        int period = 25 / amplifier;
+        int ticks = amplifier == 1 ? 33 * 20 : 45 * 20;
+
+        poisoned = true;
+
+        Schedulers
+                .sync()
+                .runRepeating((task) -> {
+                    if (!poisoned) {
+                        task.stop();
+                        return;
+                    }
+                    if (health > 1) removeHealth(1);
+                }, period, period)
+                .bindWith(bot.getTerminable());
+
+        Schedulers
+                .sync()
+                .runLater(() -> {
+                    poisoned = false;
+                }, ticks)
+                .bindWith(bot.getTerminable());
+    }
+
+    public void addSlownessTicks(int amplifier) {
+        int percentage = 15 * amplifier;
+        int ticks = 67;
+
+        slownessPercentage = percentage;
+
+        Schedulers
+                .sync()
+                .runLater(() -> {
+                    slownessPercentage = -1;
+                }, ticks)
+                .bindWith(bot.getTerminable());
     }
 }

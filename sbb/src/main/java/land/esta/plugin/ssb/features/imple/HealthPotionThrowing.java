@@ -6,7 +6,6 @@ import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
@@ -18,8 +17,8 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,43 +45,69 @@ public class HealthPotionThrowing extends Feature {
             bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(0)));
         }
 
-        if (event instanceof RunningEvent e) {
+        if (event instanceof RunningEvent runningEvent) {
+            splash(runningEvent.getBot(), runningEvent.getTicks(), () -> {
+                runningEvent.setForceEnd(true);
+                runningEvent.getBot().getFleeManager().setRunning(false);
+            });
+        }
+    }
 
-            if (splash(e.getBot(), e.getTicks())) {
-                e.setForceEnd(true);
-                e.getBot().getFleeManager().setRunning(false);
+    public void splash(Bot bot, int ticks, Runnable returnToPlayer) {
+        //Throwing
+        var firstPotionTime = ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFirstPotionTick());
+        var secondPotionTime = (ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotionTick()) &&
+                bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotion()));
+
+        //Cancel
+        if (
+                bot.getHealthManager().getHealth() > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFleeHealth()) && nearTarget(bot) ||
+                        ticks > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFinishPotionTick())
+        ) {
+            bot.getInventoryManager().setMainHand(1);
+            returnToPlayer.run();
+            return;
+        }
+
+        if (firstPotionTime || secondPotionTime) {
+            List<ItemStack> potions = getPotions(bot);
+            var available = potions.get(0);
+            bot.getInventoryManager().removeItem(
+                    bot.getInventoryManager()
+                            .getItemSlot(available)
+            );
+
+            launchProjectilePotion(bot, available);
+
+            // Set holding
+            if (potions.size() > 1) {
+                bot.getInventoryManager().setMainHand(
+                        bot.getInventoryManager().getItemSlot(potions.get(1))
+                );
+            } else {
+                // We don't have any more potions, so we'll just cancel the flee
+                bot.getInventoryManager().setMainHand(1);
+                returnToPlayer.run();
             }
         }
     }
 
-    public boolean splash(Bot bot, int ticks) {
-        //Throwing
-        if (ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFirstPotionTick()) || ticks == bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotionTick()) && bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getSecondPotion())) {
-            List<ItemStack> potions = getPotions(bot);
-            bot.getInventoryManager().removeItem(bot.getInventoryManager().getItemSlot(potions.get(0)));
-            throwPotion(potions.get(0), bot);
+    private void launchProjectilePotion(@NotNull Bot bot, @NotNull ItemStack itemStack) {
+        var direction = bot.getNpc().getBukkitEntity().getLocation().getDirection();
+        var motion = bot.getNpc().getBukkitEntity().getVelocity();
 
-            //Set holding
-            /*if (potions.size() > 1)
-                bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(1)));
-
-            if (potions.size() <= 1) {
-                bot.getInventoryManager().setMainHand(1);
-            }*/
-            bot.getInventoryManager().setMainHand(1);
-            return true;
-        }
-
-        //Cancel
-        if (bot.getHealthManager().getHealth() > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFleeHealth()) && nearTarget(bot) || ticks > bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getFinishPotionTick())) {
-            bot.getInventoryManager().setMainHand(1);
-            return true;
-        }
-
-        return false;
+        Schedulers.sync()
+                .run(() ->
+                        launchPotion(
+                                itemStack,
+                                bot.getNpc().getBukkitEntity(),
+                                direction, motion
+                        )
+                )
+                .bindWith(bot.getTerminable());
     }
 
-    //Gets all the splash potions of a specific type
+    // Gets all the splash potions of a specific type
     public List<ItemStack> getPotions(Bot bot) {
         List<ItemStack> potions = bot.getInventoryManager().hasItem(373);
         List<ItemStack> result = new ArrayList<>();
@@ -107,30 +132,26 @@ public class HealthPotionThrowing extends Feature {
         return distance < bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getCancelPotionDistance());
     }
 
-    //Throws potions
-    public void throwPotion(ItemStack potion, Bot bot) {
-        // Spawn the potion
-        launchProjectile(potion, null, bot.getNpc().getBukkitEntity());
-
-        //Adds health //TODO replace with a system that listen for potion splash event and if the bot is in the right distance.
-        bot.getHealthManager().addHealth(4 * 2);
-    }
+    /**
+     * Responsible for scaling the thrown potion velocity to match the current
+     * speed of the entity, so that the potion doesn't go flying forward and more
+     * so splashes near the entity, even if the entity is running.
+     */
+    public static final double CATCH_UP_SCALING = 0.32;
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
-    public void launchProjectile(ItemStack item, Vector velocity, CraftPlayer entity) {
-        Schedulers
-                .sync()
-                .run(() -> {
-                    World world = ((CraftWorld) entity.getWorld()).getHandle();
-                    net.minecraft.server.v1_8_R3.Entity launch;
-                    launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
+    public void launchPotion(ItemStack item, CraftPlayer entity, Vector direction, Vector motion) {
+        World world = ((CraftWorld) entity.getWorld()).getHandle();
+        net.minecraft.server.v1_8_R3.Entity launch;
+        launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
-                    Validate.notNull(launch, "Projectile not supported");
-                    if (velocity != null) {
-                        ((Projectile) launch.getBukkitEntity()).setVelocity(velocity);
-                    }
+        Validate.notNull(launch, "Projectile not supported");
 
-                    world.addEntity(launch);
-                });
+        var combinedVelocity = direction.add(motion);
+        var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
+
+        ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
+
+        world.addEntity(launch);
     }
 }

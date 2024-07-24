@@ -45,6 +45,7 @@ import java.util.logging.Logger
 object GameQueueManager
 {
     var forceSpecificRegionGames: Region? = null
+    val developmentModePlayers = mutableListOf<UUID>()
 
     private val queues = mutableMapOf<String, GameQueue>()
     private val dpsQueueRedis = DPSRedisService("queue")
@@ -179,6 +180,25 @@ object GameQueueManager
             ?: (ServerContainer
                 .getServersInGroupCasted<GameServer>(gameGroup().suffixWhenDev())
                 .sortedBy(GameServer::getPlayersCount)
+                .let { servers ->
+                    if (servers.any { server -> "mipdev" in server.groups })
+                    {
+                        if (expectation.players.any { player -> player in developmentModePlayers })
+                        {
+                            DPSRedisShared.sendMessage(
+                                expectation.players,
+                                listOf(
+                                    "&6You are being routed to a development game server!"
+                                )
+                            )
+                            return@let servers.filter { server -> "mipdev" in server.groups }
+                        }
+
+                        return@let servers.filter { server -> "mipdev" !in server.groups }
+                    }
+
+                    servers
+                }
                 .firstOrNull {
                     // ensure server of NEW replication is in the same region
                     Region.extractFrom(it.id).withinScopeOf(forceSpecificRegionGames ?: region)
@@ -324,6 +344,16 @@ object GameQueueManager
                 {
                     null
                 }
+            }
+
+            listen("enter-dev-mode") {
+                val uniqueId = retrieve<String>("uniqueId")
+                developmentModePlayers += UUID.fromString(uniqueId)
+            }
+
+            listen("leave-dev-mode") {
+                val uniqueId = retrieve<String>("uniqueId")
+                developmentModePlayers -= UUID.fromString(uniqueId)
             }
 
             listen("spectate-ready") {

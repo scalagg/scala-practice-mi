@@ -58,7 +58,7 @@ public class PlaystyleSettings extends Category {
                 new ItemStack(Material.ENDER_PEARL),
                 parent,
                 "Play Style Settings",
-                "botgui.playstyle"
+                "botgui.playstylesettings"
         );
 
         addChildren(hitSelect, hitSelectDelay, jumpComboCPS, flips, flipYaw, flipPitch, flipLong, flipChance, flipSync, alwaysJump, jumpWhileCombo, jumpWhileComboHits, jumpCombo, jumpComboHits);

@@ -13,7 +13,6 @@ import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
-import kotlin.math.absoluteValue
 
 /**
  * @author GrowlyX
