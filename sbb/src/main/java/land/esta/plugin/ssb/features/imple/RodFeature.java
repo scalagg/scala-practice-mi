@@ -12,6 +12,9 @@ import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
@@ -64,7 +67,11 @@ public class RodFeature extends Feature {
                             .run(() -> {
                                 EntityHuman npc = movementEvent.getBot().getNpc();
                                 if (npc != null) {
-                                    launchProjectile(npc.world, null, npc);
+                                    launchProjectile(
+                                            npc,
+                                            npc.getBukkitEntity().getVelocity(),
+                                            npc.getBukkitEntity().getLocation().getDirection()
+                                    );
 
                                     movementEvent.getBot().getAttackingManager().setProjectile(true); // Special velocity for the projectile
                                 }
@@ -83,15 +90,19 @@ public class RodFeature extends Feature {
         }
     }
 
-    public FixedEntityFishingHook launchProjectile(World world, Vector velocity, EntityHuman human) {
-        FixedEntityFishingHook launch = new FixedEntityFishingHook(world, human);
+    public static final double CATCH_UP_SCALING = 1.0;
+
+    public FixedEntityFishingHook launchProjectile(EntityHuman human, Vector direction, Vector motion) {
+        FixedEntityFishingHook launch = new FixedEntityFishingHook(human.getWorld(), human);
 
         Validate.notNull(launch, "Projectile not supported");
-        if (velocity != null) {
-            ((Projectile) launch.getBukkitEntity()).setVelocity(velocity);
-        }
 
-        world.addEntity(launch);
+        var combinedVelocity = direction.add(motion);
+        var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
+
+        ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
+
+        human.getWorld().addEntity(launch);
         return launch;
     }
 }
