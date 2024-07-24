@@ -25,6 +25,17 @@ public class PotionSettings extends Category {
     private Option<Boolean> secondPotion = new Option<>("Second Potion", Material.POTION, this, true, -1);
     private Option<Double> cancelPotionDistance = new Option<>("Cancel Potion Distance", Material.HOPPER, this, 3.0, 0.1, 100);
 
+    private Option<Boolean> hotbarRefillPausing = new Option<>(
+            "Hotbar Refill Pausing",
+            Material.CHEST,
+            this,
+            true,
+            0.0
+    ).addDescription(
+            CC.GRAY + "Should the bot pause to",
+            CC.GRAY + "refill its hotbar?"
+    );
+
     private Option<Integer> hotbarRefillTime = new Option<>(
             "Hotbar Refill Time",
             ItemBuilder
@@ -34,10 +45,23 @@ public class PotionSettings extends Category {
             this,
             2, 1, 4
     ).addDescription(
-            CC.GRAY + "The amount of time, in",
-            CC.GRAY + "seconds, it takes for the bot",
-            CC.GRAY + "to refill its hotbar with health",
-            CC.GRAY + "potions when empty."
+            CC.GRAY + "The amount of time, in seconds",
+            CC.GRAY + "it takes for the bot to refill",
+            CC.GRAY + "its hotbar with health potions",
+            CC.GRAY + "when empty."
+    );
+
+    private Option<Integer> hotbarRefillAmountRequired = new Option<>(
+            "Hotbar Refill Amount",
+            ItemBuilder
+                    .of(Material.WATCH)
+                    .build(),
+            this,
+            0, 1, 5
+    ).addDescription(
+            CC.GRAY + "The amount of potions which",
+            CC.GRAY + "the bot must have in its hotbar",
+            CC.GRAY + "when it decides to pause."
     );
 
     public PotionSettings(Category parent) {
@@ -53,6 +77,10 @@ public class PotionSettings extends Category {
                 "botgui.potionsettings"
         );
 
-        addChildren(fleeHealth, agroPotion, firstPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion, cancelPotionDistance, hotbarRefillTime);
+        addChildren(
+                fleeHealth, agroPotion, firstPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion,
+                cancelPotionDistance,
+                hotbarRefillPausing, hotbarRefillTime, hotbarRefillAmountRequired
+        );
     }
 }

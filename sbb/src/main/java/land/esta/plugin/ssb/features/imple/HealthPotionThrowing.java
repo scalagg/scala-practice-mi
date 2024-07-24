@@ -84,12 +84,16 @@ public class HealthPotionThrowing extends Feature {
             // Set holding
             if (potions.size() > 1) {
                 if (shouldPause) {
-                    var refillTime = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillTime());
+                    var refillTime = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillPausing()) ?
+                            bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillTime()) : 0;
                     if (refillTime != 0) {
                         bot.setPotionsThrown(bot.getPotionsThrown() + 1);
 
-                        if (bot.getPotionsThrown() == 6) {
-                            pauseRobotForRefill(bot);
+                        var requiredPotionsLeft = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillAmountRequired());
+                        var availableHotbarPotions = 6 - bot.getPotionsThrown();
+
+                        if (availableHotbarPotions == requiredPotionsLeft) {
+                            pauseRobotForRefill(bot, refillTime);
                             pause.run();
 
                             bot.setPotionsThrown(0);
@@ -109,8 +113,7 @@ public class HealthPotionThrowing extends Feature {
         }
     }
 
-    private void pauseRobotForRefill(Bot bot) {
-        var refillTime = bot.getProfile().value(RootAccessor.INSTANCE.getPotionSettings().getHotbarRefillTime());
+    private void pauseRobotForRefill(Bot bot, Integer timeInSeconds) {
         bot.getMovements().setMove(false);
 
         Schedulers
@@ -118,7 +121,7 @@ public class HealthPotionThrowing extends Feature {
                 .runLater(() -> {
                     bot.getMovements().setMove(true);
                     bot.getFleeManager().setPaused(false);
-                }, refillTime * 20)
+                }, timeInSeconds * 20)
                 .bindWith(bot.getTerminable());
     }
 
