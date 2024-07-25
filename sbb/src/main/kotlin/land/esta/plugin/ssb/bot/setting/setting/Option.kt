@@ -67,6 +67,15 @@ data class Option<T : Any>(
         display, material, parent, default, 1.0, maxValue
     )
 
+    constructor(
+        display: String,
+        material: Material,
+        parent: Category?,
+        default: T
+    ) : this(
+        display, material, parent, default, 1.0, -1.0
+    )
+
     fun addDescription(vararg description: String) = copy(description = description.toList())
     fun addDescription(description: List<String>) = copy(description = description)
 

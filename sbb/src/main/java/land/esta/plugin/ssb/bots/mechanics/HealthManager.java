@@ -123,8 +123,8 @@ public class HealthManager extends Manager {
     }
 
     public void addPoisonTicks(int amplifier) {
-        int period = 25 / amplifier;
-        int ticks = amplifier == 1 ? 33 * 20 : 45 * 20;
+        int period = amplifier == 0 ? 25 : 25 / amplifier;
+        int ticks = (amplifier == 1 || amplifier == 0) ? 33 * 20 : 45 * 20;
 
         poisoned = true;
 
@@ -148,7 +148,7 @@ public class HealthManager extends Manager {
     }
 
     public void addSlownessTicks(int amplifier) {
-        int percentage = 15 * amplifier;
+        int percentage = amplifier == 0 ? 15 : 15 * amplifier;
         int ticks = 67;
 
         slownessPercentage = percentage;

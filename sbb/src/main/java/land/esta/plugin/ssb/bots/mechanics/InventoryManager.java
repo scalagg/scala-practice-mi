@@ -218,6 +218,15 @@ public class InventoryManager extends Manager {
         return list;
     }
 
+    public List<ItemStack> hasItemUsingName(Material material) {
+        List<ItemStack> list = new ArrayList<>();
+        slots.values().forEach(value -> {
+            if (value != null && value.getType().name().equalsIgnoreCase(material.name())) list.add(value);
+        });
+
+        return list;
+    }
+
     public List<ItemStack> hasArmor(int index) {
         List<ItemStack> list = new ArrayList<>();
         slots.values().forEach(value -> {

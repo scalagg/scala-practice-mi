@@ -13,6 +13,7 @@ import java.util.List;
 
 @Getter
 public class PathfindingSettings extends Category {
+    private final Option<Boolean> enabled = new Option<>("Enabled", Material.STONE_BUTTON, this, true);
     private final Option<Double> distanceFromLastLocation = new Option<>("Distance From Last Location", Material.STRING, this, 0.1, 0.05, 2);
     private final Option<Integer> getPathCooldown = new Option<>("Get Path Cooldown", Material.BLAZE_POWDER, this, 500, 100, 5000)
             .addDescription(CC.GRAY + "(1000 = 1 Second)");
@@ -33,6 +34,6 @@ public class PathfindingSettings extends Category {
                 "botgui.pathfindingsettings"
         );
 
-        addChildren(distanceFromLastLocation, getPathCooldown, minDistanceFromPlayer, cooldownAfterAttack);
+        addChildren(enabled, distanceFromLastLocation, getPathCooldown, minDistanceFromPlayer, cooldownAfterAttack);
     }
 }

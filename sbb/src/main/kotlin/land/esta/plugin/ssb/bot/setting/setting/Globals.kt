@@ -30,7 +30,8 @@ val root = Category(
         StrafeSettings(this),
         VelocitySettings(this),
         WTapSettings(this),
-        PathfindingSettings(this)
+        PathfindingSettings(this),
+        BuildingSettings(this)
     )
 }
 
@@ -50,4 +51,5 @@ object RootAccessor
     val velocitySettings = root.childByType<VelocitySettings>("root.velocitysettings")
     val wTapSettings = root.childByType<WTapSettings>("root.wtapsettings")
     val pathfindingSetting = root.childByType<PathfindingSettings>("root.pathfindingsettings")
+    val buildingSetting = root.childByType<BuildingSettings>("root.buildingsettings")
 }
