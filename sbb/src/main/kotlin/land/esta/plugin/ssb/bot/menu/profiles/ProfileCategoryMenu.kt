@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.bot.menu.profiles
 
+import gg.scala.lemon.filter.ChatMessageFilterHandler
 import land.esta.plugin.ssb.bot.getProfile
 import land.esta.plugin.ssb.bot.setting.setting.Category
 import land.esta.plugin.ssb.bot.setting.setting.Option
@@ -62,6 +63,12 @@ class ProfileCategoryMenu(
                 InputPrompt()
                     .withText("${CC.GREEN}Enter a new bot name!")
                     .acceptInput { _, text ->
+                        if (ChatMessageFilterHandler.handleMessageFilter(player, text, false, null))
+                        {
+                            player.sendMessage("${CC.RED}Inappropriate name!")
+                            return@acceptInput
+                        }
+
                         profile.botName = Color.translate(text)
                         backbone.save(profile)
 
