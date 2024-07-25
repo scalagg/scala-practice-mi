@@ -1,101 +1,137 @@
 package land.esta.plugin.ssb.features.imple;
 
-import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.games.GameService;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.lucko.helper.Schedulers;
-import net.evilblock.cubed.util.bukkit.Direction;
+import me.lucko.helper.random.RandomSelector;
+import me.lucko.helper.random.Weighted;
+import net.minecraft.server.v1_8_R3.Block;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BuildingFeature extends Feature {
-    private boolean building;
+
     private long lastPlaced = System.currentTimeMillis();
 
     @Override
     public void tickEvent(Bot bot) {
         boolean enabled = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getEnabled());
+        if (!enabled) {
+            return;
+        }
+
+        if (bot.isCurrentlyBuilding()) {
+            return;
+        }
+
         double minDistanceFromPlayer = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getMinDistanceFromPlayer());
         int placeCooldown = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getPlaceCooldown());
         int buildingTicks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildingTicks());
         boolean buildWhenCombo = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenCombo());
         int buildWhenComboHits = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenComboHits());
 
-        if (!enabled) return;
+        var distanceToPlayer = bot.getMovements().getLocation().distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation());
+        var currentComboHots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
+        var currentTime = System.currentTimeMillis();
 
-        boolean build = (buildWhenCombo && EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(),0) >= buildWhenComboHits
-                || bot.getMovements().getLocation().distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) <= minDistanceFromPlayer)
-                && System.currentTimeMillis() - placeCooldown > lastPlaced;
+        boolean shouldBuild = (buildWhenCombo && currentComboHots >= buildWhenComboHits
+                || distanceToPlayer <= minDistanceFromPlayer)
+                && currentTime - placeCooldown > lastPlaced;
 
-        if (!build) return;
+        if (!shouldBuild) {
+            return;
+        }
 
         lastPlaced = System.currentTimeMillis();
 
-        List<ItemStack> wool = bot.getInventoryManager().hasItemUsingName(Material.WOOD); // TODO: Change to wool
+        List<ItemStack> blocks = bot.getInventoryManager().hasItemUsingName(Material.WOOD); // TODO: Change to wool
+        if (blocks.isEmpty()) {
+            return;
+        }
 
-        if (wool.isEmpty()) return;
+        PlacementConfiguration placementConfiguration = new PlacementConfiguration().random().updateLocations(bot);
+        AtomicInteger previousSlot = new AtomicInteger(bot.getInventoryManager().getMainHand());
 
-        Type type = new Type()
-                .random()
-                .updateLocations(bot);
-
-        final Map<UUID, Integer> prevSlot = new HashMap<>();
-
-        prevSlot.put(bot.getUniqueId(), bot.getInventoryManager().getMainHand());
-
-        bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(wool.get(0)));
+        bot.getInventoryManager().setMainHand(
+                bot.getInventoryManager().getItemSlot(blocks.get(0))
+        );
 
         Schedulers
                 .sync()
                 .runRepeating((task) -> {
-                    if (!type.hasNext()) {
-                        building = false;
-                        bot.getInventoryManager().setMainHand(prevSlot.get(bot.getUniqueId()));
-                        task.stop();
+                    if (!placementConfiguration.hasNext()) {
+                        bot.setCurrentlyBuilding(false);
+                        bot.getInventoryManager().setMainHand(previousSlot.get());
+                        task.closeAndReportException();
                         return;
                     }
 
-                    Location location = type.next();
-                    building = true;
+                    Location location = placementConfiguration.next();
+                    bot.setCurrentlyBuilding(true);
 
                     if (!location.getBlock().getType().equals(Material.AIR)) return;
                     if (location.distance(bot.getMovements().getLocation()) < 0.2) return;
-                    if (location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2) return;
+                    if (location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2)
+                        return;
 
-                    location.getBlock().setType(bot.getInventoryManager().getItemInMainHand().getType());
-                    location.getBlock().setMetadata("placed", new FixedMetadataValue(GameService.INSTANCE.getPlugin(), true));
+                    var blockType = bot.getInventoryManager().getItemInMainHand().getType();
+                    location.getBlock().setType(blockType);
+                    location.getBlock().setMetadata(
+                            "placed",
+                            new FixedMetadataValue(GameService.INSTANCE.getPlugin(), true)
+                    );
+
+                    var yawPitch = getYawPitch(bot.getMovements().getLocation(), location);
+                    bot.getMovements().rotate(yawPitch[0], yawPitch[1]);
+
+                    var block = Block.getById(location.getBlock().getTypeId());
+
                     bot.getGame().getPlacedBlocks().add(location.getBlock().getLocation().toVector());
-                    bot.getMovements().getTargetLocate().getTargetEntity().playSound(location, Sound.STEP_WOOL, 1, 1);
+                    bot.getMovements().getTargetLocate().getTargetEntity()
+                            .playSound(
+                                    location, block.stepSound.getPlaceSound(), 1, 1
+                            );
                 }, 0, buildingTicks)
                 .bindWith(bot.getTerminable());
     }
 
-    public class Type {
-        private ENUM eType;
+    public static float[] getYawPitch(Location from, Location to) {
+        Vector direction = to.toVector().subtract(from.toVector()).normalize();
+        double dx = direction.getX();
+        double dy = direction.getY();
+        double dz = direction.getZ();
+
+        double distanceXZ = Math.sqrt(dx * dx + dz * dz);
+
+        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        float pitch = (float) Math.toDegrees(Math.atan2(-dy, distanceXZ));
+        if (yaw < 0) {
+            yaw += 360;
+        }
+
+        return new float[]{yaw, pitch};
+    }
+
+    @RequiredArgsConstructor
+    public static class PlacementConfiguration {
+        private ExitComboBuildAction buildAction;
         private List<Location> locations = new ArrayList<>();
         private int current = 0;
 
-        public Type() {
-
-        }
-
-        Type(ENUM eType) {
-            this.eType = eType;
-        }
-
-        public Type random() {
-            this.eType = ENUM.random();
-
+        public PlacementConfiguration random() {
+            this.buildAction = ExitComboBuildAction.random();
             return this;
         }
 
@@ -105,115 +141,92 @@ public class BuildingFeature extends Feature {
         }
 
         public boolean hasNext() {
-            try {
-                Location loc = locations.get(current + 1);
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
+            return locations.size() - 1 <= current + 1;
         }
 
-        public Type updateLocations(Bot bot) {
+        public PlacementConfiguration updateLocations(Bot bot) {
             List<Location> result = new ArrayList<>();
+            var selfLocation = bot.getMovements().getLocation().clone();
+            var selfDirection = selfLocation.getDirection();
+            var targetLocation = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
 
-            Location startLocation = eType.blockPlayer ? bot.getMovements().getLocation().clone().add(bot.getMovements().getLocation().getDirection().clone().multiply(2))
-                    : bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone().add(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getDirection());
+            Location startLocation = buildAction.blockPlayer ? selfLocation.add(selfDirection.clone().multiply(2))
+                    : targetLocation.add(targetLocation.getDirection().clone());
 
             for (int i = 10; i > 0; i--) {
-                if (!startLocation.clone().subtract(0, 1, 0).getBlock().getType().isSolid()) {
-                    startLocation = startLocation.subtract(0, 1, 0);
+                var beneath = startLocation.clone().subtract(0, 1, 0);
+                if (!beneath.getBlock().getType().isSolid()) {
+                    startLocation = beneath;
                     break;
                 }
             }
 
             result.add(startLocation);
-            Location botLocation = bot.getMovements().getLocation();
 
-            for (String key : eType.getLocations().keySet()) {
-                int distance = eType.getLocations().get(key);
-                for (int i = 1; i <= distance; i++) {
-                    result.add(getRelativeLocation(startLocation.clone(), key, distance, getDirectionFromYaw(botLocation.getYaw())));
+            Location botLocation = bot.getMovements().getLocation();
+            for (String placementPosition : buildAction.getPlacementDirections().keySet()) {
+                int amountToPlace = buildAction.getPlacementDirections().get(placementPosition);
+                for (int level = 1; level <= amountToPlace; level++) {
+                    result.add(
+                            getRelativeLocation(
+                                    startLocation.clone(),
+                                    placementPosition, level,
+                                    getDirectionFromYaw(botLocation.getYaw())
+                            )
+                    );
                 }
             }
 
             locations = result;
-
             return this;
         }
 
         private Location getRelativeLocation(Location base, String direction, int distance, Direction facing) {
-            switch (direction.toUpperCase()) {
-                case "UP":
-                    return base.add(0, distance, 0);
-                case "DOWN":
-                    return base.add(0, -distance, 0);
-                case "LEFT":
-                    return getLeft(base, distance, facing);
-                case "RIGHT":
-                    return getRight(base, distance, facing);
-                case "FORWARDS":
-                    return getForwards(base, distance, facing);
-                case "BACKWARDS":
-                    return getBackwards(base, distance, facing);
-                default:
-                    throw new IllegalArgumentException("Invalid direction: " + direction);
-            }
+            return switch (direction.toUpperCase()) {
+                case "UP" -> base.add(0, distance, 0);
+                case "DOWN" -> base.add(0, -distance, 0);
+                case "LEFT" -> getLeft(base, distance, facing);
+                case "RIGHT" -> getRight(base, distance, facing);
+                case "FORWARDS" -> getForwards(base, distance, facing);
+                case "BACKWARDS" -> getBackwards(base, distance, facing);
+                default -> throw new IllegalArgumentException("Invalid direction: " + direction);
+            };
         }
 
         private Location getLeft(Location base, int distance, Direction facing) {
-            switch (facing) {
-                case NORTH:
-                    return base.add(-distance, 0, 0);
-                case SOUTH:
-                    return base.add(distance, 0, 0);
-                case EAST:
-                    return base.add(0, 0, -distance);
-                case WEST:
-                default:
-                    return base.add(0, 0, distance);
-            }
+            return switch (facing) {
+                case NORTH -> base.add(-distance, 0, 0);
+                case SOUTH -> base.add(distance, 0, 0);
+                case EAST -> base.add(0, 0, -distance);
+                default -> base.add(0, 0, distance);
+            };
         }
 
         private Location getRight(Location base, int distance, Direction facing) {
-            switch (facing) {
-                case NORTH:
-                    return base.add(distance, 0, 0);
-                case SOUTH:
-                    return base.add(-distance, 0, 0);
-                case EAST:
-                    return base.add(0, 0, distance);
-                case WEST:
-                default:
-                    return base.add(0, 0, -distance);
-            }
+            return switch (facing) {
+                case NORTH -> base.add(distance, 0, 0);
+                case SOUTH -> base.add(-distance, 0, 0);
+                case EAST -> base.add(0, 0, distance);
+                default -> base.add(0, 0, -distance);
+            };
         }
 
         private Location getForwards(Location base, int distance, Direction facing) {
-            switch (facing) {
-                case NORTH:
-                    return base.add(0, 0, -distance);
-                case SOUTH:
-                    return base.add(0, 0, distance);
-                case EAST:
-                    return base.add(distance, 0, 0);
-                case WEST:
-                default:
-                    return base.add(-distance, 0, 0);
-            }
+            return switch (facing) {
+                case NORTH -> base.add(0, 0, -distance);
+                case SOUTH -> base.add(0, 0, distance);
+                case EAST -> base.add(distance, 0, 0);
+                default -> base.add(-distance, 0, 0);
+            };
         }
 
         private Location getBackwards(Location base, int distance, Direction facing) {
-            switch (facing) {
-                case NORTH:
-                    return base.add(0, 0, distance);
-                case SOUTH:
-                    return base.add(0, 0, -distance);
-                case EAST:
-                    return base.add(-distance, 0, 0);
-                case WEST:
-                default:
-                    return base.add(distance, 0, 0);
-            }
+            return switch (facing) {
+                case NORTH -> base.add(0, 0, distance);
+                case SOUTH -> base.add(0, 0, -distance);
+                case EAST -> base.add(-distance, 0, 0);
+                default -> base.add(distance, 0, 0);
+            };
         }
 
         private Direction getDirectionFromYaw(float yaw) {
@@ -237,49 +250,42 @@ public class BuildingFeature extends Feature {
         }
 
         @Getter
-        public enum ENUM {
+        public enum ExitComboBuildAction implements Weighted {
             PLAYER_BLOCK(new HashMap<>() {{
-                    put("UP", 1);
-                }}, 50, true),
+                put("UP", 1);
+            }}, 50, true),
             LEFT(new HashMap<>() {{
-                    put("LEFT", 1);
-                }}, 15, true),
+                put("LEFT", 1);
+            }}, 15, true),
             RIGHT(new HashMap<>() {{
-                    put("RIGHT", 1);
-                }}, 15, true),
+                put("RIGHT", 1);
+            }}, 15, true),
             STAIR(new HashMap<>() {{
-                    put("UP", 1);
-                    put("BACKWARDS", 1);
-                }}, 20, false);
+                put("UP", 1);
+                put("BACKWARDS", 2);
+            }}, 20, false);
 
-            private static Random random = new Random();
+            private static final List<ExitComboBuildAction> ENTRIES = Arrays.asList(values());
+            private static final RandomSelector<ExitComboBuildAction> WEIGHTED_RANDOM = RandomSelector.weighted(ENTRIES);
 
-            private int chance;
-            private Map<String, Integer> locations;
-            private boolean blockPlayer;
+            @NotNull
+            public static ExitComboBuildAction random() {
+                return WEIGHTED_RANDOM.pick();
+            }
 
-            ENUM(Map<String, Integer> locations, int chance, boolean blockPlayer) {
-                this.locations = locations;
+            private final int chance;
+            private final Map<String, Integer> placementDirections;
+            private final boolean blockPlayer;
+
+            ExitComboBuildAction(Map<String, Integer> placementDirections, int chance, boolean blockPlayer) {
+                this.placementDirections = placementDirections;
                 this.chance = chance;
                 this.blockPlayer = blockPlayer;
             }
 
-            public static ENUM random() {
-                int totalChances = 0;
-                for (ENUM e : ENUM.values()) {
-                    totalChances += e.getChance();
-                }
-
-                int randomValue = random.nextInt(totalChances);
-
-                for (ENUM e : ENUM.values()) {
-                    randomValue -= e.getChance();
-                    if (randomValue < 0) {
-                        return e;
-                    }
-                }
-
-                return ENUM.values()[0];
+            @Override
+            public double getWeight() {
+                return chance;
             }
         }
     }

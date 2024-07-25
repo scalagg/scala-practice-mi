@@ -66,6 +66,8 @@ public class Bot {
     private int potionsThrown = 0;
     private GameImpl game;
 
+    private boolean currentlyBuilding;
+
     public Bot(Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
         this.startLocation = location;
         this.kit = kit;
