@@ -12,6 +12,7 @@ import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.WorldUtils;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,13 +30,20 @@ public class Rotations extends Manager {
     private Location targetPos = null;
 
     private float lastYaw;
-
+    private @Nullable Long rotationLockUntil;
 
     @Override
     public void tickEarly() {
         var data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
         if (data == null) {
             return;
+        }
+
+        if (rotationLockUntil != null) {
+            if (System.currentTimeMillis() <= rotationLockUntil) {
+                return;
+            }
+            rotationLockUntil = null;
         }
 
         float speed = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getSpeed());

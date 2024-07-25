@@ -15,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -46,9 +45,28 @@ public class BuildingFeature extends Feature {
         var currentComboHots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
         var currentTime = System.currentTimeMillis();
 
-        boolean shouldBuild = (buildWhenCombo && currentComboHots >= buildWhenComboHits
-                || distanceToPlayer <= minDistanceFromPlayer)
-                && currentTime - placeCooldown > lastPlaced;
+        bot.getPlayer().sendMessage(
+                String.valueOf(
+                        BuildingUtilitiesKt.isMovingTowards(
+                                bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                                bot.getMovements().getLocation()
+                        )
+                )
+        );
+
+        boolean shouldBuild = (/*(buildWhenCombo && currentComboHots >= buildWhenComboHits) || */distanceToPlayer <= minDistanceFromPlayer)
+                && currentTime - placeCooldown > lastPlaced
+                && BuildingUtilitiesKt.isMovingTowards(
+                    bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                    bot.getMovements().getLocation()
+                )
+                && BuildingUtilitiesKt.isInLineOfSight(
+                    bot.getMovements().getLocation().getDirection(),
+                    bot.getMovements().getLocation(),
+                    bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                    40.0
+                )
+                && Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY());
 
         if (!shouldBuild) {
             return;
@@ -82,6 +100,7 @@ public class BuildingFeature extends Feature {
                     bot.setCurrentlyBuilding(true);
 
                     if (!location.getBlock().getType().equals(Material.AIR)) return;
+                    if (BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getPlayer())) return;
                     if (location.distance(bot.getMovements().getLocation()) < 0.2) return;
                     if (location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2)
                         return;
@@ -94,6 +113,7 @@ public class BuildingFeature extends Feature {
                     );
 
                     var yawPitch = getYawPitch(bot.getMovements().getLocation(), location);
+                    bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 500L);
                     bot.getMovements().rotate(yawPitch[0], yawPitch[1]);
 
                     var block = Block.getById(location.getBlock().getTypeId());
@@ -103,25 +123,27 @@ public class BuildingFeature extends Feature {
                             .playSound(
                                     location, block.stepSound.getPlaceSound(), 1, 1
                             );
+
+
                 }, 0, buildingTicks)
                 .bindWith(bot.getTerminable());
     }
 
+    /**
+     * Derived from https://github.com/CitizensDev/Citizens/blob/master/src/core/net/citizensnpcs/resources/npclib/NPCManager.java#L42
+     */
     public static float[] getYawPitch(Location from, Location to) {
-        Vector direction = to.toVector().subtract(from.toVector()).normalize();
-        double dx = direction.getX();
-        double dy = direction.getY();
-        double dz = direction.getZ();
-
-        double distanceXZ = Math.sqrt(dx * dx + dz * dz);
-
-        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
-        float pitch = (float) Math.toDegrees(Math.atan2(-dy, distanceXZ));
-        if (yaw < 0) {
-            yaw += 360;
+        double xDiff = to.getX() - from.getX();
+        double yDiff = to.getY() - from.getY();
+        double zDiff = to.getZ() - from.getZ();
+        double DistanceXZ = Math.sqrt(xDiff * xDiff + zDiff * zDiff);
+        double DistanceY = Math.sqrt(DistanceXZ * DistanceXZ + yDiff * yDiff);
+        double yaw = (Math.acos(xDiff / DistanceXZ) * 180 / Math.PI);
+        double pitch = (Math.acos(yDiff / DistanceY) * 180 / Math.PI) - 90;
+        if (zDiff < 0.0) {
+            yaw = yaw + (Math.abs(180 - yaw) * 2);
         }
-
-        return new float[]{yaw, pitch};
+        return new float[]{(float) yaw - 90, (float) pitch};
     }
 
     @RequiredArgsConstructor
@@ -150,20 +172,20 @@ public class BuildingFeature extends Feature {
             var selfDirection = selfLocation.getDirection();
             var targetLocation = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
 
-            Location startLocation = buildAction.blockPlayer ? selfLocation.add(selfDirection.clone().multiply(2))
+            var startLocation = buildAction.blockPlayer ? selfLocation.add(selfDirection.clone().multiply(1.5))
                     : targetLocation.add(targetLocation.getDirection().clone());
 
-            for (int i = 10; i > 0; i--) {
+            for (var i = 10; i > 0; i--) {
                 var beneath = startLocation.clone().subtract(0, 1, 0);
-                if (!beneath.getBlock().getType().isSolid()) {
+                if (beneath.getBlock().getType().isSolid()) {
                     startLocation = beneath;
                     break;
                 }
             }
 
             result.add(startLocation);
-
             Location botLocation = bot.getMovements().getLocation();
+
             for (String placementPosition : buildAction.getPlacementDirections().keySet()) {
                 int amountToPlace = buildAction.getPlacementDirections().get(placementPosition);
                 for (int level = 1; level <= amountToPlace; level++) {
@@ -254,7 +276,7 @@ public class BuildingFeature extends Feature {
             PLAYER_BLOCK(new HashMap<>() {{
                 put("UP", 1);
             }}, 50, true),
-            LEFT(new HashMap<>() {{
+            /*LEFT(new HashMap<>() {{
                 put("LEFT", 1);
             }}, 15, true),
             RIGHT(new HashMap<>() {{
@@ -263,7 +285,7 @@ public class BuildingFeature extends Feature {
             STAIR(new HashMap<>() {{
                 put("UP", 1);
                 put("BACKWARDS", 2);
-            }}, 20, false);
+            }}, 20, false)*/;
 
             private static final List<ExitComboBuildAction> ENTRIES = Arrays.asList(values());
             private static final RandomSelector<ExitComboBuildAction> WEIGHTED_RANDOM = RandomSelector.weighted(ENTRIES);
