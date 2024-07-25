@@ -1,6 +1,9 @@
 package land.esta.plugin.ssb.features.imple
 
+import land.esta.plugin.ssb.utils.Nms
+import net.minecraft.server.v1_8_R3.Vec3D
 import org.bukkit.Location
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 import kotlin.math.acos
@@ -44,16 +47,6 @@ fun isMovingTowards(
 
 
 fun isLocationInsidePlayerHitbox(location: Location, player: Player): Boolean {
-    val playerLocation = player.location
-    val playerSize = 0.6 // Approximate width of a player
-    val playerHeight = 1.8 // Approximate height of a player
-
-    val minX = playerLocation.x - playerSize / 2
-    val maxX = playerLocation.x + playerSize / 2
-    val minY = playerLocation.y
-    val maxY = playerLocation.y + playerHeight
-    val minZ = playerLocation.z - playerSize / 2
-    val maxZ = playerLocation.z + playerSize / 2
-
-    return location.x in minX..maxX && location.y in minY..maxY && location.z in minZ..maxZ
+    val playerLocation = Nms.entityHitBox(player)
+    return playerLocation.isColliding(location.toVector())
 }

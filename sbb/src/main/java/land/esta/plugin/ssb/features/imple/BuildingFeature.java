@@ -46,12 +46,15 @@ public class BuildingFeature extends Feature {
         var currentTime = System.currentTimeMillis();
 
         bot.getPlayer().sendMessage(
-                String.valueOf(
-                        BuildingUtilitiesKt.isMovingTowards(
-                                bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
-                                bot.getMovements().getLocation()
-                        )
-                )
+                BuildingUtilitiesKt.isMovingTowards(
+                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                        bot.getMovements().getLocation()
+                ) + " | " + BuildingUtilitiesKt.isInLineOfSight(
+                        bot.getMovements().getLocation().getDirection(),
+                        bot.getMovements().getLocation(),
+                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                        40.0
+                ) + " | " + (Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()))
         );
 
         boolean shouldBuild = (/*(buildWhenCombo && currentComboHots >= buildWhenComboHits) || */distanceToPlayer <= minDistanceFromPlayer)
