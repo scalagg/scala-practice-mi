@@ -141,7 +141,7 @@ public class BuildingFeature extends Feature {
         }
 
         public boolean hasNext() {
-            return locations.size() - 1 <= current + 1;
+            return current + 1 <= locations.size() - 1;
         }
 
         public PlacementConfiguration updateLocations(Bot bot) {
