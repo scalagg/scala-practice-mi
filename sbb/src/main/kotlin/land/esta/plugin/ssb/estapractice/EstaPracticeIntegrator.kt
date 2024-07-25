@@ -108,6 +108,7 @@ object EstaPracticeIntegrator
             location,
             Color.code(name),
             player,
+            game,
             settings,
             game.kit
         )

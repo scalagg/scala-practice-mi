@@ -2,6 +2,7 @@ package land.esta.plugin.ssb.bots;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
@@ -63,12 +64,14 @@ public class Bot {
      * so we can trigger the refill pause system.
      */
     private int potionsThrown = 0;
+    private GameImpl game;
 
-    public Bot(Location location, String name, Player player, SettingProfile profile, Kit kit) {
+    public Bot(Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
         this.startLocation = location;
         this.kit = kit;
         this.profile = profile;
         this.player = player;
+        this.game = game;
 
         registerNPC(name, location);
         Bukkit.getOnlinePlayers().forEach(other ->
