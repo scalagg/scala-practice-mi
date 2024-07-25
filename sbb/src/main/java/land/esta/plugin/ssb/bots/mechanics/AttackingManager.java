@@ -56,6 +56,7 @@ public class AttackingManager extends Manager {
     public void tickLate() {
         attackTicks++;
         if (!attacking) return;
+        if (bot.isCurrentlyBuilding()) return;
         if (getBot().getFleeManager().isActive()) return;
         TargetLocate targetLocate = getBot().getMovements().getTargetLocate();
         int delay = RootAccessor.INSTANCE.getAttackSettings().getDelay(getBot().getProfile());

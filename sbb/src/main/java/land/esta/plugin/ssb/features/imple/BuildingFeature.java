@@ -2,6 +2,7 @@ package land.esta.plugin.ssb.features.imple;
 
 import gg.tropic.practice.games.GameService;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
@@ -10,28 +11,39 @@ import lombok.RequiredArgsConstructor;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.random.RandomSelector;
 import me.lucko.helper.random.Weighted;
-import net.minecraft.server.v1_8_R3.Block;
+import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.PacketPlayOutWorldParticles;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BuildingFeature extends Feature {
-
     private long lastPlaced = System.currentTimeMillis();
+    private List<Location> blockedLocations = new ArrayList<>();
 
     @Override
     public void tickEvent(Bot bot) {
+        if (bot.getMovements().getLocation().getBlock().getType().isSolid()) {
+            bot.getMovements().getLocation().add(0, 1, 0);
+            bot.getMovements().updatedLoc();
+        }
+
         boolean enabled = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getEnabled());
         if (!enabled) {
             return;
         }
 
         if (bot.isCurrentlyBuilding()) {
+            lastPlaced = System.currentTimeMillis();
             return;
         }
 
@@ -45,49 +57,38 @@ public class BuildingFeature extends Feature {
         var currentComboHots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
         var currentTime = System.currentTimeMillis();
 
-        bot.getPlayer().sendMessage(
-                BuildingUtilitiesKt.isMovingTowards(
-                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
-                        bot.getMovements().getLocation()
-                ) + " | " + BuildingUtilitiesKt.isInLineOfSight(
-                        bot.getMovements().getLocation().getDirection(),
-                        bot.getMovements().getLocation(),
-                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
-                        40.0
-                ) + " | " + (Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()))
-        );
+//        bot.getPlayer().sendMessage(
+//                BuildingUtilitiesKt.isMovingTowards(
+//                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+//                        bot.getMovements().getLocation()
+//                ) + " | " + BuildingUtilitiesKt.isInLineOfSight(
+//                        bot.getMovements().getLocation().getDirection(),
+//                        bot.getMovements().getLocation(),
+//                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+//                        40.0
+//                ) + " | " + (Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()))
+//        );
 
-        boolean shouldBuild = (/*(buildWhenCombo && currentComboHots >= buildWhenComboHits) || */distanceToPlayer <= minDistanceFromPlayer)
+        boolean shouldBuild = ((buildWhenCombo && currentComboHots >= buildWhenComboHits) || distanceToPlayer <= minDistanceFromPlayer)
                 && currentTime - placeCooldown > lastPlaced
                 && BuildingUtilitiesKt.isMovingTowards(
-                    bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
-                    bot.getMovements().getLocation()
-                )
+                bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                bot.getMovements().getLocation()
+        )
                 && BuildingUtilitiesKt.isInLineOfSight(
-                    bot.getMovements().getLocation().getDirection(),
-                    bot.getMovements().getLocation(),
-                    bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
-                    40.0
-                )
+                bot.getMovements().getLocation().getDirection(),
+                bot.getMovements().getLocation(),
+                bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
+                40.0
+        )
                 && Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY());
 
         if (!shouldBuild) {
             return;
         }
 
-        lastPlaced = System.currentTimeMillis();
-
-        List<ItemStack> blocks = bot.getInventoryManager().hasItemUsingName(Material.WOOD); // TODO: Change to wool
-        if (blocks.isEmpty()) {
-            return;
-        }
-
         PlacementConfiguration placementConfiguration = new PlacementConfiguration().random().updateLocations(bot);
         AtomicInteger previousSlot = new AtomicInteger(bot.getInventoryManager().getMainHand());
-
-        bot.getInventoryManager().setMainHand(
-                bot.getInventoryManager().getItemSlot(blocks.get(0))
-        );
 
         Schedulers
                 .sync()
@@ -95,18 +96,59 @@ public class BuildingFeature extends Feature {
                     if (!placementConfiguration.hasNext()) {
                         bot.setCurrentlyBuilding(false);
                         bot.getInventoryManager().setMainHand(previousSlot.get());
+                        blockedLocations.clear();
+                        lastPlaced = System.currentTimeMillis();
                         task.closeAndReportException();
                         return;
                     }
 
                     Location location = placementConfiguration.next();
+
+                    if (location.getBlock().getType().isSolid()
+                            || BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getPlayer())
+                            || location.distance(bot.getMovements().getLocation()) < 0.2
+                            || location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2) {
+                        Location betterLocation = null;
+                        blockedLocations.add(location);
+                        int index = 0;
+                        while (betterLocation == null) {
+                            if (index > 15) break;
+                            betterLocation = findBetterStartLocation(bot.getMovements().getLocation(), placementConfiguration.buildAction.getSize());
+                            index++;
+                        }
+
+                        if (betterLocation == null) {
+                            bot.setCurrentlyBuilding(false);
+                            bot.getInventoryManager().setMainHand(previousSlot.get());
+                            blockedLocations.clear();
+                            lastPlaced = System.currentTimeMillis();
+                            task.closeAndReportException();
+                            return;
+                        }
+
+                        placementConfiguration.refresh(bot, betterLocation);
+                        if (!placementConfiguration.hasNext()) return;
+                        location = placementConfiguration.next();
+                    }
+
                     bot.setCurrentlyBuilding(true);
 
-                    if (!location.getBlock().getType().equals(Material.AIR)) return;
-                    if (BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getPlayer())) return;
-                    if (location.distance(bot.getMovements().getLocation()) < 0.2) return;
-                    if (location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2)
-                        return;
+                    List<ItemStack> blocks = bot.getInventoryManager().hasItemUsingName(Material.WOOD);
+                    if (blocks.isEmpty()) {
+                        blocks = bot.getInventoryManager().hasItemUsingName(Material.WOOL);
+
+                        if (blocks.isEmpty()) {
+                            blocks = bot.getInventoryManager().hasItemUsingName(Material.COBBLESTONE);
+
+                            if (blocks.isEmpty()) {
+                                return;
+                            }
+                        }
+                    }
+
+                    bot.getInventoryManager().setMainHand(
+                            bot.getInventoryManager().getItemSlot(blocks.get(0))
+                    );
 
                     var blockType = bot.getInventoryManager().getItemInMainHand().getType();
                     location.getBlock().setType(blockType);
@@ -119,17 +161,68 @@ public class BuildingFeature extends Feature {
                     bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 500L);
                     bot.getMovements().rotate(yawPitch[0], yawPitch[1]);
 
-                    var block = Block.getById(location.getBlock().getTypeId());
+                    var block = net.minecraft.server.v1_8_R3.Block.getById(location.getBlock().getTypeId());
 
                     bot.getGame().getPlacedBlocks().add(location.getBlock().getLocation().toVector());
                     bot.getMovements().getTargetLocate().getTargetEntity()
                             .playSound(
                                     location, block.stepSound.getPlaceSound(), 1, 1
                             );
-
-
                 }, 0, buildingTicks)
                 .bindWith(bot.getTerminable());
+    }
+
+    public Location findBetterStartLocation(Location botLocation, Vector size) {
+        return findBetterStartLocation(botLocation, (int) size.getX(), (int) size.getY(), (int) size.getZ());
+    }
+
+    public Location findBetterStartLocation(Location botLocation, int width, int height, int depth) {
+        int reach = 4;
+
+        for (int dx = -reach; dx <= reach; dx++) {
+            for (int dz = -reach; dz <= reach; dz++) {
+                for (int dy = -reach; dy <= reach; dy++) {
+                    Location candidateLocation = botLocation.clone().add(dx, dy, dz);
+
+                    if (containsLocation(candidateLocation)) continue;
+
+                    if (isNonSolidArea(candidateLocation, width, height, depth)) {
+                        return candidateLocation;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public boolean containsLocation(Location location) {
+        for (Location loc : blockedLocations) {
+            if (loc.distance(location) < 0.1) return true;
+        }
+
+        return false;
+    }
+
+    private boolean isNonSolidArea(Location location, int width, int height, int depth) {
+        World world = location.getWorld();
+        int startX = location.getBlockX();
+        int startY = location.getBlockY();
+        int startZ = location.getBlockZ();
+
+        for (int x = startX; x < startX + width; x++) {
+            for (int y = startY; y < startY + height; y++) {
+                for (int z = startZ; z < startZ + depth; z++) {
+                    Block block = world.getBlockAt(x, y, z);
+
+                    if (block.getType().isSolid()) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -153,7 +246,8 @@ public class BuildingFeature extends Feature {
     public static class PlacementConfiguration {
         private ExitComboBuildAction buildAction;
         private List<Location> locations = new ArrayList<>();
-        private int current = 0;
+        private int current = -1;
+
 
         public PlacementConfiguration random() {
             this.buildAction = ExitComboBuildAction.random();
@@ -169,19 +263,42 @@ public class BuildingFeature extends Feature {
             return current + 1 <= locations.size() - 1;
         }
 
-        public PlacementConfiguration updateLocations(Bot bot) {
+        public PlacementConfiguration setBuildAction(ExitComboBuildAction buildAction) {
+            this.buildAction = buildAction;
+            return this;
+        }
+
+        public PlacementConfiguration refresh(Bot bot, Location... sl) {
+            buildAction = ExitComboBuildAction.random();
+            current = 0;
+            updateLocations(bot, sl);
+
+            return this;
+        }
+
+        public PlacementConfiguration updateLocations(Bot bot, Location... sl) {
             List<Location> result = new ArrayList<>();
             var selfLocation = bot.getMovements().getLocation().clone();
             var selfDirection = selfLocation.getDirection();
             var targetLocation = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
 
-            var startLocation = buildAction.blockPlayer ? selfLocation.add(selfDirection.clone().multiply(1.5))
-                    : targetLocation.add(targetLocation.getDirection().clone());
+            var startLocation = sl.length > 0 ? sl[0] : buildAction.blockPlayer ? targetLocation.clone().add(targetLocation.getDirection().clone()) :
+                    selfLocation.clone().add(selfDirection.clone().multiply(1.5));
 
-            for (var i = 10; i > 0; i--) {
-                var beneath = startLocation.clone().subtract(0, 1, 0);
-                if (beneath.getBlock().getType().isSolid()) {
-                    startLocation = beneath;
+            if (startLocation.getBlock().getType().isSolid()) {
+                for (var i = 1; i <= 10; i++) {
+                    var above = startLocation.clone().add(0, i, 0);
+                    if (!above.getBlock().getType().isSolid()) {
+                        startLocation = above;
+                        break;
+                    }
+                }
+            }
+
+            for (var i = 1; i <= 10; i++) {
+                var beneath = startLocation.clone().subtract(0, i, 0);
+                if (!beneath.getBlock().getType().isSolid()) startLocation = beneath;
+                else {
                     break;
                 }
             }
@@ -189,33 +306,54 @@ public class BuildingFeature extends Feature {
             result.add(startLocation);
             Location botLocation = bot.getMovements().getLocation();
 
+            Location lastLoc = startLocation.clone();
             for (String placementPosition : buildAction.getPlacementDirections().keySet()) {
                 int amountToPlace = buildAction.getPlacementDirections().get(placementPosition);
                 for (int level = 1; level <= amountToPlace; level++) {
-                    result.add(
-                            getRelativeLocation(
-                                    startLocation.clone(),
-                                    placementPosition, level,
-                                    getDirectionFromYaw(botLocation.getYaw())
-                            )
+                    lastLoc = getRelativeLocation(
+                            lastLoc,
+                            placementPosition, 1,
+                            getDirectionFromYaw(botLocation.getYaw())
                     );
+                    result.add(lastLoc.clone());
                 }
             }
 
             locations = result;
+
             return this;
         }
 
         private Location getRelativeLocation(Location base, String direction, int distance, Direction facing) {
-            return switch (direction.toUpperCase()) {
-                case "UP" -> base.add(0, distance, 0);
-                case "DOWN" -> base.add(0, -distance, 0);
-                case "LEFT" -> getLeft(base, distance, facing);
-                case "RIGHT" -> getRight(base, distance, facing);
-                case "FORWARDS" -> getForwards(base, distance, facing);
-                case "BACKWARDS" -> getBackwards(base, distance, facing);
-                default -> throw new IllegalArgumentException("Invalid direction: " + direction);
-            };
+            if (direction.contains("UP")) {
+                base.add(0, distance, 0);
+            }
+            if (direction.contains("DOWN")) {
+                base.add(0, -distance, 0);
+            }
+            if (direction.contains("LEFT")) {
+                getLeft(base, distance, facing);
+            }
+            if (direction.contains("RIGHT")) {
+                getRight(base, distance, facing);
+            }
+            if (direction.contains("FORWARDS")) {
+                getForwards(base, distance, facing);
+            }
+            if (direction.contains("BACKWARDS")) {
+                getBackwards(base, distance, facing);
+            }
+//            return switch (direction.toUpperCase()) {
+//                case "UP" -> base.add(0, distance, 0);
+//                case "DOWN" -> base.add(0, -distance, 0);
+//                case "LEFT" -> getLeft(base, distance, facing);
+//                case "RIGHT" -> getRight(base, distance, facing);
+//                case "FORWARDS" -> getForwards(base, distance, facing);
+//                case "BACKWARDS" -> getBackwards(base, distance, facing);
+//                default -> throw new IllegalArgumentException("Invalid direction: " + direction);
+//            };
+
+            return base;
         }
 
         private Location getLeft(Location base, int distance, Direction facing) {
@@ -276,19 +414,22 @@ public class BuildingFeature extends Feature {
 
         @Getter
         public enum ExitComboBuildAction implements Weighted {
-            PLAYER_BLOCK(new HashMap<>() {{
+//            PLAYER_BLOCK(new HashMap<>() {{
+//                put("UP", 1);
+//            }}, 50, true),
+//            LEFT(new HashMap<>() {{
+//                put("LEFT", 1);
+//            }}, 15, true),
+//            RIGHT(new HashMap<>() {{
+//                put("RIGHT", 1);
+//            }}, 15, true),
+//            DIAGONAL(new HashMap<>() {{
+//                put("LEFT FORWARDS", 1);
+//            }}, 30, true);
+            L_SHAPE(new HashMap<>() {{
                 put("UP", 1);
-            }}, 50, true),
-            /*LEFT(new HashMap<>() {{
-                put("LEFT", 1);
-            }}, 15, true),
-            RIGHT(new HashMap<>() {{
-                put("RIGHT", 1);
-            }}, 15, true),
-            STAIR(new HashMap<>() {{
-                put("UP", 1);
-                put("BACKWARDS", 2);
-            }}, 20, false)*/;
+                put("LEFT", 2);
+            }}, 20, true);
 
             private static final List<ExitComboBuildAction> ENTRIES = Arrays.asList(values());
             private static final RandomSelector<ExitComboBuildAction> WEIGHTED_RANDOM = RandomSelector.weighted(ENTRIES);
@@ -311,6 +452,28 @@ public class BuildingFeature extends Feature {
             @Override
             public double getWeight() {
                 return chance;
+            }
+
+            public int getTotalBlocks() {
+                int total = 0;
+
+                for (String key : placementDirections.keySet()) {
+                    total += placementDirections.get(key);
+                }
+
+                return total;
+            }
+
+            public Vector getSize() {
+                int x = 1, y = 0, z = 0;
+
+                for (String key : placementDirections.keySet()) {
+                    if (key.equalsIgnoreCase("LEFT") || key.equalsIgnoreCase("RIGHT")) x += placementDirections.get(key);
+                    if (key.equalsIgnoreCase("UP") || key.equalsIgnoreCase("DOWN")) y += placementDirections.get(key);
+                    if (key.equalsIgnoreCase("BACKWARDS") || key.equalsIgnoreCase("FORWARDS")) z += placementDirections.get(key);
+                }
+
+                return new Vector(x, y, z);
             }
         }
     }
