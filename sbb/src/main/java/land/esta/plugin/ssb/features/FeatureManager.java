@@ -28,6 +28,7 @@ public class FeatureManager {
         addFeature(new RodFeature());
         addFeature(new EdgeFeature());
         addFeature(buildingFeature = new BuildingFeature());
+        addFeature(new LiquidFeature());
     }
 
     public void addFeature(Feature feature) {

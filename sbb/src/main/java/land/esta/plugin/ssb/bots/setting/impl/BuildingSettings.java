@@ -18,6 +18,9 @@ public class BuildingSettings extends Category {
     private final Option<Integer> buildingTicks = new Option<>("Building Ticks", Material.GHAST_TEAR, this, 8, 2, 120);
     private final Option<Boolean> buildWhenCombo = new Option<>("Build When Comboed", Material.SADDLE, this, false);
     private final Option<Integer> buildWhenComboHits = new Option<>("Build When Comboed Hits", Material.IRON_BARDING, this, 3, 1, 100);
+    private final Option<Boolean> buildWhenPlayerIsHigh = new Option<>("Build When Player Is High", Material.CLAY_BALL, this, true);
+    private final Option<Integer> buildWhenPlayerIsHighBlocks = new Option<>("Build When Player Is High Blocks", Material.CLAY_BRICK, this, 3, 1, 20);
+    private final Option<Integer> buildingUpTicks = new Option<>("Building Up Ticks", Material.GHAST_TEAR, this, 20, 5, 240);
 
     public BuildingSettings(Category parent) {
         super(
@@ -32,6 +35,6 @@ public class BuildingSettings extends Category {
                 "botgui.buildingsettings"
         );
 
-        addChildren(enabled, minDistanceFromPlayer, placeCooldown, buildingTicks, buildWhenCombo, buildWhenComboHits);
+        addChildren(enabled, minDistanceFromPlayer, placeCooldown, buildingTicks, buildWhenCombo, buildWhenComboHits, buildWhenPlayerIsHigh, buildWhenPlayerIsHighBlocks, buildingUpTicks);
     }
 }

@@ -56,6 +56,8 @@ public class MovementsMain extends Manager {
     private long last = System.currentTimeMillis();
     private int times = 0;
 
+    private boolean lockLocation;
+
     private Random random = new Random();
 
     public MovementsMain(Bot bot, Player player, Location loc) {
@@ -92,6 +94,8 @@ public class MovementsMain extends Manager {
     }
 
     public void move(Vector motion,boolean addLastMotion) {
+        if (lockLocation) return;
+
         int slownessPercentage = bot.getHealthManager().getSlownessPercentage();
 
         if (slownessPercentage != -1) {

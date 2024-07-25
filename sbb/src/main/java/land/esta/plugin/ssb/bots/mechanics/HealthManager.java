@@ -89,7 +89,10 @@ public class HealthManager extends Manager {
         if (fireTicks == 0 && onFireUpdate) getBot().getPacketsManager().setPlayerOnFirePackets(false);
 
         if (fireRess >= 1 || fireTicks == 0) return;
-        if (fireTicks % 10 == 0) removeHealth(1);
+        if (fireTicks % 10 == 0) {
+            bot.getDamageManager().playSound();
+            removeHealth(1);
+        }
     }
 
     public void removeHealth(double amount) {
@@ -135,7 +138,7 @@ public class HealthManager extends Manager {
                         task.stop();
                         return;
                     }
-                    if (health > 1) removeHealth(1);
+                    if (health > 1) removeHealth(0.5);
                 }, period, period)
                 .bindWith(bot.getTerminable());
 

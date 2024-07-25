@@ -57,6 +57,10 @@ public class BuildingFeature extends Feature {
         var currentComboHots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
         var currentTime = System.currentTimeMillis();
 
+        boolean buildWhenPlayerIsHigh = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHigh());
+        int buildWhenPlayerIsHighBlocks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHighBlocks());
+        int buildUpTicks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildingUpTicks());
+
 //        bot.getPlayer().sendMessage(
 //                BuildingUtilitiesKt.isMovingTowards(
 //                        bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
@@ -83,6 +87,30 @@ public class BuildingFeature extends Feature {
         )
                 && Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY());
 
+        final boolean buildUp;
+
+        int finalTicks = buildingTicks;
+        int delay = 0;
+
+        if (buildWhenPlayerIsHigh && Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
+        - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) >= buildWhenPlayerIsHighBlocks) {
+            Location loc1 = bot.getMovements().getLocation().clone();
+            loc1.setY(0);
+            Location loc2 = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
+            loc2.setY(0);
+
+            if (loc1.distance(loc2) < minDistanceFromPlayer) {
+                shouldBuild = true;
+                buildUp = true;
+                finalTicks = buildUpTicks;
+                delay = 20;
+            } else {
+                buildUp = false;
+            }
+        } else {
+            buildUp = false;
+        }
+
         if (!shouldBuild) {
             return;
         }
@@ -93,31 +121,9 @@ public class BuildingFeature extends Feature {
         Schedulers
                 .sync()
                 .runRepeating((task) -> {
-                    if (!placementConfiguration.hasNext()) {
-                        bot.setCurrentlyBuilding(false);
-                        bot.getInventoryManager().setMainHand(previousSlot.get());
-                        blockedLocations.clear();
-                        lastPlaced = System.currentTimeMillis();
-                        task.closeAndReportException();
-                        return;
-                    }
-
-                    Location location = placementConfiguration.next();
-
-                    if (location.getBlock().getType().isSolid()
-                            || BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getPlayer())
-                            || location.distance(bot.getMovements().getLocation()) < 0.2
-                            || location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2) {
-                        Location betterLocation = null;
-                        blockedLocations.add(location);
-                        int index = 0;
-                        while (betterLocation == null) {
-                            if (index > 15) break;
-                            betterLocation = findBetterStartLocation(bot.getMovements().getLocation(), placementConfiguration.buildAction.getSize());
-                            index++;
-                        }
-
-                        if (betterLocation == null) {
+                    Location location = bot.getMovements().getLocation();
+                    if (!buildUp) {
+                        if (!placementConfiguration.hasNext()) {
                             bot.setCurrentlyBuilding(false);
                             bot.getInventoryManager().setMainHand(previousSlot.get());
                             blockedLocations.clear();
@@ -126,9 +132,63 @@ public class BuildingFeature extends Feature {
                             return;
                         }
 
-                        placementConfiguration.refresh(bot, betterLocation);
-                        if (!placementConfiguration.hasNext()) return;
                         location = placementConfiguration.next();
+
+                        if (location.getBlock().getType().isSolid()
+                                || BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getPlayer())
+                                || location.distance(bot.getMovements().getLocation()) < 0.2
+                                || location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2) {
+                            Location betterLocation = null;
+                            blockedLocations.add(location);
+                            int index = 0;
+                            while (betterLocation == null) {
+                                if (index > 15) break;
+                                betterLocation = findBetterStartLocation(bot.getMovements().getLocation(), placementConfiguration.buildAction.getSize());
+                                index++;
+                            }
+
+                            if (betterLocation == null) {
+                                bot.setCurrentlyBuilding(false);
+                                bot.getInventoryManager().setMainHand(previousSlot.get());
+                                blockedLocations.clear();
+                                lastPlaced = System.currentTimeMillis();
+                                task.closeAndReportException();
+                                return;
+                            }
+
+                            placementConfiguration.refresh(bot, betterLocation);
+                            if (!placementConfiguration.hasNext()) return;
+                            location = placementConfiguration.next();
+                        }
+                    } else {
+                        bot.getMovements().setLockLocation(true);
+
+                        if (!location.clone().subtract(0, 1, 0).getBlock().getType().isSolid() || Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
+                                - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) < buildWhenPlayerIsHighBlocks) {
+
+                            bot.setCurrentlyBuilding(false);
+                            bot.getInventoryManager().setMainHand(previousSlot.get());
+                            blockedLocations.clear();
+                            lastPlaced = System.currentTimeMillis();
+                            bot.getMovements().setLockLocation(false);
+                            task.closeAndReportException();
+                            return;
+                        } else {
+                            Location loc1 = bot.getMovements().getLocation().clone();
+                            loc1.setY(0);
+                            Location loc2 = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
+                            loc2.setY(0);
+
+                            if (loc1.distance(loc2) > minDistanceFromPlayer) {
+                                bot.setCurrentlyBuilding(false);
+                                bot.getInventoryManager().setMainHand(previousSlot.get());
+                                blockedLocations.clear();
+                                lastPlaced = System.currentTimeMillis();
+                                bot.getMovements().setLockLocation(false);
+                                task.closeAndReportException();
+                                return;
+                            }
+                        }
                     }
 
                     bot.setCurrentlyBuilding(true);
@@ -158,8 +218,14 @@ public class BuildingFeature extends Feature {
                     );
 
                     var yawPitch = getYawPitch(bot.getMovements().getLocation(), location);
-                    bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 500L);
-                    bot.getMovements().rotate(yawPitch[0], yawPitch[1]);
+
+                    if (buildUp) {
+                        bot.getMovements().rotate(bot.getMovements().getLocation().getYaw(), 90);
+                    } else {
+                        bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 500L);
+                        bot.getMovements().rotate(yawPitch[0], yawPitch[1]);
+                    }
+
 
                     var block = net.minecraft.server.v1_8_R3.Block.getById(location.getBlock().getTypeId());
 
@@ -168,7 +234,7 @@ public class BuildingFeature extends Feature {
                             .playSound(
                                     location, block.stepSound.getPlaceSound(), 1, 1
                             );
-                }, 0, buildingTicks)
+                }, delay, finalTicks)
                 .bindWith(bot.getTerminable());
     }
 
