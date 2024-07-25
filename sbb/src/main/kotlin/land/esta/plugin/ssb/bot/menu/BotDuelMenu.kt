@@ -28,63 +28,25 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         placeholder = true
     }
 
+    fun Player.buildNewItem(id: String, display: String, data: Short) = ItemBuilder.of(Material.WOOL)
+        .data(data)
+        .name(display)
+        .setLore(BotSettingService.loadDefaultProfile(id).describe())
+        .addToLore(
+            "",
+            "${CC.GREEN}Click to start an $display${CC.GREEN} match!"
+        )
+        .toButton { _, _ ->
+            BotKitMenu(id).openMenu(this)
+        }
+
     override fun size(buttons: Map<Int, Button>): Int = 27
     override fun getButtons(player: Player): Map<Int, Button> = mapOf(
-        10 to ItemBuilder.of(Material.WOOL)
-            .data(5)
-            .name("&aEasy")
-            .setLore(BotSettingService.loadDefaultProfile("EASY").describe())
-            .addToLore(
-                "",
-                "${CC.GREEN}Click to start an Easy match!"
-            )
-            .toButton { _, _ ->
-                BotKitMenu("EASY").openMenu(player)
-            },
-        11 to ItemBuilder.of(Material.WOOL)
-            .data(4)
-            .name("&eNormal")
-            .setLore(BotSettingService.loadDefaultProfile("NORMAL").describe())
-            .addToLore(
-                "",
-                "${CC.GREEN}Click to start a Normal match!"
-            )
-            .toButton { _, _ ->
-                BotKitMenu("NORMAL").openMenu(player)
-            },
-        12 to ItemBuilder.of(Material.WOOL)
-            .data(14)
-            .name("&cHard")
-            .setLore(BotSettingService.loadDefaultProfile("HARD").describe())
-            .addToLore(
-                "",
-                "${CC.GREEN}Click to start a Hard match!"
-            )
-            .toButton { _, _ ->
-                BotKitMenu("HARD").openMenu(player)
-            },
-        13 to ItemBuilder.of(Material.WOOL)
-            .data(14)
-            .name("&4Expert")
-            .setLore(BotSettingService.loadDefaultProfile("EXPERT").describe())
-            .addToLore(
-                "",
-                "${CC.GREEN}Click to start an Expert match!"
-            )
-            .toButton { _, _ ->
-                BotKitMenu("EXPERT").openMenu(player)
-            },
-        14 to ItemBuilder.of(Material.WOOL)
-            .data(10)
-            .name("&5Nightmare")
-            .setLore(BotSettingService.loadDefaultProfile("NIGHTMARE").describe())
-            .addToLore(
-                "",
-                "${CC.GREEN}Click to start a Nightmare match!"
-            )
-            .toButton { _, _ ->
-                BotKitMenu("NIGHTMARE").openMenu(player)
-            },
+        10 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
+        11 to player.buildNewItem("NORMAL", "${CC.YELLOW}Normal", 4),
+        12 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
+        13 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
+        14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
         16 to ItemBuilder.of(Material.NETHER_STAR)
             .name("&6&lCustom")
             .addToLore(
