@@ -81,10 +81,6 @@ class SettingProfile(val id: String)
         }",
     )
 
-    fun setting(like: Option<*>) = settings[like.composeId()]
-        ?: SettingValue(like.default.toInternalValue())
-
-    fun <T : Any> value(like: Option<T>) = (settings[like.composeId()]
-        ?.getObject()
-        ?: like.default) as T
+    fun setting(like: Option<*>) = settings.getOrPut(like.composeId()) { SettingValue(like.default.toInternalValue()) }
+    fun <T : Any> value(like: Option<T>) = (setting(like)).getObject() as T
 }
