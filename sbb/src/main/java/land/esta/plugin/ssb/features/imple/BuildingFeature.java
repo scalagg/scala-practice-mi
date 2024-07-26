@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BuildingFeature extends Feature {
     private long lastPlaced = System.currentTimeMillis();
     private List<Location> blockedLocations = new ArrayList<>();
+    private long lastPlacedBlockUp = System.currentTimeMillis();
 
     @Override
     public void tickEvent(Bot bot) {
@@ -54,7 +55,7 @@ public class BuildingFeature extends Feature {
         int buildWhenComboHits = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenComboHits());
 
         var distanceToPlayer = bot.getMovements().getLocation().distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation());
-        var currentComboHots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
+        var currentComboBots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
         var currentTime = System.currentTimeMillis();
 
         boolean buildWhenPlayerIsHigh = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHigh());
@@ -73,7 +74,7 @@ public class BuildingFeature extends Feature {
 //                ) + " | " + (Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()))
 //        );
 
-        boolean shouldBuild = ((buildWhenCombo && currentComboHots >= buildWhenComboHits) || distanceToPlayer <= minDistanceFromPlayer)
+        boolean shouldBuild = ((buildWhenCombo && currentComboBots >= buildWhenComboHits && bot.getDamageManager().getDamageTicks() < 10) || distanceToPlayer <= minDistanceFromPlayer)
                 && currentTime - placeCooldown > lastPlaced
                 && BuildingUtilitiesKt.isMovingTowards(
                 bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
@@ -88,8 +89,8 @@ public class BuildingFeature extends Feature {
                 && Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY());
 
         final boolean buildUp;
+        final int finalTicks;
 
-        int finalTicks = buildingTicks;
         int delay = 0;
 
         if (buildWhenPlayerIsHigh && Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
@@ -105,9 +106,11 @@ public class BuildingFeature extends Feature {
                 finalTicks = buildUpTicks;
                 delay = 20;
             } else {
+                finalTicks = buildingTicks;
                 buildUp = false;
             }
         } else {
+            finalTicks = buildingTicks;
             buildUp = false;
         }
 
@@ -122,6 +125,8 @@ public class BuildingFeature extends Feature {
                 .sync()
                 .runRepeating((task) -> {
                     Location location = bot.getMovements().getLocation();
+                    if (bot.getInventoryManager().isEating()) return;
+
                     if (!buildUp) {
                         if (!placementConfiguration.hasNext()) {
                             bot.setCurrentlyBuilding(false);
@@ -161,10 +166,15 @@ public class BuildingFeature extends Feature {
                             location = placementConfiguration.next();
                         }
                     } else {
+                        if (System.currentTimeMillis() - (finalTicks * 50L) < lastPlacedBlockUp) return;
+                        lastPlacedBlockUp = System.currentTimeMillis();
                         bot.getMovements().setLockLocation(true);
 
                         if (!location.clone().subtract(0, 1, 0).getBlock().getType().isSolid() || Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
-                                - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) < buildWhenPlayerIsHighBlocks) {
+                                - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) < buildWhenPlayerIsHighBlocks
+                                || location.clone().add(0, 1, 0).getBlock().getType().isSolid()
+                                || location.clone().add(0, 2, 0).getBlock().getType().isSolid()
+                                || location.clone().add(0, 3, 0).getBlock().getType().isSolid()) {
 
                             bot.setCurrentlyBuilding(false);
                             bot.getInventoryManager().setMainHand(previousSlot.get());
@@ -377,7 +387,7 @@ public class BuildingFeature extends Feature {
                 int amountToPlace = buildAction.getPlacementDirections().get(placementPosition);
                 for (int level = 1; level <= amountToPlace; level++) {
                     lastLoc = getRelativeLocation(
-                            lastLoc,
+                            lastLoc.clone(),
                             placementPosition, 1,
                             getDirectionFromYaw(botLocation.getYaw())
                     );
@@ -480,18 +490,21 @@ public class BuildingFeature extends Feature {
 
         @Getter
         public enum ExitComboBuildAction implements Weighted {
-//            PLAYER_BLOCK(new HashMap<>() {{
-//                put("UP", 1);
-//            }}, 50, true),
-//            LEFT(new HashMap<>() {{
-//                put("LEFT", 1);
-//            }}, 15, true),
-//            RIGHT(new HashMap<>() {{
-//                put("RIGHT", 1);
-//            }}, 15, true),
-//            DIAGONAL(new HashMap<>() {{
-//                put("LEFT FORWARDS", 1);
-//            }}, 30, true);
+            PLAYER_BLOCK(new HashMap<>() {{
+                put("UP", 1);
+            }}, 50, true),
+            LEFT(new HashMap<>() {{
+                put("LEFT", 1);
+            }}, 15, true),
+            RIGHT(new HashMap<>() {{
+                put("RIGHT", 1);
+            }}, 15, true),
+            DIAGONAL_LEFT(new HashMap<>() {{
+                put("LEFT FORWARDS", 1);
+            }}, 30, true),
+            DIAGONAL_RIGHT(new HashMap<>() {{
+                put("RIGHT FORWARDS", 1);
+            }}, 30, true),
             L_SHAPE(new HashMap<>() {{
                 put("UP", 1);
                 put("LEFT", 2);
