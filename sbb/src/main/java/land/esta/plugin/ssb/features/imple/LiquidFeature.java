@@ -36,6 +36,7 @@ public class LiquidFeature extends Feature {
             last = System.currentTimeMillis();
 
             bot.getDamageManager().playSound();
+            bot.getDamageManager().damageEffect();
             bot.getHealthManager().removeHealth(2);
             bot.getHealthManager().fire(300);
         }

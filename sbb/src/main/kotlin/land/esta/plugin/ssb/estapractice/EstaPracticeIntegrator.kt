@@ -245,6 +245,8 @@ object EstaPracticeIntegrator
                     val intensity = it.getIntensity(affectedEntity)
                     val amountHarmed = (intensity * (4 shl harmEffect.amplifier) + 0.5)
                     bot.healthManager.removeHealth(amountHarmed)
+                    bot.damageManager.playSound()
+                    bot.damageManager.damageEffect()
                 }
 
                 val poisonEffect = it.potion.effects
