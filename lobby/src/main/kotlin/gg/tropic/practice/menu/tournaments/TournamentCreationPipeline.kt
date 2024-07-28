@@ -2,7 +2,7 @@ package gg.tropic.practice.menu.tournaments
 
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.kit.Kit
-import gg.tropic.practice.menu.template.TemplateKitMenu
+import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.services.TournamentManagerService
 import gg.tropic.practice.tournaments.TournamentConfig

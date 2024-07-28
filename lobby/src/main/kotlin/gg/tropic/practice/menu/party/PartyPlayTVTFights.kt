@@ -8,8 +8,8 @@ import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
-import gg.tropic.practice.menu.template.TemplateKitMenu
-import gg.tropic.practice.menu.template.TemplateMapMenu
+import gg.tropic.practice.menu.TemplateKitMenu
+import gg.tropic.practice.menu.TemplateMapMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy

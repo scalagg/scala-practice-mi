@@ -1,4 +1,4 @@
-package gg.tropic.practice.menu.template
+package gg.tropic.practice.menu
 
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.map.rating.MapRating

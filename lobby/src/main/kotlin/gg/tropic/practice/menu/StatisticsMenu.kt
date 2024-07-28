@@ -3,7 +3,7 @@ package gg.tropic.practice.menu
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.menu.template.TemplateKitMenu
+import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
