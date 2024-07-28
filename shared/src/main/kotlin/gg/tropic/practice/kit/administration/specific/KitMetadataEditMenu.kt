@@ -36,51 +36,52 @@ class KitMetadataEditMenu(private val kit: Kit) : PaginatedMenu()
                     (kit.features(flag)) -> XMaterial.LIME_WOOL
                     else -> XMaterial.GRAY_WOOL
                 })
-                .name("${CC.RED}${flag.name}")
+                .name("${CC.GREEN}${flag.name}")
                 .apply {
+                    val separatorBar = "${CC.STRIKE_THROUGH}------------------------"
                     if (lifecycle !in flag.availableLifecycles)
                     {
                         addToLore(
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------",
+                            "${CC.RED}$separatorBar",
                             "${CC.B_RED}Incompatible:",
                             "${CC.RED}$lifecycle not supported!",
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------"
+                            "${CC.RED}$separatorBar"
                         )
                     } else if (isIncompatible.isNotEmpty())
                     {
                         addToLore(
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------",
+                            "${CC.GOLD}$separatorBar",
                             "${CC.B_GOLD}Incompatible Features:",
-                            "${CC.RED}Remove the following features",
+                            "${CC.GOLD}Remove the following features",
                             *isIncompatible
                                 .map { "${CC.WHITE}- ${it.name}" }
                                 .toTypedArray(),
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------"
+                            "${CC.GOLD}$separatorBar"
                         )
                     } else if (notApplicableYet.isNotEmpty())
                     {
                         addToLore(
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------",
+                            "${CC.PINK}$separatorBar",
                             "${CC.B_PINK}Required Features Missing:",
                             "${CC.PINK}Add the following features",
                             *notApplicableYet
                                 .map { "${CC.WHITE}- ${it.name}" }
                                 .toTypedArray(),
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------"
+                            "${CC.PINK}$separatorBar"
                         )
                     } else if (kit.features(flag))
                     {
                         addToLore(
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------",
+                            "${CC.GREEN}$separatorBar",
                             "${CC.GREEN}Enabled",
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------"
+                            "${CC.GREEN}$separatorBar"
                         )
                     } else
                     {
                         addToLore(
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------",
+                            "${CC.GRAY}$separatorBar",
                             "${CC.GRAY}Available",
-                            "${CC.GRAY}${CC.STRIKE_THROUGH}------------"
+                            "${CC.GRAY}$separatorBar"
                         )
                     }
                 }
@@ -89,7 +90,7 @@ class KitMetadataEditMenu(private val kit: Kit) : PaginatedMenu()
                     {
                         flag.description
                             .onEach {
-                                addToLore("${CC.GRAY}$it")
+                                addToLore("${CC.WHITE}$it")
                             }
                         addToLore("")
                     }
@@ -101,13 +102,15 @@ class KitMetadataEditMenu(private val kit: Kit) : PaginatedMenu()
 
                         flag.schema.forEach { (k, v) ->
                             val configured = kit.featureConfigNullable(flag, k)
-                            addToLore("${CC.WHITE}$k: ${
+                            addToLore("${CC.WHITE}- ${CC.GRAY}$k: ${CC.WHITE}${
                                 if (configured != null) "$configured ${CC.GRAY}($v)" else v
                             }")
                         }
 
                         addToLore("")
                     }
+
+                    addToLore("${CC.GREEN}Click to toggle!")
                 }
                 .toButton { _, _ ->
                     if (lifecycle !in flag.availableLifecycles)

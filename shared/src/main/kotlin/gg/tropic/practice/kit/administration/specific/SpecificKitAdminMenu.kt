@@ -60,13 +60,13 @@ class SpecificKitAdminMenu(private val kit: Kit) : Menu(
 
                 kit.features
                     .forEach { (flag, meta) ->
-                        addToLore(" - ${CC.WHITE}${flag.name}")
+                        addToLore("${CC.WHITE}- ${CC.WHITE}${flag.name}")
 
                         if (meta.isNotEmpty())
                         {
-                            addToLore("    ${CC.GRAY}Metadata:")
+                            addToLore("   ${CC.GRAY}Metadata:")
                             meta.forEach { (k, v) ->
-                                addToLore("     ${CC.WHITE}$k: $v")
+                                addToLore("    ${CC.WHITE}$k: $v")
                             }
                         }
                     }
