@@ -1384,8 +1384,9 @@ object GameService
                         it.isCancelled = true
                     }
 
-                if (game.flag(FeatureFlag.ExplodePlacedBlocks))
+                if (!game.flag(FeatureFlag.ExplodePlacedBlocks))
                 {
+                    it.isCancelled = true
                     return@handler
                 }
 
