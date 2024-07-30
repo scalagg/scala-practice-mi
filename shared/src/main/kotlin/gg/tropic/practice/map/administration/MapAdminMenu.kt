@@ -21,10 +21,15 @@ class MapAdminMenu : TemplateMapMenu()
         "${CC.GRAY}Display: ${CC.WHITE}${map.displayName}",
         "${CC.GRAY}Slime: ${CC.WHITE}${map.associatedSlimeTemplate}",
         "",
-        "${CC.GRAY}Metadata: ${CC.WHITE}${map.metadata.metadata}",
+        "${CC.YELLOW}Metadata: ${CC.WHITE}",
+        *map.metadata.metadata
+            .map { "${CC.WHITE}- $it" }
+            .toTypedArray(),
         "",
         "${CC.YELLOW}Groups:",
-        *map.associatedKitGroups.map { "${CC.WHITE}- $it" }.toTypedArray(),
+        *map.associatedKitGroups
+            .map { "${CC.WHITE}- $it" }
+            .toTypedArray(),
         "",
         "${CC.GRAY}Locked: ${
             if (map.locked) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
