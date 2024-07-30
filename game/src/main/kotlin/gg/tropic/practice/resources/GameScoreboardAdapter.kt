@@ -119,7 +119,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
                         self.gameLifecycleArbitraryObjectiveProgress
                     }"
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $selfColor${
+                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
                         them.gameLifecycleArbitraryObjectiveProgress
                     }"
                 }
