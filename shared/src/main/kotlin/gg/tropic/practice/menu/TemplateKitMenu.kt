@@ -32,8 +32,11 @@ abstract class TemplateKitMenu : PaginatedMenu()
     open fun itemTitleFor(player: Player, kit: Kit): String
     {
         return "${CC.GREEN}${kit.displayName}${
-            if (kit.features(FeatureFlag.NewlyCreated))
-                " ${CC.B_AQUA}NEW!" else ""
+            if (kit.features(FeatureFlag.Development))
+                " ${CC.B_RED}(DEV)"
+            else
+                if (kit.features(FeatureFlag.NewlyCreated))
+                    " ${CC.B_AQUA}NEW!" else ""
         }"
     }
 
@@ -59,7 +62,9 @@ abstract class TemplateKitMenu : PaginatedMenu()
             .kits
             .values
             .filter {
-                it.enabled && filterDisplayOfKit(player, it)
+                val developmentFilter =
+                    player.hasPermission("practice.development-kits") || !it.features(FeatureFlag.Development)
+                it.enabled && filterDisplayOfKit(player, it) && developmentFilter
             }
             .sortedByDescending {
                 it.featureConfig(FeatureFlag.MenuOrderWeight, "weight")
