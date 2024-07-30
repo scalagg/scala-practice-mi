@@ -1193,13 +1193,11 @@ object GameService
             .handler {
                 val game = byPlayerOrSpectator(it.entity.uniqueId)
                     ?: return@handler run {
-                        println("1")
                         it.isCancelled = true
                     }
 
                 if (!game.ensurePlaying())
                 {
-                    println("2")
                     it.isCancelled = true
                     return@handler
                 }
@@ -1209,7 +1207,6 @@ object GameService
                     it.entity.hasMetadata("spectator")
                 )
                 {
-                    println("3")
                     it.isCancelled = true
                     return@handler
                 }
@@ -1218,7 +1215,6 @@ object GameService
                 {
                     if (!game.ensurePlaying())
                     {
-                        println("4")
                         it.isCancelled = true
                     }
 
@@ -1324,7 +1320,6 @@ object GameService
                         return@handler
                     }
 
-                    println("5")
                     it.isCancelled = true
                 }
             }
@@ -1487,6 +1482,9 @@ object GameService
                                     Component.text("You will no longer respawn!")
                                 ))
                             }
+
+                        it.isCancelled = false
+                        return@handler
                     }
                 }
 

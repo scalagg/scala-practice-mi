@@ -33,13 +33,13 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
         {
             if (refreshFor.hasMetadata("spectator"))
             {
-                return createNametag(CC.GRAY, "", "9999")
+                return createNametag(CC.GRAY, "", "Z")
             }
 
             if (playerGame.flag(FeatureFlag.RedBlueTeams))
             {
                 val team = playerGame.getNullableTeam(refreshFor)
-                    ?: return createNametag(CC.GRAY, "", "9999")
+                    ?: return createNametag(CC.GRAY, "", "Z")
 
                 val rbSide = team
                     .side
@@ -58,13 +58,13 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
                     playerGame.getTeamOf(toRefresh).side
                 )
                 {
-                    createNametag(CC.GREEN, "", "50")
+                    createNametag(CC.GREEN, "", "W")
                 } else
                 {
-                    createNametag(CC.RED, "", "100")
+                    createNametag(CC.RED, "", "V")
                 }
             }.getOrNull() ?: createNametag(
-                CC.GREEN, ""
+                CC.GREEN, "", "W"
             )
         }
 
