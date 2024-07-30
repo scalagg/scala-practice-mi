@@ -40,6 +40,7 @@ import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -49,6 +50,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.title.Title
 import net.minecraft.server.v1_8_R3.PortalTravelAgent
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -549,7 +551,7 @@ object GameService
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     val opposingTeam = game.getOpponent(team)!!
-                    if (opposingTeam.gameLifecycleObjectiveMet())
+                    if (game.gameLifecycleObjectiveMet(opposingTeam))
                     {
                         if (killerPlayer is Player)
                         {
@@ -944,6 +946,7 @@ object GameService
 
                 if (game.flag(FeatureFlag.DoNotTakeFallDamage))
                 {
+                    println("Cancelling this fall damage")
                     it.isCancelled = true
                 }
             }
@@ -1433,6 +1436,56 @@ object GameService
                 )
                 {
                     return@handler
+                }
+
+                if (it.block.hasMetadata("tropicbed"))
+                {
+                    val tropicBedSide = it.block
+                        .getMetadata("tropicbed")
+                        .first()
+                        .asString()
+
+                    val currentTeam = game.getTeamOf(it.player)
+                    val currentSide = currentTeam.side.name.lowercase()
+
+                    if (tropicBedSide == currentSide)
+                    {
+                        it.player.sendMessage("${CC.RED}You cannot break your own bed!")
+                        it.isCancelled = true
+                        return@handler
+                    }
+
+                    val opponent = game.getOpponent(currentTeam)
+                        ?: return@handler
+
+                    if (currentTeam.gameLifecycleArbitraryObjectiveProgress != 1)
+                    {
+                        currentTeam.gameLifecycleArbitraryObjectiveProgress = 1
+                        game.playSound(Sound.ENDERDRAGON_GROWL, 1.0f)
+                        game.sendMessage(
+                            "",
+                            "${CC.B_WHITE}BED DESTRUCTION ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT}${CC.WHITE} ${
+                                "${opponent.side.toRBTeamSide().let { side -> "${side.color}${side.display}" }} Bed${CC.GRAY} was destroyed by ${
+                                    "${currentTeam.side.toRBTeamSide().color}${it.player.name}${CC.GRAY}!"
+                                }"
+                            }",
+                            ""
+                        )
+
+                        opponent.toBukkitPlayers().filterNotNull()
+                            .forEach {
+                                val audience = audiences.player(it)
+                                audience.showTitle(Title.title(
+                                    Component.text("BED DESTROYED!")
+                                        .color(NamedTextColor.RED)
+                                        .decorate(TextDecoration.BOLD),
+                                    Component.text("You will no longer respawn!")
+                                ))
+                            }
+
+                        it.isCancelled = false
+                        return@handler
+                    }
                 }
 
                 if (game.kit.allowedBlockTypeMappings.isPresent)

@@ -40,6 +40,7 @@ public class DamageManager extends Manager {
 
     public void damage(DamageSource source, float damage) {
         bot.getAttackingManager().setLastAttackedOrDamaged(System.currentTimeMillis());
+        bot.getMovements().setLockLocation(false);
         if (invaluable) return;
         //Attack delay
         long attackDelay = 475;

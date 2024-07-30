@@ -62,7 +62,7 @@ public class Movements extends Manager {
             movementSpeed = 0.02;
             if (bot.getMovements().isSprint()) movementSpeed = 0.026;
             bot.getMovements().setFriction(0.91f);
-            motion.setY((bot.getMovements().getMotionY() - 0.08D) * 0.9800000190734863D);
+            motion.setY(((bot.getMovements().getMotionY() - 0.08D) * 0.9800000190734863D));
         }
 
         bot.getMovements().setFriction(friction);

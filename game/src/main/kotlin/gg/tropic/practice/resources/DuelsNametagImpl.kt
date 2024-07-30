@@ -2,6 +2,7 @@ package gg.tropic.practice.resources
 
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.utilities.RBTeamSide
 import gg.tropic.practice.utilities.toRBTeamSide
 import net.evilblock.cubed.nametag.NametagInfo
 import net.evilblock.cubed.nametag.NametagProvider
@@ -32,20 +33,22 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
         {
             if (refreshFor.hasMetadata("spectator"))
             {
-                return createNametag(CC.GRAY, "", "zzz")
+                return createNametag(CC.GRAY, "", "Z")
             }
 
             if (playerGame.flag(FeatureFlag.RedBlueTeams))
             {
                 val team = playerGame.getNullableTeam(refreshFor)
-                    ?: return createNametag(CC.GRAY, "", "zzz")
+                    ?: return createNametag(CC.GRAY, "", "Z")
+
+                val rbSide = team
+                    .side
+                    .toRBTeamSide()
 
                 return createNametag(
-                    prefix = team
-                        .side
-                        .toRBTeamSide()
-                        .color,
-                    suffix = ""
+                    prefix = rbSide.color,
+                    suffix = "",
+                    name = if (rbSide == RBTeamSide.Blue) "X" else "Y"
                 )
             }
 
@@ -55,13 +58,13 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
                     playerGame.getTeamOf(toRefresh).side
                 )
                 {
-                    createNametag(CC.GREEN, "")
+                    createNametag(CC.GREEN, "", "W")
                 } else
                 {
-                    createNametag(CC.RED, "")
+                    createNametag(CC.RED, "", "V")
                 }
             }.getOrNull() ?: createNametag(
-                CC.GREEN, ""
+                CC.GREEN, "", "W"
             )
         }
 

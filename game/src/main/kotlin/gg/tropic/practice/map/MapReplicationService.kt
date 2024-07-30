@@ -15,7 +15,6 @@ import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.robot.RobotGameLifecycle
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.map.metadata.anonymous.toBlockFace
 import gg.tropic.practice.map.metadata.impl.MapBedMetadata
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
 import gg.tropic.practice.replications.models.Replication
@@ -27,6 +26,7 @@ import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.block.BlockFace
 import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -367,24 +367,17 @@ object MapReplicationService
             .filterIsInstance<MapBedMetadata>()
             .forEach {
                 Tasks.sync {
-                    val bedHead = it.position.toLocation(world).block
-                    val bedHeadState = bedHead.state
-                    val bedFootBlock = bedHead.getRelative(
-                        it.orientation.toBlockFace().oppositeFace
-                    )
-                    val bedFoot = bedFootBlock.state
-
+                    val bedFoot = it.position.toLocation(world).block.state
+                    val bedHead = bedFoot.block.getRelative(BlockFace.SOUTH).state
                     bedFoot.type = Material.BED_BLOCK
-                    bedFoot.rawData = 0x0.toByte()
-
                     bedHead.type = Material.BED_BLOCK
-                    bedHeadState.rawData = 0x8.toByte()
-
+                    bedFoot.rawData = 0x0.toByte()
+                    bedHead.rawData = 0x8.toByte()
                     bedFoot.update(true, false)
-                    bedHeadState.update(true, true)
+                    bedHead.update(true, true)
 
-                    listOf(bedHead, bedFootBlock).forEach { component ->
-                        component.setMetadata(
+                    listOf(bedHead, bedFoot).forEach { component ->
+                        component.block.setMetadata(
                             "tropicbed",
                             FixedMetadataValue(plugin, it.id)
                         )

@@ -12,11 +12,13 @@ public class FeatureManager {
     final List<Feature> features;
     private final StrafeFeature strafeFeature;
     private final HealthPotionThrowing healthPotionThrowing;
+    private final BuildingFeature buildingFeature;
+    private final EatingAndDrinking eatingAndDrinking;
 
     public FeatureManager() {
         features = new ArrayList<>();
 
-        addFeature(new EatingAndDrinking());
+        addFeature(eatingAndDrinking = new EatingAndDrinking());
         addFeature(healthPotionThrowing = new HealthPotionThrowing());
         addFeature(new ArmorEquipFeature());
         addFeature(new Pearling());
@@ -26,6 +28,8 @@ public class FeatureManager {
         addFeature(new PreGap());
         addFeature(new RodFeature());
         addFeature(new EdgeFeature());
+        addFeature(buildingFeature = new BuildingFeature());
+        addFeature(new LiquidFeature());
     }
 
     public void addFeature(Feature feature) {

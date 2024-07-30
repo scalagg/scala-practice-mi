@@ -11,6 +11,7 @@ import land.esta.plugin.ssb.npc.nms.FixedEntityFishingHook;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -67,10 +68,25 @@ public class RodFeature extends Feature {
                             .run(() -> {
                                 EntityHuman npc = movementEvent.getBot().getNpc();
                                 if (npc != null) {
+                                    if (!BuildingUtilitiesKt.isInLineOfSight(
+                                            npc.getBukkitEntity().getLocation().getDirection(),
+                                            npc.getBukkitEntity().getLocation(),
+                                            movementEvent.getBot().getMovements()
+                                                    .getTargetLocate()
+                                                    .getTargetEntity()
+                                                    .getLocation(),
+                                            40.0
+                                    )) {
+                                        return;
+                                    }
+
                                     launchProjectile(
                                             npc,
-                                            npc.getBukkitEntity().getVelocity(),
-                                            npc.getBukkitEntity().getLocation().getDirection()
+                                            npc.getBukkitEntity().getLocation(),
+                                            movementEvent.getBot().getMovements()
+                                                    .getTargetLocate()
+                                                    .getTargetEntity()
+                                                    .getLocation()
                                     );
 
                                     movementEvent.getBot().getAttackingManager().setProjectile(true); // Special velocity for the projectile
@@ -90,17 +106,12 @@ public class RodFeature extends Feature {
         }
     }
 
-    public static final double CATCH_UP_SCALING = 1.0;
-
-    public FixedEntityFishingHook launchProjectile(EntityHuman human, Vector direction, Vector motion) {
+    public FixedEntityFishingHook launchProjectile(EntityHuman human, Location shooterLocation, Location targetLocation) {
         FixedEntityFishingHook launch = new FixedEntityFishingHook(human.getWorld(), human);
 
         Validate.notNull(launch, "Projectile not supported");
 
-        var combinedVelocity = direction.add(motion);
-        var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
-
-        ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
+        ((Projectile) launch.getBukkitEntity()).setVelocity(RodUtilitiesKt.getFishingRodLaunchVelocity(shooterLocation, targetLocation, 1.2));
 
         human.getWorld().addEntity(launch);
         return launch;

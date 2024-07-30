@@ -89,7 +89,11 @@ public class HealthManager extends Manager {
         if (fireTicks == 0 && onFireUpdate) getBot().getPacketsManager().setPlayerOnFirePackets(false);
 
         if (fireRess >= 1 || fireTicks == 0) return;
-        if (fireTicks % 10 == 0) removeHealth(1);
+        if (fireTicks % 20 == 0) {
+            bot.getDamageManager().playSound();
+            bot.getDamageManager().damageEffect();
+            removeHealth(1);
+        }
     }
 
     public void removeHealth(double amount) {
@@ -123,8 +127,8 @@ public class HealthManager extends Manager {
     }
 
     public void addPoisonTicks(int amplifier) {
-        int period = 25 / amplifier;
-        int ticks = amplifier == 1 ? 33 * 20 : 45 * 20;
+        int period = amplifier == 0 ? 25 : 25 / amplifier;
+        int ticks = (amplifier == 1 || amplifier == 0) ? 33 * 20 : 45 * 20;
 
         poisoned = true;
 
@@ -135,7 +139,11 @@ public class HealthManager extends Manager {
                         task.stop();
                         return;
                     }
-                    if (health > 1) removeHealth(1);
+                    if (health > 1) {
+                        bot.getDamageManager().playSound();
+                        bot.getDamageManager().damageEffect();
+                        removeHealth(0.5);
+                    }
                 }, period, period)
                 .bindWith(bot.getTerminable());
 
@@ -148,7 +156,7 @@ public class HealthManager extends Manager {
     }
 
     public void addSlownessTicks(int amplifier) {
-        int percentage = 15 * amplifier;
+        int percentage = amplifier == 0 ? 15 : 15 * amplifier;
         int ticks = 67;
 
         slownessPercentage = percentage;

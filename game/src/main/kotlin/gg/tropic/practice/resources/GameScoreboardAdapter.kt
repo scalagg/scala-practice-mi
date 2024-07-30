@@ -119,7 +119,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
                         self.gameLifecycleArbitraryObjectiveProgress
                     }"
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $selfColor${
+                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
                         them.gameLifecycleArbitraryObjectiveProgress
                     }"
                 }
@@ -127,10 +127,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     teamSection += " ${CC.WHITE}You: $selfColor${
-                        if (them.gameLifecycleObjectiveMet()) "${self.players.size}" else "✔"
+                        if (game.gameLifecycleObjectiveMet(them)) "${self.players.size}" else "✔"
                     }"
-                    teamSection += " ${CC.WHITE}Them: $selfColor${
-                        if (self.gameLifecycleObjectiveMet()) "${them.players.size}" else "✔"
+                    teamSection += " ${CC.WHITE}Them: $theirColor${
+                        if (game.gameLifecycleObjectiveMet(self)) "${them.players.size}" else "✔"
                     }"
                 }
             }

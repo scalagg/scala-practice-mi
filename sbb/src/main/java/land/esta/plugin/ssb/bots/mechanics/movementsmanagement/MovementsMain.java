@@ -56,6 +56,8 @@ public class MovementsMain extends Manager {
     private long last = System.currentTimeMillis();
     private int times = 0;
 
+    private boolean lockLocation;
+
     private Random random = new Random();
 
     public MovementsMain(Bot bot, Player player, Location loc) {
@@ -92,6 +94,8 @@ public class MovementsMain extends Manager {
     }
 
     public void move(Vector motion,boolean addLastMotion) {
+        if (lockLocation) return;
+
         int slownessPercentage = bot.getHealthManager().getSlownessPercentage();
 
         if (slownessPercentage != -1) {
@@ -116,22 +120,38 @@ public class MovementsMain extends Manager {
         float yaw = location.getYaw();
         float pitch = location.getPitch();
 
-        if (isOnGround() && oldLoc.distance(updatedLoc) < 0.2 && oldLoc.distance(bot.getStartLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getDistanceFromLastLocation()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getGetPathCooldown()) > last && updatedLoc.distance(targetLocate.getTargetEntity().getLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getMinDistanceFromPlayer()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getCooldownAfterAttack()) > bot.getAttackingManager().getLastAttackedOrDamaged()) {
+        Location oldNoY = oldLoc.clone();
+        Location newNoY = updatedLoc.clone();
+
+        oldNoY.setY(0);
+        newNoY.setY(0);
+
+        if (bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getEnabled()) && oldNoY.distance(newNoY) < 0.2 && oldLoc.distance(bot.getStartLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getDistanceFromLastLocation()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getGetPathCooldown()) > last && updatedLoc.distance(targetLocate.getTargetEntity().getLocation()) > bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getMinDistanceFromPlayer()) && System.currentTimeMillis() - bot.getProfile().value(RootAccessor.INSTANCE.getPathfindingSetting().getCooldownAfterAttack()) > bot.getAttackingManager().getLastAttackedOrDamaged()) {
             last = System.currentTimeMillis();
 
             TargetLocate target = bot.getMovements().getTargetLocate();
-            AStarPathfinder aStar = new AStarPathfinder(bot.getNpc().getBukkitEntity().getLocation(), target.getTargetEntity().getLocation(), 1000, false, 100);
+            AStarPathfinder aStar = new AStarPathfinder(bot.getMovements().getLocation(), target.getTargetEntity().getLocation(), 1000, false, 100);
 
             List<Location> path = aStar.getPath();
 
             if (path.isEmpty()) {
-                rotate(random.nextInt(-180, 180), 0);
+                Location temp = target.getTargetEntity().getLocation().clone();
+                temp.setY(bot.getMovements().getLocation().getY());
 
-                updatedLoc.setYaw(yaw);
-                updatedLoc.setPitch(pitch);
+                aStar = new AStarPathfinder(bot.getMovements().getLocation(),
+                        temp);
 
-                target.setAStarTarget(updatedLoc);
-                return;
+                path = aStar.getPath();
+
+                if (path.isEmpty()) {
+                    rotate(random.nextInt(-180, 180), 0);
+
+                    updatedLoc.setYaw(yaw);
+                    updatedLoc.setPitch(pitch);
+
+                    target.setAStarTarget(updatedLoc);
+                    return;
+                }
             }
 
             target.setTarget(path.get(0));
