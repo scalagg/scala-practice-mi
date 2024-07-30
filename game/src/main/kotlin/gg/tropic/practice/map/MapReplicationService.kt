@@ -371,12 +371,12 @@ object MapReplicationService
                     val bedHead = bedFoot.block.getRelative(BlockFace.SOUTH).state
                     bedFoot.type = Material.BED_BLOCK
                     bedHead.type = Material.BED_BLOCK
-                    bedFoot.setRawData(0x0.toByte())
-                    bedHead.setRawData(0x8.toByte())
+                    bedFoot.rawData = 0x0.toByte()
+                    bedHead.rawData = 0x8.toByte()
                     bedFoot.update(true, false)
                     bedHead.update(true, true)
 
-                    listOf(bedHead, bedHead).forEach { component ->
+                    listOf(bedHead, bedFoot).forEach { component ->
                         component.block.setMetadata(
                             "tropicbed",
                             FixedMetadataValue(plugin, it.id)

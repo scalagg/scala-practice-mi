@@ -129,7 +129,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     teamSection += " ${CC.WHITE}You: $selfColor${
                         if (game.gameLifecycleObjectiveMet(them)) "${self.players.size}" else "✔"
                     }"
-                    teamSection += " ${CC.WHITE}Them: $selfColor${
+                    teamSection += " ${CC.WHITE}Them: $theirColor${
                         if (game.gameLifecycleObjectiveMet(self)) "${them.players.size}" else "✔"
                     }"
                 }

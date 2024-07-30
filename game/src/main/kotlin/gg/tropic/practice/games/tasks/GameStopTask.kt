@@ -4,6 +4,8 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
+import gg.tropic.practice.games.teleportToSpawnLocation
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.rating.MapRatingService
 import gg.tropic.practice.queue.QueueType
@@ -61,6 +63,18 @@ class GameStopTask(
                 "",
                 " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
             )
+
+            if (game.flag(FeatureFlag.DeathBelowYAxis))
+            {
+                for ((_, team) in game.teams)
+                {
+                    team.toBukkitPlayers()
+                        .filterNotNull()
+                        .forEach {
+                            game.teleportToSpawnLocation(it)
+                        }
+                }
+            }
 
             fun Message.appendPlayers(players: List<UUID>)
             {
