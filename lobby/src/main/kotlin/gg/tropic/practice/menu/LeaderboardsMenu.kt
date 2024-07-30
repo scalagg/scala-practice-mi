@@ -4,7 +4,7 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
-import gg.tropic.practice.menu.template.TemplateKitMenu
+import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton

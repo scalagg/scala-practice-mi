@@ -18,6 +18,10 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.PracticeConfigurationService
+import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.group.KitGroup
+import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.MapService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.practiceGroup
@@ -50,7 +54,6 @@ object LobbyAdminCommands : ScalaCommand()
         help.showHelp()
     }
 
-    @CommandPermission("op")
     @Subcommand("request-application-reboot")
     @Description("Request an application reboot.")
     fun onRequestAppReboot(player: ScalaPlayer)
@@ -64,7 +67,6 @@ object LobbyAdminCommands : ScalaCommand()
         player.sendMessage("${CC.GREEN}We've requested an application reboot, please wait a moment.")
     }
 
-    @CommandPermission("op")
     @Subcommand("restrict-game-regions")
     @Description("Restrict games to a particular region.")
     fun onRequestRegionRestriction(
@@ -86,7 +88,6 @@ object LobbyAdminCommands : ScalaCommand()
         )
     }
 
-    @CommandPermission("op")
     @Subcommand("enter-dev-mode")
     @Description("Send yourself to dev game servers upon queuing by entering dev mode.")
     fun onJoinDevMode(player: ScalaPlayer)
@@ -106,7 +107,43 @@ object LobbyAdminCommands : ScalaCommand()
         )
     }
 
-    @CommandPermission("op")
+    @Subcommand("fix-kit-groups")
+    fun fixKitGroups(player: ScalaPlayer)
+    {
+        val kitGroups = KitGroupService.cached()
+        MapService.maps().forEach {
+            for (associatedKitGroup in it.associatedKitGroups)
+            {
+                if (kitGroups.groups.none { group -> group.id == associatedKitGroup })
+                {
+                    player.sendMessage("Fixing $associatedKitGroup")
+                    kitGroups.add(KitGroup(
+                        id = associatedKitGroup,
+                        contains = mutableListOf(associatedKitGroup)
+                    ))
+                }
+            }
+        }
+
+        KitGroupService.sync(kitGroups)
+        KitService.cached().apply {
+            val cached = KitGroupService.cached()
+            for (value in kits.values)
+            {
+                if (KitGroupService.groupsOf(value).isEmpty())
+                {
+                    player.sendMessage("Adding ${value.id} to default")
+                    cached.groups.firstOrNull { group -> group.id == "__default__" }
+                        ?.let {
+                            it.contains += value.id
+                        }
+                }
+            }
+
+            KitGroupService.sync(cached)
+        }
+    }
+
     @Subcommand("leave-dev-mode")
     @Description("Leave dev mode.")
     fun onLeaveDevMode(player: ScalaPlayer)
@@ -192,7 +229,6 @@ object LobbyAdminCommands : ScalaCommand()
         )
     }
 
-    @AssignPermission
     @Subcommand("toggle-ranked-queue")
     @Description("Enable or disable the ability to join ranked queues.")
     fun onToggleRankedQueue(player: ScalaPlayer)

@@ -3,7 +3,7 @@ package land.esta.plugin.ssb.bot.menu
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
-import gg.tropic.practice.menu.template.TemplateKitMenu
+import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.namespace
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState

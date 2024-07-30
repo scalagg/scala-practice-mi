@@ -11,10 +11,12 @@ import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.administration.KitAdminMenu
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.administration.MapAdminMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -154,8 +156,16 @@ object KitCommands : ScalaCommand()
         }
     }
 
+    @Subcommand("admin")
+    @Description("Enter the kit administration menu.")
     @AssignPermission
-    @Subcommand("displayicon")
+    fun onAdmin(player: ScalaPlayer)
+    {
+        KitAdminMenu().openMenu(player.bukkit())
+    }
+
+    @AssignPermission
+    @Subcommand("seticon")
     @CommandCompletion("@kits")
     @Description("Set a kit's display icon to the item you have held in your hand.")
     fun onDisplayIcon(player: ScalaPlayer, kit: Kit)

@@ -8,47 +8,138 @@ enum class FeatureFlag(
     val schema: MutableMap<String, String> = mutableMapOf(),
     val incompatibleWith: () -> Set<FeatureFlag> = { emptySet() },
     val requires: Set<FeatureFlag> = setOf(),
-    val availableLifecycles: Set<GameLifecycle> = GameLifecycle.entries.toSet()
+    val availableLifecycles: Set<GameLifecycle> = GameLifecycle.entries.toSet(),
+    val description: List<String> = listOf()
 )
 {
-    Ranked,
+    Ranked(
+        description = listOf(
+            "Enables ranked resources for",
+            "this kit. Includes ranked elo",
+            "leaderboard calculations, etc.",
+        )
+    ),
     QueueSizes(
         // another example: 3:Ranked,2:Casual,10:Ranked+Casual
-        schema = mutableMapOf("sizes" to "1:Casual+Ranked")
+        schema = mutableMapOf("sizes" to "1:Casual+Ranked"),
+        description = listOf(
+            "Define which queue types this kit",
+            "is eligible for.",
+            "",
+            "Examples:",
+            "3:Ranked,2:Casual,10:Ranked+Casual",
+            "1:Casual+Ranked"
+        )
     ),
-    HeartsBelowNameTag,
-    ExplodePlacedBlocks,
-    DoNotTakeFallDamage,
+    HeartsBelowNameTag(
+        description = listOf(
+            "All player healths are shown",
+            "below the nametag.",
+            "",
+            "This also enables the feature",
+            "allowing for hotbar health",
+            "notifications.",
+        )
+    ),
+    ExplodePlacedBlocks(
+        description = listOf(
+            "Allows any explosion event",
+            "from removing placed blocks.",
+        )
+    ),
+    DoNotTakeFallDamage(
+        description = listOf(
+            "Prevents you from taking fall",
+            "damage in a match.",
+        )
+    ),
     DoNotTakeDamage(
-        schema = mutableMapOf("doDamageTick" to "false")
+        schema = mutableMapOf("doDamageTick" to "false"),
+        description = listOf(
+            "Prevents you from losing",
+            "any health in a match.",
+            "",
+            "Has an optional feature to",
+            "disable/enable the damage tick."
+        )
     ),
-    DoNotDropInventoryOnDeath,
-    DoNotTakeHunger,
-    DoNotRemoveArmor,
-    RequiresBuildMap,
+    DoNotDropInventoryOnDeath(
+        description = listOf(
+            "Prevents you from dropping",
+            "your inventory items on",
+            "death.",
+        )
+    ),
+    DoNotTakeHunger(
+        description = listOf(
+            "Prevents you from losing any",
+            "hunger in a match.",
+        )
+    ),
+    DoNotRemoveArmor(
+        description = listOf(
+            "Prevents you taking off your",
+            "armor in a match.",
+        )
+    ),
+    RequiresBuildMap(
+        description = listOf(
+            "A ID flag to represent any",
+            "build matches. However, this",
+            "doesn't really affect much.",
+        )
+    ),
     HeadshotMultiplier(
         schema = mutableMapOf(
             "multiplier" to "1.0"
+        ),
+        description = listOf(
+            "Enables a harm multiplier for",
+            "the player shot if the shot",
+            "is a headshot."
         )
     ),
     DeathBelowYAxis(
         schema = mutableMapOf(
             "level" to "95"
+        ),
+        description = listOf(
+            "Automatically removes you from",
+            "the match if you drop below",
+            "a certain Y-Axis level.",
         )
     ),
     BuildLimit(
         schema = mutableMapOf(
             "blocks" to "16"
+        ),
+        description = listOf(
+            "Sets the build limit to:",
+            "blocks+startingPosition"
         )
     ),
-    PlaceBlocks,
+    PlaceBlocks(
+        description = listOf(
+            "Enables players in the match",
+            "to place blocks.",
+        )
+    ),
     BreakAllBlocks(
         incompatibleWith = { setOf(BreakPlacedBlocks, BreakSpecificBlockTypes) },
-        requires = setOf(RequiresBuildMap)
+        requires = setOf(RequiresBuildMap),
+        description = listOf(
+            "Enables players in the match",
+            "to place blocks.",
+        )
     ),
     BreakPlacedBlocks(
         incompatibleWith = { setOf(BreakAllBlocks) },
-        requires = setOf(RequiresBuildMap)
+        requires = setOf(RequiresBuildMap),
+        description = listOf(
+            "Enables players in the match",
+            "to break the blocks that they",
+            "placed.",
+        )
     ),
     BreakSpecificBlockTypes(
         incompatibleWith = { setOf(BreakAllBlocks) },
@@ -56,29 +147,77 @@ enum class FeatureFlag(
         schema = mutableMapOf(
             // Default for bridges LMAO
             "types" to "STAINED_CLAY:11,STAINDED_CLAY:14"
+        ),
+        description = listOf(
+            "Allows players to break certain",
+            "non-placed blocks in the match."
         )
     ),
     EnderPearlCooldown(
-        schema = mutableMapOf("duration" to "15")
+        schema = mutableMapOf("duration" to "15"),
+        description = listOf(
+            "Adds a cooldown to enderpearl",
+            "throwing.",
+        )
     ),
-    FrozenOnGameStart,
-    NewlyCreated,
+    FrozenOnGameStart(
+        description = listOf(
+            "Prevents players from moving",
+            "at the start of a match.",
+        )
+    ),
+    NewlyCreated(
+        description = listOf(
+            "Gives the kit a nice identifier",
+            "in any kit-related menu, saying it",
+            "is a new kit.",
+        )
+    ),
     MenuOrderWeight(
-        schema = mutableMapOf("weight" to "0")
+        schema = mutableMapOf("weight" to "0"),
+        description = listOf(
+            "Controls the sorting order of",
+            "the kit in any kit-related menu.",
+        )
     ),
     ExpirePlacedBlocksAfterNSeconds(
         schema = mutableMapOf("time" to "10", "return" to "false"),
-        requires = setOf(PlaceBlocks)
+        requires = setOf(PlaceBlocks),
+        description = listOf(
+            "Automatically removes and returns",
+            "a block placed by a player after",
+            "N amount of seconds.",
+        )
     ),
-    DeathOnLiquidInteraction,
+    DeathOnLiquidInteraction(
+        description = listOf(
+            "Removes the player from the game",
+            "if they touch a liquid mid-match.",
+        )
+    ),
     EntityDisguise(
-        schema = mutableMapOf("type" to "IRON_GOLEM")
+        schema = mutableMapOf("type" to "IRON_GOLEM"),
+        description = listOf(
+            "Disguises the player as a particular",
+            "entity during the match.",
+        )
     ),
-    RedBlueTeams,
+    RedBlueTeams(
+        description = listOf(
+            "Identifies A/B teams as Red/Blue.",
+        )
+    ),
 
     // multi-round
     CountDownTimeBeforeRoundStart(
-        schema = mutableMapOf("value" to "5")
+        schema = mutableMapOf("value" to "5"),
+        availableLifecycles = setOf(
+            GameLifecycle.RoundBound
+        ),
+        description = listOf(
+            "Configures the count-down time",
+            "before a round starts.",
+        )
     ),
 
     // ImmediateRespawnOnDeath may be implied in game logic!
@@ -88,18 +227,30 @@ enum class FeatureFlag(
             GameLifecycle.RoundBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
+        ),
+        description = listOf(
+            "Immediately respawns the player",
+            "upon death.",
         )
     ),
     StartNewRoundOnDeath(
         incompatibleWith = { setOf(ImmediateRespawnOnDeath, SpectateAfterDeath) },
         availableLifecycles = setOf(
             GameLifecycle.RoundBound
+        ),
+        description = listOf(
+            "Starts a new round when the",
+            "player dies.",
         )
     ),
     RoundsRequiredToCompleteGame(
         schema = mutableMapOf("value" to "2"),
         availableLifecycles = setOf(
             GameLifecycle.RoundBound
+        ),
+        description = listOf(
+            "Sets the number of rounds required",
+            "to complete the game.",
         )
     ),
 
@@ -109,6 +260,11 @@ enum class FeatureFlag(
             GameLifecycle.RoundBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
+        ),
+        description = listOf(
+            "Enters the player into spectator",
+            "mode for a particular amount of",
+            "time when the player dies.",
         )
     ),
     ClearIllegalBlocksOnRespawn(
@@ -117,6 +273,11 @@ enum class FeatureFlag(
             GameLifecycle.RoundBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
+        ),
+        description = listOf(
+            "Prevents the player from being",
+            "trapped in blocks if their spawn",
+            "point is blocked.",
         )
     ),
     TimeUserSpectatesAfterDeath(
@@ -126,6 +287,10 @@ enum class FeatureFlag(
             GameLifecycle.RoundBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
+        ),
+        description = listOf(
+            "Sets the amount of time a user will",
+            "spectate upon their death.",
         )
     ),
 
@@ -134,17 +299,29 @@ enum class FeatureFlag(
         availableLifecycles = setOf(
             GameLifecycle.ObjectiveBound,
             GameLifecycle.ObjectivePlusSoulBound
+        ),
+        description = listOf(
+            "The user wins when they hit",
+            "a certain N number of hits.",
         )
     ),
     StartNewRoundOnPortalEnter(
         incompatibleWith = { setOf(StartNewRoundOnDeath) },
         availableLifecycles = setOf(
             GameLifecycle.RoundBound
+        ),
+        description = listOf(
+            "Starts a new round when the",
+            "player enters a portal.",
         )
     ),
     RemovePlacedBlocksOnRoundStart(
         availableLifecycles = setOf(
             GameLifecycle.RoundBound
+        ),
+        description = listOf(
+            "Removes placed blocks when a",
+            "new round starts.",
         )
     )
 }

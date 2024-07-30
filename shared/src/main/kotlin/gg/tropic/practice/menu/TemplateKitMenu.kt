@@ -1,4 +1,4 @@
-package gg.tropic.practice.menu.template
+package gg.tropic.practice.menu
 
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService

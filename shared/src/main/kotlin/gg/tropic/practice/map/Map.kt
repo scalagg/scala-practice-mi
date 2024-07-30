@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture
  * @since 9/21/2023
  */
 data class Map(
-    val name: String,
+    var name: String,
     val bounds: Bounds,
     var metadata: MapMetadata,
     var displayName: String,

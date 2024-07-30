@@ -400,12 +400,18 @@ object GameService
             }
 
             val killerPlayer = if (game.robot()) null else (event.killerPlayerOverride ?: killedBy())
-            val killer = if (killerPlayer !is Player || killerPlayer == this)
+            val killer = if (game.robot())
             {
-                game.getOpponent(this)
+                game.robotSide()
             } else
             {
-                if (game.robot()) game.robotSide() else game.getTeamOf(killerPlayer)
+                if (killerPlayer !is Player || killerPlayer == this)
+                {
+                    game.getOpponent(this)
+                } else
+                {
+                    game.getTeamOf(killerPlayer)
+                }
             }
 
             val killerName = if (game.flag(FeatureFlag.RedBlueTeams))
@@ -1384,8 +1390,9 @@ object GameService
                         it.isCancelled = true
                     }
 
-                if (game.flag(FeatureFlag.ExplodePlacedBlocks))
+                if (!game.flag(FeatureFlag.ExplodePlacedBlocks))
                 {
+                    it.isCancelled = true
                     return@handler
                 }
 

@@ -11,14 +11,14 @@ import gg.tropic.practice.commands.menu.MapRatingOverviewMenu
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.kit.administration.KitAdminMenu
+import gg.tropic.practice.map.administration.MapAdminMenu
 import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
-import org.bukkit.inventory.ItemStack
-import java.util.*
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -35,6 +35,14 @@ object MapCommands : ScalaCommand()
     fun onDefault(help: CommandHelp)
     {
         help.showHelp()
+    }
+
+    @Subcommand("admin")
+    @Description("Enter the map administration menu.")
+    @AssignPermission
+    fun onAdmin(player: ScalaPlayer)
+    {
+        MapAdminMenu().openMenu(player.bukkit())
     }
 
     @Subcommand("info")
@@ -86,6 +94,30 @@ object MapCommands : ScalaCommand()
             "${CC.GREEN}You have updated ${map.displayName}'s icon to ${CC.YELLOW}${
                 itemStack.type.name.lowercase().replaceFirstChar { it.uppercase() }
             }${CC.GREEN}."
+        )
+    }
+
+    @Subcommand("setname")
+    @CommandCompletion("@maps *")
+    @Description("Update a map's name/ID.")
+    fun onNameChange(player: ScalaPlayer, map: Map, name: String)
+    {
+        val oldDisplayName = map.name
+
+        if (MapService.mapWithID(name) != null)
+        {
+            throw ConditionFailedException(
+                "A map with that ID already exists. Please choose another one."
+            )
+        }
+
+        with(MapService.cached()) {
+            map.name = name
+            MapService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have changed $oldDisplayName's name to ${CC.YELLOW}$name${CC.GREEN}."
         )
     }
 
