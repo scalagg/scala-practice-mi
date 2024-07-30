@@ -104,6 +104,8 @@ open class GameImpl(
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
 
+    var gameLifecycleObjectiveMet: (GameTeam) -> Boolean = { false }
+
     fun loadout(player: Player) = selectedKitLoadouts[player.uniqueId] ?: defaultLoadout
 
     fun takeSnapshot(player: Player)
@@ -347,17 +349,19 @@ open class GameImpl(
     {
         if (flag(FeatureFlag.WinWhenNHitsReached))
         {
-            for (value in teams.values)
-            {
-                value.gameLifecycleObjectiveMet = {
-                    val winWhenHitsReached = flagMetaData(
-                        FeatureFlag.WinWhenNHitsReached, "hits"
-                    )
-                        ?.toIntOrNull()
+            gameLifecycleObjectiveMet = {
+                val winWhenHitsReached = flagMetaData(
+                    FeatureFlag.WinWhenNHitsReached, "hits"
+                )
+                    ?.toIntOrNull()
 
-                    winWhenHitsReached != null &&
-                        value.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
-                }
+                winWhenHitsReached != null &&
+                    it.gameLifecycleArbitraryObjectiveProgress >= winWhenHitsReached
+            }
+        } else
+        {
+            gameLifecycleObjectiveMet = {
+                it.gameLifecycleArbitraryObjectiveProgress == 1
             }
         }
     }

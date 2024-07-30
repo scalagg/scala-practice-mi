@@ -549,7 +549,7 @@ object GameService
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     val opposingTeam = game.getOpponent(team)!!
-                    if (opposingTeam.gameLifecycleObjectiveMet())
+                    if (game.gameLifecycleObjectiveMet(opposingTeam))
                     {
                         if (killerPlayer is Player)
                         {

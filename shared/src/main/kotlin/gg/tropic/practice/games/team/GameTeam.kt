@@ -38,7 +38,6 @@ class GameTeam(
     val highestPlayerCombos: MutableMap<UUID, Int>
         get() = backingHighestPlayerCombos!!
 
-    var gameLifecycleObjectiveMet: () -> Boolean = { false }
     var gameLifecycleArbitraryObjectiveProgress = 0
 
     fun nonSpectators() = this.toBukkitPlayers()

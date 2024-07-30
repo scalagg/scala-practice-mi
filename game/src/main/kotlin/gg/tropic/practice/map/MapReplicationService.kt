@@ -369,9 +369,17 @@ object MapReplicationService
                 Tasks.sync {
                     val bedHead = it.position.toLocation(world).block
                     val bedHeadState = bedHead.state
-                    val bedFootBlock = bedHead.getRelative(
+                    var bedFootBlock = bedHead.getRelative(
                         it.orientation.toBlockFace().oppositeFace
                     )
+
+                    if (bedFootBlock.type != Material.AIR)
+                    {
+                        bedFootBlock = bedHead.getRelative(
+                            it.orientation.toBlockFace()
+                        )
+                    }
+
                     val bedFoot = bedFootBlock.state
 
                     bedFoot.type = Material.BED_BLOCK
