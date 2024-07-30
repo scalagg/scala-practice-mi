@@ -19,6 +19,12 @@ enum class FeatureFlag(
             "leaderboard calculations, etc.",
         )
     ),
+    Development(
+        description = listOf(
+            "Makes this kit available only to",
+            "developers."
+        )
+    ),
     QueueSizes(
         // another example: 3:Ranked,2:Casual,10:Ranked+Casual
         schema = mutableMapOf("sizes" to "1:Casual+Ranked"),
