@@ -16,7 +16,7 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 7/28/2024
  */
-class KitMetadataEditMenu(private val kit: Kit) : PaginatedMenu()
+class KitFeaturesEditMenu(private val kit: Kit) : PaginatedMenu()
 {
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {

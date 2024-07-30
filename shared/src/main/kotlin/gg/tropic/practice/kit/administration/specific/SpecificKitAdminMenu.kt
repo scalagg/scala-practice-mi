@@ -2,7 +2,6 @@ package gg.tropic.practice.kit.administration.specific
 
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.map.MapService
 import gg.tropic.practice.kit.administration.KitAdminMenu
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
@@ -75,7 +74,7 @@ class SpecificKitAdminMenu(private val kit: Kit) : Menu(
             }
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                KitMetadataEditMenu(kit).openMenu(player)
+                KitFeaturesEditMenu(kit).openMenu(player)
             }
     )
 
