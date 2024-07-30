@@ -446,6 +446,8 @@ object GameService
                     }
                 }
 
+                killerPlayer.playSound(killerPlayer.location, Sound.NOTE_PLING, 1.0f, 3.0f)
+
                 audiences.player(killerPlayer).apply {
                     sendActionBar(Component.text {
                         it.append(
