@@ -19,6 +19,13 @@ enum class FeatureFlag(
             "leaderboard calculations, etc.",
         )
     ),
+    SpawnProtection(
+        description = listOf(
+            "Players are invincible when",
+            "they spawn for N seconds.",
+        ),
+        schema = mutableMapOf("time" to "3")
+    ),
     Development(
         description = listOf(
             "Makes this kit available only to",

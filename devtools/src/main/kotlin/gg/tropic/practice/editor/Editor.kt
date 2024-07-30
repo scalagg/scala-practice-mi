@@ -127,7 +127,7 @@ class Editor(private val player: Player)
 
         val newWorld = EditorGenerator.createNewEmptyWorld()
         WorldEditUtils.paste(
-            newWorld, schematic, Vector(0, 32, 0)
+            newWorld, schematic, Vector(0, 64, 0)
         )
 
         val instance = EditorInstance(schematic, newWorld)
@@ -138,7 +138,7 @@ class Editor(private val player: Player)
         player.isFlying = true
         player.teleport(
             Location(
-                newWorld, 0.0, 64.0, 0.0, -65.0f, 0.0f
+                newWorld, 0.0, 96.0, 0.0, -65.0f, 0.0f
             )
         )
 

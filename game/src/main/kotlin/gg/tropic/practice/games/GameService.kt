@@ -1221,6 +1221,21 @@ object GameService
                     return@handler
                 }
 
+                it.damager.removeMetadata("spawn-protection", plugin)
+
+                if (it.entity.hasMetadata("spawn-protection"))
+                {
+                    val value = it.entity.getMetadata("spawn-protection").first().asLong()
+                    if (value > System.currentTimeMillis())
+                    {
+                        it.isCancelled = true
+                        it.damager.sendMessage(
+                            "${CC.GOLD}${it.entity.name}${CC.RED} has spawn protection!"
+                        )
+                        return@handler
+                    }
+                }
+
                 val damagerGame = byPlayer(
                     it.damager as Player
                 )

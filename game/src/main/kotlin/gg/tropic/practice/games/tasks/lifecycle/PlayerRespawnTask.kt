@@ -15,6 +15,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.title.Title
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.metadata.FixedMetadataValue
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
@@ -65,6 +66,18 @@ class PlayerRespawnTask(
             GameService.audiences.player(player).apply {
                 clearTitle()
                 sendActionBar { Component.empty() }
+            }
+
+            if (game.flag(FeatureFlag.SpawnProtection))
+            {
+                val time = game.flagMetaData(FeatureFlag.SpawnProtection, "time")?.toLongOrNull() ?: 3
+                player.setMetadata(
+                    "spawn-protection",
+                    FixedMetadataValue(
+                        GameService.plugin,
+                        System.currentTimeMillis() + (time * 1000L)
+                    )
+                )
             }
 
             player.sendMessage("${CC.GREEN}You have respawned!")
