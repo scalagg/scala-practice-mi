@@ -35,7 +35,6 @@ import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.suffixWhenDev
 import gg.tropic.practice.utilities.toRBTeamSide
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
-import kotlinx.coroutines.processNextEventInCurrentThread
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
@@ -51,12 +50,14 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
-import net.minecraft.server.v1_8_R3.PortalTravelAgent
+import net.minecraft.server.v1_8_R3.EntityTNTPrimed
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.block.BlockFace
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftTNTPrimed
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockExplodeEvent
@@ -65,11 +66,11 @@ import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.player.*
-import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import java.lang.reflect.Field
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -250,6 +251,46 @@ object GameService
             }
         }
 
+        val tntJumpBarycenterAlterationInY = 0.5
+        val tntJumpStrengthReductionConstant = 5
+        val tntJumpYAxisReductionConstant = 2
+
+        Events
+            .subscribe(EntityDamageByEntityEvent::class.java)
+            .handler { event ->
+                if (event.entity !is Player)
+                {
+                    return@handler
+                }
+
+                if (event.damager !is TNTPrimed)
+                {
+                    return@handler
+                }
+
+                val player = event.entity as Player
+                val tnt = event.damager as? TNTPrimed ?: return@handler
+                val source = tnt.source ?: return@handler
+
+                if (source is Player) {
+                    event.damage = 1.0
+
+                    if (source == player)
+                    {
+                        // tnt jump. credits to feargames.it
+                        val damaged = event.entity as LivingEntity
+                        val distance = damaged.location.subtract(0.0, tntJumpBarycenterAlterationInY, 0.0).toVector()
+                            .subtract(tnt.location.toVector())
+                        val direction = distance.clone().normalize()
+                        val force = (tnt.yield * tnt.yield) / (tntJumpStrengthReductionConstant + distance.length())
+                        val resultingForce = direction.clone().multiply(force)
+                        resultingForce.y = resultingForce.y / (distance.length() + tntJumpYAxisReductionConstant)
+                        damaged.velocity = resultingForce
+                    }
+                }
+
+            }
+
         fun Player.killedBy(): Entity?
         {
             if (
@@ -427,7 +468,7 @@ object GameService
             val deathMessage = "${CC.RED}$killedName${CC.GRAY} ${
                 if (event.alternativeDeath && killerPlayer == null) "fell into the void" else "was ${
                     if (killerPlayer == null || killerPlayer == this) "killed" else "${
-                        if (game.robot()) "killed" else getMessageBundlePhrase(killerPlayer as Player)
+                        if (game.robot()) "killed" else if (killerPlayer is Player) getMessageBundlePhrase(killerPlayer) else "killed"
                     } by ${CC.GREEN}$killerName${CC.GRAY}"
                 }"
             }!"
@@ -1482,7 +1523,9 @@ object GameService
                         game.sendMessage(
                             "",
                             "${CC.B_WHITE}BED DESTRUCTION ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT}${CC.WHITE} ${
-                                "${opponent.side.toRBTeamSide().let { side -> "${side.color}${side.display}" }} Bed${CC.GRAY} was destroyed by ${
+                                "${
+                                    opponent.side.toRBTeamSide().let { side -> "${side.color}${side.display}" }
+                                } Bed${CC.GRAY} was destroyed by ${
                                     "${currentTeam.side.toRBTeamSide().color}${it.player.name}${CC.GRAY}!"
                                 }"
                             }",
@@ -1490,14 +1533,16 @@ object GameService
                         )
 
                         opponent.toBukkitPlayers().filterNotNull()
-                            .forEach {
-                                val audience = audiences.player(it)
-                                audience.showTitle(Title.title(
-                                    Component.text("BED DESTROYED!")
-                                        .color(NamedTextColor.RED)
-                                        .decorate(TextDecoration.BOLD),
-                                    Component.text("You will no longer respawn!")
-                                ))
+                            .forEach { player ->
+                                val audience = audiences.player(player)
+                                audience.showTitle(
+                                    Title.title(
+                                        Component.text("BED DESTROYED!")
+                                            .color(NamedTextColor.RED)
+                                            .decorate(TextDecoration.BOLD),
+                                        Component.text("You will no longer respawn!")
+                                    )
+                                )
                             }
 
                         it.isCancelled = false
@@ -1633,6 +1678,18 @@ object GameService
                     }
                 }
 
+                if (it.block.type == Material.TNT)
+                {
+                    it.blockPlaced.type = Material.AIR
+                    val tnt = it.block.location.world.spawn(
+                        it.block.location.add(0.5, 0.0, 0.5),
+                        TNTPrimed::class.java
+                    )
+                    tnt.fuseTicks = 40
+                    setSource(tnt, it.player)
+                    return@handler
+                }
+
                 it.blockPlaced.setMetadata(
                     "placed",
                     FixedMetadataValue(plugin, true)
@@ -1701,6 +1758,21 @@ object GameService
         .find {
             player in it.toPlayers() || player in it.expectedSpectators
         }
+
+    fun setSource(tnt: TNTPrimed, owner: Player)
+    {
+        val nmsEntityLiving = ((owner as CraftLivingEntity).handle)
+        val nmsTNT = ((tnt as CraftTNTPrimed).handle)
+        try
+        {
+            val sourceField: Field = EntityTNTPrimed::class.java.getDeclaredField("source")
+            sourceField.setAccessible(true)
+            sourceField.set(nmsTNT, nmsEntityLiving)
+        } catch (ex: Exception)
+        {
+            ex.printStackTrace()
+        }
+    }
 
     private inline fun <reified T : PlayerEvent> configureMetadataProvidingEventHandler(incrementing: String)
     {

@@ -22,9 +22,12 @@ import java.util.*
 
 class FireballFeature : Listener
 {
-    private val fireballExplosionSize: Double = 3.0
-    private val fireballHorizontal: Double = -1.0
-    private val fireballVertical: Double = 0.65 * 3
+    companion object
+    {
+        var fireballExplosionSize: Double = 3.0
+        var fireballHorizontal: Double = -1.42
+        var fireballVertical: Double = 0.78
+    }
 
     private val damageSelf: Double = 1.0
     private val damageEnemy: Double = 1.0
