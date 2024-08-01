@@ -33,6 +33,8 @@ public class BuildingFeature extends Feature {
 
     @Override
     public void tickEvent(Bot bot) {
+        if (!(!bot.getInventoryManager().hasItem(Material.WOOD).isEmpty() || !bot.getInventoryManager().hasItem(Material.COBBLESTONE).isEmpty() || !bot.getInventoryManager().hasItem(Material.WOOL).isEmpty())) return;
+
         if (bot.getMovements().getLocation().getBlock().getType().isSolid()) {
             bot.getMovements().getLocation().add(0, 1, 0);
             bot.getMovements().updatedLoc();
