@@ -5,7 +5,6 @@ import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
 import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
-import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapManageServices
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
@@ -15,11 +14,11 @@ import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.menu.Button
+import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
@@ -28,6 +27,7 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntitySpawnEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 import java.io.File
 import java.util.UUID
 
@@ -59,12 +59,69 @@ class Editor(private val player: Player)
             return
         }
 
-        player.sendMessage("Subscribing to everything")
+        var sneakTerminable: CompositeTerminable? = null
+        Events
+            .subscribe(PlayerToggleSneakEvent::class.java)
+            .handler {
+                if (it.player.uniqueId == player.uniqueId)
+                {
+                    if (it.isSneaking)
+                    {
+                        if (sneakTerminable != null)
+                        {
+                            return@handler
+                        }
+
+                        sneakTerminable = CompositeTerminable.create()
+
+                        Schedulers
+                            .sync()
+                            .runRepeating({ _ ->
+                                player.playSound(player.location, Sound.NOTE_PLING, 1.0f, 0.5f)
+                            }, 0L, 5L)
+                            .bindWith(sneakTerminable!!)
+
+                        Schedulers
+                            .sync()
+                            .runLater({
+                                val menu = object : Menu("Editor ${CC.GOLD}(EXPERIMENTS)")
+                                {
+                                    init
+                                    {
+                                        placeholder = true
+                                    }
+
+                                    override fun getButtons(player: Player) = mapOf(
+                                        4 to ItemBuilder
+                                            .of(Material.GLOWSTONE_DUST)
+                                            .name("${CC.GOLD}(EXPERIMENT) ${CC.YELLOW}K-Means Island Clustering")
+                                            .addToLore("${CC.GREEN}Click to start experiment.")
+                                            .toButton { _, _ ->
+
+                                            }
+                                    )
+                                }
+
+                                menu.openMenu(player)
+
+                                sneakTerminable?.closeAndReportException()
+                                sneakTerminable = null
+                            }, 20L)
+                            .bindWith(sneakTerminable!!)
+                    } else
+                    {
+                        sneakTerminable?.closeAndReportException()
+                    }
+                }
+            }
+            .bindWith(terminable)
+
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
                 if (it.player.uniqueId == player.uniqueId)
                 {
+                    sneakTerminable?.closeAndReportException()
                     terminable.closeAndReportException()
                 }
             }
@@ -79,10 +136,12 @@ class Editor(private val player: Player)
             player.inventory.clear()
             player.updateInventory()
 
-            player.teleport(Location(
-                Bukkit.getWorld("world"),
-                0.0, 100.0, 0.0
-            ))
+            player.teleport(
+                Location(
+                    Bukkit.getWorld("world"),
+                    0.0, 100.0, 0.0
+                )
+            )
 
             HotbarPresetHandler.forget(editorID)
 
@@ -227,7 +286,7 @@ class Editor(private val player: Player)
                 object : PaginatedMenu()
                 {
                     override fun getPrePaginatedTitle(player: Player) = "All schematics..."
-                    override fun getAllPagesButtons(player: Player): kotlin.collections.Map<Int, Button>
+                    override fun getAllPagesButtons(player: Player): Map<Int, Button>
                     {
                         val mappings = mutableMapOf<Int, Button>()
                         schematics.forEach {
@@ -268,10 +327,12 @@ class Editor(private val player: Player)
             }
         })
 
-        hotbarPreset.addSlot(2, StaticHotbarPresetEntry(
-            ItemBuilder.of(Material.SIGN)
-                .name("${CC.WHITE}Metadata Sign")
-        ))
+        hotbarPreset.addSlot(
+            2, StaticHotbarPresetEntry(
+                ItemBuilder.of(Material.SIGN)
+                    .name("${CC.WHITE}Metadata Sign")
+            )
+        )
 
         hotbarPreset.addSlot(1, DynamicHotbarPresetEntry().apply {
             onBuild = {
@@ -310,7 +371,7 @@ class Editor(private val player: Player)
                     player.sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model & store the map in MongoDB...")
                     prepareSlimeWorld(newMapName)
 
-                    val map = Map(
+                    val map = gg.tropic.practice.map.Map(
                         name = newMapName.lowercase(),
                         bounds = bounds,
                         metadata = metadata,
