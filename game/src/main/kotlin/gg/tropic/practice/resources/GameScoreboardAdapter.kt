@@ -180,7 +180,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             {
                 GameState.Waiting ->
                 {
-                    board += "${CC.WHITE}Waiting for players..."
+                    board += "${CC.GRAY}Waiting for players..."
                 }
 
                 GameState.Starting ->
@@ -188,11 +188,11 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     val opponent = game.getOpponent(player)
                         ?: return
 
-                    board += "Starting in: ${CC.PRI}${game.activeCountdown}s"
+                    board += "${CC.GRAY}Starting in: ${CC.PRI}${game.activeCountdown}s"
 
                     if (opponent.players.size == 1)
                     {
-                        board += "${CC.WHITE}Opponent: ${CC.PRI}${
+                        board += "${CC.GRAY}Opponent: ${CC.PRI}${
                             if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponent.players.first().username()
                         }"
                     } else if (!game.robot())
@@ -201,22 +201,23 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                         for (other in opponent.players.take(3))
                         {
-                            board += " - ${other.username()}"
+                            board += "${CC.GRAY} - ${CC.WHITE}${other.username()}"
                         }
 
                         if (opponent.players.size > 3)
                         {
-                            board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
+                            board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
                         }
                     }
 
                     board += ""
-                    board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                    board += "${CC.PRI}Ping:"
+                    board += "${CC.GRAY}You: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
 
                     if (!game.robot())
                     {
                         val opponentPlayer = opponent.players.first()
-                        board += "${CC.WHITE}Their ping: ${CC.RED}${
+                        board += "${CC.GRAY}Them: ${CC.RED}${
                             if (Bukkit.getPlayer(opponentPlayer) != null)
                                 MinecraftReflection.getPing(
                                     Bukkit.getPlayer(opponentPlayer)
@@ -230,14 +231,14 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     val opponent = game.getOpponent(player)
                         ?: return
 
-                    board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
+                    board += "${CC.GRAY}Time: ${CC.PRI}${game.getDuration()}"
 
                     val showHitScoreboard = game.flag(FeatureFlag.WinWhenNHitsReached)
                     if (opponent.players.size == 1)
                     {
                         val opponentPlayer = opponent.players.first()
 
-                        board += "${CC.WHITE}Opponent: ${CC.PRI}${
+                        board += "${CC.GRAY}Opponent: ${CC.PRI}${
                             if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponentPlayer.username()
                         }"
                         board += ""
@@ -251,7 +252,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                             val playerCombo = teamOfPlayer.playerCombos[player.uniqueId] ?: 0
 
-                            board += "${CC.WHITE}Your hits: ${CC.GREEN}${
+                            board += "${CC.PRI}Hits:"
+                            board += "${CC.GRAY}You: ${CC.GREEN}${
                                 teamOfPlayer.gameLifecycleArbitraryObjectiveProgress
                             }${
                                 if (hitsDiff == 0)
@@ -272,7 +274,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                         ""
                             }"
 
-                            board += "${CC.WHITE}Enemy hits: ${CC.RED}${
+                            board += "${CC.GRAY}Them: ${CC.RED}${
                                 teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
                             }"
                         } else
@@ -282,10 +284,11 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 insertMRStatusSection(firstPerson = true)
                             }
 
-                            board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                            board += "${CC.PRI}Ping:"
+                            board += "${CC.GRAY}You: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
                             if (!game.robot())
                             {
-                                board += "${CC.WHITE}Their ping: ${CC.RED}${
+                                board += "${CC.GRAY}Them: ${CC.RED}${
                                     if (Bukkit.getPlayer(opponentPlayer) != null)
                                         MinecraftReflection.getPing(
                                             Bukkit.getPlayer(opponentPlayer)
@@ -302,15 +305,16 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                         if (!showHitScoreboard)
                         {
-                            board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
-                            board += "${CC.RED}Opponent pings:"
+                            board += "${CC.PRI}Ping:"
+                            board += "${CC.GRAY}You: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                            board += "${CC.GRAY}Them:"
 
                             for (other in opponent.players.take(2))
                             {
                                 val bukkitPlayer = Bukkit.getPlayer(other)
                                     ?: continue
 
-                                board += " - ${
+                                board += "${CC.GRAY} - ${CC.WHITE}${
                                     if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
                                 }${other.username()} ${CC.D_GRAY}(${
                                     MinecraftReflection.getPing(bukkitPlayer)
@@ -319,7 +323,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                             if (opponent.players.size > 2)
                             {
-                                board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
+                                board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
                             }
                         } else
                         {
@@ -328,7 +332,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             val hitsDiff =
                                 teamOfPlayer.gameLifecycleArbitraryObjectiveProgress - teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
 
-                            board += "${CC.WHITE}Team: ${CC.PRI}${
+                            board += "${CC.PRI}Hits:"
+                            board += "${CC.GRAY}Team: ${CC.PRI}${
                                 teamOfPlayer.gameLifecycleArbitraryObjectiveProgress
                             }${
                                 if (hitsDiff == 0)
@@ -340,15 +345,15 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                         " ${CC.RED}($hitsDiff)"
                             }"
 
-                            board += "${CC.RED}Opponent:"
-                            board += "${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress} hits"
+                            board += "${CC.GRAY}Opponent:"
+                            board += "${CC.RED}${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress} hits"
 
                             for (other in opponent.players.take(3))
                             {
                                 val bukkitPlayer = Bukkit.getPlayer(other)
                                     ?: continue
 
-                                board += " - ${
+                                board += "${CC.GRAY} - ${CC.WHITE}${
                                     if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
                                 }${other.username()} ${CC.D_GRAY}(${
                                     MinecraftReflection.getPing(bukkitPlayer)
@@ -357,7 +362,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                             if (opponent.players.size > 3)
                             {
-                                board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
+                                board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
                             }
                         }
                     }
@@ -382,16 +387,16 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             }
                         }
 
-                        board += "${CC.WHITE}Winner:"
+                        board += "${CC.GRAY}Winner:"
                         board += " ${CC.GREEN}${report.winners.toReport()}"
-                        board += "${CC.WHITE}Loser:"
+                        board += "${CC.GRAY}Loser:"
                         board += " ${CC.RED}${report.losers.toReport()}"
                         board += ""
-                        board += "Duration: ${CC.PRI}${game.getDuration()}"
-                        board += "Kit: ${CC.PRI}${report.kit}"
+                        board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
+                        board += "${CC.GRAY}Kit: ${CC.PRI}${report.kit}"
                     } else
                     {
-                        board += "${CC.D_GRAY}Loading game report..."
+                        board += "${CC.D_GRAY}Loading report..."
                     }
                 }
             }
