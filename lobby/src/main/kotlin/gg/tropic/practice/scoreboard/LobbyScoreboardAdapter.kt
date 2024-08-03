@@ -5,8 +5,10 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
+import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
@@ -50,13 +52,24 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
 
         board += ""
-
         board += "${CC.GRAY}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
-        board += "${CC.GRAY}Playing: ${CC.PRI}${
+        board += "${CC.GRAY}In-game: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
         }"
+
+        val coreProfile = CorePlayerProfileService.find(player)
+        if (coreProfile != null)
+        {
+            board += ""
+            board += "${CC.GRAY}XP: ${CC.D_AQUA}${
+                Numbers.format(coreProfile.experience)
+            }"
+            board += "${CC.GRAY}Coins: ${CC.GOLD}${
+                Numbers.format(coreProfile.coins)
+            } ⛃"
+        }
 
         if (profile.inQueue())
         {

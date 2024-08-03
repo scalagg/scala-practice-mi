@@ -109,20 +109,20 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                 GameLifecycle.ObjectiveBound ->
                 {
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
+                    teamSection += " ${CC.GRAY}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
                         self.gameLifecycleArbitraryObjectiveProgress
                     }"
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
+                    teamSection += " ${CC.GRAY}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
                         them.gameLifecycleArbitraryObjectiveProgress
                     }"
                 }
 
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
-                    teamSection += " ${CC.WHITE}You: $selfColor${
+                    teamSection += " ${CC.GRAY}You: $selfColor${
                         if (game.gameLifecycleObjectiveMet(them)) "${self.players.size}" else "✔"
                     }"
-                    teamSection += " ${CC.WHITE}Them: $theirColor${
+                    teamSection += " ${CC.GRAY}Them: $theirColor${
                         if (game.gameLifecycleObjectiveMet(self)) "${them.players.size}" else "✔"
                     }"
                 }
@@ -230,19 +230,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 {
                     val opponent = game.getOpponent(player)
                         ?: return
-
-                    board += "${CC.GRAY}Time: ${CC.PRI}${game.getDuration()}"
-
                     val showHitScoreboard = game.flag(FeatureFlag.WinWhenNHitsReached)
                     if (opponent.players.size == 1)
                     {
                         val opponentPlayer = opponent.players.first()
-
-                        board += "${CC.GRAY}Opponent: ${CC.PRI}${
-                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponentPlayer.username()
-                        }"
-                        board += ""
-
                         if (showHitScoreboard)
                         {
                             val teamOfPlayer = game.getTeamOf(player)
@@ -296,6 +287,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 }ms"
                             }
                         }
+
+                        board += ""
+                        board += "${CC.GRAY}Opponent: ${CC.PRI}${
+                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponentPlayer.username()
+                        }"
+                        board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
                     } else if (!game.robot())
                     {
                         if (game.lifecycle() != GameLifecycle.SoulBound)
