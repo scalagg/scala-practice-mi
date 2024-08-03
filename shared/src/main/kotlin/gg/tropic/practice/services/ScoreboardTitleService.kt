@@ -18,14 +18,16 @@ object ScoreboardTitleService
 {
     private val titleAnimator = TextAnimator.of(
         TextFadeAnimation(
-            "${CC.BOLD}${if ("mipdev" in ServerSync.getLocalGameServer().groups) "DEV " else ""}PRACTICE",
-            ChatColor.RED,
-            ChatColor.GRAY,
-            ChatColor.DARK_GRAY
+            "Duels",
+            ChatColor.YELLOW,
+            ChatColor.DARK_GRAY,
+            ChatColor.GRAY
         )
     )
 
-    fun getCurrentTitle() = titleAnimator.current().text
+    fun getCurrentTitle() = "${titleAnimator.current().text}${
+        if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
+    }"
 
     @Configure
     fun configure()

@@ -42,7 +42,6 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         board: LinkedList<String>, player: Player
     )
     {
-
         val layout: ScoreboardStyle = layout(player)
 
         if (layout == ScoreboardStyle.Disabled)
@@ -54,13 +53,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             .byPlayerOrSpectator(player.uniqueId)
             ?: return
 
-        board += if (layout == ScoreboardStyle.Default)
-        {
-            ""
-        } else
-        {
-            CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
-        }
+        board += ""
 
         fun GameTeamSide.format() = if (game.flag(FeatureFlag.RedBlueTeams)) toRBTeamSide().display[0] else name
 
@@ -173,9 +166,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 board += ""
             }
 
-            board += "Map: ${CC.PRI}${game.map.displayName}"
-            board += "Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
-            board += "Duration: ${CC.PRI}${game.getDuration()}"
+            board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
+            board += "${CC.GRAY}Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
+            board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
 
             if (game.lifecycle()!= GameLifecycle.SoulBound)
             {
@@ -404,16 +397,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             }
         }
 
-        if (layout == ScoreboardStyle.Default)
-        {
-            board += ""
-            board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
-        } else
-        {
-            board += ""
-            board += CC.PRI + LemonConstants.WEB_LINK
-            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
-        }
+        board += ""
+        board += "${CC.YELLOW}solara.gg${CC.GRAY}      ${CC.YELLOW}"
     }
 
     @Configure
@@ -438,8 +423,5 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             }
     }
 
-    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default)
-        ScoreboardTitleService.getCurrentTitle() else "${CC.B_PRI}${
-        player.getMetadata("region").firstOrNull()?.value() ?: "NA"
-    } Practice"
+    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
 }
