@@ -60,17 +60,6 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }"
 
         val coreProfile = CorePlayerProfileService.find(player)
-        if (coreProfile != null)
-        {
-            board += ""
-            board += "${CC.GRAY}XP: ${CC.D_AQUA}${
-                Numbers.format(coreProfile.experience)
-            }"
-            board += "${CC.GRAY}Coins: ${CC.GOLD}${
-                Numbers.format(coreProfile.coins)
-            } ⛃"
-        }
-
         if (profile.inQueue())
         {
             board += ""
@@ -110,6 +99,17 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
         } else
         {
+            if (coreProfile != null)
+            {
+                board += ""
+                board += "${CC.GRAY}XP: ${CC.D_AQUA}${
+                    Numbers.format(coreProfile.experience)
+                }"
+                board += "${CC.GRAY}Coins: ${CC.GOLD}${
+                    Numbers.format(coreProfile.coins)
+                } ⛃"
+            }
+
             BasicsProfileService.find(player)
                 ?.apply {
                     val scoreboardView = setting(
