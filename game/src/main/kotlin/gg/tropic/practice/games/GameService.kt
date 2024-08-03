@@ -989,7 +989,6 @@ object GameService
 
                 if (game.flag(FeatureFlag.DoNotTakeFallDamage))
                 {
-                    println("Cancelling this fall damage")
                     it.isCancelled = true
                 }
             }

@@ -120,10 +120,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
                     teamSection += " ${CC.GRAY}You: $selfColor${
-                        if (game.gameLifecycleObjectiveMet(them)) "${self.players.size}" else "✔"
+                        if (game.gameLifecycleObjectiveMet(them)) "${self.nonSpectators().size}" else "✔"
                     }"
                     teamSection += " ${CC.GRAY}Them: $theirColor${
-                        if (game.gameLifecycleObjectiveMet(self)) "${them.players.size}" else "✔"
+                        if (game.gameLifecycleObjectiveMet(self)) "${them.nonSpectators().size}" else "✔"
                     }"
                 }
             }
