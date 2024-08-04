@@ -1216,6 +1216,13 @@ object GameService
             .bindWith(plugin)
 
         Events
+            .subscribe(PlayerFishEvent::class.java)
+            .handler {
+                it.isCancelled = true
+            }
+            .bindWith(plugin)
+
+        Events
             .subscribe(PlayerRunAndEatAttemptEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)
