@@ -1440,22 +1440,23 @@ object GameService
                 )
             }
 
-        Events.subscribe(BlockExplodeEvent::class.java)
+        Events.subscribe(EntityExplodeEvent::class.java)
             .handler {
-                val game = byWorld(it.block.world)
+                println("Something")
+                val game = byWorld(it.entity.world)
                     ?: return@handler run {
+                        println("Cancelling")
                         it.isCancelled = true
                     }
 
                 if (!game.flag(FeatureFlag.ExplodePlacedBlocks))
                 {
+                    println("Not exploding blocks")
                     it.isCancelled = true
                     return@handler
                 }
 
-                it.block.world.players.forEach {
-                    it.sendMessage("Breaking some blocks")
-                }
+                println("Breaking some blocks")
 
                 it.blockList()
                     .removeIf { block ->

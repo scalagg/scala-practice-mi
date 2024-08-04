@@ -1,5 +1,8 @@
 package gg.tropic.practice.games.features
 
+import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.GameState
+import net.evilblock.cubed.util.CC
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -45,6 +48,14 @@ class FireballFeature : Listener
     {
         //check hand
         val inHand = event.item ?: return
+        val game = GameService.byPlayer(event.player)
+            ?: return
+
+        if (game.state(GameState.Playing))
+        {
+            event.player.sendMessage("${CC.RED}You cannot throw fireballs right now!")
+            return
+        }
 
         if (event.action == Action.RIGHT_CLICK_BLOCK || event.action == Action.RIGHT_CLICK_AIR)
         {
