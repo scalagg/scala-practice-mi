@@ -51,7 +51,7 @@ class FireballFeature : Listener
         val game = GameService.byPlayer(event.player)
             ?: return
 
-        if (game.state(GameState.Playing))
+        if (!game.state(GameState.Playing))
         {
             event.player.sendMessage("${CC.RED}You cannot throw fireballs right now!")
             return
