@@ -13,7 +13,6 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.util.QuickAccess
 import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.staff.anticheat.AnticheatCheck
 import gg.scala.staff.anticheat.AnticheatFeature
 import gg.tropic.game.extensions.cosmetics.CosmeticLocalConfig
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
@@ -60,7 +59,6 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftTNTPrimed
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
@@ -1447,30 +1445,28 @@ object GameService
                 )
             }
 
-        Events.subscribe(EntityExplodeEvent::class.java)
+        Events
+            .subscribe(EntityExplodeEvent::class.java)
             .handler {
-                println("Something")
                 val game = byWorld(it.entity.world)
                     ?: return@handler run {
-                        println("Cancelling")
                         it.isCancelled = true
                     }
 
                 if (!game.flag(FeatureFlag.ExplodePlacedBlocks))
                 {
-                    println("Not exploding blocks")
                     it.isCancelled = true
                     return@handler
                 }
 
-                println("Breaking some blocks")
+                println(it.blockList().joinToString(", ") { it.type.name })
 
                 it.blockList()
                     .removeIf { block ->
-                        val canPlace = game.kit.allowedBlockTypeMappings.isEmpty ||
+                        val breakable = game.kit.allowedBlockTypeMappings.isEmpty ||
                             game.kit.allowedBlockTypeMappings.get()[block.type]?.toByte() == block.data
 
-                        !(canPlace || block.hasMetadata("placed"))
+                        breakable || block.hasMetadata("placed")
                     }
             }
             .bindWith(plugin)

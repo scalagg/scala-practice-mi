@@ -133,15 +133,15 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }${
                             if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
-                        return
+                    } else
+                    {
+                        teamSection += "${CC.GRAY}You: $selfColor${
+                            if (game.gameLifecycleObjectiveMet(them)) "${self.nonSpectators().size}" else "✔"
+                        }"
+                        teamSection += "${CC.GRAY}Them: $theirColor${
+                            if (game.gameLifecycleObjectiveMet(self)) "${them.nonSpectators().size}" else "✔"
+                        }"
                     }
-
-                    teamSection += "${CC.GRAY}You: $selfColor${
-                        if (game.gameLifecycleObjectiveMet(them)) "${self.nonSpectators().size}" else "✔"
-                    }"
-                    teamSection += "${CC.GRAY}Them: $theirColor${
-                        if (game.gameLifecycleObjectiveMet(self)) "${them.nonSpectators().size}" else "✔"
-                    }"
                 }
             }
 
