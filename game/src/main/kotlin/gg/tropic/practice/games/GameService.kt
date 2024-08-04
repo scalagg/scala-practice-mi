@@ -23,6 +23,7 @@ import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosme
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.features.FireballFeature
+import gg.tropic.practice.games.features.FireballFeature.Companion.fireballExplosionSize
 import gg.tropic.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.tropic.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
 import gg.tropic.practice.games.team.GameTeamSide
@@ -59,6 +60,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftTNTPrimed
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
@@ -1459,7 +1461,9 @@ object GameService
                     return@handler
                 }
 
-                println(it.blockList().joinToString(", ") { it.type.name })
+                it.entity.world.blocks(
+                    location, 3.0, fireballExplosionSize, fireballExplosionSize
+                )
 
                 it.blockList()
                     .removeIf { block ->
