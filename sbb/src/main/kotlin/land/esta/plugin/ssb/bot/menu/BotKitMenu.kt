@@ -3,7 +3,10 @@ package land.esta.plugin.ssb.bot.menu
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.Map
 import gg.tropic.practice.menu.TemplateKitMenu
+import gg.tropic.practice.menu.TemplateMapMenu
 import gg.tropic.practice.namespace
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
@@ -16,6 +19,8 @@ import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.util.bukkit.Tasks
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import java.util.concurrent.CompletableFuture
@@ -113,24 +118,87 @@ class BotKitMenu(private val identifier: String, private val selection: String? 
             }
         }
 
-        player.closeInventory()
+        val joinQueue = { map: Map? ->
+            player.closeInventory()
+            kitSelectionLock = true
 
-        kitSelectionLock = true
+            CompletableFuture.runAsync {
+                if (map != null)
+                {
+                    ScalaCommonsSpigot.instance.kvConnection.sync()
+                        .set(
+                            "${namespace()}:bot-map-selection:${player.uniqueId}",
+                            map.name
+                        )
+                } else
+                {
+                    ScalaCommonsSpigot.instance.kvConnection.sync()
+                        .del(
+                            "${namespace()}:bot-map-selection:${player.uniqueId}"
+                        )
+                }
 
-        CompletableFuture.runAsync {
-            ScalaCommonsSpigot.instance.kvConnection.sync()
-                .set(
-                    "${namespace()}:bot-selection:${player.uniqueId}",
-                    if (selection == null) identifier else "$identifier:$selection"
-                )
-        }.thenAccept {
-            QueueService.joinQueue(kit, QueueType.Robot, 1, player)
+                ScalaCommonsSpigot.instance.kvConnection.sync()
+                    .set(
+                        "${namespace()}:bot-selection:${player.uniqueId}",
+                        if (selection == null) identifier else "$identifier:$selection"
+                    )
+            }.thenAccept {
+                QueueService.joinQueue(kit, QueueType.Robot, 1, player)
+            }
+
+            Button.playNeutral(player)
+            player.sendMessage(
+                "${CC.GREEN}You have joined the ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} queue!"
+            )
         }
 
-        Button.playNeutral(player)
-        player.sendMessage(
-            "${CC.GREEN}You have joined the ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} queue!"
-        )
+        if (player.hasPermission("bot.custom-map-selection"))
+        {
+            object : TemplateMapMenu()
+            {
+                override fun filterDisplayOfMap(map: Map) = map.associatedKitGroups
+                    .intersect(KitGroupService.groupsOf(kit).toSet())
+                    .isNotEmpty()
+
+                override fun itemDescriptionOf(player: Player, map: Map) = listOf(
+                    "",
+                    "${CC.GREEN}Click to select!"
+                )
+
+                override fun itemClicked(player: Player, map: Map, type: ClickType)
+                {
+                    Button.playNeutral(player)
+                    joinQueue(map)
+                }
+
+                override fun getGlobalButtons(player: Player) = mutableMapOf(
+                    4 to ItemBuilder
+                        .of(Material.NETHER_STAR)
+                        .name("${CC.B_AQUA}Random Map")
+                        .addToLore(
+                            "",
+                            "${CC.AQUA}Click to select!"
+                        )
+                        .toButton { _, _ ->
+                            joinQueue(null)
+                        }
+                )
+
+                override fun getPrePaginatedTitle(player: Player) = "Select a map..."
+
+                override fun onClose(player: Player, manualClose: Boolean)
+                {
+                    if (manualClose)
+                    {
+                        Tasks.sync { BotKitMenu(identifier).openMenu(player) }
+                    }
+                }
+            }.openMenu(player)
+        } else
+        {
+            joinQueue(null)
+        }
     }
 
     override fun getPrePaginatedTitle(player: Player) = "Select a kit..."
