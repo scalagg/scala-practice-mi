@@ -7,7 +7,6 @@ import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.EstaRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.bots.mechanics.*;
-import land.esta.plugin.ssb.utils.fb.Island;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
@@ -74,7 +73,7 @@ public class Bot {
     private List<Location> blockedLocations = new ArrayList<>();
     private long lastPlacedBlockUp = System.currentTimeMillis();
     private long lastLiquid = System.currentTimeMillis();
-    private List<Island> islands = new ArrayList<>();
+//    private List<Island> islands = new ArrayList<>();
 
     public Bot(Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
         this.startLocation = location;

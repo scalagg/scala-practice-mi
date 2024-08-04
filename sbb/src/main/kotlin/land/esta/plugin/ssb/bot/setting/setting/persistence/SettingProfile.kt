@@ -11,7 +11,7 @@ import net.evilblock.cubed.util.CC
  * @author GrowlyX
  * @since 7/21/2024
  */
-class SettingProfile(val id: String)
+open class SettingProfile(val id: String)
 {
     val settings = mutableMapOf<String, SettingValue>()
 

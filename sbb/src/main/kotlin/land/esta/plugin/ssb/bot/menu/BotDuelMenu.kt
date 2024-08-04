@@ -8,6 +8,7 @@ import land.esta.plugin.ssb.bot.setting.BotSettingService
 import land.esta.plugin.ssb.bot.setting.setting.root
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
+import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
@@ -28,27 +29,31 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         placeholder = true
     }
 
-    fun Player.buildNewItem(id: String, display: String, data: Short) = ItemBuilder.of(Material.WOOL)
-        .data(data)
-        .name(display)
-        .setLore(BotSettingService.loadDefaultProfile(id).describe())
-        .addToLore(
-            "",
-            "${CC.GREEN}Click to start an $display${CC.GREEN} match!"
-        )
-        .toButton { _, _ ->
-            BotKitMenu(id).openMenu(this)
-        }
+    fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
+    {
+        val profile = BotSettingService.loadDefaultProfile(id)
 
-    override fun size(buttons: Map<Int, Button>): Int = 27
+        return (if (skinBased) ItemBuilder.copyOf(object : TexturedHeadButton(profile.skinProperties.value){}.getButtonItem(player)) else ItemBuilder.of(Material.WOOL).data(data))
+            .name(display)
+            .setLore(profile.describe())
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to play!"
+            )
+            .toButton { _, _ ->
+                BotKitMenu(id).openMenu(this)
+            }
+    }
+    override fun size(buttons: Map<Int, Button>): Int = 36
     override fun getButtons(player: Player): Map<Int, Button> = mapOf(
         12 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
         13 to player.buildNewItem("NORMAL", "${CC.YELLOW}Normal", 4),
         14 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
         15 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
         16 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
-        21 to player.buildNewItem("CLOWN", "${CC.RED}Clown", 6),
-        23 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12),
+
+        21 to player.buildNewItem("CLOWN", "${CC.PINK}Clown", 6, true),
+        23 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12, true),
         22 to ItemBuilder.of(Material.NETHER_STAR)
             .name("&6&lCustom")
             .addToLore(
