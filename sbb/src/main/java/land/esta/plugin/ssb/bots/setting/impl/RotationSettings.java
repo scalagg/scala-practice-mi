@@ -13,9 +13,13 @@ import java.util.Arrays;
 @Setter
 public class RotationSettings extends Category {
 
-    private Option<Integer> speed = new Option<>("Speed", Material.EXP_BOTTLE,this,18,2, 60);
-    private Option<Double> jitterRotation = new Option<>("Jitter Rotation", Material.FLINT,this,1.0, 1, 35);
-    private Option<Double> speedRandom = new Option<>("Speed Random", Material.FIREWORK,this,1.0, 1, 35);
+    private Option<Integer> speed = new Option<>("Speed", Material.EXP_BOTTLE, this, 18, 2, 60);
+    private Option<Integer> jitterRotation = new Option<>(
+            "Jitter Rotation", Material.FLINT, this, 1, 1, 35
+    );
+    private Option<Integer> speedRandom = new Option<>(
+            "Speed Random", Material.FIREWORK, this, 1, 1, 35
+    );
 
     public RotationSettings(Category parent) {
         super(
