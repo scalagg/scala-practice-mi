@@ -93,7 +93,7 @@ class FireballFeature : Listener
     @EventHandler
     fun fireballHit(e: ProjectileHitEvent)
     {
-        if (e.entity !is Fireball) return
+        /*if (e.entity !is Fireball) return
         val location: Location = e.entity.location
 
         val projectileSource: ProjectileSource = e.entity.shooter ?: return
@@ -133,7 +133,7 @@ class FireballFeature : Listener
             {
                 player.damage(damageEnemy) // damage enemies
             }
-        }
+        }*/
     }
 
     @EventHandler

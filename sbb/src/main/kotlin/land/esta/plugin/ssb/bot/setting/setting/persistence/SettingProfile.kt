@@ -6,6 +6,7 @@ import land.esta.plugin.ssb.bot.setting.setting.RootAccessor
 import land.esta.plugin.ssb.bot.setting.setting.root
 import land.esta.plugin.ssb.bots.Bot
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 
 /**
  * @author GrowlyX
@@ -58,25 +59,25 @@ class SettingProfile(val id: String)
 
     fun describe() = listOf(
         "",
-        "${CC.B_PRI}Difficulty:",
-        "${CC.PRI}CPS: ${CC.WHITE}${
+        "${CC.B_GOLD}Gameplay:",
+        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}CPS: ${CC.PRI}${
             value(RootAccessor.attackSettings.cps)
         }",
-        "${CC.PRI}Reach: ${CC.WHITE}${
+        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Reach: ${CC.PRI}${
             "%.2f".format(value(RootAccessor.attackSettings.reach).toFloat())
         }",
-        "${CC.PRI}Ping: ${CC.WHITE}${
+        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Ping: ${CC.PRI}${
             value(RootAccessor.connectionSettings.ping)
         }ms",
         "",
         "${CC.B_AQUA}Traits:",
-        "${CC.AQUA}W-Tap: ${CC.WHITE}${
+        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}W-Tap: ${CC.PRI}${
             if (value(RootAccessor.wTapSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
-        "${CC.AQUA}Rod: ${CC.WHITE}${
+        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Rod: ${CC.PRI}${
             if (value(RootAccessor.rodSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
-        "${CC.AQUA}Strafe: ${CC.WHITE}${
+        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Strafe: ${CC.PRI}${
             if (value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
     )
