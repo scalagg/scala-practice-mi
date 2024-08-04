@@ -359,8 +359,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                         " ${CC.RED}($hitsDiff)"
                             }"
 
-                            board += "${CC.GRAY}Opponent:"
-                            board += "${CC.RED}${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress} hits"
+                            board += "${CC.GRAY}Opponent: ${CC.RED}${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress}"
 
                             for (other in opponent.players.take(3))
                             {
