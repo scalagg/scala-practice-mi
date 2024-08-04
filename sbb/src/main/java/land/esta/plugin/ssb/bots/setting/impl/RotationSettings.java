@@ -15,10 +15,10 @@ public class RotationSettings extends Category {
 
     private Option<Integer> speed = new Option<>("Speed", Material.EXP_BOTTLE, this, 18, 2, 60);
     private Option<Integer> jitterRotation = new Option<>(
-            "Jitter Rotation", Material.FLINT, this, 1, 1, 35
+            "jitter_rotation_fixed", "Jitter Rotation", Material.FLINT, this, 1, 1, 35
     );
     private Option<Integer> speedRandom = new Option<>(
-            "Speed Random", Material.FIREWORK, this, 1, 1, 35
+            "speed_rotation_fixed", "Speed Random", Material.FIREWORK, this, 1, 1, 35
     );
 
     public RotationSettings(Category parent) {

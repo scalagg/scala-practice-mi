@@ -51,11 +51,7 @@ data class Option<T : Any>(
         increment: Double,
         maxValue: Double
     ) : this(
-        display.lowercase()
-            .replace("(", "_")
-            .replace(")", "_")
-            .replace(" ", "_"),
-        ItemStack((material)), parent, display, default, increment, maxValue
+        id, ItemStack((material)), parent, display, default, increment, maxValue
     )
 
     constructor(
