@@ -27,9 +27,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BuildingFeature extends Feature {
-    private long lastPlaced = System.currentTimeMillis();
-    private List<Location> blockedLocations = new ArrayList<>();
-    private long lastPlacedBlockUp = System.currentTimeMillis();
 
     @Override
     public void tickEvent(Bot bot) {
@@ -46,7 +43,7 @@ public class BuildingFeature extends Feature {
         }
 
         if (bot.isCurrentlyBuilding()) {
-            lastPlaced = System.currentTimeMillis();
+            bot.setLastPlaced(System.currentTimeMillis());
             return;
         }
 
@@ -77,7 +74,7 @@ public class BuildingFeature extends Feature {
 //        );
 
         boolean shouldBuild = ((buildWhenCombo && currentComboBots >= buildWhenComboHits && bot.getDamageManager().getDamageTicks() < 10) || distanceToPlayer <= minDistanceFromPlayer)
-                && currentTime - placeCooldown > lastPlaced
+                && currentTime - placeCooldown > bot.getLastPlaced()
                 && BuildingUtilitiesKt.isMovingTowards(
                 bot.getMovements().getTargetLocate().getTargetEntity().getLocation(),
                 bot.getMovements().getLocation()
@@ -133,8 +130,8 @@ public class BuildingFeature extends Feature {
                         if (!placementConfiguration.hasNext()) {
                             bot.setCurrentlyBuilding(false);
                             bot.getInventoryManager().setMainHand(previousSlot.get());
-                            blockedLocations.clear();
-                            lastPlaced = System.currentTimeMillis();
+                            bot.getBlockedLocations().clear();
+                            bot.setLastPlaced(System.currentTimeMillis());
                             task.closeAndReportException();
                             return;
                         }
@@ -146,19 +143,19 @@ public class BuildingFeature extends Feature {
                                 || location.distance(bot.getMovements().getLocation()) < 0.2
                                 || location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2) {
                             Location betterLocation = null;
-                            blockedLocations.add(location);
+                            bot.getBlockedLocations().add(location);
                             int index = 0;
                             while (betterLocation == null) {
                                 if (index > 15) break;
-                                betterLocation = findBetterStartLocation(bot.getMovements().getLocation(), placementConfiguration.buildAction.getSize());
+                                betterLocation = findBetterStartLocation(bot, bot.getMovements().getLocation(), placementConfiguration.buildAction.getSize());
                                 index++;
                             }
 
                             if (betterLocation == null) {
                                 bot.setCurrentlyBuilding(false);
                                 bot.getInventoryManager().setMainHand(previousSlot.get());
-                                blockedLocations.clear();
-                                lastPlaced = System.currentTimeMillis();
+                                bot.getBlockedLocations().clear();
+                                bot.setLastPlaced(System.currentTimeMillis());
                                 task.closeAndReportException();
                                 return;
                             }
@@ -168,8 +165,8 @@ public class BuildingFeature extends Feature {
                             location = placementConfiguration.next();
                         }
                     } else {
-                        if (System.currentTimeMillis() - (finalTicks * 50L) < lastPlacedBlockUp) return;
-                        lastPlacedBlockUp = System.currentTimeMillis();
+                        if (System.currentTimeMillis() - (finalTicks * 50L) < bot.getLastPlacedBlockUp()) return;
+                        bot.setLastPlacedBlockUp(System.currentTimeMillis());
                         bot.getMovements().setLockLocation(true);
 
                         if (!location.clone().subtract(0, 1, 0).getBlock().getType().isSolid() || Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
@@ -180,8 +177,8 @@ public class BuildingFeature extends Feature {
 
                             bot.setCurrentlyBuilding(false);
                             bot.getInventoryManager().setMainHand(previousSlot.get());
-                            blockedLocations.clear();
-                            lastPlaced = System.currentTimeMillis();
+                            bot.getBlockedLocations().clear();
+                            bot.setLastPlaced(System.currentTimeMillis());
                             bot.getMovements().setLockLocation(false);
                             task.closeAndReportException();
                             return;
@@ -194,8 +191,8 @@ public class BuildingFeature extends Feature {
                             if (loc1.distance(loc2) > minDistanceFromPlayer) {
                                 bot.setCurrentlyBuilding(false);
                                 bot.getInventoryManager().setMainHand(previousSlot.get());
-                                blockedLocations.clear();
-                                lastPlaced = System.currentTimeMillis();
+                                bot.getBlockedLocations().clear();
+                                bot.setLastPlaced(System.currentTimeMillis());
                                 bot.getMovements().setLockLocation(false);
                                 task.closeAndReportException();
                                 return;
@@ -250,11 +247,11 @@ public class BuildingFeature extends Feature {
                 .bindWith(bot.getTerminable());
     }
 
-    public Location findBetterStartLocation(Location botLocation, Vector size) {
-        return findBetterStartLocation(botLocation, (int) size.getX(), (int) size.getY(), (int) size.getZ());
+    public Location findBetterStartLocation(Bot bot, Location botLocation, Vector size) {
+        return findBetterStartLocation(bot, botLocation, (int) size.getX(), (int) size.getY(), (int) size.getZ());
     }
 
-    public Location findBetterStartLocation(Location botLocation, int width, int height, int depth) {
+    public Location findBetterStartLocation(Bot bot, Location botLocation, int width, int height, int depth) {
         int reach = 4;
 
         for (int dx = -reach; dx <= reach; dx++) {
@@ -262,7 +259,7 @@ public class BuildingFeature extends Feature {
                 for (int dy = -reach; dy <= reach; dy++) {
                     Location candidateLocation = botLocation.clone().add(dx, dy, dz);
 
-                    if (containsLocation(candidateLocation)) continue;
+                    if (containsLocation(bot, candidateLocation)) continue;
 
                     if (isNonSolidArea(candidateLocation, width, height, depth)) {
                         return candidateLocation;
@@ -274,8 +271,8 @@ public class BuildingFeature extends Feature {
         return null;
     }
 
-    public boolean containsLocation(Location location) {
-        for (Location loc : blockedLocations) {
+    public boolean containsLocation(Bot bot, Location location) {
+        for (Location loc : bot.getBlockedLocations()) {
             if (loc.distance(location) < 0.1) return true;
         }
 

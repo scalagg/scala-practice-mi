@@ -68,6 +68,13 @@ public class Bot {
 
     private boolean currentlyBuilding;
 
+    // Temp
+    private long lastPlaced = System.currentTimeMillis();
+    private List<Location> blockedLocations = new ArrayList<>();
+    private long lastPlacedBlockUp = System.currentTimeMillis();
+    private long lastLiquid = System.currentTimeMillis();
+//    private List<Island> islands = new ArrayList<>();
+
     public Bot(Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
         this.startLocation = location;
         this.kit = kit;
