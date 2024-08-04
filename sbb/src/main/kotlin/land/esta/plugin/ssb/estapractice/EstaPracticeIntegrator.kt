@@ -68,20 +68,21 @@ object EstaPracticeIntegrator
                     profileValue.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1)
                 } else if (profileValue.getObject() is Double)
                 {
-                    if (profileValue.getObject() as Double % 1 == 0.0) if (RandomUtil.randInt(
-                            profileValue.getMin().toInt(), profileValue.getMax().toInt()
-                        ) != -1
-                    ) profileValue.setObject(
-                        RandomUtil.randInt(
-                            profileValue.getMin().toInt(),
-                            profileValue.getMax().toInt()
-                        )
-                    )
-                    else if (RandomUtil.randDouble(
-                            profileValue.getMin(),
-                            profileValue.getMax()
-                        ) != -1.0
-                    ) profileValue.setObject(RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()))
+                    if (profileValue.getObject() as Double % 1 == 0.0)
+                    {
+                        if (RandomUtil.randInt(profileValue.getMin().toInt(), profileValue.getMax().toInt()) != -1)
+                        {
+                            profileValue.setObject(
+                                RandomUtil.randInt(
+                                    profileValue.getMin().toInt(),
+                                    profileValue.getMax().toInt()
+                                )
+                            )
+                        } else if (RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()) != -1.0)
+                        {
+                            profileValue.setObject(RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()))
+                        }
+                    }
                 } else
                 {
                     if (RandomUtil.randInt(
@@ -141,7 +142,8 @@ object EstaPracticeIntegrator
             bot.movements.collision.waterEnterEvent = Runnable { bot.silentKill() }
         }
 
-        if (game.flag(FeatureFlag.DeathBelowYAxis)) {
+        if (game.flag(FeatureFlag.DeathBelowYAxis))
+        {
             bot.movements.isEdgeDetector = true
         }
 
@@ -256,14 +258,16 @@ object EstaPracticeIntegrator
                 val poisonEffect = it.potion.effects
                     .firstOrNull { effect -> effect.type == PotionEffectType.POISON }
 
-                if (poisonEffect != null) {
+                if (poisonEffect != null)
+                {
                     bot.healthManager.addPoisonTicks(poisonEffect.amplifier)
                 }
 
                 val slownessEffect = it.potion.effects
                     .firstOrNull { effect -> effect.type == PotionEffectType.SLOW }
 
-                if (slownessEffect != null) {
+                if (slownessEffect != null)
+                {
                     bot.healthManager.addSlownessTicks(slownessEffect.amplifier)
                 }
 

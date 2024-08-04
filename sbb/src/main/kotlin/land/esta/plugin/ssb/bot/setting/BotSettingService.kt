@@ -32,6 +32,11 @@ object BotSettingService: DataSyncService<BotSettingContainer>()
 
     override fun postReload()
     {
+        if (defaultProfiles.all { cached().map.containsKey(it) })
+        {
+            return
+        }
+
         val cached = cached()
         defaultProfiles.forEach {
             cached.map.putIfAbsent(it, SettingProfile(it))

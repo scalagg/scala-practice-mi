@@ -24,8 +24,8 @@ public class Rotations extends Manager {
         super(bot);
     }
 
-    private double JitterRotation = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getJitterRotation());
-    private double rotationSpeedRandom = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getSpeedRandom());
+    private int JitterRotation = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getJitterRotation());
+    private int rotationSpeedRandom = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getSpeedRandom());
 
     private Location targetPos = null;
 

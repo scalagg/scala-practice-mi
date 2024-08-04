@@ -27,15 +27,22 @@ class BotDuelMenu : Menu("Select a Difficulty...")
 {
     init
     {
-        placeholder = true
+        placeholdBorders = true
     }
 
     fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
     {
         val profile = BotSettingService.loadDefaultProfile(id)
 
-        return (if (skinBased) ItemBuilder.copyOf(object : TexturedHeadButton(profile.skinProperties.value){}.getButtonItem(player)) else ItemBuilder.of(Material.WOOL).data(data))
-            .name(display)
+        return (if (skinBased) ItemBuilder
+            .copyOf(object : TexturedHeadButton(profile.skinProperties.value)
+            {}.getButtonItem(player))
+            .data(3)
+        else
+            ItemBuilder
+                .of(Material.WOOL)
+                .data(data)
+            ).name(display)
             .setLore(profile.describe())
             .addToLore(
                 "",
@@ -45,6 +52,7 @@ class BotDuelMenu : Menu("Select a Difficulty...")
                 BotKitMenu(id).openMenu(this)
             }
     }
+
     override fun size(buttons: Map<Int, Button>): Int = 36
     override fun getButtons(player: Player): Map<Int, Button> = mapOf(
         10 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
@@ -52,6 +60,14 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         12 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
         13 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
         14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
+
+        17 to ItemBuilder
+            .of(Material.AIR)
+            .toButton(),
+
+        26 to ItemBuilder
+            .of(Material.AIR)
+            .toButton(),
 
         19 to player.buildNewItem("CLOWN", "${CC.PINK}Clown", 6, true),
         20 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12, true),

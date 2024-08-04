@@ -43,6 +43,22 @@ data class Option<T : Any>(
     )
 
     constructor(
+        id: String,
+        display: String,
+        material: Material,
+        parent: Category?,
+        default: T,
+        increment: Double,
+        maxValue: Double
+    ) : this(
+        display.lowercase()
+            .replace("(", "_")
+            .replace(")", "_")
+            .replace(" ", "_"),
+        ItemStack((material)), parent, display, default, increment, maxValue
+    )
+
+    constructor(
         display: String,
         material: Material,
         parent: Category?,
