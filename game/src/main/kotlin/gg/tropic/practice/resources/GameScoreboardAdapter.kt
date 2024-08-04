@@ -159,7 +159,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }${
                             if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
-                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: $theirColor${
+                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: ${CC.BLUE}${
                             blue.gameLifecycleArbitraryObjectiveProgress
                         }${
                             if (blue.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
@@ -182,12 +182,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         val red = game.teams[GameTeamSide.A]!!
                         val blue = game.teams[GameTeamSide.B]!!
                         teamSection += "${CC.B_RED}R ${CC.WHITE}Red: ${CC.RED}${
-                            if (game.gameLifecycleObjectiveMet(red)) "${red.nonSpectators().size}" else "✔"
+                            if (game.gameLifecycleObjectiveMet(blue)) "${red.nonSpectators().size}" else "✔"
                         }${
                             if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
-                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: $theirColor${
-                            if (game.gameLifecycleObjectiveMet(blue)) "${blue.nonSpectators().size}" else "✔"
+                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: ${CC.BLUE}${
+                            if (game.gameLifecycleObjectiveMet(red)) "${blue.nonSpectators().size}" else "✔"
                         }${
                             if (blue.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
@@ -274,14 +274,14 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     {
                         board += "${CC.PRI}Opponents:"
 
-                        for (other in opponent.players.take(3))
+                        for (other in opponent.players.take(2))
                         {
                             board += "${CC.GRAY} - ${CC.WHITE}${other.username()}"
                         }
 
-                        if (opponent.players.size > 3)
+                        if (opponent.players.size > 2)
                         {
-                            board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
+                            board += "${CC.WHITE}(and ${opponent.players.size - 2} more...)"
                         }
                     }
 
@@ -381,7 +381,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.GRAY}You: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
                             board += "${CC.GRAY}Them:"
 
-                            for (other in opponent.players.take(3))
+                            for (other in opponent.players.take(2))
                             {
                                 val bukkitPlayer = Bukkit.getPlayer(other)
                                     ?: continue
@@ -393,9 +393,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 }ms)"
                             }
 
-                            if (opponent.players.size > 3)
+                            if (opponent.players.size > 2)
                             {
-                                board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
+                                board += "${CC.WHITE}(and ${opponent.players.size - 2} more...)"
                             }
                         } else
                         {
