@@ -179,7 +179,7 @@ class GameStartTask(
                     " "
                 )
 
-                if (Bukkit.getPluginManager().isPluginEnabled("anticheat"))
+                /*if (Bukkit.getPluginManager().isPluginEnabled("anticheat"))
                 {
                     fun Player.runAutoBanFor(reason: String)
                     {
@@ -236,7 +236,7 @@ class GameStartTask(
                                 )
                                 .bindWith(game)
                         }
-                }
+                }*/
             }
 
             this.game.playSound(Sound.FIREWORK_LAUNCH, pitch = 1.2f)

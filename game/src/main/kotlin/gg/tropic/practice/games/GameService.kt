@@ -121,6 +121,13 @@ object GameService
 
         plugin.registerListener(FireballFeature())
 
+        AnticheatFeature.proxiedPlayerAllowAC = context@{
+            val game = byPlayer(it)
+                ?: return@context false
+
+            !game.robot()
+        }
+
         Events
             .subscribe(ServerShutdownEvent::class.java)
             .handler {
@@ -128,16 +135,6 @@ object GameService
                     game.complete(null, "Server rebooting")
                 }
             }
-
-        AnticheatFeature.configureAlertFilter {
-
-            /**
-             * (game.expectationModel.queueType == null ||
-             *                 game.expectationModel.queueType == QueueType.Casual) &&
-             *                 game.expectationModel.queueId != "tournament"
-             */
-            return@configureAlertFilter it.type == AnticheatCheck.DOUBLE_CLICK || it.type == AnticheatCheck.AUTO_CLICKER
-        }
 
         communicationLayer.listen("terminate") {
             val matchID = retrieve<UUID>("matchID")
