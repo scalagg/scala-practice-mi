@@ -21,7 +21,7 @@ object ScoreboardTitleService
             "${CC.BOLD}Duels",
             ChatColor.YELLOW,
             ChatColor.DARK_GRAY,
-            ChatColor.GOLD
+            ChatColor.GREEN
         )
     )
 

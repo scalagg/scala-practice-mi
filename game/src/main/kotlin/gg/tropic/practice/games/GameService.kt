@@ -1453,9 +1453,16 @@ object GameService
                     return@handler
                 }
 
+                it.block.world.players.forEach {
+                    it.sendMessage("Breaking some blocks")
+                }
+
                 it.blockList()
                     .removeIf { block ->
-                        !block.hasMetadata("placed")
+                        val canPlace = game.kit.allowedBlockTypeMappings.isEmpty ||
+                            game.kit.allowedBlockTypeMappings.get()[block.type]?.toByte() == block.data
+
+                        !(canPlace || block.hasMetadata("placed"))
                     }
             }
             .bindWith(plugin)
@@ -1548,12 +1555,7 @@ object GameService
 
                 if (game.kit.allowedBlockTypeMappings.isPresent)
                 {
-                    if (
-                        game.kit.allowedBlockTypeMappings.get()
-                            .any { (type, data) ->
-                                it.block.type == type && it.block.data == data.toByte()
-                            }
-                    )
+                    if (game.kit.allowedBlockTypeMappings.get()[it.block.type]?.toByte() == it.block.data)
                     {
                         if (it.block.type == Material.SNOW_BLOCK)
                         {
