@@ -35,7 +35,7 @@ object BotSettingService: DataSyncService<BotSettingContainer>()
         if (cached().map.isEmpty())
         {
             val cached = cached()
-            listOf("EASY", "NORMAL", "HARD", "EXPERT", "NIGHTMARE").forEach {
+            listOf("EASY", "NORMAL", "HARD", "EXPERT", "NIGHTMARE", "CLOWN", "MARTIAN").forEach {
                 cached.map.putIfAbsent(it, SettingProfile(it))
             }
             sync(cached)

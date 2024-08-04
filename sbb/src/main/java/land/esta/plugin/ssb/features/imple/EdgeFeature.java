@@ -11,6 +11,8 @@ public class EdgeFeature extends Feature {
 
     //If this feature is enabled & the bot is in the edge of a block he will stop moving.
 
+    private int maxFall = 2;
+
     @Override
     public void tickEvent(Bot bot) {
 //        if (!bot.getMovements().isEdgeDetector()) return;
@@ -40,6 +42,13 @@ public class EdgeFeature extends Feature {
 
         if (frontBlockLocation.getBlock().getType().equals(Material.AIR)) {
             found = true;
+        }
+
+        for (int i = 1; i < maxFall; i++) {
+            if (frontBlockLocation.clone().subtract(0, i, 0).getBlock().getType().isSolid()) {
+                found = false;
+                break;
+            }
         }
 
         if (bot.getMovements().isEdge() && !found) bot.getMovements().setMove(true);

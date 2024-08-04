@@ -141,6 +141,10 @@ object EstaPracticeIntegrator
             bot.movements.collision.waterEnterEvent = Runnable { bot.silentKill() }
         }
 
+        if (game.flag(FeatureFlag.DeathBelowYAxis)) {
+            bot.movements.isEdgeDetector = true
+        }
+
         //Boxing support
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {

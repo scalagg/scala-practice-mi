@@ -42,12 +42,14 @@ class BotDuelMenu : Menu("Select a Difficulty...")
 
     override fun size(buttons: Map<Int, Button>): Int = 27
     override fun getButtons(player: Player): Map<Int, Button> = mapOf(
-        10 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
-        11 to player.buildNewItem("NORMAL", "${CC.YELLOW}Normal", 4),
-        12 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
-        13 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
-        14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
-        16 to ItemBuilder.of(Material.NETHER_STAR)
+        12 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
+        13 to player.buildNewItem("NORMAL", "${CC.YELLOW}Normal", 4),
+        14 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
+        15 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
+        16 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
+        21 to player.buildNewItem("CLOWN", "${CC.RED}Clown", 6),
+        23 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12),
+        22 to ItemBuilder.of(Material.NETHER_STAR)
             .name("&6&lCustom")
             .addToLore(
                 "${CC.GRAY}Available for ${CC.D_AQUA}VIP${CC.GRAY} and up!",

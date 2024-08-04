@@ -8,8 +8,6 @@ import org.bukkit.block.Block;
 import org.bukkit.potion.PotionEffectType;
 
 public class LiquidFeature extends Feature {
-    private long last = System.currentTimeMillis();
-
     @Override
     public void tickEvent(Bot bot) {
         Block block = bot.getMovements().getLocation().getBlock();
@@ -31,9 +29,9 @@ public class LiquidFeature extends Feature {
             int fireRess = bot.getEffectsManager().getLevel(PotionEffectType.FIRE_RESISTANCE);
 
             if (fireRess != 0) return;
-            if (System.currentTimeMillis() - 1000 < last) return;
+            if (System.currentTimeMillis() - 1000 < bot.getLastLiquid()) return;
 
-            last = System.currentTimeMillis();
+            bot.setLastLiquid(System.currentTimeMillis());
 
             bot.getDamageManager().playSound();
             bot.getDamageManager().damageEffect();
