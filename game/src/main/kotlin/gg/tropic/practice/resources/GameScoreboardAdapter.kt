@@ -76,45 +76,103 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                 GameLifecycle.RoundBound ->
                 {
-                    val roundsRequiredForCompletion = game
-                        .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
-                        ?.toIntOrNull() ?: 2
-
-                    var ballID = ""
-                    repeat(self.gameLifecycleArbitraryObjectiveProgress)
+                    if (game.flag(FeatureFlag.RedBlueTeams))
                     {
-                        ballID += "$selfColor⬤"
-                    }
+                        val red = game.teams[GameTeamSide.A]!!
+                        val blue = game.teams[GameTeamSide.B]!!
 
-                    repeat(roundsRequiredForCompletion - self.gameLifecycleArbitraryObjectiveProgress)
+                        val roundsRequiredForCompletion = game
+                            .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
+                            ?.toIntOrNull() ?: 2
+
+                        var ballID = ""
+                        repeat(red.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.RED}⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - red.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.B_RED}R ${CC.WHITE}Red: ${CC.RED}$ballID${
+                            if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+
+                        ballID = ""
+                        repeat(blue.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.BLUE}⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - blue.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.B_BLUE}R ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
+                            if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+                    } else
                     {
-                        ballID += "${CC.GRAY}⬤"
+                        val roundsRequiredForCompletion = game
+                            .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
+                            ?.toIntOrNull() ?: 2
+
+                        var ballID = ""
+                        repeat(self.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "$selfColor⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - self.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $ballID"
+
+                        ballID = ""
+                        repeat(them.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "$theirColor⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - them.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $ballID"
                     }
-
-                    teamSection += "${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $ballID"
-
-                    ballID = ""
-                    repeat(them.gameLifecycleArbitraryObjectiveProgress)
-                    {
-                        ballID += "$theirColor⬤"
-                    }
-
-                    repeat(roundsRequiredForCompletion - them.gameLifecycleArbitraryObjectiveProgress)
-                    {
-                        ballID += "${CC.GRAY}⬤"
-                    }
-
-                    teamSection += "${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $ballID"
                 }
 
                 GameLifecycle.ObjectiveBound ->
                 {
-                    teamSection += "${CC.GRAY}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
-                        self.gameLifecycleArbitraryObjectiveProgress
-                    }"
-                    teamSection += "${CC.GRAY}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
-                        them.gameLifecycleArbitraryObjectiveProgress
-                    }"
+                    if (game.flag(FeatureFlag.RedBlueTeams))
+                    {
+                        val red = game.teams[GameTeamSide.A]!!
+                        val blue = game.teams[GameTeamSide.B]!!
+                        teamSection += "${CC.B_RED}R ${CC.WHITE}Red: ${CC.RED}${
+                            red.gameLifecycleArbitraryObjectiveProgress
+                        }${
+                            if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: $theirColor${
+                            blue.gameLifecycleArbitraryObjectiveProgress
+                        }${
+                            if (blue.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+                    } else
+                    {
+                        teamSection += "${CC.GRAY}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
+                            self.gameLifecycleArbitraryObjectiveProgress
+                        }"
+                        teamSection += "${CC.GRAY}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
+                            them.gameLifecycleArbitraryObjectiveProgress
+                        }"
+                    }
                 }
 
                 GameLifecycle.ObjectivePlusSoulBound ->
@@ -378,6 +436,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
                             }
                         }
+
+                        board += ""
+                        board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
+                        board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
                     }
                 }
 
