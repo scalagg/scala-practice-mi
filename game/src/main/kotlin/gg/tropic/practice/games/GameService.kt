@@ -1461,10 +1461,6 @@ object GameService
                     return@handler
                 }
 
-                it.entity.world.blocks(
-                    location, 3.0, fireballExplosionSize, fireballExplosionSize
-                )
-
                 it.blockList()
                     .removeIf { block ->
                         val breakable = game.kit.allowedBlockTypeMappings.isEmpty ||

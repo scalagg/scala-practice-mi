@@ -51,16 +51,16 @@ class FireballFeature : Listener
         val game = GameService.byPlayer(event.player)
             ?: return
 
-        if (!game.state(GameState.Playing))
-        {
-            event.player.sendMessage("${CC.RED}You cannot throw fireballs right now!")
-            return
-        }
-
         if (event.action == Action.RIGHT_CLICK_BLOCK || event.action == Action.RIGHT_CLICK_AIR)
         {
             if (inHand.type === Material.FIREBALL)
             {
+                if (!game.state(GameState.Playing))
+                {
+                    event.player.sendMessage("${CC.RED}You cannot throw fireballs right now!")
+                    return
+                }
+
                 event.isCancelled = true
 
                 if (System.currentTimeMillis() - cooldowns.getOrDefault(event.player.uniqueId, 0L) > (0.5 * 1000))
