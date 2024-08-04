@@ -91,7 +91,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         ballID += "${CC.GRAY}⬤"
                     }
 
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $ballID"
+                    teamSection += "${CC.WHITE}${if (!firstPerson) self.side.format() else "You"}: $ballID"
 
                     ballID = ""
                     repeat(them.gameLifecycleArbitraryObjectiveProgress)
@@ -104,25 +104,42 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         ballID += "${CC.GRAY}⬤"
                     }
 
-                    teamSection += " ${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $ballID"
+                    teamSection += "${CC.WHITE}${if (!firstPerson) them.side.format() else "Them"}: $ballID"
                 }
 
                 GameLifecycle.ObjectiveBound ->
                 {
-                    teamSection += " ${CC.GRAY}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
+                    teamSection += "${CC.GRAY}${if (!firstPerson) self.side.format() else "You"}: $selfColor${
                         self.gameLifecycleArbitraryObjectiveProgress
                     }"
-                    teamSection += " ${CC.GRAY}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
+                    teamSection += "${CC.GRAY}${if (!firstPerson) them.side.format() else "Them"}: $theirColor${
                         them.gameLifecycleArbitraryObjectiveProgress
                     }"
                 }
 
                 GameLifecycle.ObjectivePlusSoulBound ->
                 {
-                    teamSection += " ${CC.GRAY}You: $selfColor${
+                    if (game.flag(FeatureFlag.RedBlueTeams))
+                    {
+                        val red = game.teams[GameTeamSide.A]!!
+                        val blue = game.teams[GameTeamSide.B]!!
+                        teamSection += "${CC.B_RED}R ${CC.GRAY}Red: ${CC.RED}${
+                            if (game.gameLifecycleObjectiveMet(red)) "${red.nonSpectators().size}" else "✔"
+                        }${
+                            if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+                        teamSection += "${CC.B_BLUE}B ${CC.GRAY}Blue: $theirColor${
+                            if (game.gameLifecycleObjectiveMet(blue)) "${blue.nonSpectators().size}" else "✔"
+                        }${
+                            if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+                        return
+                    }
+
+                    teamSection += "${CC.GRAY}You: $selfColor${
                         if (game.gameLifecycleObjectiveMet(them)) "${self.nonSpectators().size}" else "✔"
                     }"
-                    teamSection += " ${CC.GRAY}Them: $theirColor${
+                    teamSection += "${CC.GRAY}Them: $theirColor${
                         if (game.gameLifecycleObjectiveMet(self)) "${them.nonSpectators().size}" else "✔"
                     }"
                 }
