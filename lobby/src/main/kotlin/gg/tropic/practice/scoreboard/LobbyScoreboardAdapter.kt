@@ -102,8 +102,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             if (coreProfile != null)
             {
                 board += ""
-                board += "${CC.GRAY}XP: ${CC.D_AQUA}${
-                    Numbers.format(coreProfile.experience)
+                board += "${CC.GRAY}Level: ${CC.GREEN}${
+                    Numbers.format(coreProfile.level)
                 }"
                 board += "${CC.GRAY}Coins: ${CC.GOLD}${
                     Numbers.format(coreProfile.coins)
@@ -127,7 +127,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     {
                         LobbyScoreboardView.Dev ->
                         {
-                            board += "${CC.WHITE}Game servers: ${CC.PRI}${
+                            board += "${CC.GRAY}Game servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
                             board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Mean TPS: ${CC.GREEN}${
@@ -137,7 +137,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             }"
                             board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Games: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
-                            } ${CC.GRAY}(${
+                            } ${CC.D_GRAY}(${
                                 "%.2f".format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
                             }%)"
                             board += ""
