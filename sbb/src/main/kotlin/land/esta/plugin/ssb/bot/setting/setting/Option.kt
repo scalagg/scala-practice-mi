@@ -10,6 +10,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
+import kotlin.math.ceil
 import kotlin.math.max
 
 /**
@@ -131,7 +132,7 @@ data class Option<T : Any>(
                 {
                     profile.updateRandomizer(
                         this,
-                        setting.randomizer + increment
+                        (setting.randomizer + increment).coerceAtMost(ceil(maxValue / 2))
                     )
 
                     updateRandomizerRanges()
