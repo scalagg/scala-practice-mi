@@ -6,7 +6,6 @@ package land.esta.plugin.ssb.bot.setting.setting.persistence
  */
 data class SettingValue(
     private var value: InternalValue<*> = IntValue(),
-    val updateBy: Double = 1.0,
     var randomizer: Double = 0.0
 )
 {
@@ -15,7 +14,11 @@ data class SettingValue(
     fun getMin() = randomizerMinMax.first
     fun getMax() = randomizerMinMax.second
 
-    fun getObject() = value.internalValue
+    @Transient
+    var shouldLocalRandomize: Boolean = false
+
+    fun getObject() = if (shouldLocalRandomize)
+        value.randomize(randomizerMinMax) else value.internalValue
     fun setObject(possible: Any)
     {
         value = if (possible is Boolean)

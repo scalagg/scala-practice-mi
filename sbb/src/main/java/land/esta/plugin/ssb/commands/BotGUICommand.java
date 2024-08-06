@@ -4,12 +4,14 @@ import gg.scala.commons.acf.annotation.CommandAlias;
 import gg.scala.commons.annotations.commands.AutoRegister;
 import gg.scala.commons.command.ScalaCommand;
 import gg.scala.commons.issuer.ScalaPlayer;
+import gg.scala.lemon.LemonConstants;
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerDescribeProfilesMenu;
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone;
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu;
 import land.esta.plugin.ssb.bot.profile.RobotProfileService;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.utils.Color;
+import net.evilblock.cubed.util.CC;
 
 /**
  * @author GrowlyX
@@ -35,8 +37,10 @@ public class BotGUICommand extends ScalaCommand {
                 return null;
             }).openMenu(player.bukkit());
         } else {
-            player.sendMessage(Color.code("&cYou need the &3VIP &crank to use this."));
-            player.sendMessage(Color.code("&cStore: &ehttps://store.esta.land"));
+            player.sendMessage(
+                    CC.RED + "You need the " + CC.D_AQUA + "VIP" + CC.RED + "rank to use this.",
+                    CC.RED + "Store: " + CC.YELLOW + LemonConstants.getSTORE_LINK()
+            );
         }
     }
 }

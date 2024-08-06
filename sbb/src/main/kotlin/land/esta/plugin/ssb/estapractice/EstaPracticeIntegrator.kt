@@ -57,45 +57,10 @@ object EstaPracticeIntegrator
 
         if (settings.randomizerEnabled == true)
         {
-            for (option in root.recursiveOptions())
+            for (value in settings.settings.values)
             {
-                val profileValue = settings.setting(option)
-
-                if (profileValue.randomizerMinMax.first <= 0 || profileValue.randomizerMinMax.second <= 0) continue
-
-                if (profileValue.getObject() is Boolean)
-                {
-                    profileValue.setObject(RandomUtil.randInt(1, 3) == 1 && RandomUtil.randInt(1, 2) != -1)
-                } else if (profileValue.getObject() is Double)
-                {
-                    if (profileValue.getObject() as Double % 1 == 0.0)
-                    {
-                        if (RandomUtil.randInt(profileValue.getMin().toInt(), profileValue.getMax().toInt()) != -1)
-                        {
-                            profileValue.setObject(
-                                RandomUtil.randInt(
-                                    profileValue.getMin().toInt(),
-                                    profileValue.getMax().toInt()
-                                )
-                            )
-                        } else if (RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()) != -1.0)
-                        {
-                            profileValue.setObject(RandomUtil.randDouble(profileValue.getMin(), profileValue.getMax()))
-                        }
-                    }
-                } else
-                {
-                    if (RandomUtil.randInt(
-                            profileValue.getMin().toInt(),
-                            profileValue.getMax().toInt()
-                        ) != -1
-                    ) profileValue.setObject(
-                        RandomUtil.randInt(
-                            profileValue.getMin().toInt(),
-                            profileValue.getMax().toInt()
-                        )
-                    )
-                }
+                // enable the proxy randomize method when calling getObject()
+                value.shouldLocalRandomize = true
             }
         }
 
