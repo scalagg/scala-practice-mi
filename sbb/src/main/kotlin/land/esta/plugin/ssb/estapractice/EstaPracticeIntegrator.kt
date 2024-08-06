@@ -55,6 +55,15 @@ object EstaPracticeIntegrator
             return null
         }
 
+        if (settings.randomizerEnabled == true)
+        {
+            for (value in settings.settings.values)
+            {
+                // enable the proxy randomize method when calling getObject()
+                value.shouldLocalRandomize = true
+            }
+        }
+
         var name = settings.botName
         if (name.length > 16)
         {
