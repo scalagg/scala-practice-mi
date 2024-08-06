@@ -6,7 +6,6 @@ package land.esta.plugin.ssb.bot.setting.setting.persistence
  */
 data class SettingValue(
     private var value: InternalValue<*> = IntValue(),
-    val updateBy: Double = 1.0,
     var randomizer: Double = 0.0
 )
 {

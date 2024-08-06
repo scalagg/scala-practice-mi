@@ -29,7 +29,7 @@ import org.bukkit.Bukkit
     PluginAuthor("GrowlyX"),
     PluginAuthor("TastyCake")
 )
-@PluginWebsite("https://esta.land")
+@PluginWebsite("https://solara.gg")
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
