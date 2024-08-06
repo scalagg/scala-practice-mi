@@ -10,6 +10,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
+import kotlin.math.ceil
 
 /**
  * @author GrowlyX
@@ -106,14 +107,18 @@ data class Option<T : Any>(
                 val integer = setting.getObject() as Int
                 profile.updateRandomizerRange(
                     this,
-                    integer - setting.randomizer to integer + setting.randomizer
+                    ((integer - setting.randomizer).coerceAtLeast(0.0)) to ((integer + setting.randomizer).coerceAtMost(
+                        maxValue
+                    ))
                 )
             } else
             {
                 val integer = setting.getObject() as Double
                 profile.updateRandomizerRange(
                     this,
-                    integer - setting.randomizer to integer + setting.randomizer
+                    ((integer - setting.randomizer).coerceAtLeast(0.0)) to ((integer + setting.randomizer).coerceAtMost(
+                        maxValue
+                    ))
                 )
             }
         }
@@ -126,7 +131,7 @@ data class Option<T : Any>(
                 {
                     profile.updateRandomizer(
                         this,
-                        setting.randomizer + increment
+                        (setting.randomizer + increment).coerceAtMost(ceil(maxValue / 2))
                     )
 
                     updateRandomizerRanges()
