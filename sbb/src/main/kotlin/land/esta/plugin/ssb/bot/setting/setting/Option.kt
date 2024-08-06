@@ -101,28 +101,28 @@ data class Option<T : Any>(
     )
     {
         val setting = profile.setting(this)
-        fun updateRandomizerRanges()
-        {
-            if (setting.getObject() is Int)
-            {
-                val integer = setting.getObject() as Int
-                profile.updateRandomizerRange(
-                    this,
-                    ((integer - setting.randomizer).coerceAtLeast(0.0)) to ((integer + setting.randomizer).coerceAtMost(
-                        maxValue
-                    ))
-                )
-            } else
-            {
-                val integer = setting.getObject() as Double
-                profile.updateRandomizerRange(
-                    this,
-                    ((integer - setting.randomizer).coerceAtLeast(0.0)) to ((integer + setting.randomizer).coerceAtMost(
-                        maxValue
-                    ))
-                )
-            }
-        }
+//        fun updateRandomizerRanges()
+//        {
+//            if (setting.getObject() is Int)
+//            {
+//                val integer = setting.getObject() as Int
+//                profile.updateRandomizerRange(
+//                    this,
+//                    ((integer - setting.randomizer).coerceAtLeast(0.0)) to ((integer + setting.randomizer).coerceAtMost(
+//                        maxValue
+//                    ))
+//                )
+//            } else
+//            {
+//                val integer = setting.getObject() as Double
+//                profile.updateRandomizerRange(
+//                    this,
+//                    ((integer - setting.randomizer).coerceAtLeast(0.0)) to ((integer + setting.randomizer).coerceAtMost(
+//                        maxValue
+//                    ))
+//                )
+//            }
+//        }
 
         when (true)
         {
@@ -135,7 +135,7 @@ data class Option<T : Any>(
                         (setting.randomizer + increment).coerceAtMost(ceil(maxValue / 2))
                     )
 
-                    updateRandomizerRanges()
+//                    updateRandomizerRanges()
                     backbone.save(profile)
                     return
                 }
@@ -181,7 +181,7 @@ data class Option<T : Any>(
                         setting.randomizer - increment
                     )
 
-                    updateRandomizerRanges()
+//                    updateRandomizerRanges()
                     backbone.save(profile)
                     return
                 } else
@@ -234,11 +234,12 @@ data class Option<T : Any>(
                     "${CC.GOLD}Randomizer: ${CC.WHITE}${
                         "%.2f".format(setting.randomizer.toFloat())
                     } ${
-                        "${CC.GRAY}(${CC.WHITE}${
-                            "%.2f".format(setting.randomizerMinMax.first.toFloat())
-                        } ${CC.GREEN}◀▶ ${CC.WHITE}${
-                            "%.2f".format(setting.randomizerMinMax.second.toFloat())
-                        }${CC.GRAY})"
+//                        "${CC.GRAY}(${CC.WHITE}${
+//                            "%.2f".format(setting.randomizerMinMax.first.toFloat())
+//                        } ${CC.GREEN}◀▶ ${CC.WHITE}${
+//                            "%.2f".format(setting.randomizerMinMax.second.toFloat())
+//                        }${CC.GRAY})"
+                        setting.toInternalValue().randomizeRange(setting.randomizer)
                     }",
                     "",
                     "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
