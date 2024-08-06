@@ -61,7 +61,7 @@ class GameStopTask(
         {
             this.game.sendMessage(
                 "",
-                " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
+                " ${CC.GOLD}Match Overview ${CC.I_GRAY}(Click to view inventories)",
             )
 
             if (game.flag(FeatureFlag.DeathBelowYAxis))

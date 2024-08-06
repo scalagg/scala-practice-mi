@@ -11,6 +11,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import kotlin.math.ceil
+import kotlin.math.max
 
 /**
  * @author GrowlyX

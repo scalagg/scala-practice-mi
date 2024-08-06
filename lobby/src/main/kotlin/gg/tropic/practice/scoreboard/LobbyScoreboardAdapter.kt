@@ -5,8 +5,10 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
+import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
@@ -49,29 +51,25 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             return
         }
 
-        board += if (layout == ScoreboardStyle.Default) {
-            ""
-        } else {
-            CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
-        }
-
-        board += "${CC.WHITE}Online: ${CC.PRI}${
+        board += ""
+        board += "${CC.GRAY}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
-        board += "${CC.WHITE}Playing: ${CC.PRI}${
+        board += "${CC.GRAY}In-game: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
         }"
 
+        val coreProfile = CorePlayerProfileService.find(player)
         if (profile.inQueue())
         {
             board += ""
             board += "${CC.PRI}${profile.queuedForType().name} Queue:"
-            board += "${CC.GRAY}${profile.queuedForKit()?.displayName} ${
+            board += "${CC.WHITE}${profile.queuedForKit()?.displayName} ${
                 profile.queuedForTeamSize()
             }v${
                 profile.queuedForTeamSize()
             }"
-            board += "${CC.WHITE}Queued for ${CC.PRI}${
+            board += "${CC.GRAY}Queued for ${CC.PRI}${
                 TimeUtil.formatIntoMMSS((profile.queuedForTime() / 1000).toInt())
             }"
 
@@ -85,7 +83,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     .toIntRangeInclusive()
                     .formattedDomain()
 
-                board += "${CC.WHITE}ELO Range: ${CC.PRI}$domain"
+                board += "${CC.GRAY}ELO Range: ${CC.PRI}$domain"
             }
         } else if (profile.isInParty())
         {
@@ -93,14 +91,25 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.PRI}Party:"
 
             with(profile.partyOf().delegate) {
-                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Leader: ${CC.PRI}${
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.WHITE}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
-                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Party is " + status.capitalized + "..."
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Party is " + status.capitalized + "..."
             }
         } else
         {
+            if (coreProfile != null)
+            {
+                board += ""
+                board += "${CC.GRAY}Level: ${CC.GREEN}${
+                    Numbers.format(coreProfile.level)
+                }"
+                board += "${CC.GRAY}Coins: ${CC.GOLD}${
+                    Numbers.format(coreProfile.coins)
+                } ⛃"
+            }
+
             BasicsProfileService.find(player)
                 ?.apply {
                     val scoreboardView = setting(
@@ -118,23 +127,23 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     {
                         LobbyScoreboardView.Dev ->
                         {
-                            board += "${CC.WHITE}Game servers: ${CC.PRI}${
+                            board += "${CC.GRAY}Game servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
-                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Mean TPS: ${CC.GREEN}${
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Mean TPS: ${CC.GREEN}${
                                 ScoreboardInfoService.scoreboardInfo.meanTPS.run {
                                     if (this > 20.0) "*20.0" else "%.1f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
                                 }
                             }"
-                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Games: ${CC.PRI}${
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Games: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
-                            } ${CC.GRAY}(${
+                            } ${CC.D_GRAY}(${
                                 "%.2f".format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
                             }%)"
                             board += ""
-                            board += "${CC.WHITE}NA/EU Players: ${CC.PRI}${
+                            board += "${CC.GRAY}NA/EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)
-                            } ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
+                            } ${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.euServerTotalPlayers)
                             }"
 
@@ -146,16 +155,16 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                                 "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
 
                             val basicsProfile = BasicsProfileService.find(player)
-                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Vanish: ${metadataDisplay("vanished")}"
 
                             if (basicsProfile != null)
                             {
-                                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Spec: ${
+                                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Silent Spec: ${
                                     if (player.isASilentSpectator()) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
                                 }"
                             }
 
-                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Mod Mode: ${metadataDisplay("mod-mode")}"
                         }
 
                         LobbyScoreboardView.None ->
@@ -166,14 +175,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 }
         }
 
-        if (layout == ScoreboardStyle.Default) {
-            board += ""
-            board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
-        } else {
-            board += ""
-            board += CC.PRI + LemonConstants.WEB_LINK
-            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
-        }
+        board += ""
+        board += "${CC.YELLOW}solara.gg${CC.GRAY}      ${CC.YELLOW}"
     }
 
     @Configure
@@ -198,8 +201,5 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
     }
 
-    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default)
-        ScoreboardTitleService.getCurrentTitle() else "${CC.B_PRI}${
-        player.getMetadata("region").firstOrNull()?.value() ?: "NA"
-    } Practice"
+    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
 }

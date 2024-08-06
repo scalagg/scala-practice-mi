@@ -47,7 +47,7 @@ object MapRatingService
                 {
                     val message = FancyMessage()
                         .withMessage(
-                            " ${CC.AQUA}Give us feedback on ${CC.SEC}${map.displayName}${CC.AQUA} by clicking"
+                            " ${CC.AQUA}Give us feedback on ${CC.GOLD}${map.displayName}${CC.AQUA} by clicking"
                         )
 
                     val secondMessage = FancyMessage()

@@ -123,7 +123,7 @@ class RoundStartTask(
 
     override fun run()
     {
-        if (tick <= 0)
+        if (!game.state(GameState.Playing) || tick <= 0)
         {
             game.multiRoundGame.switchingRounds = false
             game.sendMessage("${CC.GREEN}Round started!")

@@ -1,5 +1,8 @@
 package gg.tropic.practice.games.features
 
+import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.GameState
+import net.evilblock.cubed.util.CC
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -22,9 +25,12 @@ import java.util.*
 
 class FireballFeature : Listener
 {
-    private val fireballExplosionSize: Double = 3.0
-    private val fireballHorizontal: Double = -1.0
-    private val fireballVertical: Double = 0.65 * 3
+    companion object
+    {
+        var fireballExplosionSize: Double = 3.0
+        var fireballHorizontal: Double = -1.42
+        var fireballVertical: Double = 0.78
+    }
 
     private val damageSelf: Double = 1.0
     private val damageEnemy: Double = 1.0
@@ -42,11 +48,19 @@ class FireballFeature : Listener
     {
         //check hand
         val inHand = event.item ?: return
+        val game = GameService.byPlayer(event.player)
+            ?: return
 
         if (event.action == Action.RIGHT_CLICK_BLOCK || event.action == Action.RIGHT_CLICK_AIR)
         {
             if (inHand.type === Material.FIREBALL)
             {
+                if (!game.state(GameState.Playing))
+                {
+                    event.player.sendMessage("${CC.RED}You cannot throw fireballs right now!")
+                    return
+                }
+
                 event.isCancelled = true
 
                 if (System.currentTimeMillis() - cooldowns.getOrDefault(event.player.uniqueId, 0L) > (0.5 * 1000))

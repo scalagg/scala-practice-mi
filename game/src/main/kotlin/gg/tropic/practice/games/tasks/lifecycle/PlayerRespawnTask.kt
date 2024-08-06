@@ -1,9 +1,6 @@
 package gg.tropic.practice.games.tasks.lifecycle
 
-import gg.tropic.practice.games.GameImpl
-import gg.tropic.practice.games.GameService
-import gg.tropic.practice.games.enterSpectatorAfterLifeEnd
-import gg.tropic.practice.games.prepareForNewLife
+import gg.tropic.practice.games.*
 import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Schedulers
 import me.lucko.helper.scheduler.Task
@@ -59,7 +56,7 @@ class PlayerRespawnTask(
 
     override fun run()
     {
-        if (tick <= 0)
+        if (!game.state(GameState.Playing) || tick <= 0)
         {
             game.prepareForNewLife(player)
 

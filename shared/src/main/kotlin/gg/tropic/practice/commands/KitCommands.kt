@@ -119,6 +119,32 @@ object KitCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("clone")
+    @CommandCompletion("@kits")
+    @Description("Clone a kit.")
+    fun onClone(player: ScalaPlayer, kit: Kit, id: String)
+    {
+        val lowercaseID = id.lowercase()
+        if (KitService.cached().kits[lowercaseID] != null)
+        {
+            throw ConditionFailedException(
+                "A kit with the ID ${CC.YELLOW}$lowercaseID${CC.RED} already exists."
+            )
+        }
+
+        val newKit = Kit(lowercaseID, id, features = kit.features.toMutableMap())
+
+        with(KitService.cached()) {
+            KitService.cached().kits[newKit.id] = newKit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have created a new cloned kit $id."
+        )
+    }
+
+    @AssignPermission
     @Subcommand("lifecycle")
     @CommandCompletion("@kits")
     @Description("Change the game lifecycle of a kit.")

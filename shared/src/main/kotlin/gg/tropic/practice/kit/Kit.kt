@@ -33,9 +33,9 @@ data class Kit(
 {
     // We need the two layers of nullability
     @Transient
-    private var backingAllowedBlockTypeMappings: Optional<List<Pair<Material, Int>>>? = null
+    private var backingAllowedBlockTypeMappings: Optional<Map<Material, Int>>? = null
 
-    val allowedBlockTypeMappings: Optional<List<Pair<Material, Int>>>
+    val allowedBlockTypeMappings: Optional<Map<Material, Int>>
         get()
         {
             if (backingAllowedBlockTypeMappings == null)
@@ -45,7 +45,7 @@ data class Kit(
                         FeatureFlag.BreakSpecificBlockTypes,
                         "types"
                     )?.split(",")
-                        ?.map { pair ->
+                        ?.associate { pair ->
                             val components = pair.split(":")
                             Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
                         }
