@@ -12,15 +12,14 @@ import net.evilblock.cubed.util.bukkit.Constants
  * @author GrowlyX
  * @since 7/21/2024
  */
-open class SettingProfile(val id: String)
-{
-    val settings = mutableMapOf<String, SettingValue>()
-
-    var botName: String = "Bot"
-    var skinProperties: Property = Bot.DEFAULT
-
+data class SettingProfile(
+    val id: String,
+    val settings: MutableMap<String, SettingValue> = mutableMapOf(),
+    var botName: String = "Bot",
+    var skinProperties: Property = Bot.DEFAULT,
     var randomizerEnabled: Boolean? = null
-
+)
+{
     init
     {
         settings.apply {
@@ -80,6 +79,12 @@ open class SettingProfile(val id: String)
         "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Strafe: ${CC.PRI}${
             if (value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
+    )
+
+    fun deepCopy() = copy(
+        settings = settings
+            .mapValues { it.value.copy() }
+            .toMutableMap()
     )
 
     fun setting(like: Option<*>) = settings.getOrPut(like.composeId()) { SettingValue(like.default.toInternalValue()) }
