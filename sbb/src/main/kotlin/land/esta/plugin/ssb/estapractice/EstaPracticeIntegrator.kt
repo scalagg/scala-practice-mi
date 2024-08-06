@@ -47,7 +47,7 @@ object EstaPracticeIntegrator
             player,
             split[0],
             split.getOrNull(1)
-        )
+        )?.deepCopy()
 
         if (settings == null)
         {

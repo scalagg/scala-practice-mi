@@ -6,7 +6,7 @@ import net.evilblock.cubed.serializers.impl.AbstractTypeSerializable
  * @author GrowlyX
  * @since 7/21/2024
  */
-interface InternalValue<T : Any> : AbstractTypeSerializable
+sealed interface InternalValue<T : Any> : AbstractTypeSerializable
 {
     var internalValue: T
 }

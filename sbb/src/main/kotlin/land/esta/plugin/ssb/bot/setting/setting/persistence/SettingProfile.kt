@@ -11,15 +11,14 @@ import net.evilblock.cubed.util.CC
  * @author GrowlyX
  * @since 7/21/2024
  */
-open class SettingProfile(val id: String)
-{
-    val settings = mutableMapOf<String, SettingValue>()
-
-    var botName: String = "Bot"
-    var skinProperties: Property = Bot.DEFAULT
-
+data class SettingProfile(
+    val id: String,
+    val settings: MutableMap<String, SettingValue> = mutableMapOf(),
+    var botName: String = "Bot",
+    var skinProperties: Property = Bot.DEFAULT,
     var randomizerEnabled: Boolean? = null
-
+)
+{
     init
     {
         settings.apply {
@@ -79,6 +78,12 @@ open class SettingProfile(val id: String)
         "${CC.AQUA}Strafe: ${CC.WHITE}${
             if (value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
+    )
+
+    fun deepCopy() = copy(
+        settings = settings
+            .mapValues { it.value.copy() }
+            .toMutableMap()
     )
 
     fun setting(like: Option<*>) = settings.getOrPut(like.composeId()) { SettingValue(like.default.toInternalValue()) }
