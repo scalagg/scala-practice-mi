@@ -131,7 +131,7 @@ data class Option<T : Any>(
                 {
                     profile.updateRandomizer(
                         this,
-                        setting.randomizer + setting.updateBy
+                        setting.randomizer + increment
                     )
 
                     updateRandomizerRanges()
@@ -177,7 +177,7 @@ data class Option<T : Any>(
                 {
                     profile.updateRandomizer(
                         this,
-                        setting.randomizer - setting.updateBy
+                        setting.randomizer - increment
                     )
 
                     updateRandomizerRanges()
