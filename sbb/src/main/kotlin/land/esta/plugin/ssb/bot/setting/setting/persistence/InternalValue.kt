@@ -2,6 +2,8 @@ package land.esta.plugin.ssb.bot.setting.setting.persistence
 
 import land.esta.plugin.ssb.utils.RandomUtil
 import net.evilblock.cubed.serializers.impl.AbstractTypeSerializable
+import net.evilblock.cubed.util.CC
+import org.bukkit.Bukkit
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -16,14 +18,20 @@ import kotlin.random.nextInt
 sealed interface InternalValue<T : Any> : AbstractTypeSerializable
 {
     var internalValue: T
-    fun randomize(minMax: Pair<Double, Double>): T
+    fun randomize(randomizer: Double): T
+    fun randomizeRange(randomizer: Double): String
 }
 
 data class BooleanValue(
     override var internalValue: Boolean = false
 ) : InternalValue<Boolean>
 {
-    override fun randomize(minMax: Pair<Double, Double>) = internalValue
+    override fun randomize(randomizer: Double) = internalValue
+    override fun randomizeRange(randomizer: Double): String
+    {
+        return ""
+    }
+
     override fun getAbstractType() = BooleanValue::class.java
 }
 
@@ -31,10 +39,22 @@ data class DoubleValue(
     override var internalValue: Double = 0.0
 ) : InternalValue<Double>
 {
-    override fun randomize(minMax: Pair<Double, Double>): Double
+    override fun randomize(randomizer: Double): Double
     {
-        val normalizedRange = max(minMax.first, 0.0)..minMax.second
+        val min = internalValue - randomizer
+        val max = internalValue + randomizer
+        if (min == max) return internalValue
+        val normalizedRange = max(min, 0.0)..max
         return Random.nextDouble(normalizedRange.start, normalizedRange.endInclusive)
+    }
+
+    override fun randomizeRange(randomizer: Double): String
+    {
+        return "${CC.GRAY}(${CC.WHITE}${
+            "%.2f".format(internalValue - randomizer)
+        } ${CC.GREEN}◀▶ ${CC.WHITE}${
+            "%.2f".format(internalValue + randomizer)
+        }${CC.GRAY})"
     }
 
     override fun getAbstractType() = DoubleValue::class.java
@@ -44,13 +64,25 @@ data class IntValue(
     override var internalValue: Int = 0
 ) : InternalValue<Int>
 {
-    override fun randomize(minMax: Pair<Double, Double>): Int
+    override fun randomize(randomizer: Double): Int
     {
-        val normalizedRange = max(minMax.first, 0.0)..minMax.second
+        val min = internalValue - randomizer
+        val max = internalValue + randomizer
+        if (min == max) return internalValue
+        val normalizedRange = max(min, 0.0)..max
         return Random.nextInt(
             floor(normalizedRange.start).toInt(),
             ceil(normalizedRange.endInclusive).toInt()
         )
+    }
+
+    override fun randomizeRange(randomizer: Double): String
+    {
+        return "${CC.GRAY}(${CC.WHITE}${
+            "%.2f".format(internalValue - randomizer)
+        } ${CC.GREEN}◀▶ ${CC.WHITE}${
+            "%.2f".format(internalValue + randomizer)
+        }${CC.GRAY})"
     }
 
     override fun getAbstractType() = IntValue::class.java

@@ -7,6 +7,7 @@ import land.esta.plugin.ssb.bot.setting.setting.root
 import land.esta.plugin.ssb.bots.Bot
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import org.bukkit.Bukkit
 
 /**
  * @author GrowlyX
@@ -42,12 +43,13 @@ data class SettingProfile(
         settings[optionID]?.randomizer = randomizer
     }
 
-    fun updateRandomizerRange(option: Option<*>, newMinMax: Pair<Double, Double>)
-    {
-        val optionID = option.composeId()
-        settings.computeIfAbsent(optionID) { option.composeSettingValue() }
-        settings[optionID]?.randomizerMinMax = newMinMax
-    }
+//    fun updateRandomizerRange(option: Option<*>, newMinMax: Pair<Double, Double>)
+//    {
+//        val optionID = option.composeId()
+//        settings.computeIfAbsent(optionID) { option.composeSettingValue() }
+//        settings[optionID]?.randomizerMinMax = newMinMax
+//        Bukkit.broadcastMessage("${newMinMax.first} - ${newMinMax.second}")
+//    }
 
     fun <T : Any> update(option: Option<T>, newValue: T)
     {

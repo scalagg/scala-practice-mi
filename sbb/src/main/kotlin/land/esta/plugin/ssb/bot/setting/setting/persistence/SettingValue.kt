@@ -9,16 +9,12 @@ data class SettingValue(
     var randomizer: Double = 0.0
 )
 {
-    var randomizerMinMax = 0.0 to 0.0
-
-    fun getMin() = randomizerMinMax.first
-    fun getMax() = randomizerMinMax.second
 
     @Transient
     var shouldLocalRandomize: Boolean = false
 
     fun getObject() = if (shouldLocalRandomize)
-        value.randomize(randomizerMinMax) else value.internalValue
+        value.randomize(randomizer) else value.internalValue
     fun setObject(possible: Any)
     {
         value = if (possible is Boolean)
