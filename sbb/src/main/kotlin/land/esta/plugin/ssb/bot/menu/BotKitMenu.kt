@@ -158,7 +158,7 @@ class BotKitMenu(private val identifier: String, private val selection: String? 
             object : TemplateMapMenu()
             {
                 override fun filterDisplayOfMap(map: Map) = map.associatedKitGroups
-                    .intersect(KitGroupService.groupsOf(kit).toSet())
+                    .intersect(KitGroupService.groupsOf(kit).map { it.id }.toSet())
                     .isNotEmpty()
 
                 override fun itemDescriptionOf(player: Player, map: Map) = listOf(

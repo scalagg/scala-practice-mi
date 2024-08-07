@@ -60,8 +60,8 @@ class JoinQueueMenu(
         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
 
         return listOf(
-            "${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}",
-            "${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}",
+            "${CC.GRAY}Playing: ${CC.PRI}${metadata.inGame}",
+            "${CC.GRAY}Queuing: ${CC.PRI}${metadata.inQueue}",
             "",
             *local3ScoreDescriptionOf(
                 player,

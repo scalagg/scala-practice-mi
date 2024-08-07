@@ -28,7 +28,7 @@ object TogglePlayerVisibilityCommand : ScalaCommand()
                 "Sorry, your profile did not load properly."
             )
 
-        val spawnVisibility = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility"]!!
+        val spawnVisibility = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility-def"]!!
         val mapped = spawnVisibility.map<StateSettingValue>()
 
         if (mapped == StateSettingValue.ENABLED)

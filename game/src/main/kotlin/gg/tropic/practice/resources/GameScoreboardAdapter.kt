@@ -209,30 +209,33 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
         if (player.uniqueId in game.expectedSpectators)
         {
-            for (team in (if (game.robot()) listOf(game.humanSide()) else game.teams.values))
+            if (game.lifecycle() == GameLifecycle.SoulBound)
             {
-                fun Player.format() = "${CC.WHITE}${
-                    if (hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
-                }$name ${CC.GRAY}(${
-                    MinecraftReflection.getPing(this)
-                }ms)"
-
-                val bukkitPlayers = team.toBukkitPlayers().filterNotNull()
-                val sidePrefix = "${game.colorOf(team)}[${team.side.format()}]:"
-
-                board += "$sidePrefix ${
-                    if (bukkitPlayers.size == 1) bukkitPlayers.first().format() else ""
-                }"
-
-                if (bukkitPlayers.size > 1)
+                for (team in (if (game.robot()) listOf(game.humanSide()) else game.teams.values))
                 {
-                    bukkitPlayers
-                        .take(2)
-                        .forEach {
-                            board += "- ${it.format()}"
-                        }
+                    fun Player.format() = "${CC.WHITE}${
+                        if (hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
+                    }$name ${CC.GRAY}(${
+                        MinecraftReflection.getPing(this)
+                    }ms)"
 
-                    board += ""
+                    val bukkitPlayers = team.toBukkitPlayers().filterNotNull()
+                    val sidePrefix = "${game.colorOf(team)}[${team.side.format()}]:"
+
+                    board += "$sidePrefix ${
+                        if (bukkitPlayers.size == 1) bukkitPlayers.first().format() else ""
+                    }"
+
+                    if (bukkitPlayers.size > 1)
+                    {
+                        bukkitPlayers
+                            .take(2)
+                            .forEach {
+                                board += "- ${it.format()}"
+                            }
+
+                        board += ""
+                    }
                 }
             }
 
@@ -245,7 +248,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.GRAY}Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
             board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
 
-            if (game.lifecycle()!= GameLifecycle.SoulBound)
+            if (game.lifecycle() != GameLifecycle.SoulBound)
             {
                 insertMRStatusSection(firstPerson = false)
             }
@@ -268,7 +271,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     if (opponent.players.size == 1)
                     {
                         board += "${CC.GRAY}Opponent: ${CC.PRI}${
-                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponent.players.first().username()
+                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponent.players.first()
+                                .username()
                         }"
                     } else if (!game.robot())
                     {
@@ -388,7 +392,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                                 board += "${CC.GRAY} - ${CC.WHITE}${
                                     if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
-                                }${other.username()} ${CC.D_GRAY}(${
+                                }${other.username()}${CC.R} ${CC.D_GRAY}(${
                                     MinecraftReflection.getPing(bukkitPlayer)
                                 }ms)"
                             }
@@ -452,12 +456,15 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         val robotID = Globals.PLAYER_BOT_UNIQUE_ID
                         fun List<UUID>.toReport(): String
                         {
-                            val firstUsername = if (isNotEmpty()) (if (robotID == first()) game.robotInstance?.name() ?: "Robot" else first().username()) else null
+                            val firstUsername = if (isNotEmpty()) (if (robotID == first()) game.robotInstance?.name()
+                                ?: "Robot" else first().username()) else null
 
                             return when (size)
                             {
                                 0 -> "N/A"
-                                1 -> firstUsername + CC.GRAY + (Bukkit.getPlayer(report.winners.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
+                                1 -> firstUsername + CC.GRAY + (Bukkit.getPlayer(report.winners.first())
+                                    ?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
+
                                 else -> "$firstUsername's Team"
                             }
                         }

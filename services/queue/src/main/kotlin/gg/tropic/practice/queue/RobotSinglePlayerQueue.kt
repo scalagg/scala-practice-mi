@@ -7,6 +7,7 @@ import gg.tropic.practice.application.api.defaults.game.GameTeam
 import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.namespace
 import gg.tropic.practice.region.Region
 import java.util.*
 
@@ -42,7 +43,12 @@ open class RobotSinglePlayerQueue(
         // a bot is playing w/ the player lol
         val users = first.players + Globals.PLAYER_BOT_UNIQUE_ID
         val map = MapDataSync
-            .selectRandomMapCompatibleWith(kit)
+            .selectMapIfCompatible(
+                kit,
+                DPSRedisShared.keyValueCache
+                    .sync()
+                    .get("${namespace()}:bot-map-selection:${first.leader}")
+            )
             ?: return run {
                 DPSRedisShared.sendMessage(
                     // don't unnecessarily send message targeting the robot

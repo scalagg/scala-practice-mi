@@ -94,7 +94,7 @@ open class GameImpl(
     private fun durationMillis() =
         System.currentTimeMillis() - this.startTimestamp
 
-    private lateinit var defaultLoadout: DefaultLoadout
+    private val defaultLoadout: DefaultLoadout = DefaultLoadout(kit)
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
@@ -687,8 +687,6 @@ open class GameImpl(
 
     fun enterLoadoutSelection(player: Player)
     {
-        this.defaultLoadout = DefaultLoadout(kit)
-
         val profile = PracticeProfileService
             .find(player)
             ?: return run {
