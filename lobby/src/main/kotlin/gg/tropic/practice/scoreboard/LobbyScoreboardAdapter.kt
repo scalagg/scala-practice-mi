@@ -104,7 +104,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 board += ""
                 board += "${CC.GRAY}Level: ${CC.GREEN}${
                     Numbers.format(coreProfile.level)
-                }"
+                } ✪"
                 board += "${CC.GRAY}Coins: ${CC.GOLD}${
                     Numbers.format(coreProfile.coins)
                 } ⛃"
