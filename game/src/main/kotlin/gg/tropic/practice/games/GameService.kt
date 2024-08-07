@@ -895,7 +895,7 @@ object GameService
                                                 it.player.location,
                                                 Sound.NOTE_PLING,
                                                 0.75f,
-                                                if (!setting) 0.75f else 0.55f
+                                                if (!setting) 1.5f else 0.75f
                                             )
                                         }, 0L, 2L)
                                         .bindWith(terminable)
@@ -929,7 +929,7 @@ object GameService
                                                 Schedulers
                                                     .sync()
                                                     .runRepeating({ _ ->
-                                                        it.player.damage(4.0)
+                                                        it.player.damage(20.0 / 3)
                                                     }, 0L, 20L)
                                                     .bindWith(terminable)
                                                 task.closeAndReportException()
