@@ -20,7 +20,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
 {
     init
     {
-        placeholdBorders = true
+        placeholder = true
     }
 
     open fun shouldIncludeKitDescription(): Boolean = true

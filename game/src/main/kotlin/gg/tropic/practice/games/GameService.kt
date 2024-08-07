@@ -23,7 +23,6 @@ import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosme
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.features.FireballFeature
-import gg.tropic.practice.games.features.FireballFeature.Companion.fireballExplosionSize
 import gg.tropic.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.tropic.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
 import gg.tropic.practice.games.team.GameTeamSide
@@ -37,6 +36,8 @@ import gg.tropic.practice.utilities.toRBTeamSide
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
+import me.lucko.helper.promise.Promise
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -60,7 +61,6 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftTNTPrimed
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
@@ -71,7 +71,9 @@ import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.lang.reflect.Field
+import java.time.Duration
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
@@ -374,6 +376,7 @@ object GameService
             val alternativeDeathMethod: String = "",
         )
 
+        val campProtectionTerminables = mutableMapOf<UUID, CompositeTerminable>()
         fun Player.gracefullyRemoveFromGame(event: GameRemovalEvent)
         {
             val game = byPlayer(this)
@@ -405,6 +408,8 @@ object GameService
                 ?.apply {
                     displaySlot = null
                 }
+
+            campProtectionTerminables.remove(uniqueId)?.closeAndReportException()
 
             if (event.shouldRespawn)
             {
@@ -799,6 +804,7 @@ object GameService
                 }
             }
 
+
         Events
             .subscribe(PlayerMoveEvent::class.java)
             .filter(EventUtils::hasPlayerMoved)
@@ -809,11 +815,13 @@ object GameService
                 if (it.player.hasMetadata("light-spectator"))
                 {
                     it.player.teleport(it.from)
+                    campProtectionTerminables.remove(it.player.uniqueId)?.closeAndReportException()
                     return@handler
                 }
 
                 if (it.player.hasMetadata("spectator"))
                 {
+                    campProtectionTerminables.remove(it.player.uniqueId)?.closeAndReportException()
                     return@handler
                 }
 
@@ -850,6 +858,98 @@ object GameService
                         return@handler
                     }
 
+                    val buildLimit = game
+                        .flagMetaData(
+                            FeatureFlag.BuildLimit,
+                            key = "blocks"
+                        )
+                        ?.toIntOrNull()
+
+                    if (buildLimit != null)
+                    {
+                        val maxBuildLimit = (game.map
+                            .findSpawnLocationMatchingTeam(GameTeamSide.A)?.y
+                            ?: 0.0) + buildLimit
+
+                        if (it.to.y > maxBuildLimit + 1)
+                        {
+                            if (campProtectionTerminables[it.player.uniqueId] != null)
+                            {
+                                return@handler
+                            }
+
+                            val terminable = CompositeTerminable.create()
+                            terminable.with {
+                                audiences.player(it.player).clearTitle()
+                            }
+
+                            Schedulers.async()
+                                .runLater({
+                                    var tick = 5
+                                    var setting = false
+                                    Schedulers
+                                        .sync()
+                                        .runRepeating({ _ ->
+                                            setting = !setting
+                                            it.player.playSound(
+                                                it.player.location,
+                                                Sound.NOTE_PLING,
+                                                0.75f,
+                                                if (!setting) 0.75f else 0.55f
+                                            )
+                                        }, 0L, 2L)
+                                        .bindWith(terminable)
+
+                                    Schedulers
+                                        .sync()
+                                        .runRepeating({ _ ->
+                                            audiences.player(it.player).apply {
+                                                showTitle(Title.title(
+                                                    Component
+                                                        .text("CAMP PROTECTION")
+                                                        .color(NamedTextColor.RED)
+                                                        .decorate(TextDecoration.BOLD),
+                                                    Component
+                                                        .text("Return to the map!")
+                                                        .color(NamedTextColor.GRAY),
+                                                    Title.Times.times(
+                                                        Duration.ofMillis(10L),
+                                                        Duration.ofMillis(1500L),
+                                                        Duration.ofMillis(10L)
+                                                    )
+                                                ))
+                                            }
+                                        }, 0L, 20L)
+                                        .bindWith(terminable)
+
+                                    Schedulers.async()
+                                        .runRepeating({ task ->
+                                            if (tick == 0)
+                                            {
+                                                Schedulers
+                                                    .sync()
+                                                    .runRepeating({ _ ->
+                                                        it.player.damage(4.0)
+                                                    }, 0L, 20L)
+                                                    .bindWith(terminable)
+                                                task.closeAndReportException()
+                                                return@runRepeating
+                                            }
+
+                                            it.player.sendMessage("${CC.RED}Return back to the map in ${tick}s or else you will start taking damage!")
+                                            tick -= 1
+                                        }, 0L, 20L)
+                                        .bindWith(terminable)
+                                }, 100L)
+                                .bindWith(terminable)
+
+                            campProtectionTerminables[it.player.uniqueId] = terminable
+                        } else
+                        {
+                            campProtectionTerminables.remove(it.player.uniqueId)?.closeAndReportException()
+                        }
+                    }
+
                     return@handler
                 }
 
@@ -859,6 +959,7 @@ object GameService
                 )
                 {
                     it.player.teleport(it.from)
+                    return@handler
                 }
             }
             .bindWith(plugin)
@@ -947,6 +1048,8 @@ object GameService
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
+                campProtectionTerminables.remove(it.player.uniqueId)
+
                 val spectator = bySpectator(it.player.uniqueId)
                     ?: return@handler
 
