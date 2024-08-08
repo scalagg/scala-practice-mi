@@ -21,22 +21,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 public class StrafeFeature extends Feature {
-    private final Map<UUID, Float> strafe = new HashMap<>();
-    private final Map<UUID, Integer> ticks = new HashMap<>();
-    private final Map<UUID, Integer> combo = new HashMap<>();
-
-    @EventHandler
-    public void deathEvent(BotDeathEvent event) {
-        var uniqueId = event.getBot().getUniqueId();
-        strafe.remove(uniqueId);
-        ticks.remove(uniqueId);
-        combo.remove(uniqueId);
-    }
-
+    private static final int SIX_BLOCKS = 36;
     @Override
     public void tickEvent(Bot bot) {
         //Values
-        boolean inCombo = combo.getOrDefault(bot.getUniqueId(), 0) > 3;
+        boolean inCombo = bot.getCombo() > 3;
 
         // Check if the bot and target are in the same world
         Location botLocation = bot.getMovements().getLocation();
@@ -45,7 +34,7 @@ public class StrafeFeature extends Feature {
             return;
         }
 
-        boolean close = botLocation.distance(targetLocation) < 6;
+        boolean close = botLocation.distanceSquared(targetLocation) < SIX_BLOCKS;
         boolean chance = ThreadLocalRandom.current().nextInt(100) <= bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getChance());
 
         //Enable & Combo & Close check
@@ -53,7 +42,6 @@ public class StrafeFeature extends Feature {
                 (inCombo && !bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getStrafeInCombo()))
                 || !close || bot.getMovements().isEdge()
         ) {
-            strafe.put(bot.getUniqueId(), 0f);
             bot.getMovements().setStrafe(0);
             return;
         }
@@ -63,39 +51,38 @@ public class StrafeFeature extends Feature {
             return;
         }
 
-        //Defaults + ticking
-        if (strafe.getOrDefault(bot.getUniqueId(), 0f) == 0) strafe.put(bot.getUniqueId(), 45f);
-        ticks.put(bot.getUniqueId(), ticks.getOrDefault(bot.getUniqueId(), 0) + 1);
+        // Defaults + ticking
+        if (bot.getMovements().getStrafe() == 0) bot.getMovements().setStrafe(45f);
 
-        //Switch check
-        if (ticks.get(bot.getUniqueId()) > bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getSwitchSideTicks())) {
-            ticks.put(bot.getUniqueId(), 0);
-            strafe.put(bot.getUniqueId(), strafe.getOrDefault(bot.getUniqueId(), 0f) * -1f);
+        int currentTick = bot.getTicks() + 1;
+        bot.setTicks(bot.getTicks() + 1);
+
+        // Switch check
+        if (currentTick > bot.getProfile().value(RootAccessor.INSTANCE.getStrafeSettings().getSwitchSideTicks())) {
+            bot.setTicks(0);
+            bot.getMovements().setStrafe(bot.getMovements().getStrafe() * -1f);
             bot.getMovements().setSpeedMultiplier(1 / 1.05);
         }
-
-        bot.getMovements().setStrafe(strafe.get(bot.getUniqueId()));
     }
 
     @Override
     public void listen(Event event) {
         Bot bot = event.getBot();
-        //Combo calculation.
         if (event instanceof BotDamageEvent) {
-            combo.put(event.getBot().getUniqueId(), combo.getOrDefault(event.getBot().getUniqueId(), 0) + 1);
-            if (combo.get(event.getBot().getUniqueId()) > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.getBot().getFleeManager().isRunning()) {
-                event.getBot().getFleeManager().setRunningFromCombo(true);
-                combo.put(event.getBot().getUniqueId(), 0);
+            int currentCombo = bot.getCombo() + 1;
+            bot.setCombo(currentCombo);
+            if (currentCombo > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.getBot().getFleeManager().isRunning()) {
+                bot.getFleeManager().setRunningFromCombo(true);
+                bot.setCombo(0);
 
                 var time = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosTime());
-                Schedulers
-                        .sync()
-                        .runLater(() -> event.getBot().getFleeManager().setRunningFromCombo(false), time)
-                        .bindWith(event.getBot().getTerminable());
+                Schedulers.sync()
+                          .runLater(() -> bot.getFleeManager().setRunningFromCombo(false), time)
+                          .bindWith(bot.getTerminable());
             }
         }
         if (event instanceof BotAttackEvent) {
-            combo.put(event.getBot().getUniqueId(), 0);
+            bot.setCombo(0);
         }
     }
 }
