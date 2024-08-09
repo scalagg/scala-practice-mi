@@ -10,7 +10,7 @@ import java.util.UUID
  * @author GrowlyX
  * @since 7/20/2024
  */
-fun loadSettingsFromSelection(player: Player, selection: String, profileChoice: String?): SettingProfile?
+fun loadSettingsFromSelection(player: UUID, selection: String, profileChoice: String?): SettingProfile
 {
     if (runCatching { UUID.fromString(selection) }.getOrNull() != null)
     {

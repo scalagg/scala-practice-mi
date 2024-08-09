@@ -126,6 +126,26 @@ object MapReplicationService
                 kotlin.runCatching {
                     newGame.robotInstance = RobotGameLifecycle.createNewRobotInstance(newGame)
                     newGame.robotInstance?.terminable?.bindWith(newGame)
+
+                    Schedulers.sync()
+                        .run {
+                            if (newGame.robotInstance?.hasInitialSpawned == false)
+                            {
+                                newGame.robotInstance?.apply {
+                                    runCatching {
+                                        initialSpawn()
+                                    }.onFailure { throwable ->
+                                        throwable.printStackTrace()
+
+                                        newGame.state = GameState.Completed
+                                        newGame.closeAndCleanup()
+                                        return@run
+                                    }
+                                    hasInitialSpawned = true
+                                }
+                            }
+                        }
+                        .join()
                 }.onFailure {
                     it.printStackTrace()
                     newGame.state = GameState.Completed

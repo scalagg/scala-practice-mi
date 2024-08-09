@@ -4,7 +4,7 @@ import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.bots.setting.impl.VelocitySettings;
 import land.esta.plugin.ssb.utils.MathUtils;
 import net.minecraft.server.v1_8_R3.EntityPlayer;

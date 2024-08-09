@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.RunningEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;

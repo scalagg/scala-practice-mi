@@ -193,22 +193,6 @@ object ExpectationService
                 {
                     if (game.robot())
                     {
-                        if (game.robotInstance?.hasInitialSpawned == false)
-                        {
-                            game.robotInstance?.apply {
-                                runCatching {
-                                    initialSpawn(it.player)
-                                }.onFailure { throwable ->
-                                    throwable.printStackTrace()
-
-                                    game.state = GameState.Completed
-                                    game.closeAndCleanup()
-                                    return@handler
-                                }
-                                hasInitialSpawned = true
-                            }
-                        }
-
                         game.robotInstance?.participantConnected(it.player)
                     }
 

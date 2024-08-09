@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.RotationEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
 import land.esta.plugin.ssb.utils.MathUtils;
 import land.esta.plugin.ssb.utils.WorldUtils;

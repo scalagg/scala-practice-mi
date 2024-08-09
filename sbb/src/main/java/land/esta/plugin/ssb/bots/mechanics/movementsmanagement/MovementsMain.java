@@ -7,10 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -60,15 +59,15 @@ public class MovementsMain extends Manager {
 
     private Random random = new Random();
 
-    public MovementsMain(Bot bot, Player player, Location loc) {
+    public MovementsMain(Bot bot, Location loc) {
         super(bot);
         location = loc;
 
-        bot.getEventManager().addEvent(collision = new Collision(bot));
-        bot.getEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
-        bot.getEventManager().addEvent(movements = new Movements(bot));
-        bot.getEventManager().addEvent(rotations = new Rotations(bot));
-        bot.getEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
+        bot.getEventManager().addManager(collision = new Collision(bot));
+        bot.getEventManager().addManager(recodedCollision = new RecodedCollision(bot));
+        bot.getEventManager().addManager(movements = new Movements(bot));
+        bot.getEventManager().addManager(rotations = new Rotations(bot));
+        bot.getEventManager().addManager(targetLocate = new TargetLocate(bot));
     }
 
     private boolean delayedBotLocation = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());

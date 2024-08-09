@@ -2,6 +2,7 @@ package land.esta.plugin.ssb.solara
 
 import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameImpl
+import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
 import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
 import land.esta.plugin.ssb.botevents.Event
@@ -23,15 +24,12 @@ import java.util.logging.Logger
 
 object SolaraPracticeIntegrator
 {
-    fun spawn(
-        location: Location,
-        game: GameImpl,
-        player: Player
-    ): Bot?
+    fun spawn(location: Location, game: GameImpl): Bot?
     {
+        val settingsPlayer = game.humanSide().players[0]
         val selectedBot = ScalaCommonsSpigot.instance.kvConnection.sync()
             .get(
-                "tropicpractice:bot-selection:${game.humanSide().players[0]}"
+                "tropicpractice:bot-selection:$settingsPlayer"
             )
 
         if (selectedBot == null)
@@ -42,16 +40,10 @@ object SolaraPracticeIntegrator
 
         val split = selectedBot.split(":")
         val settings = loadSettingsFromSelection(
-            player,
+            settingsPlayer,
             split[0],
             split.getOrNull(1)
-        )?.deepCopy()
-
-        if (settings == null)
-        {
-            Logger.getGlobal().info("No bot configuration was found!")
-            return null
-        }
+        ).deepCopy()
 
         if (settings.randomizerEnabled == true)
         {
@@ -74,7 +66,6 @@ object SolaraPracticeIntegrator
                 ?: throw IllegalStateException("A game may not have more than 10 bots!"),
             location,
             Color.code(name),
-            player,
             game,
             settings,
             game.kit
@@ -88,7 +79,11 @@ object SolaraPracticeIntegrator
                 .handler { event ->
                     if (event.entity is Player)
                     {
-                        if (event.entity == player)
+                        val attackGame = GameService
+                            .byPlayer(event.entity as Player)
+                            ?: return@handler
+
+                        if (attackGame == game)
                         {
                             event.damage = 0.0
                         }
@@ -116,6 +111,7 @@ object SolaraPracticeIntegrator
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {
             val robot = game.robotSide()
+            val playerSide = game.humanSide()
             val metadata = game.flagMetaData(FeatureFlag.WinWhenNHitsReached, "hits")!!
                 .toInt()
 
@@ -123,9 +119,10 @@ object SolaraPracticeIntegrator
                 if (event is BotDamageEvent)
                 {
                     if (event.source != null && event.source.entity != null &&
-                        event.source.entity.uniqueID == player.uniqueId
+                        event.source.entity.uniqueID in playerSide.players
                     )
                     {
+                        val player = event.source.entity as Player
                         val playerCounter = game.counter(player)
                         game.humanSide().gameLifecycleArbitraryObjectiveProgress += 1
                         game.humanSide().playerCombos.compute(player.uniqueId) { _, combo -> (combo ?: 0) + 1 }
@@ -159,7 +156,7 @@ object SolaraPracticeIntegrator
                     robot.gameLifecycleArbitraryObjectiveProgress += 1
                     game.humanSide().playerCombos.clear()
 
-                    val dataPlayer = instance!!.dataManager.getPlayer(player)
+                    val dataPlayer = instance!!.dataManager.getPlayer(event.player)
                     dataPlayer?.botHit()
 
                     if (robot.gameLifecycleArbitraryObjectiveProgress >= metadata)

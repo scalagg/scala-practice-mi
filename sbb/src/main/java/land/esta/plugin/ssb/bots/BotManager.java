@@ -23,22 +23,11 @@ public class BotManager {
                                 continue;
                             }
 
-                            if (!bot.getPlayer().isOnline()) {
-                                continue;
-                            }
-
                             // Cannot measure distance between diff words patch
-                            if (
-                                    bot.getMovements().getLocation().getWorld().equals(
-                                            bot.getMovements().getTargetLocate().getTarget().getWorld()
-                                    ) &&
-                                            bot.isAlive()
-                            ) {
+                            if (bot.isAlive()) {
                                 bot.tick();
                                 continue;
                             }
-
-                            bot.silentKill();
                         }
                     }, 1L, 1L)
                     .bindWith(plugin);

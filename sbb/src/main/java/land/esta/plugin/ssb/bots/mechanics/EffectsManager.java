@@ -3,7 +3,7 @@ package land.esta.plugin.ssb.bots.mechanics;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.events.EffectEndEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.MobEffect;
 import org.bukkit.potion.PotionEffect;

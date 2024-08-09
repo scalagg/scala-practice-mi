@@ -3,7 +3,7 @@ package land.esta.plugin.ssb.bots.mechanics;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.utils.Nms;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;

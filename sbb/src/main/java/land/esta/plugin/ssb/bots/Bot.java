@@ -2,7 +2,6 @@ package land.esta.plugin.ssb.bots;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import gg.tropic.practice.Globals;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
@@ -12,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
 import land.esta.plugin.ssb.botevents.events.SpawnEvent;
-import land.esta.plugin.ssb.bots.events.MEventManager;
+import land.esta.plugin.ssb.bots.managers.ManagerService;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
 import land.esta.plugin.ssb.npc.NPCEntity;
 import land.esta.plugin.ssb.npc.NPCNetworkManager;
@@ -28,7 +27,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -42,7 +40,7 @@ public class Bot {
     private ViewsManager viewsManager;
     private EffectsManager effectsManager;
     private VelocityCalculator velocityCalculator;
-    private MEventManager eventManager;
+    private ManagerService eventManager;
     private DamageManager damageManager;
     private InventoryManager inventoryManager;
     private AttackingManager attackingManager;
@@ -56,7 +54,6 @@ public class Bot {
     private final UUID uniqueId = UUID.randomUUID();
     private final CompositeTerminable terminable = CompositeTerminable.create();
 
-    private final Player player;
     private final SettingProfile profile;
     private Location startLocation;
 
@@ -79,12 +76,11 @@ public class Bot {
 
     private final UUID solaraID;
 
-    public Bot(UUID internalSID, Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
+    public Bot(UUID internalSID, Location location, String name, GameImpl game, SettingProfile profile, Kit kit) {
         this.solaraID = internalSID;
         this.startLocation = location;
         this.kit = kit;
         this.profile = profile;
-        this.player = player;
         this.game = game;
 
         registerNPC(name, location);
@@ -92,13 +88,10 @@ public class Bot {
                 other.hidePlayer(npc.getBukkitEntity())
         );
 
-        registerManagers(player, location);
-
+        registerManagers(location);
         packetsManager.sendCreatesPackets();
 
         loadManagers();
-        player.showPlayer(npc.getBukkitEntity());
-
         registerBot();
     }
 
@@ -108,31 +101,28 @@ public class Bot {
     }
 
     private void loadManagers() {
-        eventManager.addEvent(movements);
-        eventManager.addEvent(viewsManager);
-        eventManager.addEvent(inventoryManager);
-        eventManager.addEvent(packetsManager);
-        eventManager.addEvent(damageManager = new DamageManager(this));
-        eventManager.addEvent(attackingManager = new AttackingManager(this));
-        eventManager.addEvent(healthManager = new HealthManager(this));
-        eventManager.addEvent(damageCalculator = new DamageCalculator(this));
-        eventManager.addEvent(fleeManager);
-        eventManager.addEvent(effectsManager);
+        eventManager.addManager(movements);
+        eventManager.addManager(viewsManager);
+        eventManager.addManager(inventoryManager);
+        eventManager.addManager(packetsManager);
+        eventManager.addManager(damageManager = new DamageManager(this));
+        eventManager.addManager(attackingManager = new AttackingManager(this));
+        eventManager.addManager(healthManager = new HealthManager(this));
+        eventManager.addManager(damageCalculator = new DamageCalculator(this));
+        eventManager.addManager(fleeManager);
+        eventManager.addManager(effectsManager);
     }
 
-    private void registerManagers(Player player, Location location) {
+    private void registerManagers(Location location) {
         lagCompensatorManager = new LagCompensatorManager(this);
-        eventManager = new MEventManager(this);
+        eventManager = new ManagerService(this);
         effectsManager = new EffectsManager(this);
         velocityCalculator = new VelocityCalculator(this);
-        movements = new MovementsMain(this, player, location);
+        movements = new MovementsMain(this, location);
         packetsManager = new PacketsManager(this);
         inventoryManager = new InventoryManager(this);
         fleeManager = new FleeManager(this);
-
-        final List<Player> players = new ArrayList<>();
-        players.add(player);
-        viewsManager = new ViewsManager(this, players);
+        viewsManager = new ViewsManager(this);
     }
 
     private void registerNPC(String name, Location loc) {
@@ -202,12 +192,18 @@ public class Bot {
     public void tick() {
         velocityCalculator.setEarly(true);
 
+        if (!eventManager.ensureReady())
+        {
+            velocityCalculator.setEarly(false);
+            return;
+        }
+
         eventManager.queueUpdate();
         eventManager.tickEarly();
         eventManager.tick();
         eventManager.tickLate();
 
         velocityCalculator.setEarly(false);
-        eventManager.callEvents();
+        eventManager.executeEvents();
     }
 }

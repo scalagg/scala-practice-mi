@@ -7,7 +7,7 @@ import land.esta.plugin.ssb.botevents.events.BotRequiredToEatEvent;
 import land.esta.plugin.ssb.botevents.events.EatingCancelEvent;
 import land.esta.plugin.ssb.botevents.events.FinishEatingEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.utils.Durability;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.BooleanRunnable;

@@ -1,24 +1,33 @@
-package land.esta.plugin.ssb.bots.events;
+package land.esta.plugin.ssb.bots.managers;
 
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import me.lucko.helper.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MEventManager {
+public class ManagerService {
 
     private final Bot bot;
     private final ArrayList<Manager> managers = new ArrayList<>();
 
-    public MEventManager(Bot bot) {
+    public ManagerService(Bot bot) {
         this.bot = bot;
     }
 
-    public void addEvent(Manager manager) {
+    public void addManager(Manager manager) {
         managers.add(manager);
+    }
+
+    public boolean ensureReady() {
+        for (Manager manager : managers) {
+            if (!manager.earlyShouldContinue()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void queueUpdate() {
@@ -53,16 +62,11 @@ public class MEventManager {
         }
     }
 
-    public void callEvents() {
+    public void executeEvents() {
         // Run async
-        Schedulers
-                .async()
-                .run(() -> {
-                    List<BotEvent> botEvents = SolaraRobotsPlugin.getInstance().getEventManager().getEvents();
-                    for (BotEvent event : botEvents) {
-                        event.callTick(bot);
-                    }
-                })
-                .bindWith(bot.getTerminable());
+        List<BotEvent> botEvents = SolaraRobotsPlugin.getInstance().getEventManager().getEvents();
+        for (BotEvent event : botEvents) {
+            event.execute(bot);
+        }
     }
 }

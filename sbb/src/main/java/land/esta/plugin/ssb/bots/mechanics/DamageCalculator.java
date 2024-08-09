@@ -2,7 +2,7 @@ package land.esta.plugin.ssb.bots.mechanics;
 
 import com.google.common.base.Function;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.potion.PotionEffectType;
 

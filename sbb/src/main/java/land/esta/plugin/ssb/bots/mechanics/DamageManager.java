@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.Nms;
 import net.minecraft.server.v1_8_R3.*;

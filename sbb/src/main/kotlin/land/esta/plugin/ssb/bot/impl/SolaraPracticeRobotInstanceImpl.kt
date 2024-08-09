@@ -41,7 +41,7 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
     }
 
     override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
-    override fun initialSpawn(player: Player)
+    override fun initialSpawn()
     {
         if (spawnedBot == null)
         {
@@ -51,8 +51,7 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
                         gameImpl.robotSide().side
                     )!!
                     .toLocation(gameImpl.arenaWorld!!),
-                gameImpl,
-                player
+                gameImpl
             )
         }
     }

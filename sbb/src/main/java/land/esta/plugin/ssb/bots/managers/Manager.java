@@ -1,4 +1,4 @@
-package land.esta.plugin.ssb.bots.events;
+package land.esta.plugin.ssb.bots.managers;
 
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.impl.ParallelKt;
@@ -40,6 +40,11 @@ public class Manager {
     public void tickEarly() {}
     public void tickLate() {}
     public void tick() {}
+
+    public boolean earlyShouldContinue()
+    {
+        return true;
+    }
 
     public double getDistance() {
         var location = bot.getMovements().getTargetLocate().getTargetEntity().getLocation();

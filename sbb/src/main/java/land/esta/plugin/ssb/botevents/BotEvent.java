@@ -12,7 +12,7 @@ public class BotEvent {
         listen(event);
     }
 
-    public void callTick(Bot bot) {
+    public void execute(Bot bot) {
         tickEvent(bot);
     }
 }
