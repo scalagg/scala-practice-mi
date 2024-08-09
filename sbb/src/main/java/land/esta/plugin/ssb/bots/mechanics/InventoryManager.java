@@ -13,6 +13,7 @@ import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.BooleanRunnable;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -486,8 +487,8 @@ public class InventoryManager extends Manager {
 
             //Eating effects
             if (!drink) {
-                Item.getById(item.getTypeId());
-                PacketPlayOutWorldParticles particlePack = new PacketPlayOutWorldParticles(EnumParticle.ITEM_CRACK, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 0, 0, 0, 1, 0, item.getTypeId(), item.getTypeId());
+                PacketPlayOutWorldParticles particlePack = new PacketPlayOutWorldParticles(
+                        EnumParticle.ITEM_CRACK, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 0, 0, 0, 1, 0, item.getTypeId(), item.getData().getData());
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(particlePack);
             }
         });
