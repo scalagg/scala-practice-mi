@@ -10,8 +10,10 @@ import org.bukkit.entity.Player
 abstract class RobotInstance
 {
     val terminable = CompositeTerminable.create()
+    var hasInitialSpawned = false
 
     abstract fun name(): String
+    abstract fun initialSpawn(player: Player)
 
     abstract fun participantConnected(player: Player)
     abstract fun spectatorConnected(player: Player)

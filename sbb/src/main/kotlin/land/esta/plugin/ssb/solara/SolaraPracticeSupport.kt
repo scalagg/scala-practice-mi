@@ -9,9 +9,7 @@ object SolaraPracticeSupport
     fun enable()
     {
         createNewRobotInstance = { game ->
-            CompletableFuture.completedFuture(
-                SolaraPracticeRobotInstanceImpl(game)
-            )
+            SolaraPracticeRobotInstanceImpl(game)
         }
     }
 }

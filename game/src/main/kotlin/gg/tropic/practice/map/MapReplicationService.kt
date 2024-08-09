@@ -124,9 +124,7 @@ object MapReplicationService
             if (newGame.robot())
             {
                 kotlin.runCatching {
-                    newGame.robotInstance = RobotGameLifecycle
-                        .createNewRobotInstance(newGame)
-                        .join()
+                    newGame.robotInstance = RobotGameLifecycle.createNewRobotInstance(newGame)
                     newGame.robotInstance?.terminable?.bindWith(newGame)
                 }.onFailure {
                     it.printStackTrace()

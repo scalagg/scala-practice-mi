@@ -41,7 +41,7 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
     }
 
     override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
-    override fun participantConnected(player: Player)
+    override fun initialSpawn(player: Player)
     {
         if (spawnedBot == null)
         {
@@ -54,9 +54,11 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
                 gameImpl,
                 player
             )
-            return
         }
+    }
 
+    override fun participantConnected(player: Player)
+    {
         spawnedBot?.viewsManager?.addPlayer(player)
     }
 

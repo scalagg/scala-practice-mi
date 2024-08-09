@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture
  */
 object RobotGameLifecycle
 {
-    var createNewRobotInstance: (GameImpl) -> CompletableFuture<RobotInstance?> = {
+    var createNewRobotInstance: (GameImpl) -> RobotInstance? = {
         throw UnsupportedOperationException("Robot integration not available")
     }
 }

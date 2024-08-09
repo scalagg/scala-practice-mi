@@ -8,6 +8,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.GameState
 import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
@@ -192,6 +193,22 @@ object ExpectationService
                 {
                     if (game.robot())
                     {
+                        if (game.robotInstance?.hasInitialSpawned == false)
+                        {
+                            game.robotInstance?.apply {
+                                runCatching {
+                                    initialSpawn(it.player)
+                                }.onFailure { throwable ->
+                                    throwable.printStackTrace()
+
+                                    game.state = GameState.Completed
+                                    game.closeAndCleanup()
+                                    return@handler
+                                }
+                                hasInitialSpawned = true
+                            }
+                        }
+
                         game.robotInstance?.participantConnected(it.player)
                     }
 
