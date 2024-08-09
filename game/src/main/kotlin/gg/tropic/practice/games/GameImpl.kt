@@ -102,7 +102,7 @@ open class GameImpl(
 
     var robotInstance: RobotInstance? = null
 
-    var consumedBots = atomic(0)
+    val consumedBots = atomic(0)
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
