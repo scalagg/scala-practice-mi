@@ -32,8 +32,6 @@ import gg.tropic.practice.region.Region
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import gg.tropic.practice.services.TournamentManagerService
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -42,7 +40,6 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.*
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
