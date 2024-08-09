@@ -2,6 +2,7 @@ package gg.tropic.practice.games.robot
 
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import org.bukkit.entity.Player
+import java.util.UUID
 
 /**
  * @author GrowlyX
@@ -12,6 +13,7 @@ abstract class RobotInstance
     val terminable = CompositeTerminable.create()
     var hasInitialSpawned = false
 
+    abstract fun solaraID(): UUID
     abstract fun name(): String
     abstract fun ping(): Int
 

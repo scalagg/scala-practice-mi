@@ -45,8 +45,6 @@ class GameStartTask(
                 .forEach { player ->
                     game.resetPlayerForFight(player)
                     game.enterLoadoutSelection(player)
-
-//                    Bukkit
                 }
 
             val teamVersus = this.game.teams.values
@@ -74,7 +72,10 @@ class GameStartTask(
                 } and ${
                     if (this.game.robot())
                     {
-                        this.game.robotInstance?.name() ?: "???"
+                        this.game.robotInstance
+                            .joinToString("${CC.PRI}, ") { robot ->
+                                robot.name()
+                            }
                     } else
                     {
                         this.game.teams[GameTeamSide.B]!!.players

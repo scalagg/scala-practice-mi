@@ -99,8 +99,7 @@ open class GameImpl(
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
-    var robotInstance: RobotInstance? = null
-
+    val robotInstance = mutableSetOf<RobotInstance>()
     val consumedBots = AtomicInteger(0)
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
@@ -156,7 +155,7 @@ open class GameImpl(
 
         if (robot())
         {
-            robotInstance?.destroy()
+            robotInstance.forEach(RobotInstance::destroy)
         }
 
         toBukkitPlayers()
@@ -611,21 +610,20 @@ open class GameImpl(
         Tasks.delayed(20L) {
             if (arenaWorld == null)
             {
-                println("Skipping unload world because it's null")
                 return@delayed
             }
 
             MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
-            robotInstance?.destroy()
+
+            robotInstance.forEach(RobotInstance::destroy)
+            robotInstance.clear()
 
             val handlePlayers = (arenaWorld!! as CraftWorld).handle
-            val worldServer = handlePlayers as CustomWorldServer
 
             if (kickPlayers)
             {
                 // final check
                 val onlinePlayers = handlePlayers.players
-
                 if (onlinePlayers.isNotEmpty())
                 {
                     onlinePlayers.toList().forEach {
@@ -805,6 +803,8 @@ open class GameImpl(
                 it.remove()
             }
     }
+
+    fun robot(solaraID: UUID) = robotInstance.firstOrNull { it.solaraID() == solaraID }
 
     fun robot(): Boolean
     {

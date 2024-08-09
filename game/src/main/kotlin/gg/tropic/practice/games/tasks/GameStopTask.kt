@@ -83,7 +83,14 @@ class GameStopTask(
 
                 for ((index, winner) in players.withIndex())
                 {
-                    val username = if (winner in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) game.robotInstance?.name() ?: "Robot" else winner.username()
+                    val username = if (winner in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS)
+                    {
+                        game.robot(winner)?.name() ?: "Robot"
+                    } else
+                    {
+                        winner.username()
+                    }
+
                     withMessage(CC.YELLOW + username)
                         .andHoverOf(
                             "${CC.GREEN}Click to view inventory!"

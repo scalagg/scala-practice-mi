@@ -13,6 +13,8 @@ import me.lucko.helper.Events
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.Color
 import org.bukkit.entity.Player
+import java.lang.IllegalStateException
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -60,6 +62,7 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
             .bindWith(terminable)
     }
 
+    override fun solaraID() = spawnedBot?.solaraID ?: throw IllegalStateException("Robot has not spawned in yet")
     override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
     override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
 

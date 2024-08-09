@@ -153,7 +153,9 @@ object ExpectationService
 
                     if (game.robot())
                     {
-                        game.robotInstance?.spectatorConnected(it.player)
+                        game.robotInstance.forEach { robot ->
+                            robot.spectatorConnected(it.player)
+                        }
                     }
 
                     it.player.allowFlight = true
@@ -193,7 +195,9 @@ object ExpectationService
                 {
                     if (game.robot())
                     {
-                        game.robotInstance?.participantConnected(it.player)
+                        game.robotInstance.forEach { robot ->
+                            robot.participantConnected(it.player)
+                        }
                     }
 
                     it.player.removeMetadata("spectator", plugin)

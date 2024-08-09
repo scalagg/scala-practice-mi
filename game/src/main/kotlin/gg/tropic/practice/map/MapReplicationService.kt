@@ -72,7 +72,7 @@ object MapReplicationService
             {
                 if (
                     game.humanSide().toBukkitPlayers().all { it != null } &&
-                    game.robotInstance != null
+                    game.robotInstance.isNotEmpty()
                 )
                 {
                     game.initializeAndStart()
@@ -118,30 +118,34 @@ object MapReplicationService
                 .join()
 
             scheduledMap.inUse = true
-
             newGame.arenaWorldName = scheduledMap.world.name
 
             if (newGame.robot())
             {
                 kotlin.runCatching {
-                    newGame.robotInstance = RobotGameLifecycle.createNewRobotInstance(newGame)
-                    newGame.robotInstance?.terminable?.bindWith(newGame)
+                    newGame.robotInstance.addAll(RobotGameLifecycle.createNewRobotInstances(newGame))
+                    newGame.robotInstance.forEach {
+                        it.terminable.bindWith(newGame)
+                    }
 
                     Schedulers.sync()
                         .run {
-                            if (newGame.robotInstance?.hasInitialSpawned == false)
+                            for (robotInstance in newGame.robotInstance)
                             {
-                                newGame.robotInstance?.apply {
-                                    runCatching {
-                                        initialSpawn()
-                                    }.onFailure { throwable ->
-                                        throwable.printStackTrace()
+                                if (!robotInstance.hasInitialSpawned)
+                                {
+                                    robotInstance.apply {
+                                        runCatching {
+                                            initialSpawn()
+                                        }.onFailure { throwable ->
+                                            throwable.printStackTrace()
 
-                                        newGame.state = GameState.Completed
-                                        newGame.closeAndCleanup()
-                                        return@run
+                                            newGame.state = GameState.Completed
+                                            newGame.closeAndCleanup()
+                                            return@run
+                                        }
+                                        hasInitialSpawned = true
                                     }
-                                    hasInitialSpawned = true
                                 }
                             }
                         }
@@ -153,7 +157,7 @@ object MapReplicationService
                     return@handler
                 }
 
-                if (newGame.robotInstance == null)
+                if (newGame.robotInstance.isEmpty())
                 {
                     newGame.state = GameState.Completed
                     newGame.closeAndCleanup()

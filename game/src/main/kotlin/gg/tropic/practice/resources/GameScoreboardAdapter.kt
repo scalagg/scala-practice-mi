@@ -2,7 +2,6 @@ package gg.tropic.practice.resources
 
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameService
@@ -21,7 +20,6 @@ import me.lucko.helper.Helper
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -271,8 +269,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     if (opponent.players.size == 1)
                     {
                         board += "${CC.GRAY}Opponent: ${CC.PRI}${
-                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponent.players.first()
-                                .username()
+                            if (game.robot()) 
+                                game.robotInstance.first().name()
+                            else 
+                                opponent.players.first().username()
                         }"
                     } else if (!game.robot())
                     {
@@ -280,7 +280,15 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                         for (other in opponent.players.take(2))
                         {
-                            board += "${CC.GRAY} - ${CC.WHITE}${other.username()}"
+                            val specificOpponent = if (game.robot())
+                            {
+                                game.robotInstance.firstOrNull { it.solaraID() == other }?.name() ?: "Robot"
+                            } else
+                            {
+                                opponent.players.first().username()
+                            }
+
+                            board += "${CC.GRAY} - ${CC.WHITE}$specificOpponent"
                         }
 
                         if (opponent.players.size > 2)
@@ -366,20 +374,51 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 }ms"
                             } else
                             {
-                                "${CC.GRAY}Them: ${CC.RED}${game.robotInstance?.ping() ?: 100}ms"
+                                "${CC.GRAY}Them: ${CC.RED}${game.robotInstance.first().ping()}ms"
                             }
                         }
 
                         board += ""
                         board += "${CC.GRAY}Opponent: ${CC.PRI}${
-                            if (game.robot()) game.robotInstance?.name() ?: "Robot" else opponentPlayer.username()
+                            if (game.robot()) game.robotInstance.first().name() else opponentPlayer.username()
                         }"
                         board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
-                    } else if (!game.robot())
+                    } else
                     {
                         if (game.lifecycle() != GameLifecycle.SoulBound)
                         {
                             insertMRStatusSection(firstPerson = true)
+                        }
+
+                        fun appendExtendedOpponentTeamDescription()
+                        {
+                            if (!game.robot())
+                            {
+                                for (other in opponent.players.take(2))
+                                {
+                                    val bukkitPlayer = Bukkit.getPlayer(other)
+                                        ?: continue
+
+                                    board += "${CC.GRAY} - ${CC.WHITE}${
+                                        if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
+                                    }${other.username()}${CC.R} ${CC.D_GRAY}(${
+                                        MinecraftReflection.getPing(bukkitPlayer)
+                                    }ms)"
+                                }
+                            } else
+                            {
+                                for (other in opponent.players.take(2))
+                                {
+                                    val instance = game.robot(other)
+                                        ?: continue
+                                    board += "${CC.GRAY} - ${CC.WHITE}${instance.name()}${CC.R} ${CC.D_GRAY}(${instance.ping()}ms)"
+                                }
+                            }
+
+                            if (opponent.players.size > 2)
+                            {
+                                board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
+                            }
                         }
 
                         if (!showHitScoreboard)
@@ -387,23 +426,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.PRI}Ping:"
                             board += "${CC.GRAY}You: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
                             board += "${CC.GRAY}Them:"
-
-                            for (other in opponent.players.take(2))
-                            {
-                                val bukkitPlayer = Bukkit.getPlayer(other)
-                                    ?: continue
-
-                                board += "${CC.GRAY} - ${CC.WHITE}${
-                                    if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
-                                }${other.username()}${CC.R} ${CC.D_GRAY}(${
-                                    MinecraftReflection.getPing(bukkitPlayer)
-                                }ms)"
-                            }
-
-                            if (opponent.players.size > 2)
-                            {
-                                board += "${CC.WHITE}(and ${opponent.players.size - 2} more...)"
-                            }
+                            appendExtendedOpponentTeamDescription()
                         } else
                         {
                             val teamOfPlayer = game.getTeamOf(player)
@@ -425,23 +448,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             }"
 
                             board += "${CC.GRAY}Opponent: ${CC.RED}${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress}"
-
-                            for (other in opponent.players.take(3))
-                            {
-                                val bukkitPlayer = Bukkit.getPlayer(other)
-                                    ?: continue
-
-                                board += "${CC.GRAY} - ${CC.WHITE}${
-                                    if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
-                                }${other.username()} ${CC.D_GRAY}(${
-                                    MinecraftReflection.getPing(bukkitPlayer)
-                                }ms)"
-                            }
-
-                            if (opponent.players.size > 3)
-                            {
-                                board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
-                            }
+                            appendExtendedOpponentTeamDescription()
                         }
 
                         board += ""
@@ -458,8 +465,20 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     {
                         fun List<UUID>.toReport(): String
                         {
-                            val firstUsername = if (isNotEmpty()) (if (first() in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) game.robotInstance?.name()
-                                ?: "Robot" else first().username()) else null
+                            val firstUsername = if (isNotEmpty())
+                            {
+                                if (first() in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS)
+                                {
+                                    game.robot(first())?.name() ?: "Robot"
+                                }
+                                else
+                                {
+                                    first().username()
+                                }
+                            } else
+                            {
+                                null
+                            }
 
                             return when (size)
                             {
