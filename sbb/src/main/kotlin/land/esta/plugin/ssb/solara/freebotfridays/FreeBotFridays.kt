@@ -1,9 +1,6 @@
 package land.esta.plugin.ssb.solara.freebotfridays
 
-import java.time.DayOfWeek
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 
 /**
  * @author GrowlyX
@@ -26,4 +23,33 @@ object FreeBotFridays
             currentTime.isBefore(fbfEnd)
     }
 
+    fun timeUntilNextFreeBotFriday(): Duration
+    {
+        val now = ZonedDateTime.now(newYorkLocalEST)
+
+        val nextFriday = now.withDayOfWeek(DayOfWeek.FRIDAY).with(fbfStart)
+        val targetDateTime = if (now.dayOfWeek == DayOfWeek.FRIDAY && now.toLocalTime().isAfter(fbfStart))
+        {
+            nextFriday.plusWeeks(1)
+        } else
+        {
+            nextFriday
+        }
+
+        // Calculate the duration between now and the target date and time
+        val duration = Duration.between(now, targetDateTime)
+        return duration
+    }
+
+    fun ZonedDateTime.withDayOfWeek(dayOfWeek: DayOfWeek): ZonedDateTime
+    {
+        var result = this.with(next(dayOfWeek))
+        if (result.isBefore(this))
+        {
+            result = result.plusWeeks(1)
+        }
+        return result
+    }
+
+    fun next(dayOfWeek: DayOfWeek) = java.time.temporal.TemporalAdjusters.next(dayOfWeek)
 }
