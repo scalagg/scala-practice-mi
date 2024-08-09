@@ -21,6 +21,11 @@ interface SettingLike : AbstractTypeSerializable
     val item: ItemStack
     val parent: Category?
 
+    fun hasPermission(player: Player): Boolean
+    {
+        return permission == null || player.hasPermission(permission)
+    }
+
     fun toItemStack(player: Player, context: SettingProfile): ItemStack
     {
         return ItemBuilder

@@ -13,8 +13,8 @@ object FreeBotFridays
 {
     private val newYorkLocalEST = ZoneId.of("America/New_York")
 
-    private val fbfStart = LocalTime.of(15, 30)
-    private val fbfEnd = LocalTime.of(23, 59, 59, 999_999_999)
+    private val fbfStart = LocalTime.of(15, 30) // 3:30PM EST
+    private val fbfEnd = LocalTime.of(19, 30) // 7:30PM EST
 
     fun isFreeBotFriday(): Boolean
     {

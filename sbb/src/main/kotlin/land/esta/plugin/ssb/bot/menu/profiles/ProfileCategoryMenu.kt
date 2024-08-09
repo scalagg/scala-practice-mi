@@ -162,10 +162,10 @@ class ProfileCategoryMenu(
                 .toButton { _, clickType ->
                     if (setting.permission != null)
                     {
-                        if (!player.hasPermission(setting.permission))
+                        if (!setting.hasPermission(player))
                         {
                             Button.playFail(player)
-                            player.sendMessage("${CC.RED}You do not have permission to use this!")
+                            player.sendMessage("${CC.RED}You do not have permission to use this feature!")
                             return@toButton
                         }
                     }

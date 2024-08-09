@@ -3,10 +3,13 @@ package land.esta.plugin.ssb.bots.setting.impl;
 import land.esta.plugin.ssb.bot.setting.setting.Category;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
+import land.esta.plugin.ssb.solara.freebotfridays.FreeBotFridays;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -20,6 +23,11 @@ public class StrafeSettings extends Category {
     public Option<Integer> switchSideTicks = new Option<>("Switch Side Ticks", Material.TRAP_DOOR, this, 20, 1, 120);
     //private SettingObject distancing = new SettingObject("Distancing",Material.DIAMOND_BOOTS,false);
     //private SettingObject distance = new SettingObject("Distance",Material.IRON_BOOTS,0,0.1);
+
+    @Override
+    public boolean hasPermission(@NotNull Player player) {
+        return super.hasPermission(player) || FreeBotFridays.INSTANCE.isFreeBotFriday();
+    }
 
     public StrafeSettings(Category parent) {
         super(

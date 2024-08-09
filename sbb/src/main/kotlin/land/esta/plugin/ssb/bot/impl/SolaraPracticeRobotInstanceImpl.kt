@@ -13,7 +13,7 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 7/20/2024
  */
-class EstaPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotInstance()
+class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotInstance()
 {
     private var spawnedBot: Bot? = null
 

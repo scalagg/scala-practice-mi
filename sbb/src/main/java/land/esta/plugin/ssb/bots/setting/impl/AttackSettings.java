@@ -4,10 +4,13 @@ import land.esta.plugin.ssb.bot.setting.setting.Category;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
+import land.esta.plugin.ssb.solara.freebotfridays.FreeBotFridays;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -24,6 +27,11 @@ public class AttackSettings extends Category {
     public int getDelay(SettingProfile profile) {
         int cps = profile.value(this.cps);
         return cps > 0 ? 1000 / cps : 1000;
+    }
+
+    @Override
+    public boolean hasPermission(@NotNull Player player) {
+        return super.hasPermission(player) || FreeBotFridays.INSTANCE.isFreeBotFriday();
     }
 
     public AttackSettings(Category parent) {
