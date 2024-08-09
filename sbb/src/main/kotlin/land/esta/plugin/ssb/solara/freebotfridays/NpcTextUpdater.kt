@@ -1,6 +1,7 @@
 package land.esta.plugin.ssb.solara.freebotfridays
 
 import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.commons.replacement.ReplacementGlobalContainer
 import gg.scala.commons.replacement.Replacements
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -20,12 +21,9 @@ object NpcTextUpdater : Runnable
     @Configure
     fun configure()
     {
-        if ("miplobby" in ServerSync.getLocalGameServer().groups)
-        {
-            Schedulers.async().runRepeating(
-                this, 0L, 10L
-            )
-        }
+        Schedulers.async().runRepeating(
+            this, 0L, 10L
+        )
     }
 
     fun getNpcEntities(): List<NpcEntity> =
@@ -33,19 +31,15 @@ object NpcTextUpdater : Runnable
 
     override fun run()
     {
-        val players = Bukkit.getOnlinePlayers()
         getNpcEntities()
             .forEach {
                 it.hologram.updateLines(
-                    handle(players.first(), it.getLines())
+                    handle(it.getLines())
                 )
             }
     }
 
-    fun handle(
-        player: Player,
-        list: List<String>
-    ): MutableList<String>
+    fun handle(list: List<String>): MutableList<String>
     {
         val replaced =
             mutableListOf<String>()
@@ -53,7 +47,10 @@ object NpcTextUpdater : Runnable
         for (message in list)
         {
             replaced.add(
-                Replacements.apply(message, player)
+                message.replace(
+                    "%freebotfridays-status%",
+                    FreeBotFridays.fancyStatus()
+                )
             )
         }
 

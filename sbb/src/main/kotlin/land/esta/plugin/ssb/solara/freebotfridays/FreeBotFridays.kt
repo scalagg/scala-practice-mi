@@ -1,8 +1,5 @@
 package land.esta.plugin.ssb.solara.freebotfridays
 
-import gg.scala.commons.replacement.Replacement
-import gg.scala.commons.replacement.ReplacementBuilder
-import gg.scala.commons.replacement.annotation.ReplacementAutoRegister
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.TimeUtil
 import java.time.*
@@ -11,8 +8,7 @@ import java.time.*
  * @author GrowlyX
  * @since 8/9/2024
  */
-@ReplacementAutoRegister
-object FreeBotFridays : Replacement
+object FreeBotFridays
 {
     private val newYorkLocalEST = ZoneId.of("America/New_York")
 
@@ -57,21 +53,17 @@ object FreeBotFridays : Replacement
         return result
     }
 
-    fun next(dayOfWeek: DayOfWeek) = java.time.temporal.TemporalAdjusters.next(dayOfWeek)
-
-    override val replacements = ReplacementBuilder.newBuilder()
-        .process("status") { _, _ ->
-            if (isFreeBotFriday())
-            {
-                return@process "${CC.GOLD}NOW!"
-            }
-
-            "${CC.GREEN}${TimeUtil.formatIntoAbbreviatedString(
-                timeUntilNextFreeBotFriday()
-                    .toSeconds()
-                    .toInt()
-            )}"
+    fun fancyStatus(): String
+    {
+        if (isFreeBotFriday())
+        {
+            return "${CC.GOLD}NOW!"
         }
 
-    override fun id() = "freebotfridays"
+        return "${CC.GREEN}${TimeUtil.formatIntoAbbreviatedString(
+            timeUntilNextFreeBotFriday()
+                .toSeconds()
+                .toInt()
+        )}"
+    }
 }
