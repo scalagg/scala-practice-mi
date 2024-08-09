@@ -2,18 +2,19 @@ package land.esta.plugin.ssb.bot.menu
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.LemonConstants
-import land.esta.plugin.ssb.bot.menu.profiles.PlayerDescribeProfilesMenu
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu
 import land.esta.plugin.ssb.bot.profile.RobotProfileService
 import land.esta.plugin.ssb.bot.setting.BotSettingService
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.bot.setting.setting.root
 import land.esta.plugin.ssb.solara.freebotfridays.FreeBotFridays
 import net.evilblock.cubed.menu.Button
-import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
+import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -25,12 +26,9 @@ import org.bukkit.event.inventory.ClickType
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotDuelMenu : Menu("Select a Difficulty...")
+class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
 {
-    init
-    {
-        placeholdBorders = true
-    }
+    override fun getPrePaginatedTitle(player: Player) = "Robot Fights"
 
     fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
     {
@@ -55,105 +53,201 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             }
     }
 
-    override fun size(buttons: Map<Int, Button>): Int = 36
-    override fun getButtons(player: Player): Map<Int, Button> = mapOf(
-        10 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
-        11 to player.buildNewItem("NORMAL", "${CC.YELLOW}Normal", 4),
-        12 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
-        13 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
-        14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
+    override fun size(buttons: Map<Int, Button>) = if (shouldExpand()) 54 else 36
+    override fun getAllPagesButtons(player: Player): Map<Int, Button>
+    {
+        val buttons = mutableMapOf<Int, Button>()
+        val profile = RobotProfileService.find(player)
+            ?: return mapOf()
 
-        17 to ItemBuilder
-            .of(Material.AIR)
-            .toButton(),
-
-        26 to ItemBuilder
-            .of(Material.AIR)
-            .toButton(),
-
-        19 to player.buildNewItem("CLOWN", "${CC.PINK}Clown", 6, true),
-        20 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12, true),
-
-        9 to ItemBuilder
-            .of(XMaterial.LIME_STAINED_GLASS_PANE)
-            .name("&aNormal")
-            .addToLore(
-                "${CC.GRAY}Tiered difficulty bots."
-            )
-            .toButton(),
-
-        18 to ItemBuilder
-            .of(XMaterial.ORANGE_STAINED_GLASS_PANE)
-            .name("&6Special")
-            .addToLore(
-                "${CC.GRAY}Seasonal, or other special bots."
-            )
-            .toButton(),
-
-        4 to ItemBuilder.of(Material.EMERALD)
-            .name("&aCustomized Bots")
-            .addToLore(
-                "${CC.GRAY}Play against a customized",
-                "${CC.GRAY}bot through the bot customizer",
-                "${CC.GRAY}system!",
-                ""
-            )
-            .apply {
-                if (player.hasPermission("botgui.use"))
-                {
-                    return@apply
-                }
-
-                if (FreeBotFridays.isFreeBotFriday())
-                {
-                    addToLore(
-                        "${CC.B_GOLD}${CC.MAGIC}AAA${CC.B_GOLD} IT'S FREE BOT FRIDAY! ${CC.B_GOLD}${CC.MAGIC}AAA",
-                        "${CC.GOLD}All players have access to use",
-                        "${CC.GOLD}custom bots!",
-                        ""
+        for (settings in profile.profiles.values)
+        {
+            buttons[buttons.size] = ItemBuilder
+                .of(Material.PAPER)
+                .name("${CC.B_GREEN}${settings.id}")
+                .addToLore(
+                    *settings.describe().toTypedArray(),
+                    "",
+                    "${CC.GREEN}Left-Click to play!",
+                    "${CC.YELLOW}Right-Click to edit!",
+                    "${CC.RED}Shift-Click to delete!"
+                )
+                .glow()
+                .toButton { _, type ->
+                    if (
+                        type == ClickType.SHIFT_RIGHT ||
+                        type == ClickType.SHIFT_LEFT
                     )
-                } else
-                {
-                    addToLore(
-                        "${CC.B_WHITE}Free Bot Friday:",
-                        "${CC.WHITE}Come back later for ${CC.GREEN}free${CC.WHITE}",
-                        "${CC.WHITE}access to custom bots every",
-                        "${CC.WHITE}friday from ${CC.GOLD}3:30PM${CC.WHITE} to ${CC.GOLD}7:30PM${CC.WHITE} EST!",
-                        "",
-                        "${CC.B_WHITE}Next event: ${CC.WHITE}${FreeBotFridays.fancyStatus()}",
-                        ""
-                    )
-                }
-            }
-            .addToLore(
-                "${CC.GREEN}Left-Click to play!",
-                "${CC.YELLOW}Right-Click to customize!"
-            )
-            .toButton { _, type ->
-                if (!(player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()))
-                {
-                    Button.playFail(player)
-                    player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
-                    player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.WEB_LINK}")
-                    return@toButton
-                }
+                    {
+                        Button.playSuccess(player)
+                        profile.profiles.remove(settings.id)
+                        profile.save()
 
-                val profile = RobotProfileService.find(player)
-                    ?: return@toButton
+                        player.sendMessage("${CC.RED}Deleted profile!")
+                        openMenu(player)
+                        return@toButton
+                    }
 
-                if (type == ClickType.RIGHT)
-                {
+                    if (type == ClickType.RIGHT)
+                    {
+                        Button.playNeutral(player)
+                        ProfileCategoryMenu(settings, PlayerProfileBackbone(player), root).openMenu(player)
+                        return@toButton
+                    }
+
                     Button.playNeutral(player)
-                    PlayerDescribeProfilesMenu(profile) {
-                        ProfileCategoryMenu(it, PlayerProfileBackbone(player), root).openMenu(player)
-                    }.openMenu(player)
-                    return@toButton
+                    BotKitMenu(player.uniqueId.toString(), settings.id).openMenu(player)
                 }
+        }
+        return buttons
+    }
 
-                Button.playNeutral(player)
-                PlayerDescribeProfilesMenu(profile) {
-                    BotKitMenu(player.uniqueId.toString(), it.id).openMenu(player)
-                }.openMenu(player)
-            },
-    )
+    fun Player.hasPermissionForCustomBots() = player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()
+
+    override fun getPageButtonSlots() = if (shouldExpand()) 47 to 51 else 29 to 33
+    override fun getAllPagesButtonSlots() = (37..43).toList()
+
+    fun getCustomizerItem() = if (shouldExpand()) 49 else 31
+    fun shouldExpand(): Boolean
+    {
+        val profile = RobotProfileService.find(viewer)
+            ?: return false
+
+        return profile.profiles.isNotEmpty()
+    }
+
+    override fun getGlobalButtons(player: Player): Map<Int, Button>
+    {
+        val buttons = mutableMapOf(
+            10 to player.buildNewItem("EASY", "${CC.GREEN}Easy", 5),
+            11 to player.buildNewItem("NORMAL", "${CC.YELLOW}Normal", 4),
+            12 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
+            13 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
+            14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
+            19 to player.buildNewItem("CLOWN", "${CC.PINK}Clown", 6, true),
+            20 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12, true),
+
+            9 to ItemBuilder
+                .of(XMaterial.LIME_STAINED_GLASS_PANE)
+                .name("&aNormal")
+                .addToLore(
+                    "${CC.GRAY}Tiered difficulty bots."
+                )
+                .toButton(),
+
+            18 to ItemBuilder
+                .of(XMaterial.ORANGE_STAINED_GLASS_PANE)
+                .name("&6Special")
+                .addToLore(
+                    "${CC.GRAY}Seasonal, or other special bots."
+                )
+                .toButton(),
+
+            getCustomizerItem() to ItemBuilder.of(Material.EMERALD)
+                .name("&aCustomized Bots")
+                .addToLore(
+                    "${CC.GRAY}Play against a customized",
+                    "${CC.GRAY}bot through the bot customizer",
+                    "${CC.GRAY}system!",
+                    "",
+                    "${CC.GREEN}Click to create custom bot!"
+                )
+                .apply {
+                    if (player.hasPermission("botgui.use"))
+                    {
+                        return@apply
+                    }
+
+                    if (FreeBotFridays.isFreeBotFriday())
+                    {
+                        addToLore(
+                            "${CC.B_GOLD}${CC.MAGIC}AAA${CC.B_GOLD} IT'S FREE BOT FRIDAY! ${CC.B_GOLD}${CC.MAGIC}AAA",
+                            "${CC.GOLD}All players have access to use",
+                            "${CC.GOLD}custom bots!",
+                            "",
+                            "${CC.GREEN}Click to create custom bot!"
+                        )
+                    } else
+                    {
+                        addToLore(
+                            "${CC.B_WHITE}Free Bot Friday:",
+                            "${CC.WHITE}Come back later for ${CC.GREEN}free${CC.WHITE}",
+                            "${CC.WHITE}access to custom bots every",
+                            "${CC.WHITE}friday from ${CC.GOLD}3:30PM${CC.WHITE} to ${CC.GOLD}7:30PM${CC.WHITE} EST!",
+                            "",
+                            "${CC.B_WHITE}Next event: ${CC.WHITE}${FreeBotFridays.fancyStatus()}"
+                        )
+                    }
+                }
+                .toButton { _, type ->
+                    if (!(player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()))
+                    {
+                        Button.playFail(player)
+                        player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
+                        player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.WEB_LINK}")
+                        return@toButton
+                    }
+
+                    val robotProfile = RobotProfileService.find(player)
+                        ?: return@toButton
+
+                    Button.playNeutral(player)
+                    player.closeInventory()
+
+                    InputPrompt()
+                        .withText("${CC.GREEN}Enter a profile name!")
+                        .acceptInput { _, newName ->
+                            val sanitized = newName.lowercase().replace(" ", "_")
+                            if (robotProfile.profiles[sanitized] != null)
+                            {
+                                Button.playFail(player)
+                                player.sendMessage("${CC.RED}You already have a profile with that name!")
+                                BotDuelMenu(player).openMenu(player)
+                                return@acceptInput
+                            }
+
+                            Button.playSuccess(player)
+                            player.sendMessage("${CC.GREEN}Your profile has been created!")
+
+                            robotProfile.profiles[sanitized] = SettingProfile(sanitized)
+                            robotProfile.save()
+
+                            BotDuelMenu(player).openMenu(player)
+                        }
+                        .start(player)
+                }
+        )
+
+        (27..36).forEach {
+            buttons[it] = ItemBuilder
+                .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                .name(" ")
+                .toButton()
+        }
+
+        if (shouldExpand())
+        {
+            (45..53).forEach {
+                buttons[it] = ItemBuilder
+                    .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                    .name(" ")
+                    .toButton()
+            }
+
+            buttons[4] = ItemBuilder
+                .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                .name(" ")
+                .toButton()
+
+            buttons[36] = ItemBuilder
+                .of(XMaterial.GREEN_STAINED_GLASS_PANE)
+                .name("&2Custom")
+                .addToLore(
+                    "${CC.GRAY}Your own custom bot profiles!"
+                )
+                .toButton()
+        }
+
+        return buttons
+    }
 }
