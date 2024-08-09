@@ -80,11 +80,6 @@ public class Bot {
     private final UUID solaraID;
 
     public Bot(UUID internalSID, Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
-        if (!Globals.getPOSSIBLE_PLAYER_BOT_UNIQUE_IDS().contains(internalSID))
-        {
-            throw new IllegalStateException("Invalid SID used for bot spawn!");
-        }
-
         this.solaraID = internalSID;
         this.startLocation = location;
         this.kit = kit;
