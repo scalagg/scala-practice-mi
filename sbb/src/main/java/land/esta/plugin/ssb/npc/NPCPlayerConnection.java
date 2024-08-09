@@ -8,19 +8,6 @@ import java.util.Set;
 
 public class NPCPlayerConnection extends PlayerConnection {
 
-    @Override
-    public void sendPacket(Packet packet) {
-        super.sendPacket(packet);
-    }
-
-    public void sendPacket(Packet packet, boolean flush) {
-        super.sendPacket(packet);
-    }
-
-    public void a(Packet packet, boolean flush) {
-        super.sendPacket(packet);
-    }
-
     public NPCPlayerConnection(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer entityplayer) {
         super(minecraftserver, networkmanager, entityplayer);
     }
