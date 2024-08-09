@@ -16,7 +16,7 @@ import org.bukkit.Bukkit
 data class SettingProfile(
     val id: String,
     val settings: MutableMap<String, SettingValue> = mutableMapOf(),
-    var botName: String = "Bot",
+    var botName: String = "${CC.YELLOW}Solara Bot",
     var skinProperties: Property = Bot.DEFAULT,
     var randomizerEnabled: Boolean? = null
 )
