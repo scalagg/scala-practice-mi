@@ -105,7 +105,7 @@ object SolaraPracticeIntegrator
                         event.source.entity.uniqueID in playerSide.players
                     )
                     {
-                        val player = event.source.entity as Player
+                        val player = event.source.entity.bukkitEntity as Player
                         val playerCounter = game.counter(player)
                         game.humanSide().gameLifecycleArbitraryObjectiveProgress += 1
                         game.humanSide().playerCombos.compute(player.uniqueId) { _, combo -> (combo ?: 0) + 1 }
