@@ -13,7 +13,6 @@ import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.BooleanRunnable;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -47,23 +46,24 @@ public class InventoryManager extends Manager {
 
     private boolean requiredToEat;
     private long gappleDelay;
-    private net.minecraft.server.v1_8_R3.ItemStack[] armorStacks = new net.minecraft.server.v1_8_R3.ItemStack[4];
-    private net.minecraft.server.v1_8_R3.ItemStack[] itemStacks = new net.minecraft.server.v1_8_R3.ItemStack[36];
+
+    private net.minecraft.server.v1_8_R3.ItemStack[] armorContents = new net.minecraft.server.v1_8_R3.ItemStack[4];
+    private net.minecraft.server.v1_8_R3.ItemStack[] contents = new net.minecraft.server.v1_8_R3.ItemStack[36];
 
     public void updateArmorStacks() {
-        armorStacks = new net.minecraft.server.v1_8_R3.ItemStack[4];
-        armorStacks[0] = (convertToNms(helmet));
-        armorStacks[1] = (convertToNms(chestPlate));
-        armorStacks[2] = (convertToNms(leggings));
-        armorStacks[3] = (convertToNms(boots));
+        armorContents = new net.minecraft.server.v1_8_R3.ItemStack[4];
+        armorContents[0] = (convertToNms(helmet));
+        armorContents[1] = (convertToNms(chestPlate));
+        armorContents[2] = (convertToNms(leggings));
+        armorContents[3] = (convertToNms(boots));
     }
 
     public void updateItemStacks() {
-        itemStacks = new net.minecraft.server.v1_8_R3.ItemStack[36];
+        contents = new net.minecraft.server.v1_8_R3.ItemStack[36];
 
         if (slots == null) return;
         for (Integer slot : slots.keySet()) {
-            itemStacks[slot - 1] = CraftItemStack.asNMSCopy((slots.get(slot)));
+            contents[slot - 1] = CraftItemStack.asNMSCopy((slots.get(slot)));
         }
     }
 
@@ -355,6 +355,13 @@ public class InventoryManager extends Manager {
         updateArmorStacks();
     }
 
+    public void updateArmorContents(ItemStack[] armorContents) {
+        updateHelmet(armorContents[0]);
+        updateChestPlate(armorContents[1]);
+        updateLeggings(armorContents[2]);
+        updateBoots(armorContents[3]);
+    }
+
     public void eat(ItemStack item) {
         if (eating) return;
         //Eat pots
@@ -390,8 +397,8 @@ public class InventoryManager extends Manager {
     @Override
     public void tickEarly() {
         PlayerInventory inventory = bot.getNpc().inventory;
-        inventory.armor = armorStacks;
-        inventory.items = itemStacks;
+        inventory.armor = armorContents;
+        inventory.items = contents;
         inventory.itemInHandIndex = getMainHand() - 1;
 
         if (requiredToEat) {
@@ -543,7 +550,7 @@ public class InventoryManager extends Manager {
     }
 
     public void updateArmorPacket(int slot) {
-        PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment(bot.getNpc().getId(), slot, armorStacks[slot]);
+        PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment(bot.getNpc().getId(), slot, armorContents[slot]);
 
         globalAction((player, temp) -> Nms.sendPacket(player, entityEquipment));
     }

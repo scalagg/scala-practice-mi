@@ -4,8 +4,8 @@ import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.namespace
 import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
+import land.esta.plugin.ssb.bot.fixInventoryBasedOnRBTeamColor
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.botevents.Event
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
@@ -15,14 +15,12 @@ import land.esta.plugin.ssb.utils.Color
 import land.esta.plugin.ssb.utils.objects.EventRunnable
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import net.evilblock.cubed.ScalaCommonsSpigot
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import java.util.logging.Logger
 
 object SolaraPracticeIntegrator
 {
@@ -240,6 +238,8 @@ object SolaraPracticeIntegrator
                 inventoryManager.updateArmorContents(itemStack.clone(), index + 1)
             }
 
+        bot.fixInventoryBasedOnRBTeamColor()
+
         Schedulers
             .sync()
             .runLater({
@@ -247,13 +247,13 @@ object SolaraPracticeIntegrator
                     game.kit
                         .potionEffects
                         .entries
-                        .stream()
-                        .map { pair: Map.Entry<String?, Int?> ->
+                        .map { pair ->
                             PotionEffect(
-                                PotionEffectType.getByName(pair.key), Int.MAX_VALUE, pair.value!!
+                                PotionEffectType.getByName(pair.key),
+                                Int.MAX_VALUE,
+                                pair.value
                             )
                         }
-                        .toList()
                 )
             }, 1L)
             .bindWith(bot.terminable)
