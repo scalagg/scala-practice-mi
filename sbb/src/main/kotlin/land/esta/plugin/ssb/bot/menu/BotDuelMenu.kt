@@ -119,6 +119,8 @@ class BotDuelMenu : Menu("Select a Difficulty...")
                         "${CC.WHITE}Come back later for ${CC.GREEN}free${CC.WHITE}",
                         "${CC.WHITE}access to custom bots every",
                         "${CC.WHITE}friday from ${CC.GOLD}3:30PM${CC.WHITE} to ${CC.GOLD}7:30PM${CC.WHITE} EST!",
+                        "",
+                        "${CC.B_WHITE}Next event: ${CC.WHITE}${FreeBotFridays.fancyStatus()}",
                         ""
                     )
                 }
