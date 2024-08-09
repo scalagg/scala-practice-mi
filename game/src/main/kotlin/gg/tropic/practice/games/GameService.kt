@@ -1048,7 +1048,7 @@ object GameService
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
-                campProtectionTerminables.remove(it.player.uniqueId)
+                campProtectionTerminables.remove(it.player.uniqueId)?.closeAndReportException()
 
                 val spectator = bySpectator(it.player.uniqueId)
                     ?: return@handler
@@ -1315,16 +1315,6 @@ object GameService
 
                         increment("criticalHits")
                     }
-            }
-            .bindWith(plugin)
-
-        Events
-            .subscribe(PlayerFishEvent::class.java)
-            .handler {
-                if (it.state == PlayerFishEvent.State.CAUGHT_FISH)
-                {
-                    it.isCancelled = true
-                }
             }
             .bindWith(plugin)
 
