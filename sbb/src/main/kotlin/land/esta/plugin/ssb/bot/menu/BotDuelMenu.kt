@@ -30,7 +30,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
 {
     override fun getPrePaginatedTitle(player: Player) = "Robot Fights"
 
-    fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
+    private fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
     {
         val profile = BotSettingService.loadDefaultProfile(id)
 
@@ -110,13 +110,13 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
         return buttons
     }
 
-    fun Player.hasPermissionForCustomBots() = player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()
+    private fun Player.hasPermissionForCustomBots() = player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()
 
-    override fun getMaxItemsPerPage(player: Player) = 8
-    override fun getPageButtonSlots() = if (shouldExpand()) 47 to 51 else 29 to 33
+    override fun getMaxItemsPerPage(player: Player) = getAllPagesButtonSlots().size
+    override fun getPageButtonSlots() = 29 to 33
     override fun getAllPagesButtonSlots() = (37..43).toList()
 
-    fun shouldExpand(): Boolean
+    private fun shouldExpand(): Boolean
     {
         val profile = RobotProfileService.find(viewer)
             ?: return false
@@ -134,22 +134,6 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
             14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
             19 to player.buildNewItem("CLOWN", "${CC.PINK}Clown", 6, true),
             20 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12, true),
-
-            9 to ItemBuilder
-                .of(XMaterial.LIME_STAINED_GLASS_PANE)
-                .name("&aNormal")
-                .addToLore(
-                    "${CC.GRAY}Tiered difficulty bots."
-                )
-                .toButton(),
-
-            18 to ItemBuilder
-                .of(XMaterial.ORANGE_STAINED_GLASS_PANE)
-                .name("&6Special")
-                .addToLore(
-                    "${CC.GRAY}Seasonal, or other special bots."
-                )
-                .toButton(),
 
             31 to ItemBuilder.of(Material.EMERALD)
                 .name("&aCustomized Bots")
@@ -234,10 +218,43 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
         }
 
         (27..35).forEach {
+            if (it == 29 || it == 31)
+            {
+                return@forEach
+            }
+
             buttons.putIfAbsent(it, ItemBuilder
                 .of(XMaterial.BLACK_STAINED_GLASS_PANE)
                 .name(" ")
                 .toButton())
+        }
+
+        // side placeholders
+        listOf(17, 26).forEach {
+            buttons.putIfAbsent(it, ItemBuilder
+                .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                .name(" ")
+                .toButton())
+        }
+
+        listOf(9, 17).forEach {
+            buttons[it] = ItemBuilder
+                .of(XMaterial.LIME_STAINED_GLASS_PANE)
+                .name("&aNormal")
+                .addToLore(
+                    "${CC.GRAY}Tiered difficulty bots."
+                )
+                .toButton()
+        }
+
+        listOf(18, 26).forEach {
+            buttons[it] = ItemBuilder
+                .of(XMaterial.ORANGE_STAINED_GLASS_PANE)
+                .name("&6Special")
+                .addToLore(
+                    "${CC.GRAY}Seasonal, or other special bots."
+                )
+                .toButton()
         }
 
         if (shouldExpand())
@@ -249,13 +266,15 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     .toButton())
             }
 
-            buttons[36] = ItemBuilder
-                .of(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE)
-                .name("&bCustom ${CC.GRAY}(Page #$page})")
-                .addToLore(
-                    "${CC.GRAY}Your own custom bot profiles!"
-                )
-                .toButton()
+            listOf(36, 44).forEach {
+                buttons[it] = ItemBuilder
+                    .of(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE)
+                    .name("&bCustom ${CC.GRAY}(Page #$page)")
+                    .addToLore(
+                        "${CC.GRAY}Your own custom bot profiles!"
+                    )
+                    .toButton()
+            }
         }
 
         return buttons
