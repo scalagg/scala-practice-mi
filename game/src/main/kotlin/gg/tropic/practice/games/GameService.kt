@@ -1321,7 +1321,10 @@ object GameService
         Events
             .subscribe(PlayerFishEvent::class.java)
             .handler {
-                it.isCancelled = true
+                if (it.state == PlayerFishEvent.State.CAUGHT_FISH)
+                {
+                    it.isCancelled = true
+                }
             }
             .bindWith(plugin)
 
