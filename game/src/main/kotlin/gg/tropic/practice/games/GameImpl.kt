@@ -32,6 +32,7 @@ import gg.tropic.practice.region.Region
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import gg.tropic.practice.services.TournamentManagerService
+import kotlinx.atomicfu.atomic
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -100,6 +101,8 @@ open class GameImpl(
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
     var robotInstance: RobotInstance? = null
+
+    var consumedBots = atomic(0)
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
@@ -811,6 +814,4 @@ open class GameImpl(
 
     fun humanSide() = teams[GameTeamSide.A]!!
     fun robotSide() = teams[GameTeamSide.B]!!
-
-    fun robotCounter() = playerCounters.getOrPut(Globals.PLAYER_BOT_UNIQUE_ID) { Counter(Globals.PLAYER_BOT_UNIQUE_ID) }
 }

@@ -64,7 +64,7 @@ class DuelGamesMenu(
                     }: ${CC.GREEN}${
                         if (report.winners.isEmpty()) "N/A" else
                             report.winners.joinToString(", ") {
-                                if (it == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else it.username()
+                                if (it in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else it.username()
                             }
                     }",
                     "${CC.WHITE}Loser${
@@ -72,7 +72,7 @@ class DuelGamesMenu(
                     }: ${CC.RED}${
                         if (report.losers.isEmpty()) "N/A" else
                             report.losers.joinToString(", ") {
-                                if (it == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else it.username()
+                                if (it in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else it.username()
                             }
                     }",
                     "",

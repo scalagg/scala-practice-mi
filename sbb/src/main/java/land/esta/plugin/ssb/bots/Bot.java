@@ -2,6 +2,7 @@ package land.esta.plugin.ssb.bots;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import gg.tropic.practice.Globals;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
@@ -75,9 +76,16 @@ public class Bot {
     private List<Location> blockedLocations = new ArrayList<>();
     private long lastPlacedBlockUp = System.currentTimeMillis();
     private long lastLiquid = System.currentTimeMillis();
-//    private List<Island> islands = new ArrayList<>();
 
-    public Bot(Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
+    private final UUID solaraID;
+
+    public Bot(UUID internalSID, Location location, String name, Player player, GameImpl game, SettingProfile profile, Kit kit) {
+        if (!Globals.getPOSSIBLE_PLAYER_BOT_UNIQUE_IDS().contains(internalSID))
+        {
+            throw new IllegalStateException("Invalid SID used for bot spawn!");
+        }
+
+        this.solaraID = internalSID;
         this.startLocation = location;
         this.kit = kit;
         this.profile = profile;

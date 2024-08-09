@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.solara
 
-import gg.tropic.practice.Globals.PLAYER_BOT_UNIQUE_ID
+import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.kit.feature.FeatureFlag
 import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
@@ -68,7 +68,10 @@ object SolaraPracticeIntegrator
             name = name.substring(0, 16)
         }
 
+        val consume = game.consumedBots.getAndIncrement()
         val bot = Bot(
+            Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS.getOrNull(consume)
+                ?: throw IllegalStateException("A game may not have more than 10 bots!"),
             location,
             Color.code(name),
             player,
@@ -78,7 +81,6 @@ object SolaraPracticeIntegrator
         )
 
         val noDamageMatch = game.flagMetaData(FeatureFlag.DoNotTakeDamage, "doDamageTick") == "true"
-
         if (noDamageMatch)
         {
             Events
@@ -141,8 +143,6 @@ object SolaraPracticeIntegrator
 
                         val dataPlayer = instance!!.dataManager.getPlayer(player)
                         dataPlayer?.hit()
-
-                        robot.playerCombos[PLAYER_BOT_UNIQUE_ID] = 0
 
                         if (game.humanSide().gameLifecycleArbitraryObjectiveProgress >= metadata)
                         {

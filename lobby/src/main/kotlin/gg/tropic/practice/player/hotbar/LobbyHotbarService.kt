@@ -131,14 +131,13 @@ object LobbyHotbarService
                 {
                     val rematchKitID = it.response.parameters["rematch-kit-id"]
                     val rematchTargetID = it.response.parameters["rematch-target-id"]
-                    val rematchTargetRegion = Region.valueOf(it.response.parameters["rematch-region"]!!)
 
                     val kit = KitService.cached().kits[rematchKitID]
                         ?: return@handler
 
                     val rematchUuid = UUID.fromString(rematchTargetID)
 
-                    if (rematchUuid == Globals.PLAYER_BOT_UNIQUE_ID)
+                    if (rematchUuid in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS)
                     {
                         return@handler
                     }

@@ -49,7 +49,7 @@ class SelectPlayerMenu(
                     .data(3)
                     .owner(it.key.username())
                     .name("${CC.B_GREEN}${
-                        if (it.key == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else it.key.username()
+                        if (it.key in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else it.key.username()
                     }")
                     .addToLore(
                         "${CC.WHITE}This player is on the:",

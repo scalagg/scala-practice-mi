@@ -8,6 +8,7 @@ plugins {
     kotlin("kapt") version "2.0.0"
     id("org.ajoberstar.grgit") version "4.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.jetbrains.kotlinx.atomicfu") version "0.25.0"
 }
 
 var currentBranch: String = grgit.branch.current().name
@@ -33,6 +34,7 @@ allprojects {
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.kapt")
+    apply(plugin = "org.jetbrains.kotlinx.atomicfu")
     apply(plugin = "com.github.johnrengelman.shadow")
     apply(plugin = "maven-publish")
 
