@@ -356,14 +356,17 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                             board += "${CC.PRI}Ping:"
                             board += "${CC.GRAY}You: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
-                            if (!game.robot())
+                            board += if (!game.robot())
                             {
-                                board += "${CC.GRAY}Them: ${CC.RED}${
+                                "${CC.GRAY}Them: ${CC.RED}${
                                     if (Bukkit.getPlayer(opponentPlayer) != null)
                                         MinecraftReflection.getPing(
                                             Bukkit.getPlayer(opponentPlayer)
                                         ) else "0"
                                 }ms"
+                            } else
+                            {
+                                "${CC.GRAY}Them: ${CC.RED}${game.robotInstance?.ping() ?: 100}ms"
                             }
                         }
 

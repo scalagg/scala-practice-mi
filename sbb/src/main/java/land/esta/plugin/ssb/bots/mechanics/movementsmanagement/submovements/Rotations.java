@@ -55,7 +55,9 @@ public class Rotations extends Manager {
         float pitch = bot.getMovements().getLocation().getPitch();
 
         MovementsMain movements = bot.getMovements();
-        Location tPos = movements.getTargetLocate().getAStarTarget() == null ? movements.getTargetLocate().getTarget() : movements.getTargetLocate().getAStarTarget();
+        Location targetLocation = movements.getTargetLocate().getAStarTarget() == null ?
+                movements.getTargetLocate().getTarget() :
+                movements.getTargetLocate().getAStarTarget();
 
         //Flips
         double flipYaw = 0;
@@ -81,7 +83,7 @@ public class Rotations extends Manager {
             }
         }
 
-        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), tPos);
+        Vector aimBot = WorldUtils.calculateDirectionDifference(movements.getLocation(), targetLocation);
 
         this.lastYaw = yaw;
         yaw = aimAssist(yaw, (float) (aimBot.getX() + flipYaw), speed) + (float) MathUtils.getRandom(-JitterRotation, JitterRotation);

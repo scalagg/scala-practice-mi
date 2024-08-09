@@ -2,6 +2,7 @@ package land.esta.plugin.ssb.bot.impl
 
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.robot.RobotInstance
+import land.esta.plugin.ssb.bot.setting.setting.RootAccessor
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.solara.SolaraPracticeIntegrator
@@ -41,6 +42,8 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
     }
 
     override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
+    override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
+
     override fun initialSpawn()
     {
         if (spawnedBot == null)

@@ -17,7 +17,6 @@ public class TargetLocate extends Manager {
     private @Nullable Player targetEntity;
 
     private boolean delayedPlayerLocation = true;
-
     private Location aStarTarget = null;
 
     public TargetLocate(Bot bot) {
@@ -28,11 +27,6 @@ public class TargetLocate extends Manager {
     @Override
     public boolean earlyShouldContinue() {
         this.targetEntity = BotUtilitiesKt.getTargetEntity(bot);
-        return targetEntity != null;
-    }
-
-    @Override
-    public void tickEarly() {
         if (overwriteLocation) {
             target = bot.getLagCompensatorManager().getClientLocation();
         }
@@ -42,5 +36,6 @@ public class TargetLocate extends Manager {
                 target = targetEntity.getLocation();
             }
         }
+        return targetEntity != null;
     }
 }

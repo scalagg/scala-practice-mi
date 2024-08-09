@@ -135,7 +135,7 @@ public class BuildingFeature extends Feature {
                         location = placementConfiguration.next();
 
                         if (location.getBlock().getType().isSolid()
-                                || BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getPlayer())
+                                || BuildingUtilitiesKt.isLocationInsidePlayerHitbox(location, bot.getMovements().getTargetLocate().getTargetEntity())
                                 || location.distance(bot.getMovements().getLocation()) < 0.2
                                 || location.distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation()) < 0.2) {
                             Location betterLocation = null;

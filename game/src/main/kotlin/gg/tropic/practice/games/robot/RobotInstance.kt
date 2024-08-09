@@ -13,6 +13,8 @@ abstract class RobotInstance
     var hasInitialSpawned = false
 
     abstract fun name(): String
+    abstract fun ping(): Int
+
     abstract fun initialSpawn()
 
     abstract fun participantConnected(player: Player)
