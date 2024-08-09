@@ -37,6 +37,7 @@ object MapDataSync : DPSDataSync<ImmutableMapContainer>()
 
         return cached().maps.values
             .filterNot(ImmutableMap::locked)
+            .filter { groups.intersect(it.associatedKitGroups).isNotEmpty() }
             .firstOrNull { if (mapID == null) true else it.name == mapID }
     }
 
