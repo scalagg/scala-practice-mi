@@ -1,12 +1,14 @@
 package land.esta.plugin.ssb.bot.menu
 
 import com.cryptomorin.xseries.XMaterial
+import gg.scala.lemon.LemonConstants
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerDescribeProfilesMenu
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu
 import land.esta.plugin.ssb.bot.profile.RobotProfileService
 import land.esta.plugin.ssb.bot.setting.BotSettingService
 import land.esta.plugin.ssb.bot.setting.setting.root
+import land.esta.plugin.ssb.solara.freebotfridays.FreeBotFridays
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
@@ -83,18 +85,42 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .toButton(),
 
         4 to ItemBuilder.of(Material.EMERALD)
-            .name("&2Custom")
+            .name("&2&lCustom")
             .addToLore(
-                "${CC.GRAY}Available for ${CC.D_AQUA}VIP${CC.GRAY} and up!",
+                "${CC.GRAY}Play against a customized",
+                "${CC.GRAY}bot through the bot customizer",
+                "${CC.GRAY}system!",
+                ""
+            )
+            .apply {
+                if (FreeBotFridays.isFreeBotFriday())
+                {
+                    addToLore(
+                        "${CC.B_GREEN}${CC.MAGIC}AAA ${CC.B_GREEN}IT'S FREE BOT FRIDAY! ${CC.B_GREEN}${CC.MAGIC}AAA",
+                        "${CC.GREEN}All players have access",
+                        "${CC.GREEN}to use custom bots!"
+                    )
+                } else
+                {
+                    addToLore(
+                        "${CC.B_WHITE}Free Bot Friday:",
+                        "${CC.WHITE}Get ${CC.GREEN}free${CC.WHITE} access to custom",
+                        "${CC.WHITE}bots every friday from 3:30PM",
+                        "${CC.WHITE}to 7:30PM EST!",
+                    )
+                }
+            }
+            .addToLore(
                 "",
                 "${CC.GREEN}Left-Click to play!",
-                "${CC.GOLD}Right-Click to customize!"
+                "${CC.YELLOW}Right-Click to customize!"
             )
             .toButton { _, type ->
-                if (!player.hasPermission("botgui.use"))
+                if (!(player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()))
                 {
                     Button.playFail(player)
-                    player.sendMessage("${CC.RED}You cannot use this feature!")
+                    player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
+                    player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.WEB_LINK}")
                     return@toButton
                 }
 
