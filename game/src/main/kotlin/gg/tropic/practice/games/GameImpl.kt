@@ -32,6 +32,7 @@ import gg.tropic.practice.region.Region
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import gg.tropic.practice.services.TournamentManagerService
+import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -57,6 +58,7 @@ import org.bukkit.util.Vector
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
 
 /**
@@ -102,7 +104,7 @@ open class GameImpl(
 
     var robotInstance: RobotInstance? = null
 
-    val consumedBots = atomic(0)
+    val consumedBots = AtomicInteger(0)
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
