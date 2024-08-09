@@ -1,9 +1,7 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import land.esta.plugin.ssb.botevents.events.BotArmorBreakEvent;
 import land.esta.plugin.ssb.botevents.events.BotRequiredToEatEvent;
 import land.esta.plugin.ssb.botevents.events.EatingCancelEvent;
@@ -25,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;

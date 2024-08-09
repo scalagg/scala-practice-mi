@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.events;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.botevents.BotEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import me.lucko.helper.Schedulers;
@@ -58,7 +58,7 @@ public class MEventManager {
         Schedulers
                 .async()
                 .run(() -> {
-                    List<BotEvent> botEvents = EstaRobotsPlugin.getInstance().getEventManager().getEvents();
+                    List<BotEvent> botEvents = SolaraRobotsPlugin.getInstance().getEventManager().getEvents();
                     for (BotEvent event : botEvents) {
                         event.callTick(bot);
                     }

@@ -14,7 +14,7 @@ import gg.tropic.practice.services.GameManagerService
  * @since 8/5/2022
  */
 @Plugin(
-    name = "EstaPractice",
+    name = "SolaraPractice",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthor("Tropic")

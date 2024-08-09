@@ -1,8 +1,7 @@
 package land.esta.plugin.ssb.features.imple;
 
 import gg.tropic.practice.games.GameService;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
-import land.esta.plugin.ssb.bot.pathfinding.AStarPathfinder;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
@@ -11,13 +10,10 @@ import lombok.RequiredArgsConstructor;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.random.RandomSelector;
 import me.lucko.helper.random.Weighted;
-import net.minecraft.server.v1_8_R3.EnumParticle;
-import net.minecraft.server.v1_8_R3.PacketPlayOutWorldParticles;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
@@ -54,7 +50,7 @@ public class BuildingFeature extends Feature {
         int buildWhenComboHits = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenComboHits());
 
         var distanceToPlayer = bot.getMovements().getLocation().distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation());
-        var currentComboBots = EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
+        var currentComboBots = SolaraRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
         var currentTime = System.currentTimeMillis();
 
         boolean buildWhenPlayerIsHigh = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHigh());

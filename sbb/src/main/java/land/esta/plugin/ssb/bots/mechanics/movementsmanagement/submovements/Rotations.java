@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +34,7 @@ public class Rotations extends Manager {
 
     @Override
     public void tickEarly() {
-        var data = EstaRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
+        var data = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(bot.getMovements().getTargetLocate().getTargetEntity());
         if (data == null) {
             return;
         }

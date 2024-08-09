@@ -8,14 +8,14 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.namespace
 import gg.tropic.practice.namespaceShortened
 import gg.tropic.practice.suffixWhenDev
-import land.esta.plugin.ssb.EstaRobotsPlugin
+import land.esta.plugin.ssb.SolaraRobotsPlugin
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import net.kyori.adventure.key.Key
 
 @Service
 object BotSettingService: DataSyncService<BotSettingContainer>()
 {
-    @Inject lateinit var plugin: EstaRobotsPlugin
+    @Inject lateinit var plugin: SolaraRobotsPlugin
 
     object BotSettingKeys : DataSyncKeys
     {

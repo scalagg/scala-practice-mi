@@ -45,6 +45,8 @@ class GameStartTask(
                 .forEach { player ->
                     game.resetPlayerForFight(player)
                     game.enterLoadoutSelection(player)
+
+//                    Bukkit
                 }
 
             val teamVersus = this.game.teams.values

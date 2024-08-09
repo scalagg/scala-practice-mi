@@ -6,21 +6,16 @@ import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.npc.nms.FixedEntityFishingHook;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +48,7 @@ public class RodFeature extends Feature {
                 if (distance >= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMinRodDistance()) && distance <= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMaxRodDistance()) && !movementEvent.getBot().getFleeManager().isActive()) {
                     if (mainHand == null) return;
                     if (mainHand.getType().equals(Material.FISHING_ROD)) return;
-                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && EstaRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(movementEvent.getBot(), 0) > 2 && movementEvent.getBot().getDamageManager().getDamageTicks() < 10) return;
+                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && SolaraRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(movementEvent.getBot(), 0) > 2 && movementEvent.getBot().getDamageManager().getDamageTicks() < 10) return;
                     List<ItemStack> rods = movementEvent.getBot().getInventoryManager().hasItem(Material.FISHING_ROD);
                     if (rods.isEmpty()) return;
 

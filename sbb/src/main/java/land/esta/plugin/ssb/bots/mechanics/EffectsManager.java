@@ -4,15 +4,12 @@ import lombok.Getter;
 import land.esta.plugin.ssb.botevents.events.EffectEndEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.events.Manager;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.MobEffect;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

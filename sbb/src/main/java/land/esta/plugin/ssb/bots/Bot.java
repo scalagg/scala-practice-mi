@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.Kit;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
 import land.esta.plugin.ssb.bots.mechanics.*;
 import lombok.Getter;
@@ -100,7 +100,7 @@ public class Bot {
     }
 
     private void registerBot() {
-        EstaRobotsPlugin.getInstance().getBotManager().addBot(this);
+        SolaraRobotsPlugin.getInstance().getBotManager().addBot(this);
         movements.callEventAsync(new SpawnEvent(this));
     }
 
@@ -188,7 +188,7 @@ public class Bot {
     public void destroy() {
         alive = false;
         packetsManager.sendRemovePackets();
-        EstaRobotsPlugin.getInstance().getBotManager().removeBot(this);
+        SolaraRobotsPlugin.getInstance().getBotManager().removeBot(this);
 
         terminable.closeAndReportException();
 

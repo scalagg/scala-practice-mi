@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.utils;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Data;
 import land.esta.plugin.ssb.bots.Bot;
@@ -48,7 +48,7 @@ public class DataPlayer {
     }
 
     public boolean handle() {
-        Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
+        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
         if (bot == null) return false;
 
         long diff = System.currentTimeMillis() - bot.getAttackingManager().getAttacked();
@@ -57,7 +57,7 @@ public class DataPlayer {
     }
 
     public Vector velocity() {
-        Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
+        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
         if (bot == null) return null;
 
         Vector dir = MathUtils.getDirection(bot.getMovements().getLocation().getYaw());
@@ -102,7 +102,7 @@ public class DataPlayer {
     @EventHandler
     public void damage(EntityDamageByEntityEvent e) {
         if (e.getEntity().getEntityId() == player.getEntityId()) {
-            Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
+            Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
             if (bot != null) bot.getAttackingManager().setAttackTicks(0);
         }
     }

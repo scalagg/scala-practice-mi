@@ -1,16 +1,14 @@
-package land.esta.plugin.ssb.estapractice
+package land.esta.plugin.ssb.solara
 
 import gg.tropic.practice.Globals.PLAYER_BOT_UNIQUE_ID
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.kit.feature.FeatureFlag
-import land.esta.plugin.ssb.EstaRobotsPlugin.Companion.instance
-import land.esta.plugin.ssb.bot.setting.setting.root
+import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
 import land.esta.plugin.ssb.botevents.Event
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.utils.Color
-import land.esta.plugin.ssb.utils.RandomUtil
 import land.esta.plugin.ssb.utils.objects.EventRunnable
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -23,7 +21,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.logging.Logger
 
-object EstaPracticeIntegrator
+object SolaraPracticeIntegrator
 {
     fun spawn(
         location: Location,

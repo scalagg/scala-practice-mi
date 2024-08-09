@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
 import land.esta.plugin.ssb.bots.Bot;
@@ -14,7 +14,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -84,7 +83,7 @@ public class Pearling extends Feature {
     public void teleport(ProjectileLaunchEvent event) {
         if (!event.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
         if (event.getEntity().getShooter() instanceof LivingEntity shooter) {
-            Bot bot = EstaRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
+            Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
             if (bot == null) return;
             final Location[] trackedLoc = {event.getEntity().getLocation()};
 
