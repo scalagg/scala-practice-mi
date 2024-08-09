@@ -9,6 +9,7 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
 
 /**
  * @author GrowlyX
@@ -77,10 +78,24 @@ class PlayerDescribeProfilesMenu(
                 .addToLore(
                     *settings.describe().toTypedArray(),
                     "",
-                    "${CC.GREEN}Click to select!"
+                    "${CC.GREEN}Click to select!",
+                    "${CC.RED}Shift-Click to delete!"
                 )
                 .glow()
-                .toButton { _, _ ->
+                .toButton { _, type ->
+                    if (
+                        type == ClickType.SHIFT_RIGHT ||
+                        type == ClickType.SHIFT_LEFT
+                    )
+                    {
+                        Button.playSuccess(player)
+                        robotProfile.profiles.remove(settings.id)
+                        robotProfile.save()
+
+                        openMenu(player)
+                        return@toButton
+                    }
+
                     Button.playNeutral(player)
                     action(settings)
                 }
