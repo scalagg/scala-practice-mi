@@ -84,7 +84,7 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
         } else
         {
             buildNewBotFightMenu = {
-                BotDuelMenu()
+                BotDuelMenu(it)
             }
         }
     }

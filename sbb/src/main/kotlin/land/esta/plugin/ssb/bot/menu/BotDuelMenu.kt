@@ -74,6 +74,14 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                 )
                 .glow()
                 .toButton { _, type ->
+                    if (!player.hasPermissionForCustomBots())
+                    {
+                        Button.playFail(player)
+                        player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
+                        player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.WEB_LINK}")
+                        return@toButton
+                    }
+
                     if (
                         type == ClickType.SHIFT_RIGHT ||
                         type == ClickType.SHIFT_LEFT
@@ -104,10 +112,10 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
 
     fun Player.hasPermissionForCustomBots() = player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()
 
+    override fun getMaxItemsPerPage(player: Player) = 8
     override fun getPageButtonSlots() = if (shouldExpand()) 47 to 51 else 29 to 33
     override fun getAllPagesButtonSlots() = (37..43).toList()
 
-    fun getCustomizerItem() = if (shouldExpand()) 49 else 31
     fun shouldExpand(): Boolean
     {
         val profile = RobotProfileService.find(viewer)
@@ -143,7 +151,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                 )
                 .toButton(),
 
-            getCustomizerItem() to ItemBuilder.of(Material.EMERALD)
+            31 to ItemBuilder.of(Material.EMERALD)
                 .name("&aCustomized Bots")
                 .addToLore(
                     "${CC.GRAY}Play against a customized",
@@ -218,30 +226,32 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                 }
         )
 
-        (27..36).forEach {
+        (0..8).forEach {
             buttons[it] = ItemBuilder
                 .of(XMaterial.BLACK_STAINED_GLASS_PANE)
                 .name(" ")
                 .toButton()
         }
 
+        (27..35).forEach {
+            buttons.putIfAbsent(it, ItemBuilder
+                .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                .name(" ")
+                .toButton())
+        }
+
         if (shouldExpand())
         {
             (45..53).forEach {
-                buttons[it] = ItemBuilder
+                buttons.putIfAbsent(it, ItemBuilder
                     .of(XMaterial.BLACK_STAINED_GLASS_PANE)
                     .name(" ")
-                    .toButton()
+                    .toButton())
             }
 
-            buttons[4] = ItemBuilder
-                .of(XMaterial.BLACK_STAINED_GLASS_PANE)
-                .name(" ")
-                .toButton()
-
             buttons[36] = ItemBuilder
-                .of(XMaterial.GREEN_STAINED_GLASS_PANE)
-                .name("&2Custom")
+                .of(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE)
+                .name("&bCustom ${CC.GRAY}(Page #$page})")
                 .addToLore(
                     "${CC.GRAY}Your own custom bot profiles!"
                 )
