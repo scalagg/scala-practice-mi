@@ -77,15 +77,21 @@ class BotDuelMenu : Menu("Select a Difficulty...")
         9 to ItemBuilder
             .of(XMaterial.LIME_STAINED_GLASS_PANE)
             .name("&aNormal")
+            .addToLore(
+                "${CC.GRAY}Tiered difficulty bots."
+            )
             .toButton(),
 
         18 to ItemBuilder
             .of(XMaterial.ORANGE_STAINED_GLASS_PANE)
             .name("&6Special")
+            .addToLore(
+                "${CC.GRAY}Seasonal, or other special bots."
+            )
             .toButton(),
 
         4 to ItemBuilder.of(Material.EMERALD)
-            .name("&2&lCustom")
+            .name("&aCustom")
             .addToLore(
                 "${CC.GRAY}Play against a customized",
                 "${CC.GRAY}bot through the bot customizer",
@@ -93,25 +99,31 @@ class BotDuelMenu : Menu("Select a Difficulty...")
                 ""
             )
             .apply {
+                if (player.hasPermission("botgui.use"))
+                {
+                    return@apply
+                }
+
                 if (FreeBotFridays.isFreeBotFriday())
                 {
                     addToLore(
-                        "${CC.B_GREEN}${CC.MAGIC}AAA ${CC.B_GREEN}IT'S FREE BOT FRIDAY! ${CC.B_GREEN}${CC.MAGIC}AAA",
-                        "${CC.GREEN}All players have access",
-                        "${CC.GREEN}to use custom bots!"
+                        "${CC.B_GOLD}${CC.MAGIC}AAA${CC.B_GOLD} IT'S FREE BOT FRIDAY! ${CC.B_GOLD}${CC.MAGIC}AAA",
+                        "${CC.GOLD}All players have access to use",
+                        "${CC.GOLD}custom bots!",
+                        ""
                     )
                 } else
                 {
                     addToLore(
                         "${CC.B_WHITE}Free Bot Friday:",
-                        "${CC.WHITE}Get ${CC.GREEN}free${CC.WHITE} access to custom",
-                        "${CC.WHITE}bots every friday from 3:30PM",
-                        "${CC.WHITE}to 7:30PM EST!",
+                        "${CC.WHITE}Come back later for ${CC.GREEN}free${CC.WHITE}",
+                        "${CC.WHITE}access to custom bots every",
+                        "${CC.WHITE}friday from ${CC.GOLD}3:30PM${CC.WHITE} to ${CC.GOLD}7:30PM${CC.WHITE} EST!",
+                        ""
                     )
                 }
             }
             .addToLore(
-                "",
                 "${CC.GREEN}Left-Click to play!",
                 "${CC.YELLOW}Right-Click to customize!"
             )
