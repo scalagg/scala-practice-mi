@@ -112,7 +112,7 @@ public class RecodedCollision extends Manager {
         //Jumping
         if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getAlwaysJump())) {
             //Jump when combed
-            if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileCombo()) && SolaraRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(),0) >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileComboHits())) {
+            if (bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileCombo()) && bot.getCombo() >= bot.getProfile().value(RootAccessor.INSTANCE.getPlayStyleSettings().getJumpWhileComboHits())) {
                 bot.getMovements().setJump(true);
             }
 

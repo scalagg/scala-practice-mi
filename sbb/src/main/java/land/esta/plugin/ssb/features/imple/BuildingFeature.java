@@ -50,7 +50,7 @@ public class BuildingFeature extends Feature {
         int buildWhenComboHits = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenComboHits());
 
         var distanceToPlayer = bot.getMovements().getLocation().distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation());
-        var currentComboBots = SolaraRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(bot.getUniqueId(), 0);
+        var currentComboBots = bot.getCombo();
         var currentTime = System.currentTimeMillis();
 
         boolean buildWhenPlayerIsHigh = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHigh());

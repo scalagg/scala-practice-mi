@@ -48,7 +48,7 @@ public class RodFeature extends Feature {
                 if (distance >= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMinRodDistance()) && distance <= bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getMaxRodDistance()) && !movementEvent.getBot().getFleeManager().isActive()) {
                     if (mainHand == null) return;
                     if (mainHand.getType().equals(Material.FISHING_ROD)) return;
-                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && SolaraRobotsPlugin.getInstance().getFeatureManager().getStrafeFeature().getCombo().getOrDefault(movementEvent.getBot(), 0) > 2 && movementEvent.getBot().getDamageManager().getDamageTicks() < 10) return;
+                    if (!bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodWhileInCombo()) && movementEvent.getBot().getCombo() > 2 && movementEvent.getBot().getDamageManager().getDamageTicks() < 10) return;
                     List<ItemStack> rods = movementEvent.getBot().getInventoryManager().hasItem(Material.FISHING_ROD);
                     if (rods.isEmpty()) return;
 
