@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotKitMenu(private val identifier: String, private val selection: String? = null) : TemplateKitMenu()
+class BotKitMenu(private val botID: String, private val customBotSelection: String? = null) : TemplateKitMenu()
 {
     private var kitSelectionLock = false
     private var regionSelection: Region? = null
@@ -141,16 +141,16 @@ class BotKitMenu(private val identifier: String, private val selection: String? 
                 ScalaCommonsSpigot.instance.kvConnection.sync()
                     .set(
                         "${namespace()}:bot-selection:${player.uniqueId}",
-                        if (selection == null) identifier else "$identifier:$selection"
+                        if (customBotSelection == null) botID else "$botID:$customBotSelection"
                     )
             }.thenAccept {
                 QueueService.joinQueue(kit, QueueType.Robot, 1, player)
-            }
 
-            Button.playNeutral(player)
-            player.sendMessage(
-                "${CC.GREEN}You have joined the ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} queue!"
-            )
+                Button.playNeutral(player)
+                player.sendMessage(
+                    "${CC.GREEN}You have joined the ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} queue!"
+                )
+            }
         }
 
         if (player.hasPermission("bot.custom-map-selection"))
@@ -191,7 +191,7 @@ class BotKitMenu(private val identifier: String, private val selection: String? 
                 {
                     if (manualClose)
                     {
-                        Tasks.sync { BotKitMenu(identifier).openMenu(player) }
+                        Tasks.sync { BotKitMenu(botID, customBotSelection).openMenu(player) }
                     }
                 }
             }.openMenu(player)

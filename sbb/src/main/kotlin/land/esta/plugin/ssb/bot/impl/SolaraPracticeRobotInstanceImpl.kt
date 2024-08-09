@@ -2,11 +2,15 @@ package land.esta.plugin.ssb.bot.impl
 
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.robot.RobotInstance
+import gg.tropic.practice.namespace
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.solara.SolaraPracticeIntegrator
+import land.esta.plugin.ssb.solara.loadSettingsFromSelectionSync
 import me.lucko.helper.Events
+import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.Color
 import org.bukkit.entity.Player
 
@@ -17,9 +21,24 @@ import org.bukkit.entity.Player
 class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotInstance()
 {
     private var spawnedBot: Bot? = null
+    private val settingProfile: SettingProfile
 
     init
     {
+        val settingsPlayer = gameImpl.humanSide().players.first()
+        val selectedBot = ScalaCommonsSpigot.instance.kvConnection.sync()
+            .get(
+                "${namespace()}:bot-selection:$settingsPlayer"
+            )
+            ?: "EASY"
+
+        val split = selectedBot.split(":")
+        settingProfile = loadSettingsFromSelectionSync(
+            settingsPlayer,
+            split[0],
+            split.getOrNull(1)
+        ).deepCopy()
+
         terminable.with {
             if (spawnedBot?.isAlive == false)
             {
@@ -54,8 +73,9 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl) : RobotIns
                         gameImpl.robotSide().side
                     )!!
                     .toLocation(gameImpl.arenaWorld!!),
-                gameImpl
-            )
+                gameImpl,
+                settingProfile
+            )!! // we want to throw the error
         }
     }
 

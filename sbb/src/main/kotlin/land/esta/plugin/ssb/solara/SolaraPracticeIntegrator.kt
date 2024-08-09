@@ -4,7 +4,9 @@ import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.namespace
 import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.botevents.Event
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent
@@ -24,27 +26,8 @@ import java.util.logging.Logger
 
 object SolaraPracticeIntegrator
 {
-    fun spawn(location: Location, game: GameImpl): Bot?
+    fun spawn(location: Location, game: GameImpl, settings: SettingProfile): Bot?
     {
-        val settingsPlayer = game.humanSide().players[0]
-        val selectedBot = ScalaCommonsSpigot.instance.kvConnection.sync()
-            .get(
-                "tropicpractice:bot-selection:$settingsPlayer"
-            )
-
-        if (selectedBot == null)
-        {
-            Logger.getGlobal().info("No bot configuration was found!")
-            return null
-        }
-
-        val split = selectedBot.split(":")
-        val settings = loadSettingsFromSelection(
-            settingsPlayer,
-            split[0],
-            split.getOrNull(1)
-        ).deepCopy()
-
         if (settings.randomizerEnabled == true)
         {
             for (value in settings.settings.values)
