@@ -91,7 +91,7 @@ class BotDuelMenu : Menu("Select a Difficulty...")
             .toButton(),
 
         4 to ItemBuilder.of(Material.EMERALD)
-            .name("&aCustom")
+            .name("&aCustomized Bots")
             .addToLore(
                 "${CC.GRAY}Play against a customized",
                 "${CC.GRAY}bot through the bot customizer",
