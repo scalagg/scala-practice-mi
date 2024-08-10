@@ -52,13 +52,8 @@ open class RobotSinglePlayerQueue(
 
         GameQueueManager.removeQueueEntryFromId(queueId(), first.leader)
 
-        /**
-         * Single player queue only has support for 1 robot at this time.
-         */
-        val botUniqueId = Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[0]
-
         // a bot is playing w/ the player lol
-        val users = first.players + botUniqueId
+        val users = first.players + metadata.botInstances
         val map = MapDataSync
             .selectMapIfCompatible(
                 kit, metadata.mapID
