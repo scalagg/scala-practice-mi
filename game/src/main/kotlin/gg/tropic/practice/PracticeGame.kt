@@ -9,6 +9,7 @@ import gg.scala.commons.core.plugin.*
 import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
+import gg.tropic.practice.lifecycle.NightlyRebootScheduler
 import gg.tropic.practice.settings.ChatVisibility
 import gg.tropic.practice.settings.DuelsSettingCategory
 import me.lucko.helper.Schedulers
@@ -81,34 +82,7 @@ class PracticeGame : ExtendedScalaPlugin()
         )
         lobbyRedirector.subscribe()
 
-        fun millisUntilNext1AM(): Long
-        {
-            val zone = ZoneId.of("America/New_York")
-            val now = ZonedDateTime.now(zone)
-
-            val targetTime = LocalTime.of(1, 0)
-            var next1AM = now.withHour(1).withMinute(0).withSecond(0).withNano(0)
-
-            if (now.toLocalTime().isAfter(targetTime))
-            {
-                next1AM = next1AM.plusDays(1)
-            }
-
-            val duration = Duration.between(now, next1AM)
-            return duration.toMillis()
-        }
-
-        Tasks.delayed(1L) {
-            logger.info("Server is rebooting in (nightly):")
-            logger.info(TimeUtil.formatIntoAbbreviatedString((millisUntilNext1AM() / 1000L).toInt()))
-        }
-
-        Schedulers
-            .sync()
-            .runLater({
-                logger.info("Initiating automated nightly reboot.")
-                ShutdownService.initiateShutdown(181)
-            }, millisUntilNext1AM(), TimeUnit.MILLISECONDS)
+        NightlyRebootScheduler.scheduleReboot(1, 0)
 
         flavor {
             bind<ServerAggregateHandler>() to lobbyRedirector
