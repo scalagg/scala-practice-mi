@@ -161,9 +161,6 @@ public class Bot {
 
         //Animation
         fakeDeath();
-
-        //Event
-        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
     }
 
     public void silentKill() {
