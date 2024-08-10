@@ -59,24 +59,18 @@ data class SettingProfile(
     }
 
     fun describe() = listOf(
-        "${CC.GRAY}CPS: ${CC.PRI}${
+        "${CC.GRAY}CPS: ${CC.WHITE}${
             value(RootAccessor.attackSettings.cps)
-        }",
-        "${CC.GRAY}Reach: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Reach: ${CC.WHITE}${
             "%.2f".format(value(RootAccessor.attackSettings.reach).toFloat())
-        }",
-        "${CC.GRAY}Ping: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Ping: ${CC.WHITE}${
             value(RootAccessor.connectionSettings.ping)
         }ms",
-        "",
-        "${CC.YELLOW}Traits:",
         "${CC.GRAY}W-Tap: ${CC.PRI}${
             if (value(RootAccessor.wTapSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
-        }",
-        "${CC.GRAY}Rod: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Rod: ${CC.PRI}${
             if (value(RootAccessor.rodSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
-        }",
-        "${CC.GRAY}Strafe: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Strafe: ${CC.PRI}${
             if (value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
     )

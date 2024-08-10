@@ -16,6 +16,7 @@ import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import org.bukkit.Material
@@ -58,12 +59,11 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
             .setLore(profile.describe())
             .addToLore(
                 "",
-                "${CC.GREEN}Duos Queue: ${CC.B_AQUA}NEW!",
+                "${CC.D_AQUA}Duos Queue: ${CC.B_AQUA}NEW!",
                 "${CC.GRAY}Partner up with another",
                 "${CC.GRAY}player against two bots!",
                 "",
-                "${CC.GRAY}Playing: ${CC.WHITE}${duosTracker.inGame + solosTracker.inGame}",
-                "${CC.GRAY}Queuing: ${CC.WHITE}${duosTracker.inQueue + solosTracker.inQueue}",
+                "${CC.GRAY}Playing: ${CC.WHITE}${duosTracker.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Queuing: ${CC.WHITE}${duosTracker.inQueue}",
                 "",
                 "${CC.GREEN}Left-Click to play solo!",
                 "${CC.D_GREEN}Right-Click to queue for duos!",

@@ -12,6 +12,7 @@ import gg.tropic.practice.services.GameManagerService
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -44,12 +45,9 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
         })
 
         return listOf(
+            "${CC.GRAY}Playing: ${CC.WHITE}${metadata.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Queuing: ${CC.WHITE}${metadata.inQueue}",
             "",
-            "${CC.YELLOW}Duos Queue:",
-            "${CC.GRAY}Playing: ${CC.WHITE}${metadata.inGame}",
-            "${CC.GRAY}Queuing: ${CC.WHITE}${metadata.inQueue}",
-            "",
-            "${CC.GREEN}Click to select!"
+            "${CC.GREEN}Click to join queue!"
         )
     }
 
@@ -103,5 +101,5 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
         }
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Queuing Robot Duos..."
+    override fun getPrePaginatedTitle(player: Player) = "Queuing ${CC.D_GRAY}${difficultyProfile.botName}${CC.D_GRAY} Robot Duos..."
 }
