@@ -143,7 +143,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += ""
                             board += "${CC.GRAY}NA/EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)
-                            } ${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
+                            } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.euServerTotalPlayers)
                             }"
 

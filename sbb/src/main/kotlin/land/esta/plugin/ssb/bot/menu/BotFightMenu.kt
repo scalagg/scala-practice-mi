@@ -22,6 +22,7 @@ import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
+import kotlin.math.min
 
 /**
  * Class created on 7/19/2024
@@ -32,6 +33,11 @@ import org.bukkit.event.inventory.ClickType
  */
 class BotFightMenu(private val viewer: Player) : PaginatedMenu()
 {
+    init
+    {
+        autoUpdate = true
+    }
+
     override fun getPrePaginatedTitle(player: Player) = "Fight a bot..."
 
     private fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
@@ -39,11 +45,6 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
         val profile = BotSettingService.loadDefaultProfile(id)
         val duosTracker = GameManagerService.buildAggregateMetadataTracker(queueId {
             teamSize(2)
-            queueType(QueueType.Robot)
-        })
-
-        val solosTracker = GameManagerService.buildAggregateMetadataTracker(queueId {
-            teamSize(1)
             queueType(QueueType.Robot)
         })
 
@@ -56,17 +57,20 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                 .of(Material.WOOL)
                 .data(data)
             ).name(display)
+            .amount(
+                (duosTracker.inGame + duosTracker.inQueue).coerceIn(1..64)
+            )
             .setLore(profile.describe())
             .addToLore(
                 "",
-                "${CC.D_AQUA}Duos Queue: ${CC.B_AQUA}NEW!",
+                "${CC.AQUA}Duos Queue: ${CC.BD_AQUA}NEW!",
                 "${CC.GRAY}Partner up with another",
                 "${CC.GRAY}player against two bots!",
                 "",
                 "${CC.GRAY}Playing: ${CC.WHITE}${duosTracker.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Queuing: ${CC.WHITE}${duosTracker.inQueue}",
                 "",
                 "${CC.GREEN}Left-Click to play solo!",
-                "${CC.D_GREEN}Right-Click to queue for duos!",
+                "${CC.YELLOW}Right-Click to queue for duos!",
             )
             .toButton { _, type ->
                 if (type!!.isRightClick)
