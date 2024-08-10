@@ -417,7 +417,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                             if (opponent.players.size > 2)
                             {
-                                board += "${CC.WHITE}(and ${opponent.players.size - 3} more...)"
+                                board += "${CC.WHITE}(and ${opponent.players.size - 2} more...)"
                             }
                         }
 
