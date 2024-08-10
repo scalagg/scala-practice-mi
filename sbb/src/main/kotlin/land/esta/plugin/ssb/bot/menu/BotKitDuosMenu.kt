@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.bot.menu
 
+import gg.tropic.practice.Globals
 import gg.tropic.practice.games.bots.BotGameMetadata
 import gg.tropic.practice.games.bots.storeForUser
 import gg.tropic.practice.kit.Kit
@@ -50,9 +51,18 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
 
     override fun shouldIncludeKitDescription() = false
 
+    private var locked = false
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
     {
+        if (locked)
+        {
+            return
+        }
+
+        locked = true
+
         Button.playNeutral(player)
+        player.closeInventory()
 
         CompletableFuture.runAsync {
             BotGameMetadata(
@@ -60,7 +70,10 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
                 null,
                 kit.id,
                 null,
-                botInstances = setOf() /** queue automatically populates this! **/
+                botInstances = setOf(
+                    Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[0],
+                    Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[1]
+                )
             ).storeForUser(player.uniqueId)
         }.thenAccept {
             QueueService.joinQueue(kit, QueueType.Robot, 2, player)

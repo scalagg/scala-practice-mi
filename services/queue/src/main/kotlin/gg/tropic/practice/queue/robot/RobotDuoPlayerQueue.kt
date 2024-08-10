@@ -97,17 +97,16 @@ open class RobotDuoPlayerQueue(
             }
 
         val metadata = getBotMetdataOfPlayer(first.leader)
+        val robotPlayers = listOf(
+            Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[0],
+            Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[1]
+        )
 
         GameQueueManager.removeQueueEntryFromId(queueId(), first.leader)
         GameQueueManager.removeQueueEntryFromId(queueId(), second.leader)
 
-        /**
-         * Single player queue only has support for 1 robot at this time.
-         */
-        val botUniqueId = Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[0]
-
         // a bot is playing w/ the player lol
-        val users = first.players + botUniqueId
+        val users = first.players + second.players + robotPlayers
         val map = MapDataSync
             .selectMapIfCompatible(
                 kit, metadata.mapID
@@ -126,13 +125,13 @@ open class RobotDuoPlayerQueue(
             identifier = UUID.randomUUID(),
             players = users,
             teams = mapOf(
-                GameTeamSide.A to GameTeam(side = GameTeamSide.A, players = first.players),
+                GameTeamSide.A to GameTeam(
+                    side = GameTeamSide.A,
+                    players = first.players + second.players
+                ),
                 GameTeamSide.B to GameTeam(
                     side = GameTeamSide.B,
-                    players = listOf(
-                        Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[0],
-                        Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[1]
-                    )
+                    players = robotPlayers
                 ),
             ),
             kitId = kit.id,
@@ -149,9 +148,8 @@ open class RobotDuoPlayerQueue(
                 // prefer NA servers if queuing globally
                 region = if (region == Region.Both) Region.NA else region,
                 cleanup = {
-                    GameQueueManager.destroyQueueStates(
-                        queueId(), first
-                    )
+                    GameQueueManager.destroyQueueStates(queueId(), first)
+                    GameQueueManager.destroyQueueStates(queueId(), second)
                 }
             )
             .exceptionally {

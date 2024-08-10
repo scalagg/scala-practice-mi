@@ -45,6 +45,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
             ).name(display)
             .setLore(profile.describe())
             .addToLore(
+                "",
                 "${CC.GREEN}Duos Queue: ${CC.B_AQUA}NEW!",
                 "${CC.GRAY}Partner up with another",
                 "${CC.GRAY}player against two bots!",
