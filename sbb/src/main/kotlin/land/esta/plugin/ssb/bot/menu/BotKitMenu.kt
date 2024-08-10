@@ -1,29 +1,13 @@
 package land.esta.plugin.ssb.bot.menu
 
-import gg.scala.staff.ScalaStaffPlugin
-import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
-import gg.tropic.practice.kit.group.KitGroupService
-import gg.tropic.practice.map.Map
 import gg.tropic.practice.menu.TemplateKitMenu
-import gg.tropic.practice.menu.TemplateMapMenu
-import gg.tropic.practice.namespace
-import gg.tropic.practice.player.LobbyPlayerService
-import gg.tropic.practice.player.PlayerState
-import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
-import gg.tropic.practice.region.Region
-import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.menu.Button
-import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-import java.util.concurrent.CompletableFuture
 
 /**
  * Class created on 7/19/2024
@@ -32,48 +16,12 @@ import java.util.concurrent.CompletableFuture
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotKitMenu(private val botID: String, private val customBotSelection: String? = null) : TemplateKitMenu()
+class BotKitMenu(private val selectionCallback: (Kit?) -> Unit) : TemplateKitMenu()
 {
-    private var kitSelectionLock = false
-    private var regionSelection: Region? = null
-
     init
     {
         updateAfterClick = true
     }
-
-    override fun getGlobalButtons(player: Player) = mapOf(
-        4 to ItemBuilder
-            .copyOf(
-                object : TexturedHeadButton(Constants.GLOBE_ICON){}.getButtonItem(player)
-            )
-            .name("${CC.GREEN}Region")
-            .addToLore(
-                "${
-                    if (regionSelection == null) CC.B_WHITE else CC.GRAY
-                }Closest ${CC.D_GRAY}${
-                    Constants.THIN_VERTICAL_LINE
-                } ${
-                    if (regionSelection == Region.NA) CC.B_WHITE else CC.GRAY
-                }NA ${CC.D_GRAY}${
-                    Constants.THIN_VERTICAL_LINE
-                } ${
-                    if (regionSelection == Region.EU) CC.B_WHITE else CC.GRAY
-                }EU"
-            )
-            .toButton { _, _ ->
-                val oldRegionSelection = regionSelection
-                regionSelection = when (oldRegionSelection)
-                {
-                    null -> Region.NA
-                    Region.NA -> Region.EU
-                    Region.EU -> null
-                    Region.Both -> null
-                }
-
-                Button.playNeutral(player)
-            }
-    )
 
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes.any { it.second.contains(QueueType.Robot) }
 
@@ -87,118 +35,17 @@ class BotKitMenu(private val botID: String, private val customBotSelection: Stri
 
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
     {
-        if (kitSelectionLock)
-        {
-            return
-        }
+        Button.playNeutral(player)
+        selectionCallback(kit)
+    }
 
-        val lobbyPlayer = LobbyPlayerService
-            .find(player.uniqueId)
-            ?: return
-
-        if (lobbyPlayer.state != PlayerState.Idle)
+    override fun onClose(player: Player, manualClose: Boolean)
+    {
+        if (manualClose)
         {
-            player.sendMessage("${CC.RED}You cannot join a queue right now!")
-            return
-        }
-
-        if (player.hasMetadata("vanished"))
-        {
-            player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to join a queue.")
-            return
-        }
-
-        val profile = StaffProfileService.find(player)
-        if (profile != null && player.hasPermission(ScalaStaffPlugin.STAFF_NODE))
-        {
-            if (profile.staffAutoVanishEnabled)
-            {
-                player.sendMessage("${CC.RED}You currently have AutoVanish enabled! Use ${CC.B}/toggleautovanish${CC.RED} to be able to join a queue.")
-                return
+            Tasks.sync {
+                selectionCallback(null)
             }
-        }
-
-        val joinQueue = { map: Map? ->
-            player.closeInventory()
-            kitSelectionLock = true
-
-            CompletableFuture.runAsync {
-                if (map != null)
-                {
-                    ScalaCommonsSpigot.instance.kvConnection.sync()
-                        .set(
-                            "${namespace()}:bot-map-selection:${player.uniqueId}",
-                            map.name
-                        )
-                } else
-                {
-                    ScalaCommonsSpigot.instance.kvConnection.sync()
-                        .del(
-                            "${namespace()}:bot-map-selection:${player.uniqueId}"
-                        )
-                }
-
-                ScalaCommonsSpigot.instance.kvConnection.sync()
-                    .set(
-                        "${namespace()}:bot-selection:${player.uniqueId}",
-                        if (customBotSelection == null) botID else "$botID:$customBotSelection"
-                    )
-            }.thenAccept {
-                QueueService.joinQueue(kit, QueueType.Robot, 1, player)
-
-                Button.playNeutral(player)
-                player.sendMessage(
-                    "${CC.GREEN}You have joined the ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} queue!"
-                )
-            }
-        }
-
-        if (player.hasPermission("bot.custom-map-selection"))
-        {
-            Button.playNeutral(player)
-            object : TemplateMapMenu()
-            {
-                override fun filterDisplayOfMap(map: Map) = map.associatedKitGroups
-                    .intersect(KitGroupService.groupsOf(kit).map { it.id }.toSet())
-                    .isNotEmpty()
-
-                override fun itemDescriptionOf(player: Player, map: Map) = listOf(
-                    "",
-                    "${CC.GREEN}Click to select!"
-                )
-
-                override fun itemClicked(player: Player, map: Map, type: ClickType)
-                {
-                    Button.playNeutral(player)
-                    joinQueue(map)
-                }
-
-                override fun getGlobalButtons(player: Player) = mutableMapOf(
-                    4 to ItemBuilder
-                        .of(Material.NETHER_STAR)
-                        .name("${CC.B_AQUA}Random Map")
-                        .addToLore(
-                            "",
-                            "${CC.AQUA}Click to select!"
-                        )
-                        .toButton { _, _ ->
-                            joinQueue(null)
-                        }
-                )
-
-                override fun getPrePaginatedTitle(player: Player) = "Select a map..."
-
-                override fun onClose(player: Player, manualClose: Boolean)
-                {
-                    if (manualClose)
-                    {
-                        Tasks.sync { BotKitMenu(botID, customBotSelection).openMenu(player) }
-                    }
-                }
-            }.openMenu(player)
-        } else
-        {
-            joinQueue(null)
         }
     }
 

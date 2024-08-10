@@ -5,7 +5,7 @@ import gg.scala.commons.annotations.container.ContainerDisable
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
 import gg.tropic.practice.player.hotbar.LobbyHotbarService.buildNewBotFightMenu
-import land.esta.plugin.ssb.bot.menu.BotDuelMenu
+import land.esta.plugin.ssb.bot.menu.BotFightMenu
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor.attackSettings
 import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue
 import land.esta.plugin.ssb.botevents.EventManager
@@ -84,7 +84,7 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
         } else
         {
             buildNewBotFightMenu = {
-                BotDuelMenu(it)
+                BotFightMenu(it)
             }
         }
     }

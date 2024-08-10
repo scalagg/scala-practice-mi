@@ -26,9 +26,9 @@ import org.bukkit.event.inventory.ClickType
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
+class BotFightMenu(private val viewer: Player) : PaginatedMenu()
 {
-    override fun getPrePaginatedTitle(player: Player) = "Robot Fights"
+    override fun getPrePaginatedTitle(player: Player) = "Fight a bot..."
 
     private fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
     {
@@ -50,7 +50,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                BotKitMenu(id).openMenu(this)
+                BotFightPrepareMenu(id, null).openMenuProtected(this)
             }
     }
 
@@ -78,7 +78,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     if (!player.hasPermissionForCustomBots())
                     {
                         Button.playFail(player)
-                        player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
+                        player.sendMessage("${CC.RED}You need ${CC.D_AQUA}VIP${CC.RED} rank to use this feature!")
                         player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                         return@toButton
                     }
@@ -105,7 +105,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     }
 
                     Button.playNeutral(player)
-                    BotKitMenu(player.uniqueId.toString(), settings.id).openMenu(player)
+                    BotFightPrepareMenu(player.uniqueId.toString(), settings.id).openMenuProtected(player)
                 }
         }
         return buttons
@@ -178,7 +178,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     if (!(player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()))
                     {
                         Button.playFail(player)
-                        player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
+                        player.sendMessage("${CC.RED}You need ${CC.D_AQUA}VIP${CC.RED} rank to use this feature!")
                         player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                         return@toButton
                     }
@@ -197,7 +197,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                             {
                                 Button.playFail(player)
                                 player.sendMessage("${CC.RED}You already have a profile with that name!")
-                                BotDuelMenu(player).openMenu(player)
+                                BotFightMenu(player).openMenu(player)
                                 return@acceptInput
                             }
 
@@ -207,7 +207,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                             robotProfile.profiles[sanitized] = SettingProfile(sanitized)
                             robotProfile.save()
 
-                            BotDuelMenu(player).openMenu(player)
+                            BotFightMenu(player).openMenu(player)
                         }
                         .start(player)
                 }

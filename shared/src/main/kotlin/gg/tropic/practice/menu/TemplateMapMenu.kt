@@ -21,7 +21,7 @@ abstract class TemplateMapMenu : PaginatedMenu()
 {
     init
     {
-        placeholdBorders = true
+        placeholder = true
     }
 
     abstract fun filterDisplayOfMap(map: gg.tropic.practice.map.Map): Boolean
