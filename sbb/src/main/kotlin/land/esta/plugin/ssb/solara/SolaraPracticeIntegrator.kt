@@ -10,7 +10,6 @@ import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.botevents.Event
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent
-import land.esta.plugin.ssb.botevents.events.BotDeathEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.utils.Color
 import land.esta.plugin.ssb.utils.objects.EventRunnable
@@ -52,24 +51,6 @@ object SolaraPracticeIntegrator
             settings,
             game.kit
         )
-
-        var totalDeaths = 0
-
-        Events
-            .subscribe(BotDeathEvent::class.java)
-            .filter { game.robot(it.bot.solaraID) != null }
-            .handler {
-                totalDeaths += 1
-
-                if (totalDeaths == game.consumedBots.get())
-                {
-                    println("Completing as total deaths is $totalDeaths and ${game.consumedBots.get()} consumed")
-                    game.complete(
-                        game.humanSide()
-                    )
-                }
-            }
-            .bindWith(game)
 
         val noDamageMatch = game.flagMetaData(FeatureFlag.DoNotTakeDamage, "doDamageTick") == "true"
         if (noDamageMatch)

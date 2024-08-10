@@ -23,16 +23,9 @@ import java.util.UUID;
 
 public class Pearling extends Feature {
 
-    private final Map<UUID, Integer> pearlTick = new HashMap<>();
-
-    @EventHandler
-    public void botDeath(BotDeathEvent event) {
-        pearlTick.remove(event.getBot().getUniqueId());
-    }
-
     @Override
     public void tickEvent(Bot bot) {
-        pearlTick.put(bot.getUniqueId(), pearlTick.getOrDefault(bot.getUniqueId(), 0) + 1);
+        bot.setPearlTick(bot.getPearlTick() + 1);
         List<ItemStack> pearls = getPearls(bot);
 
         if (pearls.isEmpty()) return;
@@ -41,14 +34,13 @@ public class Pearling extends Feature {
             return;
         if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))
             return;
-        if (pearlTick.get(bot.getUniqueId()) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlDelay()))
+        if (bot.getPearlTick() < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlDelay()))
             return;
 
         pearl(pearls.get(0), bot);
     }
 
     public void pearl(ItemStack pearl, Bot bot) {
-        this.pearlTick.put(bot.getUniqueId(), 0);
         bot.getInventoryManager().setMainHand(itemSlot(pearl, bot));
 
         Schedulers

@@ -24,15 +24,6 @@ import java.util.UUID;
 
 public class RodFeature extends Feature {
 
-    private final Map<UUID, Integer> prevSlot = new HashMap<>();
-    private final Map<UUID, Long> lastSwitch = new HashMap<>();
-
-    @EventHandler
-    public void deathEvent(BotDeathEvent event) {
-        var uniqueId = event.getBot().getUniqueId();
-        lastSwitch.remove(uniqueId);
-        prevSlot.remove(uniqueId);
-    }
 
     @Override
     public void listen(Event event) {
@@ -53,10 +44,10 @@ public class RodFeature extends Feature {
                     if (rods.isEmpty()) return;
 
                     //Hold the fishingRod
-                    prevSlot.put(movementEvent.getBot().getUniqueId(), movementEvent.getBot().getInventoryManager().getMainHand());
+                    movementEvent.getBot().setPrevSlot(movementEvent.getBot().getInventoryManager().getMainHand());
+                    movementEvent.getBot().setLastSwitch(System.currentTimeMillis());
                     movementEvent.getBot().getInventoryManager().setMainHand(movementEvent.getBot().getInventoryManager().getItemSlot(rods.get(0)));
                     movementEvent.getBot().getNpc().dead = false;
-                    lastSwitch.put(movementEvent.getBot().getUniqueId(),System.currentTimeMillis());
 
                     Schedulers
                             .sync()
@@ -89,10 +80,10 @@ public class RodFeature extends Feature {
                             })
                             .bindWith(bot.getTerminable());
                 } else {
-                    if (System.currentTimeMillis() - lastSwitch.getOrDefault(movementEvent.getBot().getUniqueId(), 0L) < bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodDuration())) return;
+                    if (System.currentTimeMillis() - movementEvent.getBot().getLastSwitch() < bot.getProfile().value(RootAccessor.INSTANCE.getRodSettings().getRodDuration())) return;
                     if (mainHand == null) return;
                     if (!mainHand.getType().equals(Material.FISHING_ROD)) return;
-                    movementEvent.getBot().getInventoryManager().setMainHand(prevSlot.getOrDefault(movementEvent.getBot().getUniqueId(),0));
+                    movementEvent.getBot().getInventoryManager().setMainHand(movementEvent.getBot().getPrevSlot());
                 }
 
             } catch (IllegalArgumentException ignore) {

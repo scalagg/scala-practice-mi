@@ -57,7 +57,8 @@ public class Bot {
     private final SettingProfile profile;
     private Location startLocation;
 
-    private int combo = 0, ticks = 0;
+    private int combo = 0, ticks = 0, prevSlot = 0, pearlTick = 0;
+    private long lastSwitch = 0;
 
     /**
      * Keeps track of how many potions have been used in the hotbar
