@@ -274,7 +274,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             else 
                                 opponent.players.first().username()
                         }"
-                    } else if (!game.robot())
+                    } else
                     {
                         board += "${CC.PRI}Opponents:"
 
