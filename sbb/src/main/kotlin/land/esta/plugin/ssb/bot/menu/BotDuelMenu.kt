@@ -49,6 +49,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                 "${CC.GREEN}Click to play!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
                 BotKitMenu(id).openMenu(this)
             }
     }
@@ -78,7 +79,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     {
                         Button.playFail(player)
                         player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
-                        player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.WEB_LINK}")
+                        player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                         return@toButton
                     }
 
@@ -142,11 +143,13 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     "${CC.GRAY}bot through the bot customizer",
                     "${CC.GRAY}system!",
                     "",
-                    "${CC.GREEN}Click to create custom bot!"
                 )
                 .apply {
                     if (player.hasPermission("botgui.use"))
                     {
+                        addToLore(
+                            "${CC.GREEN}Click to create custom bot!"
+                        )
                         return@apply
                     }
 
@@ -176,7 +179,7 @@ class BotDuelMenu(private val viewer: Player) : PaginatedMenu()
                     {
                         Button.playFail(player)
                         player.sendMessage("${CC.RED}You need to have ${CC.D_AQUA}VIP${CC.RED} to use this feature!")
-                        player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.WEB_LINK}")
+                        player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                         return@toButton
                     }
 

@@ -155,6 +155,7 @@ class BotKitMenu(private val botID: String, private val customBotSelection: Stri
 
         if (player.hasPermission("bot.custom-map-selection"))
         {
+            Button.playNeutral(player)
             object : TemplateMapMenu()
             {
                 override fun filterDisplayOfMap(map: Map) = map.associatedKitGroups
