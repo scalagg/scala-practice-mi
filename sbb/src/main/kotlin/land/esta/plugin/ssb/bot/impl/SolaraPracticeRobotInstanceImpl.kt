@@ -37,7 +37,9 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl, settingPro
         }
     }
 
+    override fun uniqueID() = spawnedBot?.uniqueId ?: throw IllegalStateException("Robot has not spawned in yet")
     override fun solaraID() = spawnedBot?.solaraID ?: throw IllegalStateException("Robot has not spawned in yet")
+
     override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
     override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
 

@@ -13,7 +13,9 @@ abstract class RobotInstance
     val terminable = CompositeTerminable.create()
     var hasInitialSpawned = false
 
+    abstract fun uniqueID(): UUID
     abstract fun solaraID(): UUID
+
     abstract fun name(): String
     abstract fun ping(): Int
 

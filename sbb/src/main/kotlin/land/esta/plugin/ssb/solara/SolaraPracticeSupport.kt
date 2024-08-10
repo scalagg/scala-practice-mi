@@ -25,7 +25,10 @@ object SolaraPracticeSupport
 
             Events
                 .subscribe(BotDeathEvent::class.java)
-                .filter { game.robot(it.bot.solaraID) != null }
+                .filter { event ->
+                    game.robotInstance
+                        .any { it.uniqueID() == event.bot.uniqueId }
+                }
                 .handler {
                     println("Current deaths: ${totalDeaths.incrementAndGet()}. Solara bot: ${it.bot.solaraID} was killed")
 
