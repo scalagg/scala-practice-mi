@@ -45,10 +45,21 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
             ).name(display)
             .setLore(profile.describe())
             .addToLore(
+                "${CC.GREEN}Duos Queue: ${CC.B_AQUA}NEW!",
+                "${CC.GRAY}Partner up with another",
+                "${CC.GRAY}player against two bots!",
                 "",
-                "${CC.GREEN}Click to play!"
+                "${CC.GREEN}Left-Click to play solo!",
+                "${CC.D_GREEN}Right-Click to queue for duos!",
             )
-            .toButton { _, _ ->
+            .toButton { _, type ->
+                if (type!!.isRightClick)
+                {
+                    Button.playNeutral(player)
+                    BotKitDuosMenu(profile).openMenuProtected(player)
+                    return@toButton
+                }
+
                 Button.playNeutral(player)
                 BotFightPrepareMenu(id, null).openMenuProtected(this)
             }

@@ -60,7 +60,7 @@ data class SettingProfile(
 
     fun describe() = listOf(
         "",
-        "${CC.B_GOLD}Gameplay:",
+        "${CC.GOLD}Gameplay:",
         "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}CPS: ${CC.PRI}${
             value(RootAccessor.attackSettings.cps)
         }",
@@ -71,7 +71,7 @@ data class SettingProfile(
             value(RootAccessor.connectionSettings.ping)
         }ms",
         "",
-        "${CC.B_AQUA}Traits:",
+        "${CC.AQUA}Traits:",
         "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}W-Tap: ${CC.PRI}${
             if (value(RootAccessor.wTapSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
