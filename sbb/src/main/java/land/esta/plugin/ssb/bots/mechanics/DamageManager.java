@@ -159,7 +159,7 @@ public class DamageManager extends Manager {
     }
 
     public void playSound() {
-        globalAction((player, temp) -> player.playSound(bot.getMovements().getLocation(), Sound.HURT_FLESH, 100F, 1));
+        globalAction((player, temp) -> player.playSound(bot.getMovements().getLocation(), Sound.HURT_FLESH, 1.0F, 1));
     }
 
 }
