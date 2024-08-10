@@ -27,13 +27,7 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl, settingPro
         }
 
         terminable.with {
-            if (spawnedBot?.isAlive == false)
-            {
-                return@with
-            }
-
-            // Auto destroy it if the terminable closes, we don't wanna waste resources
-            spawnedBot?.silentKill()
+            spawnedBot?.destroy()
         }
     }
 
@@ -59,6 +53,8 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl, settingPro
         }
     }
 
+    override fun alive() = spawnedBot?.isAlive ?: false
+
     override fun participantConnected(player: Player)
     {
         spawnedBot?.viewsManager?.addPlayer(player)
@@ -71,6 +67,6 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl, settingPro
 
     override fun destroy()
     {
-        spawnedBot?.silentKill()
+        spawnedBot?.destroy()
     }
 }

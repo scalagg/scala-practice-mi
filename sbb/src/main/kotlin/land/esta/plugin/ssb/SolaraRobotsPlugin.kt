@@ -96,7 +96,7 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
         {
             for (bot in botManager.bots)
             {
-                bot.silentKill()
+                bot.destroy()
             }
         }
 

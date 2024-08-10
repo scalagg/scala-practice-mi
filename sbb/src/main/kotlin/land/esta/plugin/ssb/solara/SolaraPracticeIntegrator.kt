@@ -80,7 +80,7 @@ object SolaraPracticeIntegrator
         if (game.flag(FeatureFlag.DeathOnLiquidInteraction))
         {
             bot.movements.isEdgeDetector = true
-            bot.movements.collision.waterEnterEvent = Runnable { bot.silentKill() }
+            bot.movements.collision.waterEnterEvent = Runnable { bot.destroy() }
         }
 
         if (game.flag(FeatureFlag.DeathBelowYAxis))

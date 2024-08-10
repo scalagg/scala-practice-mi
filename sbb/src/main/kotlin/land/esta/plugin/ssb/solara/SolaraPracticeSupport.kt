@@ -1,5 +1,6 @@
 package land.esta.plugin.ssb.solara
 
+import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.robot.RobotGameLifecycle.createNewRobotInstances
 import gg.tropic.practice.games.robot.RobotInstance
 import gg.tropic.practice.namespace
@@ -26,7 +27,7 @@ object SolaraPracticeSupport
             Events
                 .subscribe(BotDeathEvent::class.java)
                 .filter { event ->
-                    game.robotInstance
+                    game.state(GameState.Playing) && game.robotInstance
                         .any { it.uniqueID() == event.bot.uniqueId }
                 }
                 .handler {

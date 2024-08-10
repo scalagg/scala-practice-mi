@@ -19,6 +19,7 @@ abstract class RobotInstance
     abstract fun name(): String
     abstract fun ping(): Int
 
+    abstract fun alive(): Boolean
     abstract fun initialSpawn()
 
     abstract fun participantConnected(player: Player)

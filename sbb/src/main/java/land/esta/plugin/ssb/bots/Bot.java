@@ -160,16 +160,10 @@ public class Bot {
         damageManager.setInvaluable(true);
 
         //Animation
-        fakeDeath();
+        animateDeath();
     }
 
-    public void silentKill() {
-        if (alive) {
-            destroy();
-        }
-    }
-
-    public void fakeDeath() {
+    public void animateDeath() {
         movements.setMove(false);
         packetsManager.sendDeathPackets();
 
@@ -177,6 +171,10 @@ public class Bot {
     }
 
     public void destroy() {
+        if (!alive) {
+            return;
+        }
+
         alive = false;
         packetsManager.sendRemovePackets();
         SolaraRobotsPlugin.getInstance().getBotManager().removeBot(this);

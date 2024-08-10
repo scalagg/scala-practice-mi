@@ -276,7 +276,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }"
                     } else
                     {
-                        board += "${CC.PRI}Opponents:"
+                        board += "${CC.GRAY}Opponents:"
 
                         for (other in opponent.players.take(2))
                         {
@@ -411,7 +411,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 {
                                     val instance = game.robot(other)
                                         ?: continue
-                                    board += "${CC.GRAY} - ${CC.WHITE}${instance.name()}${CC.R} ${CC.D_GRAY}(${instance.ping()}ms)"
+                                    board += "${CC.GRAY} - ${CC.WHITE}${
+                                        if (!instance.alive()) CC.STRIKE_THROUGH else ""
+                                    }${instance.name()}${CC.R} ${CC.D_GRAY}(${instance.ping()}ms)"
                                 }
                             }
 
@@ -447,7 +449,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                         " ${CC.RED}($hitsDiff)"
                             }"
 
-                            board += "${CC.GRAY}Opponent: ${CC.RED}${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress}"
+                            board += "${CC.GRAY}Enemy: ${CC.RED}${teamOfOpponent.gameLifecycleArbitraryObjectiveProgress}"
                             appendExtendedOpponentTeamDescription()
                         }
 
