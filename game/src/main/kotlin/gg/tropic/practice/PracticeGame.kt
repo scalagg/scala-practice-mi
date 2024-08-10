@@ -29,6 +29,7 @@ import org.bukkit.Bukkit
     PluginDependency("CoreGameExtensions"),
     PluginDependency("ScBasics"),
     PluginDependency("Parties"),
+    PluginDependency("SPA"),
     PluginDependency("UnifiedMetrics", soft = true),
     PluginDependency("cloudsync", soft = true),
     PluginDependency("Friends", soft = true),
