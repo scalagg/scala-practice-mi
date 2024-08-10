@@ -48,6 +48,11 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
             queueType(QueueType.Robot)
         })
 
+        val solosTracker = GameManagerService.buildAggregateMetadataTracker(queueId {
+            teamSize(1)
+            queueType(QueueType.Robot)
+        })
+
         return (if (skinBased) ItemBuilder
             .copyOf(object : TexturedHeadButton(profile.skinProperties.value)
             {}.getButtonItem(player))
@@ -58,7 +63,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                 .data(data)
             ).name(display)
             .amount(
-                (duosTracker.inGame + duosTracker.inQueue).coerceIn(1..64)
+                (duosTracker.inGame + duosTracker.inQueue + solosTracker.inQueue + solosTracker.inGame).coerceIn(1..64)
             )
             .setLore(profile.describe())
             .addToLore(
@@ -67,7 +72,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                 "${CC.GRAY}Partner up with another",
                 "${CC.GRAY}player against two bots!",
                 "",
-                "${CC.GRAY}Playing: ${CC.WHITE}${duosTracker.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Queuing: ${CC.WHITE}${duosTracker.inQueue}",
+                "${CC.GRAY}Playing: ${CC.WHITE}${duosTracker.inGame + solosTracker.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Queuing: ${CC.WHITE}${duosTracker.inQueue + solosTracker.inQueue}",
                 "",
                 "${CC.GREEN}Left-Click to play solo!",
                 "${CC.YELLOW}Right-Click to queue for duos!",
