@@ -4,6 +4,9 @@ import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.LemonConstants
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
+import gg.tropic.practice.Globals
+import gg.tropic.practice.games.bots.BotGameMetadata
+import gg.tropic.practice.games.bots.storeForUser
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
@@ -24,6 +27,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -98,7 +102,10 @@ class BotFightPrepareMenu(
                 Button.playNeutral(player)
                 BotKitMenu { kit ->
                     BotFightPrepareMenu(
-                        botTypeNamespace, botTypeID, kit, null /** new kit, new map. **/, numberOfBots
+                        botTypeNamespace, botTypeID,
+                        kit,
+                        null /** new kit, new map. **/,
+                        numberOfBots
                     ).openMenuProtected(player)
                 }.openMenu(player)
             },
@@ -200,8 +207,8 @@ class BotFightPrepareMenu(
                 "",
                 "${CC.GRAY}Current: ${CC.WHITE}$numberOfBots",
                 "",
-                "${CC.GREEN}Right-Click to remove!",
                 "${CC.GREEN}Left-Click to add!",
+                "${CC.GREEN}Right-Click to remove!"
             )
             .toButton { _, type ->
                 if (type!!.isRightClick)
@@ -264,31 +271,13 @@ class BotFightPrepareMenu(
 
                 player.closeInventory()
                 CompletableFuture.runAsync {
-                    if (map != null)
-                    {
-                        ScalaCommonsSpigot.instance.kvConnection.sync()
-                            .set(
-                                "${namespace()}:bot-map-selection:${player.uniqueId}",
-                                map.name
-                            )
-                    } else
-                    {
-                        ScalaCommonsSpigot.instance.kvConnection.sync()
-                            .del(
-                                "${namespace()}:bot-map-selection:${player.uniqueId}"
-                            )
+                    val instances = mutableSetOf<UUID>()
+                    repeat(numberOfBots) {
+                        instances += Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[it - 1]
                     }
 
-                    ScalaCommonsSpigot.instance.kvConnection.sync()
-                        .set(
-                            "${namespace()}:bot-selection:${player.uniqueId}",
-                            if (botTypeID == null) botTypeNamespace else "$botTypeNamespace:$botTypeID"
-                        )
-
-                    ScalaCommonsSpigot.instance.kvConnection.sync()
-                        .set(
-                            "${namespace()}:bot-amount:${player.uniqueId}", numberOfBots.toString()
-                        )
+                    BotGameMetadata(botTypeNamespace, botTypeID, kit.id, map?.name, botInstances = instances)
+                        .storeForUser(player.uniqueId)
                 }.thenAccept {
                     QueueService.joinQueue(kit, QueueType.Robot, 1, player)
                     Button.playNeutral(player)

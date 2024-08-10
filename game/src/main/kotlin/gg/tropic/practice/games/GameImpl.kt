@@ -7,6 +7,7 @@ import gg.tropic.practice.Globals
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.games.bots.BotGameMetadata
 import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
@@ -95,6 +96,7 @@ open class GameImpl(
         System.currentTimeMillis() - this.startTimestamp
 
     private val defaultLoadout: DefaultLoadout = DefaultLoadout(kit)
+    var botGameMetadata: BotGameMetadata? = null
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()

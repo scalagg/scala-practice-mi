@@ -133,6 +133,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
             12 to player.buildNewItem("HARD", "${CC.RED}Hard", 14),
             13 to player.buildNewItem("EXPERT", "${CC.D_RED}Expert", 14),
             14 to player.buildNewItem("NIGHTMARE", "${CC.DARK_PURPLE}Nightmare", 10),
+
             19 to player.buildNewItem("CLOWN", "${CC.PINK}Clown", 6, true),
             20 to player.buildNewItem("MARTIAN", "${CC.GOLD}Martian", 12, true),
 

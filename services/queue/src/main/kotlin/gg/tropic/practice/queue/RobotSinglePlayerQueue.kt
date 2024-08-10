@@ -7,8 +7,10 @@ import gg.tropic.practice.application.api.defaults.game.GameTeam
 import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.games.bots.extractBotGameMetadata
 import gg.tropic.practice.namespace
 import gg.tropic.practice.region.Region
+import net.evilblock.cubed.ScalaCommonsSpigot
 import java.util.*
 
 /**
@@ -21,6 +23,13 @@ open class RobotSinglePlayerQueue(
     kit, QueueType.Robot, 1
 )
 {
+
+    fun getBotMetdataOfPlayer(player: UUID) = DPSRedisShared.keyValueCache.sync()
+        .get(
+            "${namespace()}:bot-metadata:$player"
+        )
+        .extractBotGameMetadata()
+
     override fun run()
     {
         val length = GameQueueManager.queueSizeFromId(queueId())
@@ -38,6 +47,8 @@ open class RobotSinglePlayerQueue(
         }
 
         val first = queueEntries.values.first()
+        val metadata = getBotMetdataOfPlayer(first.leader)
+
         GameQueueManager.removeQueueEntryFromId(queueId(), first.leader)
 
         /**
@@ -49,10 +60,7 @@ open class RobotSinglePlayerQueue(
         val users = first.players + botUniqueId
         val map = MapDataSync
             .selectMapIfCompatible(
-                kit,
-                DPSRedisShared.keyValueCache
-                    .sync()
-                    .get("${namespace()}:bot-map-selection:${first.leader}")
+                kit, metadata.mapID
             )
             ?: return run {
                 DPSRedisShared.sendMessage(
@@ -69,7 +77,7 @@ open class RobotSinglePlayerQueue(
             players = users,
             teams = mapOf(
                 GameTeamSide.A to GameTeam(side = GameTeamSide.A, players = first.players),
-                GameTeamSide.B to GameTeam(side = GameTeamSide.B, players = listOf(botUniqueId)),
+                GameTeamSide.B to GameTeam(side = GameTeamSide.B, players = metadata.botInstances.toList()),
             ),
             kitId = kit.id,
             mapId = map.name,

@@ -13,6 +13,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.bots.getBotMetdataOfPlayer
 import gg.tropic.practice.games.robot.RobotGameLifecycle
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.map.metadata.impl.MapBedMetadata
@@ -122,6 +123,8 @@ object MapReplicationService
 
             if (newGame.robot())
             {
+                newGame.botGameMetadata = getBotMetdataOfPlayer(newGame.humanSide().players.first())
+
                 kotlin.runCatching {
                     newGame.robotInstance.addAll(RobotGameLifecycle.createNewRobotInstances(newGame))
                     newGame.robotInstance.forEach {
