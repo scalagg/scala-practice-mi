@@ -1,4 +1,4 @@
-package gg.tropic.practice.queue
+package gg.tropic.practice.queue.robot
 
 import gg.tropic.practice.Globals
 import gg.tropic.practice.application.api.DPSRedisShared
@@ -9,8 +9,10 @@ import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.bots.extractBotGameMetadata
 import gg.tropic.practice.namespace
+import gg.tropic.practice.queue.GameQueue
+import gg.tropic.practice.queue.GameQueueManager
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.Region
-import net.evilblock.cubed.ScalaCommonsSpigot
 import java.util.*
 
 /**
@@ -23,7 +25,6 @@ open class RobotSinglePlayerQueue(
     kit, QueueType.Robot, 1
 )
 {
-
     fun getBotMetdataOfPlayer(player: UUID) = DPSRedisShared.keyValueCache.sync()
         .get(
             "${namespace()}:bot-metadata:$player"
@@ -86,19 +87,17 @@ open class RobotSinglePlayerQueue(
         )
 
         val region = first.preferredQueueRegion
-        GameQueueManager
-            .prepareGameFor(
-                map = map,
-                expectation = expectation,
-                // prefer NA servers if queuing globally
-                region = if (region == Region.Both) Region.NA else region,
-                cleanup = {
-                    GameQueueManager
-                        .destroyQueueStates(
-                            queueId(), first
-                        )
-                }
-            )
+        GameQueueManager.prepareGameFor(
+            map = map,
+            expectation = expectation,
+            // prefer NA servers if queuing globally
+            region = if (region == Region.Both) Region.NA else region,
+            cleanup = {
+                GameQueueManager.destroyQueueStates(
+                    queueId(), first
+                )
+            }
+        )
             .exceptionally {
                 it.printStackTrace()
                 return@exceptionally null

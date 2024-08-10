@@ -23,6 +23,7 @@ import gg.tropic.practice.games.GameReference
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.lobbyGroup
 import gg.tropic.practice.namespace
+import gg.tropic.practice.queue.robot.RobotSinglePlayerQueue
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
@@ -742,6 +743,11 @@ object GameQueueManager
 
                                 queue.start()
                                 queues[queue.queueId()] = queue
+                            }
+
+                            if (queue is RobotSinglePlayerQueue)
+                            {
+
                             }
                         }
                     }

@@ -31,7 +31,7 @@ object SolaraPracticeSupport
                         .any { it.uniqueID() == event.bot.uniqueId }
                 }
                 .handler {
-                    if (totalDeaths.get() == game.consumedBots.get())
+                    if (totalDeaths.incrementAndGet() == game.consumedBots.get())
                     {
                         game.complete(game.humanSide())
                     }
