@@ -5,7 +5,10 @@ import gg.scala.lemon.LemonConstants
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.group.KitGroup
+import gg.tropic.practice.kit.group.KitGroupService
 import gg.tropic.practice.map.Map
+import gg.tropic.practice.menu.TemplateMapMenu
 import gg.tropic.practice.namespace
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
@@ -19,6 +22,7 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import java.util.concurrent.CompletableFuture
 
@@ -34,6 +38,11 @@ class BotFightPrepareMenu(
     private var numberOfBots: Int = 1
 ) : Menu("Preparing robot match...")
 {
+    init
+    {
+        placeholder = true
+    }
+
     fun openMenuProtected(player: Player)
     {
         val lobbyPlayer = LobbyPlayerService
@@ -78,6 +87,7 @@ class BotFightPrepareMenu(
         10 to ItemBuilder
             .copyOf(kit?.displayIcon ?: ItemStack(Material.DIAMOND_SWORD))
             .name("${CC.B_AQUA}Kit")
+            .amount(1)
             .addToLore(
                 "${CC.GRAY}Selected kit:",
                 "${CC.WHITE}${kit?.displayName ?: "${CC.RED}None"}",
@@ -88,12 +98,13 @@ class BotFightPrepareMenu(
                 Button.playNeutral(player)
                 BotKitMenu { kit ->
                     BotFightPrepareMenu(
-                        botTypeNamespace, botTypeID, kit, map, numberOfBots
+                        botTypeNamespace, botTypeID, kit, null /** new kit, new map. **/, numberOfBots
                     ).openMenuProtected(player)
                 }.openMenu(player)
             },
         11 to ItemBuilder
             .copyOf(map?.displayIcon ?: ItemStack(Material.MAP))
+            .amount(1)
             .name("${CC.BD_AQUA}Map")
             .addToLore(
                 "${CC.GRAY}Selected map:",
@@ -117,16 +128,67 @@ class BotFightPrepareMenu(
                     return@toButton
                 }
 
+                val groups = KitGroupService
+                    .groupsOf(kit)
+                    .map(KitGroup::id)
+                    .toSet()
+
                 Button.playNeutral(player)
-                BotMapMenu(kit) { map ->
+
+                val selectionCallback = { map: Map? ->
                     BotFightPrepareMenu(
                         botTypeNamespace, botTypeID, kit, map, numberOfBots
                     ).openMenuProtected(player)
-                }.openMenu(player)
+                }
+
+                val menu = object : TemplateMapMenu()
+                {
+                    override fun filterDisplayOfMap(map: Map) = map.associatedKitGroups
+                        .intersect(groups)
+                        .isNotEmpty()
+
+                    override fun itemDescriptionOf(player: Player, map: Map) = listOf(
+                        "",
+                        "${CC.GREEN}Click to select!"
+                    )
+
+                    override fun itemClicked(player: Player, map: Map, type: ClickType)
+                    {
+                        Button.playNeutral(player)
+                        selectionCallback(map)
+                    }
+
+                    override fun getGlobalButtons(player: Player) = mutableMapOf(
+                        4 to ItemBuilder
+                            .of(Material.NETHER_STAR)
+                            .name("${CC.B_AQUA}Random Map")
+                            .addToLore(
+                                "",
+                                "${CC.AQUA}Click to select!"
+                            )
+                            .toButton { _, _ ->
+                                selectionCallback(null)
+                            }
+                    )
+
+                    override fun getPrePaginatedTitle(player: Player) = "Select a map..."
+
+                    override fun onClose(player: Player, manualClose: Boolean)
+                    {
+                        if (manualClose)
+                        {
+                            Tasks.sync {
+                                selectionCallback(null)
+                            }
+                        }
+                    }
+                }
+
+                menu.openMenu(player)
             },
         12 to ItemBuilder
             .of(Material.ENDER_PORTAL_FRAME)
-            .name("${CC.WHITE}Enemy Bots")
+            .name("${CC.GREEN}Enemy Bots")
             .addToLore(
                 "${CC.GRAY}Donators can add multiple bots",
                 "${CC.GRAY}to their bot matches!",
@@ -138,8 +200,8 @@ class BotFightPrepareMenu(
                 "",
                 "${CC.GRAY}Current: ${CC.WHITE}$numberOfBots",
                 "",
-                "${CC.WHITE}Right-Click to remove!",
-                "${CC.WHITE}Left-Click to add!",
+                "${CC.GREEN}Right-Click to remove!",
+                "${CC.GREEN}Left-Click to add!",
             )
             .toButton { _, type ->
                 if (type!!.isRightClick)
@@ -151,6 +213,7 @@ class BotFightPrepareMenu(
                         return@toButton
                     }
 
+                    Button.playSuccess(player)
                     numberOfBots -= 1
                     openMenu(player)
                     return@toButton
@@ -170,8 +233,9 @@ class BotFightPrepareMenu(
                     return@toButton
                 }
 
-                numberOfBots += 1
                 Button.playSuccess(player)
+                numberOfBots += 1
+                openMenu(player)
             },
         16 to ItemBuilder
             .of(XMaterial.LIME_DYE)
