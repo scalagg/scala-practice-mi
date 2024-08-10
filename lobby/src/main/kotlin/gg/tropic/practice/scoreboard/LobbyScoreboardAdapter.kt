@@ -91,11 +91,11 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.PRI}Party:"
 
             with(profile.partyOf().delegate) {
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.WHITE}Leader: ${CC.PRI}${
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.GRAY}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Party is " + status.capitalized + "..."
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.GRAY}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Party is " + status.capitalized + "..."
             }
         } else
         {
