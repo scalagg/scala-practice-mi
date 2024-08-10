@@ -102,7 +102,7 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
                             .toList()
                     },
                     { settingProfile ->
-                        PartyBotFightPrepareMenu(players, settingProfile.id).openMenuProtected(player)
+                        PartyBotFightPrepareMenu(players, settingProfile.id).openMenu(player)
                     }
                 ).openMenu(player)
             }

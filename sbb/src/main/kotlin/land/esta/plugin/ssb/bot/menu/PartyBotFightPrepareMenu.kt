@@ -81,7 +81,7 @@ class PartyBotFightPrepareMenu(
                         /** new kit, new map. **/
                         ,
                         numberOfBots
-                    ).openMenuProtected(player)
+                    ).openMenu(player)
                 }.openMenu(player)
             },
         11 to ItemBuilder
@@ -120,7 +120,7 @@ class PartyBotFightPrepareMenu(
                 val selectionCallback = { map: Map? ->
                     PartyBotFightPrepareMenu(
                         players, botTypeNamespace, botTypeID, kit, map, numberOfBots
-                    ).openMenuProtected(player)
+                    ).openMenu(player)
                 }
 
                 val menu = object : TemplateMapMenu()
@@ -251,8 +251,13 @@ class PartyBotFightPrepareMenu(
                         instances += Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[it]
                     }
 
-                    BotGameMetadata(botTypeNamespace, botTypeID, kit.id, map?.name, botInstances = instances)
-                        .apply { storeForUser(player.uniqueId) }
+                    BotGameMetadata(
+                        botTypeNamespace, botTypeID, kit.id,
+                        map?.name,
+                        botInstances = instances
+                    ).apply {
+                        storeForUser(player.uniqueId)
+                    }
                 }.thenAccept {
                     val filteredMaps = MapService
                         .cached()
@@ -295,31 +300,22 @@ class PartyBotFightPrepareMenu(
                     }
 
                     Button.playNeutral(player)
-                    lobbyPlayer.partyOf().onlinePracticePlayersInLobby()
-                        .thenAccept context@{
-                            if (!gameExpectation.players.all { player -> player in it.keys })
-                            {
-                                player.sendMessage("${CC.RED}One or more of the party members you selected are unavailable to play in this TvT game.")
-                                return@context
-                            }
+                    val playerRegion = PlayerRegionFromRedisProxy
+                        .of(player)
+                        .join()
 
-                            val playerRegion = PlayerRegionFromRedisProxy
-                                .of(player)
-                                .join()
+                    QueueService.createMessage(
+                        "create-match",
+                        "config" to gameExpectation,
+                        "map" to realMap.name,
+                        "kit" to kit.id,
+                        "region" to playerRegion.name
+                    ).publish(
+                        channel = "practice:queue".suffixWhenDev()
+                    )
 
-                            QueueService.createMessage(
-                                "create-match",
-                                "config" to gameExpectation,
-                                "map" to realMap.name,
-                                "kit" to kit.id,
-                                "region" to playerRegion.name
-                            ).publish(
-                                channel = "practice:queue".suffixWhenDev()
-                            )
-
-                            Button.playSuccess(player)
-                            player.sendMessage("${CC.B_GREEN}We're preparing your match...")
-                        }
+                    Button.playSuccess(player)
+                    player.sendMessage("${CC.B_GREEN}We're preparing your match...")
                 }.exceptionally {
                     it.printStackTrace()
                     player.sendMessage("${CC.RED}We weren't able to create a bot fight for you. Please report this to an administrator!")
