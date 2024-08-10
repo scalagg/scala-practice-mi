@@ -411,9 +411,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                 {
                                     val instance = game.robot(other)
                                         ?: continue
-                                    board += "${CC.GRAY} - ${CC.WHITE}${
-                                        if (!instance.alive()) CC.STRIKE_THROUGH else ""
-                                    }${instance.name()}${CC.R} ${CC.D_GRAY}(${instance.ping()}ms)"
+                                    board += "${CC.GRAY} - ${CC.WHITE}${instance.name()}${CC.R} ${CC.D_GRAY}(${instance.ping()}ms)"
                                 }
                             }
 

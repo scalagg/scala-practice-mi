@@ -14,7 +14,11 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 7/20/2024
  */
-class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl, settingProfileOriginal: SettingProfile, instanceID: Int) : RobotInstance()
+class SolaraPracticeRobotInstanceImpl(
+    private val gameImpl: GameImpl,
+    settingProfileOriginal: SettingProfile,
+    instanceID: Int
+) : RobotInstance()
 {
     private var spawnedBot: Bot? = null
     private val settingProfile = settingProfileOriginal.deepCopy()
@@ -34,9 +38,22 @@ class SolaraPracticeRobotInstanceImpl(private val gameImpl: GameImpl, settingPro
     override fun uniqueID() = spawnedBot?.uniqueId ?: throw IllegalStateException("Robot has not spawned in yet")
     override fun solaraID() = spawnedBot?.solaraID ?: throw IllegalStateException("Robot has not spawned in yet")
 
-    override fun name(): String = spawnedBot?.profile?.botName?.let(Color::translate) ?: ""
-    override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
+    override fun name(): String = spawnedBot
+        ?.profile
+        ?.botName
+        ?.let {
+            if (it[0] == '&' && !alive())
+            {
+                val otherComponent = it.substring(2)
+                "${it.substring(0..1)}${CC.STRIKE_THROUGH}$otherComponent"
+            } else
+            {
+                it
+            }
+        }
+        ?.let(Color::translate) ?: ""
 
+    override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
     override fun initialSpawn()
     {
         if (spawnedBot == null)

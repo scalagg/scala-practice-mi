@@ -31,11 +31,8 @@ object SolaraPracticeSupport
                         .any { it.uniqueID() == event.bot.uniqueId }
                 }
                 .handler {
-                    println("Current deaths: ${totalDeaths.incrementAndGet()}. Solara bot: ${it.bot.solaraID} was killed")
-
                     if (totalDeaths.get() == game.consumedBots.get())
                     {
-                        println("Completing as total deaths is ${totalDeaths.get()} and ${game.consumedBots.get()} consumed")
                         game.complete(game.humanSide())
                     }
                 }
