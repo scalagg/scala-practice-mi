@@ -7,6 +7,7 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.queue.queueId
 import gg.tropic.practice.services.GameManagerService
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import net.evilblock.cubed.menu.Button
@@ -36,8 +37,11 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.GREEN}${kit.displayName}"
     override fun itemDescriptionOf(player: Player, kit: Kit): List<String>
     {
-        val queueId = "${kit.id}:Robot:2v2"
-        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId {
+            kit(kit)
+            queueType(QueueType.Robot)
+            teamSize(2)
+        })
 
         return listOf(
             "",
