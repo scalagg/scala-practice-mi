@@ -62,9 +62,9 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                 .of(Material.WOOL)
                 .data(data)
             ).name(display)
-            .amount(
+/*            .amount(
                 (duosTracker.inGame + duosTracker.inQueue + solosTracker.inQueue + solosTracker.inGame).coerceIn(1..64)
-            )
+            )*/
             .setLore(profile.describe())
             .addToLore(
                 "",

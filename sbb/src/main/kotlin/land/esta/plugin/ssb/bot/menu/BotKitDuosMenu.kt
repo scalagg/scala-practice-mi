@@ -35,7 +35,7 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
 
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes.any { it.second.contains(QueueType.Robot) }
 
-    override fun getItemAmount(player: Player, kit: Kit): Int
+    /*override fun getItemAmount(player: Player, kit: Kit): Int
     {
         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId {
             kit(kit)
@@ -44,7 +44,7 @@ class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKi
         })
 
         return (metadata.inGame + metadata.inQueue).coerceIn(1..64)
-    }
+    }*/
 
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.GREEN}${kit.displayName}"
     override fun itemDescriptionOf(player: Player, kit: Kit): List<String>

@@ -26,8 +26,6 @@ object SpawnPlayerVisibility : VisibilityAdapter
         val visible = messagesRef.map<StateSettingValue>()
 
         return if (visible == StateSettingValue.DISABLED)
-            VisibilityAction.HIDE else
-                if (toRefresh.hasPermission("practice.show-spawn-visibility"))
-                    VisibilityAction.NEUTRAL else VisibilityAction.HIDE
+            VisibilityAction.HIDE else VisibilityAction.NEUTRAL
     }
 }
