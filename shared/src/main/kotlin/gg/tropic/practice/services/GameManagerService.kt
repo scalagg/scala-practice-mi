@@ -18,6 +18,7 @@ import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -41,7 +42,7 @@ object GameManagerService
             .build()
     }
 
-    private val metadataTrackers = mutableMapOf<String, GenericMetadataTracker>()
+    private val metadataTrackers = ConcurrentHashMap<String, GenericMetadataTracker>()
     interface GenericMetadataTracker
     {
         fun update(): CompletableFuture<Void>

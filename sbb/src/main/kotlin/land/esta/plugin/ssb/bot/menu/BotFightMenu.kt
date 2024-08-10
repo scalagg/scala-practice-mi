@@ -2,6 +2,9 @@ package land.esta.plugin.ssb.bot.menu
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.LemonConstants
+import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.queue.queueId
+import gg.tropic.practice.services.GameManagerService
 import land.esta.plugin.ssb.bot.menu.profiles.PlayerProfileBackbone
 import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu
 import land.esta.plugin.ssb.bot.profile.RobotProfileService
@@ -33,6 +36,15 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
     private fun Player.buildNewItem(id: String, display: String, data: Short, skinBased: Boolean = false): Button
     {
         val profile = BotSettingService.loadDefaultProfile(id)
+        val duosTracker = GameManagerService.buildAggregateMetadataTracker(queueId {
+            teamSize(2)
+            queueType(QueueType.Robot)
+        })
+
+        val solosTracker = GameManagerService.buildAggregateMetadataTracker(queueId {
+            teamSize(1)
+            queueType(QueueType.Robot)
+        })
 
         return (if (skinBased) ItemBuilder
             .copyOf(object : TexturedHeadButton(profile.skinProperties.value)
@@ -49,6 +61,9 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                 "${CC.GREEN}Duos Queue: ${CC.B_AQUA}NEW!",
                 "${CC.GRAY}Partner up with another",
                 "${CC.GRAY}player against two bots!",
+                "",
+                "${CC.GRAY}Playing: ${CC.WHITE}${duosTracker.inGame + solosTracker.inGame}",
+                "${CC.GRAY}Queuing: ${CC.WHITE}${duosTracker.inQueue + solosTracker.inQueue}",
                 "",
                 "${CC.GREEN}Left-Click to play solo!",
                 "${CC.D_GREEN}Right-Click to queue for duos!",
