@@ -13,6 +13,7 @@ import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.queue.queueId
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
@@ -38,8 +39,11 @@ class JoinQueueMenu(
 
     override fun getItemAmount(player: Player, kit: Kit): Int
     {
-        val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
-        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId {
+            kit(kit)
+            queueType(queueType)
+            teamSize(teamSize)
+        })
 
         return metadata.inGame.coerceIn(1..64)
     }

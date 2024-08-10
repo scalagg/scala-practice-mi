@@ -9,9 +9,9 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.games.GameStatus
 import gg.tropic.practice.games.GameStatusIndexes
+import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.namespace
 import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
@@ -41,13 +41,17 @@ object GameManagerService
             .build()
     }
 
-    private val metadataTrackers = mutableMapOf<String, MetadataTracker>()
+    private val metadataTrackers = mutableMapOf<String, GenericMetadataTracker>()
+    interface GenericMetadataTracker
+    {
+        fun update(): CompletableFuture<Void>
+    }
 
-    data class MetadataTracker(
+    data class QueueIDMetadataTracker(
         val queueId: String,
         var inQueue: Int = 0,
         var inGame: Int = 0,
-    )
+    ) : GenericMetadataTracker
     {
         fun integerValueOf(key: String) = ScalaCommonsSpigot
             .instance
@@ -59,22 +63,62 @@ object GameManagerService
             ?.toIntOrNull()
             ?: 0
 
-        fun update() = CompletableFuture
+        override fun update() = CompletableFuture
             .runAsync {
                 inGame = integerValueOf("users-playing")
                 inQueue = integerValueOf("users-queued")
             }
     }
 
-    fun buildQueueIdMetadataTracker(queueId: String): MetadataTracker
+    fun buildQueueIdMetadataTracker(queueId: String): QueueIDMetadataTracker
     {
         if (metadataTrackers.containsKey(queueId))
         {
-            return metadataTrackers[queueId]!!
+            return metadataTrackers[queueId]!! as QueueIDMetadataTracker
         }
 
-        metadataTrackers[queueId] = MetadataTracker(queueId)
-        return metadataTrackers[queueId]!!
+        metadataTrackers[queueId] = QueueIDMetadataTracker(queueId)
+        return metadataTrackers[queueId]!! as QueueIDMetadataTracker
+    }
+
+    data class AggregateQueueMetadataTracker(
+        val id: String,
+        var inQueue: Int = 0,
+        var inGame: Int = 0,
+    ) : GenericMetadataTracker
+    {
+        fun integerValueOf(key: String, queueId: String) = ScalaCommonsSpigot
+            .instance
+            .kvConnection
+            .sync()
+            .get(
+                "${namespace().suffixWhenDev()}:metadata:$key:$queueId"
+            )
+            ?.toIntOrNull()
+            ?: 0
+
+        override fun update() = CompletableFuture
+            .runAsync {
+                val queueIDs = KitService.cached().kits.keys
+                    .map { kit ->
+                        "$kit${this.id.removePrefix("aggregate")}"
+                    }
+
+                inGame = queueIDs.sumOf { integerValueOf("users-playing", it) }
+                inQueue =queueIDs.sumOf { integerValueOf("users-queued", it) }
+            }
+    }
+
+    fun buildAggregateMetadataTracker(queueId: String): AggregateQueueMetadataTracker
+    {
+        val aggregateQueueID = "aggregate:$queueId"
+        if (metadataTrackers.containsKey(aggregateQueueID))
+        {
+            return metadataTrackers[aggregateQueueID]!! as AggregateQueueMetadataTracker
+        }
+
+        metadataTrackers[aggregateQueueID] = AggregateQueueMetadataTracker(aggregateQueueID)
+        return metadataTrackers[aggregateQueueID]!! as AggregateQueueMetadataTracker
     }
 
     private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
@@ -87,7 +131,7 @@ object GameManagerService
             CompletableFuture
                 .allOf(
                     *metadataTrackers.values
-                        .map(MetadataTracker::update)
+                        .map(GenericMetadataTracker::update)
                         .toTypedArray()
                 )
                 .join()
