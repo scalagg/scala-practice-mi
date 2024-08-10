@@ -12,7 +12,7 @@ data class BotGameMetadata(
     val kitID: String,
     val mapID: String? = null,
     /**
-     * This should be part of the collection
+     * This should be part of the collection in [Globals]
      */
     val botInstances: Set<UUID>
 )

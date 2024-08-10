@@ -273,7 +273,7 @@ class BotFightPrepareMenu(
                 CompletableFuture.runAsync {
                     val instances = mutableSetOf<UUID>()
                     repeat(numberOfBots) {
-                        instances += Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[it - 1]
+                        instances += Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[it]
                     }
 
                     BotGameMetadata(botTypeNamespace, botTypeID, kit.id, map?.name, botInstances = instances)
@@ -285,6 +285,10 @@ class BotFightPrepareMenu(
                     player.sendMessage(
                         "${CC.GREEN}Preparing your ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} match..."
                     )
+                }.exceptionally {
+                    it.printStackTrace()
+                    player.sendMessage("${CC.RED}We weren't able to create a bot fight for you. Please report this to an administrator!")
+                    return@exceptionally null
                 }
             }
     )

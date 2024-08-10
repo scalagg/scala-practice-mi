@@ -25,7 +25,7 @@ object SolaraPracticeSupport
 
             val instances = mutableSetOf<RobotInstance>()
             repeat(game.botGameMetadata!!.botInstances.size) {
-                instances += SolaraPracticeRobotInstanceImpl(game, settingProfile, it)
+                instances += SolaraPracticeRobotInstanceImpl(game, settingProfile, it + 1)
             }
 
             return@context instances
