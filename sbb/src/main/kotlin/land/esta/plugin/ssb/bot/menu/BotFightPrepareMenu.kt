@@ -2,8 +2,6 @@ package land.esta.plugin.ssb.bot.menu
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.LemonConstants
-import gg.scala.staff.ScalaStaffPlugin
-import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.Globals
 import gg.tropic.practice.games.bots.BotGameMetadata
 import gg.tropic.practice.games.bots.storeForUser
@@ -12,12 +10,8 @@ import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.menu.TemplateMapMenu
-import gg.tropic.practice.namespace
-import gg.tropic.practice.player.LobbyPlayerService
-import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
-import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
@@ -27,7 +21,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 /**

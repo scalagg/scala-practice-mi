@@ -20,7 +20,7 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
     }
 
     override fun getButtons(player: Player) = mapOf(
-        4 to ItemBuilder
+        5 to ItemBuilder
             .of(Material.GOLD_SWORD)
             .name("${CC.AQUA}Team vs. Team Fights")
             .addToLore(
@@ -51,6 +51,37 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
                         }
 
                         PartyPlayTVTFights(it.keys.toList()).openMenu(player)
+                    }
+            },
+        5 to ItemBuilder
+            .of(Material.ENDER_PORTAL_FRAME)
+            .name("${CC.GOLD}Robot Fights")
+            .addToLore(
+                "${CC.WHITE}Your team versus bots!",
+                "",
+                "${CC.GREEN}Click to prepare!"
+            )
+            .toButton { _, _ ->
+                val lobbyPlayer = LobbyPlayerService.find(player)
+                    ?: return@toButton
+
+                player.closeInventory()
+                if (!lobbyPlayer.isInParty())
+                {
+                    player.sendMessage("${CC.RED}You are no longer in a party!")
+                    return@toButton
+                }
+
+                lobbyPlayer.partyOf()
+                    .onlinePracticePlayersInLobby()
+                    .thenAccept {
+                        if (it.keys.size < 2)
+                        {
+                            player.sendMessage("${CC.RED}You must have at least two players in your party to start a Team vs. Team fight!")
+                            return@thenAccept
+                        }
+
+                        PartyPlayBotsIntegration.createBotsWith(player, it.keys)
                     }
             }
     )
