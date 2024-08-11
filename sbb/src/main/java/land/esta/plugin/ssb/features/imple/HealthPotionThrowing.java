@@ -127,17 +127,12 @@ public class HealthPotionThrowing extends Feature {
 
     private void launchProjectilePotion(@NotNull Bot bot, @NotNull ItemStack itemStack) {
         var direction = bot.getNpc().getBukkitEntity().getLocation().getDirection();
-        var motion = bot.getNpc().getBukkitEntity().getVelocity();
 
-        Schedulers.sync()
-                .run(() ->
-                        launchPotion(
-                                itemStack,
-                                bot.getNpc().getBukkitEntity(),
-                                direction, motion
-                        )
-                )
-                .bindWith(bot.getTerminable());
+        launchPotion(
+                itemStack,
+                bot.getNpc().getBukkitEntity(),
+                direction
+        );
     }
 
     // Gets all the splash potions of a specific type
@@ -173,15 +168,13 @@ public class HealthPotionThrowing extends Feature {
     public static final double CATCH_UP_SCALING = 0.38;
 
     //Modified version of BukkitEntity.launchProjectile(Class<? extends T> projectile, Vector velocity).
-    public void launchPotion(ItemStack item, CraftPlayer entity, Vector direction, Vector motion) {
+    public void launchPotion(ItemStack item, CraftPlayer entity, Vector direction) {
         World world = ((CraftWorld) entity.getWorld()).getHandle();
         net.minecraft.server.v1_8_R3.Entity launch;
         launch = new EntityPotion(world, entity.getHandle(), CraftItemStack.asNMSCopy(item));
 
         Validate.notNull(launch, "Projectile not supported");
-
-        var combinedVelocity = direction.add(motion);
-        var entityCatchUpScaledVelocity = combinedVelocity.multiply(CATCH_UP_SCALING);
+        var entityCatchUpScaledVelocity = direction.clone().multiply(CATCH_UP_SCALING);
 
         ((Projectile) launch.getBukkitEntity()).setVelocity(entityCatchUpScaledVelocity);
 
