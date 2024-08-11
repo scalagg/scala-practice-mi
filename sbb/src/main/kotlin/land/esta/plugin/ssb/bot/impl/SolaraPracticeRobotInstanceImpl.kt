@@ -20,7 +20,7 @@ class SolaraPracticeRobotInstanceImpl(
     instanceID: Int
 ) : RobotInstance()
 {
-    private var spawnedBot: Bot? = null
+    var spawnedBot: Bot? = null
     private val settingProfile = settingProfileOriginal.deepCopy()
 
     init
