@@ -30,7 +30,7 @@ class JoinQueueMenu(
     player: Player,
     private val queueType: QueueType,
     private val teamSize: Int
-) : TemplateKitMenu(player)
+) : TemplateKitMenu(player, dynamic = true)
 {
     init
     {

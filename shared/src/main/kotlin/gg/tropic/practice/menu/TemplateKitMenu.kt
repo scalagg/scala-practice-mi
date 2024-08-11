@@ -19,7 +19,7 @@ import kotlin.math.min
  * @author GrowlyX
  * @since 9/23/2023
  */
-abstract class TemplateKitMenu(private val viewer: Player) : PaginatedMenu()
+abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: Boolean = false) : PaginatedMenu()
 {
     init
     {
@@ -55,15 +55,15 @@ abstract class TemplateKitMenu(private val viewer: Player) : PaginatedMenu()
             }
     }
 
-    fun getRowsForKits() = ceil(filteredKits.size.toDouble() / 7.0)
+    fun getRowsForKits() = if (dynamic) ceil(filteredKits.size.toDouble() / 7.0).toInt() else 3
 
-    override fun size(buttons: Map<Int, Button>) = 18 + max((getRowsForKits() * 9).toInt(), 27)
-    override fun getMaxItemsPerPage(player: Player) = max(filteredKits.size * 7, 21)
+    override fun size(buttons: Map<Int, Button>) = 18 + (getRowsForKits() * 9).coerceIn(9..27)
+    override fun getMaxItemsPerPage(player: Player) = (getRowsForKits() * 7).coerceIn(7..21)
 
     private val availableItemRows = listOf(10..16, 19..25, 28..34)
 
     override fun getAllPagesButtonSlots() = availableItemRows
-        .take(min(getRowsForKits().toInt(), 3))
+        .take(getRowsForKits().toInt().coerceIn(1..3))
         .flatMap { it.toList() }
 
     open fun getItemAmount(player: Player, kit: Kit): Int

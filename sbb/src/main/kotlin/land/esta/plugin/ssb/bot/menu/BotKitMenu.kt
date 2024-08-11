@@ -16,7 +16,7 @@ import org.bukkit.event.inventory.ClickType
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotKitMenu(player: Player, private val selectionCallback: (Kit?) -> Unit) : TemplateKitMenu(player)
+class BotKitMenu(player: Player, private val selectionCallback: (Kit?) -> Unit) : TemplateKitMenu(player, dynamic = true)
 {
     init
     {
