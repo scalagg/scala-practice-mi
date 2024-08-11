@@ -483,8 +483,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             return when (size)
                             {
                                 0 -> "N/A"
-                                1 -> firstUsername + CC.GRAY + (Bukkit.getPlayer(report.winners.first())
-                                    ?.let { " ${CC.D_GRAY}(" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
+                                1 -> firstUsername + CC.GRAY + (Bukkit.getPlayer(first())?.let { " ${CC.D_GRAY}(" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
 
                                 else -> "$firstUsername's Team"
                             }

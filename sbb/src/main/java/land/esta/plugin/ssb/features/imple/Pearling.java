@@ -2,7 +2,6 @@ package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
-import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import me.lucko.helper.Schedulers;
@@ -16,10 +15,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class Pearling extends Feature {
 
@@ -29,7 +25,7 @@ public class Pearling extends Feature {
         List<ItemStack> pearls = getPearls(bot);
 
         if (pearls.isEmpty()) return;
-        if (bot.getFleeManager().getOffTicks() < 10) return;
+        if (bot.getFleeManager().getTicksSinceLastFlee() < 10) return;
         if (bot.getHealthManager().getHealth() < bot.getMovements().getTargetLocate().getTargetEntity().getHealth())
             return;
         if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))

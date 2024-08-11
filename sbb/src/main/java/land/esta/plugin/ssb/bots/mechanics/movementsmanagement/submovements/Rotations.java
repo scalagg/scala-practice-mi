@@ -47,7 +47,7 @@ public class Rotations extends Manager {
         }
 
         float speed = bot.getProfile().value(RootAccessor.INSTANCE.getRotationSettings().getSpeed());
-        if (bot.getFleeManager().getOffTicks() < 5) {
+        if (bot.getFleeManager().getTicksSinceLastFlee() < 5) {
             speed = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunningRotationSpeed());
         }
 

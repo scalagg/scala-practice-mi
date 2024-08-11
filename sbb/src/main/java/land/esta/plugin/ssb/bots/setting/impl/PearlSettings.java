@@ -16,10 +16,10 @@ import java.util.Arrays;
 public class PearlSettings extends Category {
 
     //TODO add pearl chance.
-    private Option<Integer> pearlDelay = new Option<>("Pearl Delay",Material.ENDER_PEARL,this,600,5,2000);
-    private Option<Integer> angleDifference = new Option<>("Angle Difference",Material.NETHER_STAR,this,130,5, 400);
-    private Option<Integer> pearlThrowYawOffSet = new Option<>("Pearl Throw YawOffSet",Material.NAME_TAG,this,10,1, 40);
-    private Option<Integer> pearlingTicks = new Option<>("Pearling Ticks",Material.WATCH,this,10,1, 60);
+    private final Option<Integer> pearlDelay = new Option<>("Pearl Delay", Material.ENDER_PEARL, this, 600, 5, 2000);
+    private final Option<Integer> angleDifference = new Option<>("Angle Difference", Material.NETHER_STAR, this, 130, 5, 400);
+    private final Option<Integer> pearlThrowYawOffSet = new Option<>("Pearl Throw YawOffSet", Material.NAME_TAG, this, 10, 1, 40);
+    private final Option<Integer> pearlingTicks = new Option<>("Pearling Ticks", Material.WATCH, this, 10, 1, 60);
 
     @Override
     public boolean hasPermission(@NotNull Player player) {
