@@ -63,7 +63,7 @@ class BotFightPrepareMenu(
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                BotKitMenu { kit ->
+                BotKitMenu(player) { kit ->
                     BotFightPrepareMenu(
                         botTypeNamespace, botTypeID,
                         kit,

@@ -129,11 +129,11 @@ class PartyPlayTVTFights(private val onlinePlayerList: List<UUID>) : PaginatedMe
                     team2 = twoTeams[1]
                 }
 
-                stage2PartyPlay(team1, team2).openMenu(player)
+                stage2PartyPlay(player, team1, team2).openMenu(player)
             }
     )
 
-    private fun stage2PartyPlay(team1: List<UUID>, team2: List<UUID>) = object : TemplateKitMenu()
+    private fun stage2PartyPlay(player: Player, team1: List<UUID>, team2: List<UUID>) = object : TemplateKitMenu(player)
     {
         private var regionSelection: Region? = null
 

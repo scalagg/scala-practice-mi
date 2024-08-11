@@ -11,8 +11,9 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 
 class EditorKitSelectionMenu(
+    player: Player,
     private val practiceProfile: PracticeProfile
-) : TemplateKitMenu()
+) : TemplateKitMenu(player)
 {
     init
     {

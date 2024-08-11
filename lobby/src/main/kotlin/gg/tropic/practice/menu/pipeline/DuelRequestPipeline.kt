@@ -283,7 +283,7 @@ object DuelRequestPipeline
         }
     }
 
-    fun build(target: UUID) = object : TemplateKitMenu()
+    fun build(player: Player, target: UUID) = object : TemplateKitMenu(player)
     {
         private var kitSelectionLock = false
         private var regionSelection: Region? = null

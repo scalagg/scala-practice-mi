@@ -11,12 +11,15 @@ import net.evilblock.cubed.util.text.TextSplitter
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemFlag
+import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * @author GrowlyX
  * @since 9/23/2023
  */
-abstract class TemplateKitMenu : PaginatedMenu()
+abstract class TemplateKitMenu(private val viewer: Player) : PaginatedMenu()
 {
     init
     {
@@ -40,13 +43,28 @@ abstract class TemplateKitMenu : PaginatedMenu()
         }"
     }
 
-    override fun size(buttons: Map<Int, Button>) = 45
-    override fun getMaxItemsPerPage(player: Player) = 21
+    private val filteredKits by lazy {
+        KitService
+            .cached()
+            .kits
+            .values
+            .filter {
+                val developmentFilter =
+                    viewer.hasPermission("practice.development-kits") || !it.features(FeatureFlag.Development)
+                it.enabled && filterDisplayOfKit(viewer, it) && developmentFilter
+            }
+    }
 
-    override fun getAllPagesButtonSlots() =
-        (10..16) + (19..25) + (28..34)
+    fun getRowsForKits() = ceil(filteredKits.size.toDouble() / 7.0)
 
-    override fun getPageButtonSlots() = 18 to 26
+    override fun size(buttons: Map<Int, Button>) = 18 + max((getRowsForKits() * 9).toInt(), 27)
+    override fun getMaxItemsPerPage(player: Player) = max(filteredKits.size * 7, 21)
+
+    private val availableItemRows = listOf(10..16, 19..25, 28..34)
+
+    override fun getAllPagesButtonSlots() = availableItemRows
+        .take(min(getRowsForKits().toInt(), 3))
+        .flatMap { it.toList() }
 
     open fun getItemAmount(player: Player, kit: Kit): Int
     {
@@ -57,15 +75,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
     {
         val buttons = mutableMapOf<Int, Button>()
 
-        KitService
-            .cached()
-            .kits
-            .values
-            .filter {
-                val developmentFilter =
-                    player.hasPermission("practice.development-kits") || !it.features(FeatureFlag.Development)
-                it.enabled && filterDisplayOfKit(player, it) && developmentFilter
-            }
+        filteredKits
             .sortedByDescending {
                 it.featureConfig(FeatureFlag.MenuOrderWeight, "weight")
                     .toInt()

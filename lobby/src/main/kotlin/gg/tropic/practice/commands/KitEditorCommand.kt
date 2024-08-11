@@ -30,6 +30,6 @@ object KitEditorCommand : ScalaCommand()
             }
         }
 
-        EditorKitSelectionMenu(profile).openMenu(player.bukkit())
+        EditorKitSelectionMenu(player.bukkit(), profile).openMenu(player.bukkit())
     }
 }

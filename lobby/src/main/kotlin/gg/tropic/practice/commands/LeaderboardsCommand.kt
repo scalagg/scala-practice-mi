@@ -16,6 +16,6 @@ object LeaderboardsCommand : ScalaCommand()
     @CommandAlias("leaderboards|lbs|lb")
     fun onLeaderboards(player: ScalaPlayer)
     {
-        LeaderboardsMenu().openMenu(player.bukkit())
+        LeaderboardsMenu(player.bukkit()).openMenu(player.bukkit())
     }
 }

@@ -10,6 +10,7 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
+import gg.tropic.game.extensions.cosmetics.EquipOnLoginCosmeticService
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.PracticeConfigurationService
@@ -190,6 +191,8 @@ object LobbyPlayerService
             }
             .bindWith(plugin)
 
+        EquipOnLoginCosmeticService.defaultFunctionality = false
+
         Events
             .subscribe(
                 PlayerJoinEvent::class.java,
@@ -200,7 +203,7 @@ object LobbyPlayerService
                 playerCache[event.player.uniqueId] = player
 
                 event.player.resetAttributes()
-                
+
                 event.player.inventory.heldItemSlot = 0
                 event.player.updateInventory()
 
@@ -229,6 +232,8 @@ object LobbyPlayerService
                         profile.deliverRankedBanMessage(event.player)
                     }
                 }
+
+                EquipOnLoginCosmeticService.callOnLoginFor(event.player)
             }
             .bindWith(plugin)
 

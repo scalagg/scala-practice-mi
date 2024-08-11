@@ -180,7 +180,7 @@ object DuelCommands : ScalaCommand()
         }
 
         DuelRequestPipeline
-            .build(it.identifier)
+            .build(player.bukkit(), it.identifier)
             .openMenu(player.bukkit())
     }
 }

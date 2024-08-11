@@ -36,7 +36,7 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
+                JoinQueueMenu(player, QueueType.Casual, 1).openMenu(player)
             },
         14 to ItemBuilder
             .of(XMaterial.LIGHT_BLUE_DYE)
@@ -52,7 +52,7 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                JoinQueueMenu(QueueType.Casual, 2).openMenu(player)
+                JoinQueueMenu(player, QueueType.Casual, 2).openMenu(player)
             }
     )
 }

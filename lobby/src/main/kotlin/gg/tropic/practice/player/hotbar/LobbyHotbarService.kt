@@ -198,7 +198,7 @@ object LobbyHotbarService
                 val profile = PracticeProfileService.find(player)
                     ?: return@context
 
-                EditorKitSelectionMenu(profile).openMenu(player)
+                EditorKitSelectionMenu(player, profile).openMenu(player)
                 Button.playNeutral(player)
             }
         }
@@ -239,7 +239,7 @@ object LobbyHotbarService
                         return@context
                     }
 
-                    JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
+                    JoinQueueMenu(player, QueueType.Casual, 1).openMenu(player)
                 }
             }
         )
@@ -313,7 +313,7 @@ object LobbyHotbarService
                         return@context
                     }
 
-                    JoinQueueMenu(QueueType.Ranked, 1).openMenu(player)
+                    JoinQueueMenu(player, QueueType.Ranked, 1).openMenu(player)
                 }
             }
         )
@@ -355,7 +355,7 @@ object LobbyHotbarService
                     .name("${CC.YELLOW}View Leaderboards ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
-                    LeaderboardsMenu().openMenu(player)
+                    LeaderboardsMenu(player).openMenu(player)
                     Button.playNeutral(player)
                 }
             }
@@ -515,7 +515,7 @@ object LobbyHotbarService
                     val profile = PracticeProfileService.find(player)
                         ?: return@scope
 
-                    EditorKitSelectionMenu(profile).openMenu(player)
+                    EditorKitSelectionMenu(player, profile).openMenu(player)
                     Button.playNeutral(player)
                 }
             }

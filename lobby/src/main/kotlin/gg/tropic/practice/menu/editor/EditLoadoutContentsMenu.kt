@@ -161,7 +161,7 @@ class EditLoadoutContentsMenu(
                                 "${CC.GREEN}You have deleted your ${CC.YELLOW}${loadout.name} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
                             )
 
-                            EditorKitSelectionMenu(practiceProfile).openMenu(player)
+                            EditorKitSelectionMenu(player, practiceProfile).openMenu(player)
                         }
                     } else
                     {
@@ -247,6 +247,6 @@ class EditLoadoutContentsMenu(
     private fun handleBackwardsMenuNavigation(player: Player)
     {
         resetInventory(player)
-        EditorKitSelectionMenu(practiceProfile).openMenu(player)
+        EditorKitSelectionMenu(player, practiceProfile).openMenu(player)
     }
 }
