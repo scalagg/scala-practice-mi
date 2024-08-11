@@ -21,7 +21,7 @@ import org.bukkit.event.inventory.ClickType
  * @author GrowlyX
  * @since 12/16/2023
  */
-class LeaderboardsMenu : TemplateKitMenu()
+class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
 {
     private var menuState = ReferenceLeaderboardType.ELO
     override fun filterDisplayOfKit(player: Player, kit: Kit) =

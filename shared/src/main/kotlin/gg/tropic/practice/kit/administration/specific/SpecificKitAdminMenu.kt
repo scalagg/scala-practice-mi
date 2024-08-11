@@ -82,8 +82,8 @@ class SpecificKitAdminMenu(private val kit: Kit) : Menu(
     {
         if (manualClose)
         {
-            Tasks.delayed(1L) {
-                KitAdminMenu().openMenu(player)
+            Tasks.sync {
+                KitAdminMenu(player).openMenu(player)
             }
         }
     }

@@ -27,9 +27,10 @@ import org.bukkit.event.inventory.ClickType
  * @since 9/24/2023
  */
 class JoinQueueMenu(
+    player: Player,
     private val queueType: QueueType,
     private val teamSize: Int
-) : TemplateKitMenu()
+) : TemplateKitMenu(player, dynamic = true)
 {
     init
     {

@@ -18,9 +18,10 @@ import org.bukkit.event.inventory.ClickType
  * @since 10/19/2023
  */
 class StatisticsMenu(
+    player: Player,
     private val profile: PracticeProfile,
     private val state: StatisticMenuState
-) : TemplateKitMenu()
+) : TemplateKitMenu(player)
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit) =
         state == StatisticMenuState.Casual || kit.features(FeatureFlag.Ranked)
@@ -125,6 +126,7 @@ class StatisticsMenu(
                 Button.playNeutral(player)
 
                 StatisticsMenu(
+                    player,
                     profile,
                     StatisticMenuState.Casual
                 ).openMenu(player)
@@ -152,6 +154,7 @@ class StatisticsMenu(
                 Button.playNeutral(player)
 
                 StatisticsMenu(
+                    player,
                     profile,
                     StatisticMenuState.Ranked
                 ).openMenu(player)

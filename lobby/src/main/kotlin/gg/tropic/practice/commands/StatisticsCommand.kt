@@ -33,6 +33,7 @@ object StatisticsCommand : ScalaCommand()
         {
             return target.validatePlayers(player.bukkit(), false) {
                 StatisticsMenu(
+                    player.bukkit(),
                     it.identifier.offlineProfile,
                     StatisticsMenu.StatisticMenuState.Casual
                 ).openMenu(player.bukkit())
@@ -45,6 +46,7 @@ object StatisticsCommand : ScalaCommand()
             )
 
         StatisticsMenu(
+            player.bukkit(),
             profile,
             StatisticsMenu.StatisticMenuState.Casual
         ).openMenu(player.bukkit())

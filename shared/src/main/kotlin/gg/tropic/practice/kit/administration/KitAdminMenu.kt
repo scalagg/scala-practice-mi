@@ -12,7 +12,7 @@ import org.bukkit.event.inventory.ClickType
  * @author GrowlyX
  * @since 7/28/2024
  */
-class KitAdminMenu : TemplateKitMenu()
+class KitAdminMenu(player: Player) : TemplateKitMenu(player)
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit) = true
     override fun itemDescriptionOf(player: Player, kit: Kit) = listOf(

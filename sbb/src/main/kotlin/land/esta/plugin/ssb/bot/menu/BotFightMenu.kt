@@ -81,7 +81,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                 if (type!!.isRightClick)
                 {
                     Button.playNeutral(player)
-                    BotKitDuosMenu(profile).openMenuProtected(player)
+                    BotKitDuosMenu(player, profile).openMenuProtected(player)
                     return@toButton
                 }
 

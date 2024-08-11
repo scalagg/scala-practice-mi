@@ -187,7 +187,7 @@ object KitCommands : ScalaCommand()
     @AssignPermission
     fun onAdmin(player: ScalaPlayer)
     {
-        KitAdminMenu().openMenu(player.bukkit())
+        KitAdminMenu(player.bukkit()).openMenu(player.bukkit())
     }
 
     @AssignPermission

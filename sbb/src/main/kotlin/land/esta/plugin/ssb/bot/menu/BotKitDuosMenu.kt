@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture
  * @project esta-practice
  * @website https://solo.to/redis
  */
-class BotKitDuosMenu(private val difficultyProfile: SettingProfile) : TemplateKitMenu()
+class BotKitDuosMenu(player: Player, private val difficultyProfile: SettingProfile) : TemplateKitMenu(player)
 {
     init
     {

@@ -102,8 +102,8 @@ object TournamentCreationPipeline
                 .associate { it }
         }
 
-    private fun stage3SelectKit(teamSize: Int, maxSize: Int) =
-        object : TemplateKitMenu()
+    private fun stage3SelectKit(player: Player, teamSize: Int, maxSize: Int) =
+        object : TemplateKitMenu(player)
         {
             override fun shouldIncludeKitDescription() = false
             override fun filterDisplayOfKit(player: Player, kit: Kit) = kit
@@ -137,7 +137,7 @@ object TournamentCreationPipeline
             }
 
             player.sendMessage("${CC.GREEN}You selected: ${CC.WHITE}$it")
-            stage3SelectKit(teamSize, it.toInt()).openMenu(player)
+            stage3SelectKit(player, teamSize, it.toInt()).openMenu(player)
         }
 
     fun start() = object : Menu(
