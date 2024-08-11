@@ -57,7 +57,7 @@ object NightlyRebootScheduler
                     }")
                     it.player.sendMessage("${CC.GRAY}Instance has been online for ${
                         TimeUtil.formatIntoAbbreviatedString(((System.currentTimeMillis() - serverInitial) / 1000L).toInt())
-                    }.")
+                    }")
                 }
             }
 
