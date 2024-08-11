@@ -56,6 +56,10 @@ public class Pearling extends Feature {
                 .thenRunDelayedSync(() -> {
                     if (!bot.isAlive()) return;
 
+                    if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference())) {
+                        return;
+                    }
+
                     final Location location = bot.getMovements().getLocation();
                     bot.getMovements().rotate(
                             location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()),
@@ -63,10 +67,6 @@ public class Pearling extends Feature {
                     );
 
                     bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 1000L);
-
-/*                    if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))
-                        return;*/
-
                     bot.getAttackingManager().swing();
                     bot.getInventoryManager().removeItem(itemSlot(pearl, bot));
 
@@ -74,7 +74,6 @@ public class Pearling extends Feature {
                             bot.getNpc().getBukkitEntity().getHandle(),
                             bot.getMovements().getLocation().getDirection()
                     );
-
                 }, bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()))
                 .thenRunDelayedSync(() -> {
                     bot.getInventoryManager().setMainHand(1);
