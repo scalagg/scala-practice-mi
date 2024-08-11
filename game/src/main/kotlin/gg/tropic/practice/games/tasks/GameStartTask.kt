@@ -1,28 +1,24 @@
 package gg.tropic.practice.games.tasks
 
 import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.staff.anticheat.AnticheatCheck
-import gg.scala.staff.anticheat.AnticheatFeature
-import gg.tropic.practice.commands.offlineProfile
-import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.resetPlayerForFight
 import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.spa.SPABindings
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.time.Duration
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
 import org.bukkit.Bukkit
 import org.bukkit.Sound
-import org.bukkit.entity.Player
 
 /**
  * @author GrowlyX
@@ -45,6 +41,16 @@ class GameStartTask(
                 .forEach { player ->
                     game.resetPlayerForFight(player)
                     game.enterLoadoutSelection(player)
+
+                    val profile = game.flagMetaData(
+                        FeatureFlag.KnockbackProfile,
+                        "profile"
+                    )
+
+                    if (profile != null)
+                    {
+                        SPABindings.setPlayerKnockback(player, profile)
+                    }
                 }
 
             val teamVersus = this.game.teams.values
@@ -72,7 +78,10 @@ class GameStartTask(
                 } and ${
                     if (this.game.robot())
                     {
-                        this.game.robotInstance?.name() ?: "???"
+                        this.game.robotInstance
+                            .joinToString("${CC.PRI}, ") { robot ->
+                                robot.name()
+                            }
                     } else
                     {
                         this.game.teams[GameTeamSide.B]!!.players

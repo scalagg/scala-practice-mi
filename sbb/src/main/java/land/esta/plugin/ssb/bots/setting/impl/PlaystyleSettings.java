@@ -3,10 +3,13 @@ package land.esta.plugin.ssb.bots.setting.impl;
 import land.esta.plugin.ssb.bot.setting.setting.Category;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
+import land.esta.plugin.ssb.solara.freebotfridays.FreeBotFridays;
 import lombok.Getter;
 import net.evilblock.cubed.util.CC;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +50,11 @@ public class PlaystyleSettings extends Category {
     private final Option<Boolean> jumpCombo = new Option<>("Jump Combo", Material.SADDLE, this, false, -1);
 
     private final Option<Integer> jumpComboHits = new Option<>("Jump Combo Hits", Material.SADDLE, this, 4, 1, 30);
+
+    @Override
+    public boolean hasPermission(@NotNull Player player) {
+        return super.hasPermission(player) || FreeBotFridays.INSTANCE.isFreeBotFriday();
+    }
 
     public PlaystyleSettings(Category parent) {
         super(

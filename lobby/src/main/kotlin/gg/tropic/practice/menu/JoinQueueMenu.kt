@@ -13,6 +13,7 @@ import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.queue.queueId
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
@@ -35,14 +36,17 @@ class JoinQueueMenu(
         async = true
         autoUpdate = true
     }
-
+/*
     override fun getItemAmount(player: Player, kit: Kit): Int
     {
-        val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
-        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId {
+            kit(kit)
+            queueType(queueType)
+            teamSize(teamSize)
+        })
 
         return metadata.inGame.coerceIn(1..64)
-    }
+    }*/
 
     override fun getAutoUpdateTicks() = 500L
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes
@@ -60,8 +64,8 @@ class JoinQueueMenu(
         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
 
         return listOf(
-            "${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}",
-            "${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}",
+            "${CC.GRAY}Playing: ${CC.PRI}${metadata.inGame}",
+            "${CC.GRAY}Queuing: ${CC.PRI}${metadata.inQueue}",
             "",
             *local3ScoreDescriptionOf(
                 player,

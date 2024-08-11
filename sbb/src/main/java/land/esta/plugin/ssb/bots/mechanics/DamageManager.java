@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.utils.Color;
 import land.esta.plugin.ssb.utils.Nms;
 import net.minecraft.server.v1_8_R3.*;
@@ -159,7 +159,7 @@ public class DamageManager extends Manager {
     }
 
     public void playSound() {
-        globalAction((player, temp) -> player.playSound(bot.getMovements().getLocation(), Sound.HURT_FLESH, 100F, 1));
+        globalAction((player, temp) -> player.playSound(bot.getMovements().getLocation(), Sound.HURT_FLESH, 1.0F, 1));
     }
 
 }

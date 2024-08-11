@@ -92,11 +92,11 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.BOOK)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:spawn-visibility"
+            id = "$DUEL_SETTING_PREFIX:spawn-visibility-def"
             displayName = "Player visibility"
 
             clazz = StateSettingValue::class.java
-            default = StateSettingValue.DISABLED
+            default = StateSettingValue.ENABLED
 
             description += "Allows you to view or"
             description += "hide players at spawn."

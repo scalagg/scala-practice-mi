@@ -1,6 +1,7 @@
 package gg.tropic.practice
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.shutdown.ShutdownService
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
@@ -8,16 +9,25 @@ import gg.scala.commons.core.plugin.*
 import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
+import gg.tropic.practice.lifecycle.NightlyRebootScheduler
 import gg.tropic.practice.settings.ChatVisibility
 import gg.tropic.practice.settings.DuelsSettingCategory
+import me.lucko.helper.Schedulers
+import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Bukkit
+import java.time.Duration
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.concurrent.TimeUnit
 
 /**
  * @author GrowlyX
  * @since 8/4/2022
  */
 @Plugin(
-    name = "EstaPractice",
+    name = "SolaraPractice",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthor("Tropic")
@@ -29,6 +39,7 @@ import org.bukkit.Bukkit
     PluginDependency("CoreGameExtensions"),
     PluginDependency("ScBasics"),
     PluginDependency("Parties"),
+    PluginDependency("SPA"),
     PluginDependency("UnifiedMetrics", soft = true),
     PluginDependency("cloudsync", soft = true),
     PluginDependency("Friends", soft = true),
@@ -70,6 +81,8 @@ class PracticeGame : ExtendedScalaPlugin()
             lobbyGroup().suffixWhenDev()
         )
         lobbyRedirector.subscribe()
+
+        NightlyRebootScheduler.scheduleReboot(1, 0)
 
         flavor {
             bind<ServerAggregateHandler>() to lobbyRedirector

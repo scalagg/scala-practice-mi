@@ -1,9 +1,10 @@
 package land.esta.plugin.ssb.bot.impl
 
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 
 /**
  * @author GrowlyX
  * @since 7/23/2024
  */
-val asyncEventThreadPool = Executors.newScheduledThreadPool(3)
+val asyncEventThreadPool: ScheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())

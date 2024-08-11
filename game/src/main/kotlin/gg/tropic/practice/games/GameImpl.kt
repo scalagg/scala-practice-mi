@@ -7,6 +7,7 @@ import gg.tropic.practice.Globals
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.games.bots.BotGameMetadata
 import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
@@ -40,7 +41,6 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.*
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -56,6 +56,7 @@ import org.bukkit.util.Vector
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
 
 /**
@@ -94,12 +95,14 @@ open class GameImpl(
     private fun durationMillis() =
         System.currentTimeMillis() - this.startTimestamp
 
-    private lateinit var defaultLoadout: DefaultLoadout
+    private val defaultLoadout: DefaultLoadout = DefaultLoadout(kit)
+    var botGameMetadata: BotGameMetadata? = null
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
-    var robotInstance: RobotInstance? = null
+    val robotInstance = mutableSetOf<RobotInstance>()
+    val consumedBots = AtomicInteger(0)
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
     val placedBlocks = mutableSetOf<Vector>()
@@ -154,7 +157,7 @@ open class GameImpl(
 
         if (robot())
         {
-            robotInstance?.destroy()
+            robotInstance.forEach(RobotInstance::destroy)
         }
 
         toBukkitPlayers()
@@ -609,21 +612,20 @@ open class GameImpl(
         Tasks.delayed(20L) {
             if (arenaWorld == null)
             {
-                println("Skipping unload world because it's null")
                 return@delayed
             }
 
             MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
-            robotInstance?.destroy()
+
+            robotInstance.forEach(RobotInstance::destroy)
+            robotInstance.clear()
 
             val handlePlayers = (arenaWorld!! as CraftWorld).handle
-            val worldServer = handlePlayers as CustomWorldServer
 
             if (kickPlayers)
             {
                 // final check
                 val onlinePlayers = handlePlayers.players
-
                 if (onlinePlayers.isNotEmpty())
                 {
                     onlinePlayers.toList().forEach {
@@ -687,8 +689,6 @@ open class GameImpl(
 
     fun enterLoadoutSelection(player: Player)
     {
-        this.defaultLoadout = DefaultLoadout(kit)
-
         val profile = PracticeProfileService
             .find(player)
             ?: return run {
@@ -806,6 +806,8 @@ open class GameImpl(
             }
     }
 
+    fun robot(solaraID: UUID) = robotInstance.firstOrNull { it.solaraID() == solaraID }
+
     fun robot(): Boolean
     {
         return expectationModel.queueType == QueueType.Robot
@@ -813,6 +815,4 @@ open class GameImpl(
 
     fun humanSide() = teams[GameTeamSide.A]!!
     fun robotSide() = teams[GameTeamSide.B]!!
-
-    fun robotCounter() = playerCounters.getOrPut(Globals.PLAYER_BOT_UNIQUE_ID) { Counter(Globals.PLAYER_BOT_UNIQUE_ID) }
 }

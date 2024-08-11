@@ -2,7 +2,7 @@ package land.esta.plugin.ssb.bots;
 
 import land.esta.plugin.ssb.utils.GameServer;
 import lombok.Getter;
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import me.lucko.helper.Schedulers;
 import org.bukkit.entity.Player;
 
@@ -13,7 +13,7 @@ public class BotManager {
 
     private final ArrayList<Bot> bots = new ArrayList<>();
 
-    public BotManager(EstaRobotsPlugin plugin) {
+    public BotManager(SolaraRobotsPlugin plugin) {
         if (GameServer.is()) {
             Schedulers.sync()
                     .runRepeating(() -> {
@@ -23,22 +23,11 @@ public class BotManager {
                                 continue;
                             }
 
-                            if (!bot.getPlayer().isOnline()) {
-                                continue;
-                            }
-
                             // Cannot measure distance between diff words patch
-                            if (
-                                    bot.getMovements().getLocation().getWorld().equals(
-                                            bot.getMovements().getTargetLocate().getTarget().getWorld()
-                                    ) &&
-                                            bot.isAlive()
-                            ) {
+                            if (bot.isAlive()) {
                                 bot.tick();
                                 continue;
                             }
-
-                            bot.silentKill();
                         }
                     }, 1L, 1L)
                     .bindWith(plugin);

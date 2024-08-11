@@ -1,15 +1,13 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import land.esta.plugin.ssb.botevents.events.BotArmorBreakEvent;
 import land.esta.plugin.ssb.botevents.events.BotRequiredToEatEvent;
 import land.esta.plugin.ssb.botevents.events.EatingCancelEvent;
 import land.esta.plugin.ssb.botevents.events.FinishEatingEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.utils.Durability;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.BooleanRunnable;
@@ -25,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;
@@ -49,23 +46,24 @@ public class InventoryManager extends Manager {
 
     private boolean requiredToEat;
     private long gappleDelay;
-    private net.minecraft.server.v1_8_R3.ItemStack[] armorStacks = new net.minecraft.server.v1_8_R3.ItemStack[4];
-    private net.minecraft.server.v1_8_R3.ItemStack[] itemStacks = new net.minecraft.server.v1_8_R3.ItemStack[36];
+
+    private net.minecraft.server.v1_8_R3.ItemStack[] armorContents = new net.minecraft.server.v1_8_R3.ItemStack[4];
+    private net.minecraft.server.v1_8_R3.ItemStack[] contents = new net.minecraft.server.v1_8_R3.ItemStack[36];
 
     public void updateArmorStacks() {
-        armorStacks = new net.minecraft.server.v1_8_R3.ItemStack[4];
-        armorStacks[0] = (convertToNms(helmet));
-        armorStacks[1] = (convertToNms(chestPlate));
-        armorStacks[2] = (convertToNms(leggings));
-        armorStacks[3] = (convertToNms(boots));
+        armorContents = new net.minecraft.server.v1_8_R3.ItemStack[4];
+        armorContents[0] = (convertToNms(helmet));
+        armorContents[1] = (convertToNms(chestPlate));
+        armorContents[2] = (convertToNms(leggings));
+        armorContents[3] = (convertToNms(boots));
     }
 
     public void updateItemStacks() {
-        itemStacks = new net.minecraft.server.v1_8_R3.ItemStack[36];
+        contents = new net.minecraft.server.v1_8_R3.ItemStack[36];
 
         if (slots == null) return;
         for (Integer slot : slots.keySet()) {
-            itemStacks[slot - 1] = CraftItemStack.asNMSCopy((slots.get(slot)));
+            contents[slot - 1] = CraftItemStack.asNMSCopy((slots.get(slot)));
         }
     }
 
@@ -357,6 +355,13 @@ public class InventoryManager extends Manager {
         updateArmorStacks();
     }
 
+    public void updateArmorContents(ItemStack[] armorContents) {
+        updateHelmet(armorContents[0]);
+        updateChestPlate(armorContents[1]);
+        updateLeggings(armorContents[2]);
+        updateBoots(armorContents[3]);
+    }
+
     public void eat(ItemStack item) {
         if (eating) return;
         //Eat pots
@@ -392,8 +397,8 @@ public class InventoryManager extends Manager {
     @Override
     public void tickEarly() {
         PlayerInventory inventory = bot.getNpc().inventory;
-        inventory.armor = armorStacks;
-        inventory.items = itemStacks;
+        inventory.armor = armorContents;
+        inventory.items = contents;
         inventory.itemInHandIndex = getMainHand() - 1;
 
         if (requiredToEat) {
@@ -489,8 +494,8 @@ public class InventoryManager extends Manager {
 
             //Eating effects
             if (!drink) {
-                Item.getById(item.getTypeId());
-                PacketPlayOutWorldParticles particlePack = new PacketPlayOutWorldParticles(EnumParticle.ITEM_CRACK, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 0, 0, 0, 1, 0, item.getTypeId(), item.getTypeId());
+                PacketPlayOutWorldParticles particlePack = new PacketPlayOutWorldParticles(
+                        EnumParticle.ITEM_CRACK, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 0, 0, 0, 1, 0, item.getTypeId(), item.getData().getData());
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(particlePack);
             }
         });
@@ -545,7 +550,7 @@ public class InventoryManager extends Manager {
     }
 
     public void updateArmorPacket(int slot) {
-        PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment(bot.getNpc().getId(), slot, armorStacks[slot]);
+        PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment(bot.getNpc().getId(), slot, armorContents[slot]);
 
         globalAction((player, temp) -> Nms.sendPacket(player, entityEquipment));
     }

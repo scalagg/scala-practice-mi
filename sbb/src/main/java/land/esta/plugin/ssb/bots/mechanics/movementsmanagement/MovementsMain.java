@@ -7,10 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.Random;
 public class MovementsMain extends Manager {
     public Location location;
     private float strafe = 0;
-    private Vector lastMotion = new Vector(0,0,0);
+    private Vector lastMotion = new Vector(0, 0, 0);
     private TargetLocate targetLocate;
     private boolean sentLocationUpdate;
 
@@ -60,15 +59,15 @@ public class MovementsMain extends Manager {
 
     private Random random = new Random();
 
-    public MovementsMain(Bot bot, Player player, Location loc) {
+    public MovementsMain(Bot bot, Location loc) {
         super(bot);
         location = loc;
 
-        bot.getEventManager().addEvent(collision = new Collision(bot));
-        bot.getEventManager().addEvent(recodedCollision = new RecodedCollision(bot));
-        bot.getEventManager().addEvent(movements = new Movements(bot));
-        bot.getEventManager().addEvent(rotations = new Rotations(bot));
-        bot.getEventManager().addEvent(targetLocate = new TargetLocate(bot, player));
+        bot.getEventManager().addManager(collision = new Collision(bot));
+        bot.getEventManager().addManager(recodedCollision = new RecodedCollision(bot));
+        bot.getEventManager().addManager(movements = new Movements(bot));
+        bot.getEventManager().addManager(rotations = new Rotations(bot));
+        bot.getEventManager().addManager(targetLocate = new TargetLocate(bot));
     }
 
     private boolean delayedBotLocation = getBot().getProfile().value(RootAccessor.INSTANCE.getConnectionSettings().getDelayedBotLocation());
@@ -93,7 +92,7 @@ public class MovementsMain extends Manager {
         speedMultiplier = 1;
     }
 
-    public void move(Vector motion,boolean addLastMotion) {
+    public void move(Vector motion, boolean addLastMotion) {
         if (lockLocation) return;
 
         int slownessPercentage = bot.getHealthManager().getSlownessPercentage();
@@ -102,20 +101,20 @@ public class MovementsMain extends Manager {
             motion.subtract(motion.clone().multiply(slownessPercentage / 100));
         }
 
-        disableJumps = Math.min(disableJumps - 1,0);
+        disableJumps = Math.min(disableJumps - 1, 0);
 
         Location oldLoc = location.clone();
         Vector loc = location.toVector();
 
         //Attack slowdown
-        lastMotion.multiply(new Vector(bot.getMovements().getAttackMultiplier(),1,bot.getMovements().getAttackMultiplier()));
+        lastMotion.multiply(new Vector(bot.getMovements().getAttackMultiplier(), 1, bot.getMovements().getAttackMultiplier()));
         if (addLastMotion) motion.add(lastMotion.clone().setY(0).multiply(friction));
         loc.add(motion);
 
         Location newLoc = loc.toLocation(location.getWorld());
         Location updatedLoc;
 
-        updatedLoc = recodedCollision.cast(oldLoc.clone(),newLoc.clone());
+        updatedLoc = recodedCollision.cast(oldLoc.clone(), newLoc.clone());
 
         float yaw = location.getYaw();
         float pitch = location.getPitch();
@@ -200,14 +199,13 @@ public class MovementsMain extends Manager {
             if (times > 1) {
                 targetLocate.setAStarTarget(null);
                 times = 0;
-            }
-            else times++;
+            } else times++;
         }
 
         updatedLoc.setYaw(yaw);
         updatedLoc.setPitch(pitch);
 
-        callEventAsync(new FinalMoveEvent(bot,updatedLoc,location));
+        callEventAsync(new FinalMoveEvent(bot, updatedLoc, location));
 
         location = updatedLoc;
 
@@ -249,7 +247,7 @@ public class MovementsMain extends Manager {
         sentLocationUpdate = true;
     }
 
-    public void rotate(float yaw,float pitch) {
+    public void rotate(float yaw, float pitch) {
         location.setYaw(yaw);
         location.setPitch(pitch);
         updatedLoc();

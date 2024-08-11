@@ -44,7 +44,7 @@ object MatchInventoryCommand : ScalaCommand()
             val snapshot = it.snapshots[playerId]
                 ?: throw ConditionFailedException(
                     "No match snapshot exists for the player ${CC.YELLOW}${
-                        if (playerId == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else playerId.username()
+                        if (playerId in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else playerId.username()
                     }${CC.RED}."
                 )
 

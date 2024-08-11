@@ -2,7 +2,7 @@ package land.esta.plugin.ssb.bots.mechanics;
 
 import com.google.common.base.Function;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.potion.PotionEffectType;
 
@@ -86,7 +86,7 @@ public class DamageCalculator extends Manager {
 
     public int br(InventoryManager manager) {
         int i = 0;
-        ItemStack[] aitemstack = manager.getArmorStacks();
+        ItemStack[] aitemstack = manager.getArmorContents();
 
         for (ItemStack itemstack : aitemstack) {
             if (itemstack == null) continue;
@@ -126,7 +126,7 @@ public class DamageCalculator extends Manager {
         if (f <= 0.0F) {
             return 0.0F;
         } else {
-            int i = EnchantmentManager.a(manager.getArmorStacks(), damagesource);
+            int i = EnchantmentManager.a(manager.getArmorContents(), damagesource);
             if (i > 20) {
                 i = 20;
             }

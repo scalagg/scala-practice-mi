@@ -3,9 +3,12 @@ package land.esta.plugin.ssb.bots.setting.impl;
 import land.esta.plugin.ssb.bot.setting.setting.Category;
 import land.esta.plugin.ssb.bot.setting.setting.GlobalsKt;
 import land.esta.plugin.ssb.bot.setting.setting.Option;
+import land.esta.plugin.ssb.solara.freebotfridays.FreeBotFridays;
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -17,6 +20,11 @@ public class PearlSettings extends Category {
     private Option<Integer> angleDifference = new Option<>("Angle Difference",Material.NETHER_STAR,this,130,5, 400);
     private Option<Integer> pearlThrowYawOffSet = new Option<>("Pearl Throw YawOffSet",Material.NAME_TAG,this,10,1, 40);
     private Option<Integer> pearlingTicks = new Option<>("Pearling Ticks",Material.WATCH,this,10,1, 60);
+
+    @Override
+    public boolean hasPermission(@NotNull Player player) {
+        return super.hasPermission(player) || FreeBotFridays.INSTANCE.isFreeBotFriday();
+    }
 
     public PearlSettings(Category parent) {
         super(

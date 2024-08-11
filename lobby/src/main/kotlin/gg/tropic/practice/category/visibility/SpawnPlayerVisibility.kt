@@ -22,12 +22,10 @@ object SpawnPlayerVisibility : VisibilityAdapter
         val profile = BasicsProfileService.find(refreshFor)
             ?: return VisibilityAction.NEUTRAL
 
-        val messagesRef = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility"]!!
+        val messagesRef = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility-def"]!!
         val visible = messagesRef.map<StateSettingValue>()
 
         return if (visible == StateSettingValue.DISABLED)
-            VisibilityAction.HIDE else
-                if (toRefresh.hasPermission("practice.show-spawn-visibility"))
-                    VisibilityAction.NEUTRAL else VisibilityAction.HIDE
+            VisibilityAction.HIDE else VisibilityAction.NEUTRAL
     }
 }

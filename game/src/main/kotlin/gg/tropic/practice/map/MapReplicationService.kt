@@ -13,6 +13,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.bots.getBotMetdataOfPlayer
 import gg.tropic.practice.games.robot.RobotGameLifecycle
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.map.metadata.impl.MapBedMetadata
@@ -72,7 +73,7 @@ object MapReplicationService
             {
                 if (
                     game.humanSide().toBukkitPlayers().all { it != null } &&
-                    game.robotInstance != null
+                    game.robotInstance.isNotEmpty()
                 )
                 {
                     game.initializeAndStart()
@@ -118,16 +119,40 @@ object MapReplicationService
                 .join()
 
             scheduledMap.inUse = true
-
             newGame.arenaWorldName = scheduledMap.world.name
 
             if (newGame.robot())
             {
+                newGame.botGameMetadata = getBotMetdataOfPlayer(newGame.humanSide().players.first())
+
                 kotlin.runCatching {
-                    newGame.robotInstance = RobotGameLifecycle
-                        .createNewRobotInstance(newGame)
+                    newGame.robotInstance.addAll(RobotGameLifecycle.createNewRobotInstances(newGame))
+                    newGame.robotInstance.forEach {
+                        it.terminable.bindWith(newGame)
+                    }
+
+                    Schedulers.sync()
+                        .run {
+                            for (robotInstance in newGame.robotInstance)
+                            {
+                                if (!robotInstance.hasInitialSpawned)
+                                {
+                                    robotInstance.apply {
+                                        runCatching {
+                                            initialSpawn()
+                                        }.onFailure { throwable ->
+                                            throwable.printStackTrace()
+
+                                            newGame.state = GameState.Completed
+                                            newGame.closeAndCleanup()
+                                            return@run
+                                        }
+                                        hasInitialSpawned = true
+                                    }
+                                }
+                            }
+                        }
                         .join()
-                    newGame.robotInstance?.terminable?.bindWith(newGame)
                 }.onFailure {
                     it.printStackTrace()
                     newGame.state = GameState.Completed
@@ -135,7 +160,7 @@ object MapReplicationService
                     return@handler
                 }
 
-                if (newGame.robotInstance == null)
+                if (newGame.robotInstance.isEmpty())
                 {
                     newGame.state = GameState.Completed
                     newGame.closeAndCleanup()

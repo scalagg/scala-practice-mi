@@ -7,7 +7,7 @@ import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.botevents.events.BotAttackEvent;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
 import land.esta.plugin.ssb.utils.Nms;
 import land.esta.plugin.ssb.utils.objects.AABB;

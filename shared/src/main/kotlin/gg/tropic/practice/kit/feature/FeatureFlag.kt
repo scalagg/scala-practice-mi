@@ -95,6 +95,13 @@ enum class FeatureFlag(
             "armor in a match.",
         )
     ),
+    KnockbackProfile(
+        description = listOf(
+            "Use a custom knockback profile",
+            "through Tropic Spigot."
+        ),
+        schema = mutableMapOf("profile" to "default")
+    ),
     RequiresBuildMap(
         description = listOf(
             "A ID flag to represent any",

@@ -16,12 +16,10 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.math.Numbers
 import net.evilblock.cubed.util.nms.MinecraftProtocol
-import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
-import java.util.*
 
 /**
  * @author GrowlyX
@@ -32,7 +30,7 @@ class PlayerViewMenu(
     private val snapshot: GameReportSnapshot,
     private val originalMenu: Menu? = null
 ) : Menu("Viewing player ${
-    if (snapshot.playerUniqueId == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else snapshot.playerUniqueId.username()
+    if (snapshot.playerUniqueId in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else snapshot.playerUniqueId.username()
 }...")
 {
     override fun onClose(player: Player, manualClose: Boolean)
@@ -228,7 +226,7 @@ class PlayerViewMenu(
                 }
                 .name(
                     "${CC.B_SEC}${
-                        if (nextPlayer == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else nextPlayer.username()
+                        if (nextPlayer in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else nextPlayer.username()
                     }'s Inventory"
                 )
                 .addToLore(
@@ -260,7 +258,7 @@ class PlayerViewMenu(
                 }
                 .name(
                     "${CC.B_SEC}${
-                        if (nextPlayer == Globals.PLAYER_BOT_UNIQUE_ID) "Robot" else nextPlayer.username()
+                        if (nextPlayer in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS) "Robot" else nextPlayer.username()
                     }'s Inventory"
                 )
                 .addToLore(

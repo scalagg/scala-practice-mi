@@ -5,6 +5,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.2")
+
     api(project(":shared"))
     api(project(":services:statistics"))
     api(project(":services:replications:replication-models"))

@@ -16,7 +16,7 @@ import org.bukkit.Bukkit
 data class SettingProfile(
     val id: String,
     val settings: MutableMap<String, SettingValue> = mutableMapOf(),
-    var botName: String = "Bot",
+    var botName: String = "${CC.YELLOW}Solara Bot",
     var skinProperties: Property = Bot.DEFAULT,
     var randomizerEnabled: Boolean? = null
 )
@@ -59,26 +59,18 @@ data class SettingProfile(
     }
 
     fun describe() = listOf(
-        "",
-        "${CC.B_GOLD}Gameplay:",
-        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}CPS: ${CC.PRI}${
+        "${CC.GRAY}CPS: ${CC.WHITE}${
             value(RootAccessor.attackSettings.cps)
-        }",
-        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Reach: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Reach: ${CC.WHITE}${
             "%.2f".format(value(RootAccessor.attackSettings.reach).toFloat())
-        }",
-        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Ping: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Ping: ${CC.WHITE}${
             value(RootAccessor.connectionSettings.ping)
         }ms",
-        "",
-        "${CC.B_AQUA}Traits:",
-        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}W-Tap: ${CC.PRI}${
+        "${CC.GRAY}W-Tap: ${CC.PRI}${
             if (value(RootAccessor.wTapSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
-        }",
-        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Rod: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Rod: ${CC.PRI}${
             if (value(RootAccessor.rodSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
-        }",
-        "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Strafe: ${CC.PRI}${
+        } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Strafe: ${CC.PRI}${
             if (value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
         }",
     )

@@ -12,25 +12,21 @@ import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.parties.command.PartyCommand
 import gg.tropic.practice.Globals
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.map.MapService
 import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.LeaderboardsMenu
 import gg.tropic.practice.menu.PlayerMainMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.menu.party.PartyPlayGameSelectMenu
-import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
-import gg.tropic.practice.region.Region
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -131,14 +127,13 @@ object LobbyHotbarService
                 {
                     val rematchKitID = it.response.parameters["rematch-kit-id"]
                     val rematchTargetID = it.response.parameters["rematch-target-id"]
-                    val rematchTargetRegion = Region.valueOf(it.response.parameters["rematch-region"]!!)
 
                     val kit = KitService.cached().kits[rematchKitID]
                         ?: return@handler
 
                     val rematchUuid = UUID.fromString(rematchTargetID)
 
-                    if (rematchUuid == Globals.PLAYER_BOT_UNIQUE_ID)
+                    if (rematchUuid in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS)
                     {
                         return@handler
                     }
@@ -234,7 +229,7 @@ object LobbyHotbarService
             0,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.IRON_SWORD)
-                    .name("${CC.SEC}Play Casual ${CC.GRAY}(Right Click)")
+                    .name("${CC.GREEN}Play Casual ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
@@ -253,7 +248,7 @@ object LobbyHotbarService
             2,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.GOLD_SWORD)
-                    .name("${CC.SEC}Play Bot Fights ${CC.GRAY}(Right Click)")
+                    .name("${CC.GOLD}Play Bot Fights ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
@@ -277,7 +272,7 @@ object LobbyHotbarService
             1,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.DIAMOND_SWORD)
-                    .name("${CC.PRI}Play Ranked ${CC.GRAY}(Right Click)")
+                    .name("${CC.AQUA}Play Ranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->

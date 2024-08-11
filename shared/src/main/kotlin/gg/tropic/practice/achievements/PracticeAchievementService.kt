@@ -25,8 +25,8 @@ object PracticeAchievementService
             "Duels", XMaterial.LIME_DYE
         )
 
-        AchievementService.registerAchievement(
+        /*AchievementService.registerAchievement(
             AchievementRegistry.firstBlood
-        )
+        )*/
     }
 }

@@ -8,7 +8,6 @@ import gg.tropic.practice.games.teleportToSpawnLocation
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.rating.MapRatingService
-import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.settings.isASilentSpectator
 import me.lucko.helper.Events
@@ -16,7 +15,6 @@ import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.math.Numbers
@@ -85,7 +83,14 @@ class GameStopTask(
 
                 for ((index, winner) in players.withIndex())
                 {
-                    val username = if (winner == Globals.PLAYER_BOT_UNIQUE_ID) game.robotInstance?.name() ?: "Robot" else winner.username()
+                    val username = if (winner in Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS)
+                    {
+                        game.robot(winner)?.name() ?: "Robot"
+                    } else
+                    {
+                        winner.username()
+                    }
+
                     withMessage(CC.YELLOW + username)
                         .andHoverOf(
                             "${CC.GREEN}Click to view inventory!"

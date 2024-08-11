@@ -21,7 +21,7 @@ abstract class TemplateMapMenu : PaginatedMenu()
 {
     init
     {
-        placeholdBorders = true
+        placeholder = true
     }
 
     abstract fun filterDisplayOfMap(map: gg.tropic.practice.map.Map): Boolean
@@ -44,13 +44,15 @@ abstract class TemplateMapMenu : PaginatedMenu()
 
     override fun getPageButtonSlots() = 18 to 26
 
-    private val filteredMaps = MapService
-        .cached()
-        .maps
-        .values
-        .filter {
-            !it.locked && filterDisplayOfMap(it)
-        }
+    private val filteredMaps by lazy {
+        MapService
+            .cached()
+            .maps
+            .values
+            .filter {
+                !it.locked && filterDisplayOfMap(it)
+            }
+    }
 
     fun getAvailableMaps() = filteredMaps
     fun ensureMapsAvailable() = filteredMaps.isNotEmpty()

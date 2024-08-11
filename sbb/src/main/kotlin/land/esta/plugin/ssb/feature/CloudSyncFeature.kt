@@ -21,7 +21,7 @@ object CloudSyncFeature
     {
         CloudSyncDiscoveryService
             .discoverable.assets.add(
-                "land.esta.practice:sbb:EstaPractice-sbb${
+                "gg.solara.practice:sbb:SolaraPractice-sbb${
                     if ("mipdev" in ServerSync.getLocalGameServer().groups) ":gradle-dev" else ""
                 }"
             )

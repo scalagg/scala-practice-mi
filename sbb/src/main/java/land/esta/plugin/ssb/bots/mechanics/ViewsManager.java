@@ -2,18 +2,18 @@ package land.esta.plugin.ssb.bots.mechanics;
 
 import lombok.Getter;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 public class ViewsManager extends Manager {
-    private final List<Player> players;
+    private final List<Player> players = new ArrayList<>();
 
-    public ViewsManager(Bot bot, List<Player> players) {
+    public ViewsManager(Bot bot) {
         super(bot);
-        this.players = players;
     }
 
     public void addPlayer(Player player) {

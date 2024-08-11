@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.*;
@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,7 +56,7 @@ public class EatingAndDrinking extends Feature {
             if (needsHealth) {
                 // Prefer to splash potions
                 if (!getPotions(bot).isEmpty()) {
-                    EstaRobotsPlugin.getInstance().getFeatureManager().getHealthPotionThrowing()
+                    SolaraRobotsPlugin.getInstance().getFeatureManager().getHealthPotionThrowing()
                             .splash(
                                     bot,
                                     bot.getFleeManager().getTicks(),

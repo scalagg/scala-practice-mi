@@ -16,7 +16,7 @@ if (currentBranch == "development") {
 }
 
 allprojects {
-    group = "land.esta.practice"
+    group = "gg.solara.practice"
     version = "1.0.0${
         if (currentBranch == "development") "-dev" else ""
     }"
@@ -77,7 +77,7 @@ subprojects {
             )
 
             archiveFileName.set(
-                "EstaPractice-${project.name}.jar"
+                "SolaraPractice-${project.name}.jar"
             )
         }
 

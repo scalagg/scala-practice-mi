@@ -30,6 +30,17 @@ object MapDataSync : DPSDataSync<ImmutableMapContainer>()
     override fun keys() = DPSMapKeys
     override fun type() = ImmutableMapContainer::class.java
 
+    fun selectMapIfCompatible(kit: ImmutableKit, mapID: String?): ImmutableMap?
+    {
+        val groups = KitGroupDataSync.groupsOf(kit)
+            .map(ImmutableKitGroup::id)
+
+        return cached().maps.values
+            .filterNot(ImmutableMap::locked)
+            .filter { groups.intersect(it.associatedKitGroups).isNotEmpty() }
+            .firstOrNull { if (mapID == null) true else it.name == mapID }
+    }
+
     fun selectRandomMapCompatibleWith(kit: ImmutableKit): ImmutableMap?
     {
         val groups = KitGroupDataSync.groupsOf(kit)

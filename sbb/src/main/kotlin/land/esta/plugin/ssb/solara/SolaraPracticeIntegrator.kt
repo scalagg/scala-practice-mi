@@ -1,60 +1,31 @@
-package land.esta.plugin.ssb.estapractice
+package land.esta.plugin.ssb.solara
 
-import gg.tropic.practice.Globals.PLAYER_BOT_UNIQUE_ID
+import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameImpl
+import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
-import land.esta.plugin.ssb.EstaRobotsPlugin.Companion.instance
-import land.esta.plugin.ssb.bot.setting.setting.root
+import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
+import land.esta.plugin.ssb.bot.fixInventoryBasedOnRBTeamColor
+import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
 import land.esta.plugin.ssb.botevents.Event
 import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
 import land.esta.plugin.ssb.botevents.events.BotDamageEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.utils.Color
-import land.esta.plugin.ssb.utils.RandomUtil
 import land.esta.plugin.ssb.utils.objects.EventRunnable
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import net.evilblock.cubed.ScalaCommonsSpigot
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import java.util.logging.Logger
 
-object EstaPracticeIntegrator
+object SolaraPracticeIntegrator
 {
-    fun spawn(
-        location: Location,
-        game: GameImpl,
-        player: Player
-    ): Bot?
+    fun spawn(location: Location, game: GameImpl, settings: SettingProfile): Bot
     {
-        val selectedBot = ScalaCommonsSpigot.instance.kvConnection.sync()
-            .get(
-                "tropicpractice:bot-selection:${game.humanSide().players[0]}"
-            )
-
-        if (selectedBot == null)
-        {
-            Logger.getGlobal().info("No bot configuration was found!")
-            return null
-        }
-
-        val split = selectedBot.split(":")
-        val settings = loadSettingsFromSelection(
-            player,
-            split[0],
-            split.getOrNull(1)
-        )?.deepCopy()
-
-        if (settings == null)
-        {
-            Logger.getGlobal().info("No bot configuration was found!")
-            return null
-        }
-
         if (settings.randomizerEnabled == true)
         {
             for (value in settings.settings.values)
@@ -70,17 +41,18 @@ object EstaPracticeIntegrator
             name = name.substring(0, 16)
         }
 
+        val consume = game.consumedBots.getAndIncrement()
         val bot = Bot(
+            Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS.getOrNull(consume)
+                ?: throw IllegalStateException("A game may not have more than 10 bots!"),
             location,
             Color.code(name),
-            player,
             game,
             settings,
             game.kit
         )
 
         val noDamageMatch = game.flagMetaData(FeatureFlag.DoNotTakeDamage, "doDamageTick") == "true"
-
         if (noDamageMatch)
         {
             Events
@@ -88,7 +60,11 @@ object EstaPracticeIntegrator
                 .handler { event ->
                     if (event.entity is Player)
                     {
-                        if (event.entity == player)
+                        val attackGame = GameService
+                            .byPlayer(event.entity as Player)
+                            ?: return@handler
+
+                        if (attackGame == game)
                         {
                             event.damage = 0.0
                         }
@@ -104,7 +80,7 @@ object EstaPracticeIntegrator
         if (game.flag(FeatureFlag.DeathOnLiquidInteraction))
         {
             bot.movements.isEdgeDetector = true
-            bot.movements.collision.waterEnterEvent = Runnable { bot.silentKill() }
+            bot.movements.collision.waterEnterEvent = Runnable { bot.destroy() }
         }
 
         if (game.flag(FeatureFlag.DeathBelowYAxis))
@@ -116,6 +92,7 @@ object EstaPracticeIntegrator
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {
             val robot = game.robotSide()
+            val playerSide = game.humanSide()
             val metadata = game.flagMetaData(FeatureFlag.WinWhenNHitsReached, "hits")!!
                 .toInt()
 
@@ -123,9 +100,10 @@ object EstaPracticeIntegrator
                 if (event is BotDamageEvent)
                 {
                     if (event.source != null && event.source.entity != null &&
-                        event.source.entity.uniqueID == player.uniqueId
+                        event.source.entity.uniqueID in playerSide.players
                     )
                     {
+                        val player = event.source.entity.bukkitEntity as Player
                         val playerCounter = game.counter(player)
                         game.humanSide().gameLifecycleArbitraryObjectiveProgress += 1
                         game.humanSide().playerCombos.compute(player.uniqueId) { _, combo -> (combo ?: 0) + 1 }
@@ -144,8 +122,6 @@ object EstaPracticeIntegrator
                         val dataPlayer = instance!!.dataManager.getPlayer(player)
                         dataPlayer?.hit()
 
-                        robot.playerCombos[PLAYER_BOT_UNIQUE_ID] = 0
-
                         if (game.humanSide().gameLifecycleArbitraryObjectiveProgress >= metadata)
                         {
                             bot.kill()
@@ -161,7 +137,7 @@ object EstaPracticeIntegrator
                     robot.gameLifecycleArbitraryObjectiveProgress += 1
                     game.humanSide().playerCombos.clear()
 
-                    val dataPlayer = instance!!.dataManager.getPlayer(player)
+                    val dataPlayer = instance!!.dataManager.getPlayer(event.player)
                     dataPlayer?.botHit()
 
                     if (robot.gameLifecycleArbitraryObjectiveProgress >= metadata)
@@ -262,6 +238,8 @@ object EstaPracticeIntegrator
                 inventoryManager.updateArmorContents(itemStack.clone(), index + 1)
             }
 
+        bot.fixInventoryBasedOnRBTeamColor()
+
         Schedulers
             .sync()
             .runLater({
@@ -269,13 +247,13 @@ object EstaPracticeIntegrator
                     game.kit
                         .potionEffects
                         .entries
-                        .stream()
-                        .map { pair: Map.Entry<String?, Int?> ->
+                        .map { pair ->
                             PotionEffect(
-                                PotionEffectType.getByName(pair.key), Int.MAX_VALUE, pair.value!!
+                                PotionEffectType.getByName(pair.key),
+                                Int.MAX_VALUE,
+                                pair.value
                             )
                         }
-                        .toList()
                 )
             }, 1L)
             .bindWith(bot.terminable)

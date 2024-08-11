@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.events.Manager;
+import land.esta.plugin.ssb.bots.managers.Manager;
 import me.lucko.helper.Schedulers;
 import org.bukkit.potion.PotionEffectType;
 

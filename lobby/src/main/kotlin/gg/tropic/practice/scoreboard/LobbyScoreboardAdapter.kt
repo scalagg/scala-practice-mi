@@ -91,11 +91,11 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.PRI}Party:"
 
             with(profile.partyOf().delegate) {
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.WHITE}Leader: ${CC.PRI}${
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.GRAY}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.WHITE}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Party is " + status.capitalized + "..."
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.GRAY}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Party is " + status.capitalized + "..."
             }
         } else
         {
@@ -104,7 +104,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 board += ""
                 board += "${CC.GRAY}Level: ${CC.GREEN}${
                     Numbers.format(coreProfile.level)
-                }"
+                } ✪"
                 board += "${CC.GRAY}Coins: ${CC.GOLD}${
                     Numbers.format(coreProfile.coins)
                 } ⛃"
@@ -143,7 +143,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += ""
                             board += "${CC.GRAY}NA/EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)
-                            } ${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
+                            } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.euServerTotalPlayers)
                             }"
 

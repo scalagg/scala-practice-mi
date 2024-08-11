@@ -239,7 +239,7 @@ data class Option<T : Any>(
 //                        } ${CC.GREEN}◀▶ ${CC.WHITE}${
 //                            "%.2f".format(setting.randomizerMinMax.second.toFloat())
 //                        }${CC.GRAY})"
-                        setting.toInternalValue().randomizeRange(setting.randomizer)
+                        setting.getObject().toInternalValue().randomizeRange(setting.randomizer)
                     }",
                     "",
                     "${CC.GREEN}▲ ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${

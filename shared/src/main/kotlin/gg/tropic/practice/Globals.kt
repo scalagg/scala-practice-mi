@@ -9,5 +9,9 @@ import java.util.UUID
 object Globals
 {
     @JvmStatic
-    val PLAYER_BOT_UNIQUE_ID = UUID.fromString("00000000-0000-0000-0000-000000000008")
+    val POSSIBLE_PLAYER_BOT_UNIQUE_IDS = (1..9)
+        .map {
+            UUID.fromString("00000000-0000-0000-0000-00000000000$it")
+        }
+        .toTypedArray()
 }

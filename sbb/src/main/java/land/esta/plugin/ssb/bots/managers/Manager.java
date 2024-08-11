@@ -1,6 +1,6 @@
-package land.esta.plugin.ssb.bots.events;
+package land.esta.plugin.ssb.bots.managers;
 
-import land.esta.plugin.ssb.EstaRobotsPlugin;
+import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.impl.ParallelKt;
 import lombok.Getter;
 import land.esta.plugin.ssb.botevents.BotEvent;
@@ -24,14 +24,14 @@ public class Manager {
 
     public void callEventAsync(Event event) {
         ParallelKt.getAsyncEventThreadPool().submit(() -> {
-            for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
+            for (BotEvent events : SolaraRobotsPlugin.getInstance().getEventManager().getEvents()) {
                 events.call(event);
             }
         });
     }
 
     public void callEvent(Event event) {
-        for (BotEvent events : EstaRobotsPlugin.getInstance().getEventManager().getEvents()) {
+        for (BotEvent events : SolaraRobotsPlugin.getInstance().getEventManager().getEvents()) {
             events.call(event);
         }
     }
@@ -40,6 +40,11 @@ public class Manager {
     public void tickEarly() {}
     public void tickLate() {}
     public void tick() {}
+
+    public boolean earlyShouldContinue()
+    {
+        return true;
+    }
 
     public double getDistance() {
         var location = bot.getMovements().getTargetLocate().getTargetEntity().getLocation();

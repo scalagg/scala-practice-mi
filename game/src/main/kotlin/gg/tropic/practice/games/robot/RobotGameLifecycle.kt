@@ -1,7 +1,6 @@
 package gg.tropic.practice.games.robot
 
 import gg.tropic.practice.games.GameImpl
-import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -9,7 +8,7 @@ import java.util.concurrent.CompletableFuture
  */
 object RobotGameLifecycle
 {
-    var createNewRobotInstance: (GameImpl) -> CompletableFuture<RobotInstance?> = {
+    var createNewRobotInstances: (GameImpl) -> Set<RobotInstance> = {
         throw UnsupportedOperationException("Robot integration not available")
     }
 }
