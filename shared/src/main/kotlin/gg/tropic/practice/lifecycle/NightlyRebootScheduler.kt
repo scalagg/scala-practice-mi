@@ -55,7 +55,7 @@ object NightlyRebootScheduler
                     it.player.sendMessage("${CC.GREEN}This instance is scheduled for a nightly reboot in ${
                         TimeUtil.formatIntoAbbreviatedString((newDuration.toMillis() / 1000L).toInt())
                     }")
-                    it.player.sendMessage("${CC.GRAY}Instance has been online for ${
+                    it.player.sendMessage("${CC.GRAY}This instance has been online for ${
                         TimeUtil.formatIntoAbbreviatedString(((System.currentTimeMillis() - serverInitial) / 1000L).toInt())
                     }")
                 }
