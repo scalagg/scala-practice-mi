@@ -19,7 +19,7 @@ public class FleeManager extends Manager {
     private boolean enabled = true;
     private boolean paused = false;
     private int ticks;
-    private int offTicks;
+    private int ticksSinceLastFlee;
 
     private boolean running;
     private boolean runningFromCombo;
@@ -40,12 +40,12 @@ public class FleeManager extends Manager {
         if (!paused) {
             if (active) {
                 ticks++;
-                offTicks = 0;
+                ticksSinceLastFlee = 0;
             }
 
             if (!active) {
                 ticks = 0;
-                offTicks++;
+                ticksSinceLastFlee++;
             }
         } else {
             return;

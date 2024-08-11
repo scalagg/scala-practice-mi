@@ -6,6 +6,7 @@ import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.features.FireballFeature
 
 /**

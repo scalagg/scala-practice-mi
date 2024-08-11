@@ -2,24 +2,28 @@ package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
-import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
+import land.esta.plugin.ssb.npc.nms.FixedEntityFishingHook;
 import me.lucko.helper.Schedulers;
+import me.lucko.helper.promise.Promise;
+import net.minecraft.server.v1_8_R3.DamageSource;
+import net.minecraft.server.v1_8_R3.EntityEnderPearl;
+import net.minecraft.server.v1_8_R3.EntityHuman;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class Pearling extends Feature {
 
@@ -29,7 +33,7 @@ public class Pearling extends Feature {
         List<ItemStack> pearls = getPearls(bot);
 
         if (pearls.isEmpty()) return;
-        if (bot.getFleeManager().getOffTicks() < 10) return;
+        if (bot.getFleeManager().getTicksSinceLastFlee() < 10) return;
         if (bot.getHealthManager().getHealth() < bot.getMovements().getTargetLocate().getTargetEntity().getHealth())
             return;
         if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))
@@ -37,28 +41,55 @@ public class Pearling extends Feature {
         if (bot.getPearlTick() < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlDelay()))
             return;
 
+        bot.setPearlTick(0);
         pearl(pearls.get(0), bot);
+    }
+
+    public void testPearl(Bot bot) {
+        pearl(getPearls(bot).get(0), bot);
     }
 
     public void pearl(ItemStack pearl, Bot bot) {
         bot.getInventoryManager().setMainHand(itemSlot(pearl, bot));
 
-        Schedulers
-                .sync()
-                .runLater(() -> {
+        Promise.start()
+                .thenRunDelayedSync(() -> {
                     if (!bot.isAlive()) return;
-                    Location location = bot.getMovements().getLocation();
-                    location.setYaw(location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()));
-                    location.setPitch(3);
-                    updateLocation(bot, location);
-                    bot.getInventoryManager().setMainHand(1);
 
-                    if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference()))
+                    if (getAngle(bot) < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getAngleDifference())) {
                         return;
+                    }
+
+                    final Location location = bot.getMovements().getLocation();
+                    bot.getMovements().rotate(
+                            location.getYaw() + bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlThrowYawOffSet()),
+                            3.0F
+                    );
+
+                    bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 1000L);
+                    bot.getAttackingManager().swing();
                     bot.getInventoryManager().removeItem(itemSlot(pearl, bot));
-                    bot.getNpc().getBukkitEntity().launchProjectile(EnderPearl.class);
+
+                    launchProjectile(
+                            bot.getNpc().getBukkitEntity().getHandle(),
+                            bot.getMovements().getLocation().getDirection()
+                    );
                 }, bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()))
+                .thenRunDelayedSync(() -> {
+                    bot.getInventoryManager().setMainHand(1);
+                }, 10L)
                 .bindWith(bot.getTerminable());
+    }
+
+    public EntityEnderPearl launchProjectile(EntityHuman human, Vector targetLocation) {
+        EntityEnderPearl launch = new EntityEnderPearl(human.getWorld(), human);
+
+        Validate.notNull(launch, "Projectile not supported");
+
+        ((Projectile) launch.getBukkitEntity()).setVelocity(targetLocation);
+
+        human.getWorld().addEntity(launch);
+        return launch;
     }
 
     public void updateLocation(Bot bot, Location location) {
@@ -72,24 +103,17 @@ public class Pearling extends Feature {
     }
 
     @EventHandler
-    public void teleport(ProjectileLaunchEvent event) {
+    public void teleport(ProjectileHitEvent event) {
         if (!event.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
         if (event.getEntity().getShooter() instanceof LivingEntity shooter) {
             Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
             if (bot == null) return;
-            final Location[] trackedLoc = {event.getEntity().getLocation()};
 
-            Schedulers
-                    .sync()
-                    .runRepeating(task -> {
-                        if (event.getEntity().isDead()) {
-                            updateLocation(bot, trackedLoc[0]);
-                            task.closeAndReportException();
-                        } else {
-                            trackedLoc[0] = event.getEntity().getLocation();
-                        }
-                    }, 1L, 1L)
-                    .bindWith(bot.getTerminable());
+            var location = event.getEntity().getLocation().clone();
+            location.setY(location.getY() + 0.1);
+            location.setYaw(bot.getMovements().getLocation().getYaw());
+            location.setPitch(bot.getMovements().getLocation().getPitch());
+            updateLocation(bot, location);
         }
     }
 

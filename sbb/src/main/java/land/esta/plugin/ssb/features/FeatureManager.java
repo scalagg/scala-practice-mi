@@ -14,6 +14,7 @@ public class FeatureManager {
     private final HealthPotionThrowing healthPotionThrowing;
     private final BuildingFeature buildingFeature;
     private final EatingAndDrinking eatingAndDrinking;
+    private final Pearling pearling;
 
     public FeatureManager() {
         features = new ArrayList<>();
@@ -21,7 +22,7 @@ public class FeatureManager {
         addFeature(eatingAndDrinking = new EatingAndDrinking());
         addFeature(healthPotionThrowing = new HealthPotionThrowing());
         addFeature(new ArmorEquipFeature());
-        addFeature(new Pearling());
+        addFeature(pearling = new Pearling());
         addFeature(strafeFeature = new StrafeFeature());
         addFeature(new Soups());
         addFeature(new WTapFeature());
