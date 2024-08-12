@@ -3,6 +3,7 @@ package gg.tropic.practice.commands
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandCompletion
+import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AssignPermission
@@ -28,7 +29,7 @@ import java.util.concurrent.CompletableFuture
 @CommandAlias("statresettokens|srtokens|statresets")
 object StatResetTokenCommand : ScalaCommand()
 {
-    @AssignPermission
+    @CommandPermission("practice.command.statresettokens.give")
     @CommandCompletion("@players")
     @Subcommand("give")
     fun onGive(sender: CommandSender, target: AsyncLemonPlayer, amount: Int) =
