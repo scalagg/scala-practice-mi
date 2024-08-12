@@ -64,13 +64,13 @@ public class StrafeFeature extends Feature {
         if (event instanceof BotDamageEvent) {
             int currentCombo = bot.getCombo() + 1;
             bot.setCombo(currentCombo);
-            if (currentCombo > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.getBot().getFleeManager().isRunning()) {
-                bot.getFleeManager().setRunningFromCombo(true);
+            if (currentCombo > bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosHits()) && bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombos()) && !event.getBot().getFleeManager().isFleeing()) {
+                bot.getFleeManager().setFleeing(true);
                 bot.setCombo(0);
 
                 var time = bot.getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getRunFromCombosTime());
                 Schedulers.sync()
-                          .runLater(() -> bot.getFleeManager().setRunningFromCombo(false), time)
+                          .runLater(() -> bot.getFleeManager().setFleeing(false), time)
                           .bindWith(bot.getTerminable());
             }
         }

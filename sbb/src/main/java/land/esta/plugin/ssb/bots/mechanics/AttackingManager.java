@@ -47,9 +47,11 @@ public class AttackingManager extends Manager {
     public void tickEarly() {
         if (!landAttack) return;
         landAttack = false;
+
         Event event = new BotAttackLandEvent(getBot(), getBot().getMovements().getTargetLocate().getTargetEntity());
         getBot().getEventListener().run(event); // Additional calling
         callEvent(event);
+        getBot().getVelocityCalculator().setSprinting(false);
     }
 
     @Override

@@ -702,7 +702,6 @@ object GameService
                 it.item.hasItemMeta() && it.item.itemMeta.displayName.contains("Golden Head")
             }
             .handler {
-                it.isCancelled = true
                 it.player.playSound(
                     it.player.location, Sound.EAT, 10f, 1f
                 )
