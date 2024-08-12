@@ -39,6 +39,10 @@ data class Map(
 {
     var locked = false
 
+    fun findSpawnLocations() = metadata
+        .metadata
+        .filterIsInstance<MapSpawnMetadata>()
+
     fun findMapLevelRestrictions() = metadata
         .metadata
         .filterIsInstance<MapLevelMetadata>()

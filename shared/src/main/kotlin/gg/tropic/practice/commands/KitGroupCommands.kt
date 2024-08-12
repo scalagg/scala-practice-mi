@@ -10,6 +10,7 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupContainer
 import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.MapService
 import gg.tropic.practice.serializable.Message
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
@@ -73,6 +74,12 @@ object KitGroupCommands : ScalaCommand()
                 "${CC.RED}None"
             )
         }
+
+        player.sendMessage("Maps:")
+        MapService.maps().filter { it.associatedKitGroups.contains(kitGroup.id) }
+            .forEach {
+                player.sendMessage("- ${it.name}")
+            }
     }
 
     @AssignPermission

@@ -271,7 +271,8 @@ object GameService
                 val tnt = event.damager as? TNTPrimed ?: return@handler
                 val source = tnt.source ?: return@handler
 
-                if (source is Player) {
+                if (source is Player)
+                {
                     event.damage = 1.0
 
                     if (source == player)
@@ -903,20 +904,22 @@ object GameService
                                         .sync()
                                         .runRepeating({ _ ->
                                             audiences.player(it.player).apply {
-                                                showTitle(Title.title(
-                                                    Component
-                                                        .text("CAMP PROTECTION")
-                                                        .color(NamedTextColor.RED)
-                                                        .decorate(TextDecoration.BOLD),
-                                                    Component
-                                                        .text("Return to the map!")
-                                                        .color(NamedTextColor.GRAY),
-                                                    Title.Times.times(
-                                                        Duration.ofMillis(10L),
-                                                        Duration.ofMillis(1500L),
-                                                        Duration.ofMillis(10L)
+                                                showTitle(
+                                                    Title.title(
+                                                        Component
+                                                            .text("CAMP PROTECTION")
+                                                            .color(NamedTextColor.RED)
+                                                            .decorate(TextDecoration.BOLD),
+                                                        Component
+                                                            .text("Return to the map!")
+                                                            .color(NamedTextColor.GRAY),
+                                                        Title.Times.times(
+                                                            Duration.ofMillis(10L),
+                                                            Duration.ofMillis(1500L),
+                                                            Duration.ofMillis(10L)
+                                                        )
                                                     )
-                                                ))
+                                                )
                                             }
                                         }, 0L, 20L)
                                         .bindWith(terminable)
@@ -1598,12 +1601,20 @@ object GameService
                     return@handler
                 }
 
-                if (it.block.hasMetadata("tropicbed"))
+                if (
+                    it.block.type == Material.BED_BLOCK &&
+                    game.lifecycle() == GameLifecycle.ObjectivePlusSoulBound
+                )
                 {
-                    val tropicBedSide = it.block
-                        .getMetadata("tropicbed")
-                        .first()
-                        .asString()
+                    val nearestSpawnLocation = game.map.findSpawnLocations()
+                        .minByOrNull { spawn ->
+                            spawn.position
+                                .toLocation(it.block.world)
+                                .distanceSquared(it.block.location)
+                        }
+                        ?: return@handler
+
+                    val tropicBedSide = nearestSpawnLocation.id
 
                     val currentTeam = game.getTeamOf(it.player)
                     val currentSide = currentTeam.side.name.lowercase()
@@ -1647,6 +1658,7 @@ object GameService
                                 )
                             }
 
+                        it.block.drops.clear()
                         it.isCancelled = false
                         return@handler
                     }

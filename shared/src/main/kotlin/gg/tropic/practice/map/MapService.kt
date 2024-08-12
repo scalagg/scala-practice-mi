@@ -37,6 +37,11 @@ object MapService : DataSyncService<MapContainer>()
             it.name.equals(id, true)
         }
 
+    fun mapWithSlime(id: String) = cached().maps.values
+        .firstOrNull {
+            it.associatedSlimeTemplate.equals(id, true)
+        }
+
     var onPostReload = {}
     override fun postReload()
     {
