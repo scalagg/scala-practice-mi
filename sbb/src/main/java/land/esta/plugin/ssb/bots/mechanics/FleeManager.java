@@ -1,9 +1,10 @@
 package land.esta.plugin.ssb.bots.mechanics;
 
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import land.esta.plugin.ssb.botevents.events.RunningEvent;
+import land.esta.plugin.ssb.botevents.events.FleeEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.bots.managers.Manager;
 import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.submovements.TargetLocate;
@@ -14,15 +15,14 @@ import org.bukkit.util.Vector;
 @Setter
 public class FleeManager extends Manager {
 
-    private boolean active;
-    private double clcBlocks = getBot().getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getCalculatedDistance());
-    private boolean enabled = true;
-    private boolean paused = false;
-    private int ticks;
-    private int ticksSinceLastFlee;
+    private final double clcBlocks = getBot().getProfile().value(RootAccessor.INSTANCE.getFleeSettings().getCalculatedDistance());
 
-    private boolean running;
-    private boolean runningFromCombo;
+    private boolean active;
+    @Setter(AccessLevel.PRIVATE) private int ticks;
+    @Setter(AccessLevel.PRIVATE) private int ticksSinceLastFlee;
+
+    private boolean paused = false;
+    private boolean fleeing;
 
     public FleeManager(Bot bot) {
         super(bot);
@@ -52,14 +52,15 @@ public class FleeManager extends Manager {
         }
 
         //Event
-        if (running) {
-            RunningEvent runningEvent;
-            callEvent(runningEvent = new RunningEvent(getBot(), ticks));
-            if (runningEvent.isShouldPause()) {
+        if (fleeing) {
+            FleeEvent fleeEvent = new FleeEvent(getBot(), ticks);
+            callEvent(fleeEvent);
+
+            if (fleeEvent.isShouldPause()) {
                 paused = true;
             } else {
-                if (runningEvent.isForceEnd()) {
-                    running = false;
+                if (fleeEvent.isForceEnd()) {
+                    fleeing = false;
                     active = false;
                 }
             }
@@ -67,8 +68,8 @@ public class FleeManager extends Manager {
 
         //Running system
         finder.setOverwriteLocation(!active);
-
         if (!active) return;
+
         Vector direction = getBot().getMovements().getLocation().toVector().subtract(finder.getTargetEntity().getLocation().toVector()).setY(0).normalize();
         Location oppositeLoc = direction.multiply(clcBlocks).add(getBot().getMovements().getLocation().toVector()).toLocation(getBot().getMovements().getLocation().getWorld());
 
@@ -76,9 +77,7 @@ public class FleeManager extends Manager {
     }
 
     public boolean check() {
-        if (!enabled) return false;
         return getBot().getInventoryManager().isRequiredToEat() ||
-                running || getBot().getInventoryManager().isEating() ||
-                runningFromCombo;
+                fleeing || getBot().getInventoryManager().isEating();
     }
 }

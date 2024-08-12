@@ -7,13 +7,13 @@ import land.esta.plugin.ssb.bots.Bot;
 
 @Getter
 @Setter
-public class RunningEvent extends Event {
+public class FleeEvent extends Event {
 
     private boolean forceEnd;
     private boolean shouldPause;
     private int ticks;
 
-    public RunningEvent(Bot bot,int ticks) {
+    public FleeEvent(Bot bot, int ticks) {
         super(bot);
         this.ticks = ticks;
     }

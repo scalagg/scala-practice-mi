@@ -36,6 +36,4 @@ public class ViewsManager extends Manager {
             player.hidePlayer(bot.getNpc().getBukkitEntity());
         }
     }
-
-
 }

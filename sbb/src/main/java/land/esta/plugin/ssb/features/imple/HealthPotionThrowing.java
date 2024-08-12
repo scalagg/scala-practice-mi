@@ -3,10 +3,9 @@ package land.esta.plugin.ssb.features.imple;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.botevents.Event;
 import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
-import land.esta.plugin.ssb.botevents.events.RunningEvent;
+import land.esta.plugin.ssb.botevents.events.FleeEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import me.lucko.helper.Schedulers;
 import me.lucko.helper.promise.Promise;
 import me.lucko.helper.promise.ThreadContext;
 import net.minecraft.server.v1_8_R3.*;
@@ -42,18 +41,18 @@ public class HealthPotionThrowing extends Feature {
             if (potions.isEmpty()) return;
 
             //Set running
-            bot.getFleeManager().setRunning(true);
+            bot.getFleeManager().setFleeing(true);
 
             //Set holding
             bot.getInventoryManager().setMainHand(bot.getInventoryManager().getItemSlot(potions.get(0)));
         }
 
-        if (event instanceof RunningEvent runningEvent) {
-            splash(runningEvent.getBot(), runningEvent.getTicks(), () -> {
-                runningEvent.setForceEnd(true);
-                runningEvent.getBot().getFleeManager().setRunning(false);
+        if (event instanceof FleeEvent fleeEvent) {
+            splash(fleeEvent.getBot(), fleeEvent.getTicks(), () -> {
+                fleeEvent.setForceEnd(true);
+                fleeEvent.getBot().getFleeManager().setFleeing(false);
             }, true, () -> {
-                runningEvent.setShouldPause(true);
+                fleeEvent.setShouldPause(true);
             });
         }
     }

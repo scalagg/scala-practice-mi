@@ -233,9 +233,9 @@ public class MovementsMain extends Manager {
 
         Schedulers
                 .sync()
-                .run(() -> {
+                .runLater(() -> {
                     bot.getNpc().setSprinting(attackSprint);
-                })
+                }, 1L)
                 .bindWith(bot.getTerminable());
     }
 
