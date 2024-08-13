@@ -465,7 +465,7 @@ object GameService
             val deathMessage = "${CC.RED}$killedName${CC.GRAY} ${
                 if (event.alternativeDeath && killerPlayer == null) "fell into the void" else "was ${
                     if (killerPlayer == null || killerPlayer == this) "killed" else "${
-                        if (game.robot()) "killed" else if (killerPlayer is Player) getMessageBundlePhrase(killerPlayer) else "killed"
+                        if (game.robot()) "killed" else (if (killerPlayer is Player) getMessageBundlePhrase(killerPlayer) else "killed")
                     } by ${CC.GREEN}$killerName${CC.GRAY}"
                 }"
             }!"
@@ -618,6 +618,14 @@ object GameService
                 }
             }
         }
+
+        Events
+            .subscribe(EntityDamageEvent::class.java)
+            .filter { it.cause == DamageCause.VOID }
+            .handler {
+                it.isCancelled = true
+            }
+            .bindWith(plugin)
 
         Events
             .subscribe(PlayerInteractEvent::class.java)
