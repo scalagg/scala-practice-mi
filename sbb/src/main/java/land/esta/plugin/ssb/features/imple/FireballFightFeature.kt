@@ -1,9 +1,6 @@
 package land.esta.plugin.ssb.features.imple
 
-import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.features.Feature
-import land.esta.plugin.ssb.utils.fb.Island
-import org.bukkit.entity.Player
 
 class FireballFightFeature : Feature()
 {

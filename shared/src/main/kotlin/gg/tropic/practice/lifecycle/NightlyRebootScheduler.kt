@@ -49,7 +49,7 @@ object NightlyRebootScheduler
             .subscribe(PlayerJoinEvent::class.java)
             .filter { it.player.isOp }
             .handler {
-                val newDuration = Duration.between(now, nextTime)
+                val newDuration = Duration.between(now(), nextTime)
 
                 Tasks.delayed(1L) {
                     it.player.sendMessage("${CC.GREEN}This instance is scheduled for a nightly reboot in ${

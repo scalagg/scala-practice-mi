@@ -64,12 +64,20 @@ class GameStopTask(
 
             if (game.flag(FeatureFlag.DeathBelowYAxis))
             {
+                val metadata = game
+                    .flagMetaData(FeatureFlag.DeathBelowYAxis, "level")
+                    ?.toIntOrNull()
+                    ?: 0
+
                 for ((_, team) in game.teams)
                 {
                     team.toBukkitPlayers()
                         .filterNotNull()
                         .forEach {
-                            game.teleportToSpawnLocation(it)
+                            if (it.location.y <= metadata)
+                            {
+                                game.teleportToSpawnLocation(it)
+                            }
                         }
                 }
             }
