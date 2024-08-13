@@ -74,6 +74,7 @@ public class Bot {
     private List<Location> blockedLocations = new ArrayList<>();
     private long lastPlacedBlockUp = System.currentTimeMillis();
     private long lastLiquid = System.currentTimeMillis();
+    private long lastSuffocationDamage = System.currentTimeMillis();
 
     private final UUID solaraID;
 

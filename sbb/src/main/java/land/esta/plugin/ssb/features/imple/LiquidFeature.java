@@ -14,15 +14,21 @@ public class LiquidFeature extends Feature {
         Block above = bot.getMovements().getLocation().clone().add(0, 1, 0).getBlock();
         if (!block.isLiquid()) return;
 
-        boolean lava = block.getType().equals(Material.LAVA) || block.getType().equals(Material.STATIONARY_LAVA);
-        boolean water = block.getType().equals(Material.WATER) || block.getType().equals(Material.STATIONARY_WATER);
+        boolean lava = block.getType().equals(Material.LAVA) || block.getType().equals(Material.STATIONARY_LAVA) || above.getType().equals(Material.LAVA) || above.getType().equals(Material.STATIONARY_LAVA);
+        boolean water = block.getType().equals(Material.WATER) || block.getType().equals(Material.STATIONARY_WATER) || above.getType().equals(Material.WATER) || above.getType().equals(Material.STATIONARY_WATER);
 
-        if (!lava) {
-            lava = above.getType().equals(Material.LAVA) || above.getType().equals(Material.STATIONARY_LAVA);
-        }
+        if (block.getType().equals(Material.FIRE)) {
+            int fireRess = bot.getEffectsManager().getLevel(PotionEffectType.FIRE_RESISTANCE);
 
-        if (!water) {
-            water = above.getType().equals(Material.WATER) || above.getType().equals(Material.STATIONARY_WATER);
+            if (fireRess != 0) return;
+            if (System.currentTimeMillis() - 500 < bot.getLastLiquid()) return;
+
+            bot.setLastLiquid(System.currentTimeMillis());
+
+            bot.getDamageManager().playSound();
+            bot.getDamageManager().damageEffect();
+            bot.getHealthManager().removeHealth(1);
+            bot.getHealthManager().fire(120);
         }
 
         if (lava) {
