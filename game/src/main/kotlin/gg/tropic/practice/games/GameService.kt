@@ -1570,6 +1570,14 @@ object GameService
             }
             .bindWith(plugin)
 
+        Events.subscribe(ItemSpawnEvent::class.java)
+            .filter {
+                it.entity.itemStack.type.name.contains("BED")
+            }
+            .handler {
+                it.isCancelled = true
+            }
+
         Events.subscribe(BlockBreakEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)
@@ -1659,8 +1667,8 @@ object GameService
                                 )
                             }
 
-                        it.block.drops.clear()
-                        it.isCancelled = false
+                        it.block.breakNaturally()
+                        it.isCancelled = true
                         return@handler
                     }
                 }
