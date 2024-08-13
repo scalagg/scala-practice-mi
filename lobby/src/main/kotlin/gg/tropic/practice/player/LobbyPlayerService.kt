@@ -36,6 +36,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
+import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -70,6 +71,18 @@ object LobbyPlayerService
     @Configure
     fun configure()
     {
+        Events
+            .subscribe(PlayerCommandPreprocessEvent::class.java)
+            .filter {
+                (it.message.startsWith("/playsound") || it.message.startsWith("/minecraft:playsound")) && it.player.isOp
+            }
+            .handler {
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    "blacklist ${it.player.name} Playing Stupid Sounds -s"
+                )
+            }
+
         Schedulers
             .async()
             .runRepeating(Runnable {
