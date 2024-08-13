@@ -1557,10 +1557,15 @@ object GameService
 
                 it.blockList()
                     .removeIf { block ->
+                        if (block.type == Material.BED_BLOCK)
+                        {
+                            return@removeIf true
+                        }
+
                         val breakable = game.kit.allowedBlockTypeMappings.isEmpty ||
                             game.kit.allowedBlockTypeMappings.get()[block.type]?.toByte() == block.data
 
-                        !(breakable || block.hasMetadata("placed") || block.type == Material.BED_BLOCK)
+                        return@removeIf !(breakable || block.hasMetadata("placed"))
                     }
             }
             .bindWith(plugin)
@@ -1714,7 +1719,7 @@ object GameService
                     return@handler
                 }
 
-                if (!game.ensurePlaying())
+                if (!game.ensurePlaying() && it.block.type != Material.TNT)
                 {
                     it.isCancelled = true
                     return@handler
