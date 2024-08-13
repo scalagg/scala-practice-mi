@@ -75,6 +75,7 @@ public class Bot {
     private long lastPlacedBlockUp = System.currentTimeMillis();
     private long lastLiquid = System.currentTimeMillis();
     private long lastSuffocationDamage = System.currentTimeMillis();
+    private long lastPlacedWater = System.currentTimeMillis();
 
     private final UUID solaraID;
 

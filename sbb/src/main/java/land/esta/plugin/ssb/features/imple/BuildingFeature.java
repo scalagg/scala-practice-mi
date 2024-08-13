@@ -21,6 +21,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
@@ -248,7 +249,6 @@ public class BuildingFeature extends Feature {
                         bot.getMovements().getRotations().setRotationLockUntil(System.currentTimeMillis() + 500L);
                         bot.getMovements().rotate(yawPitch[0], yawPitch[1]);
                     }
-
 
                     var block = net.minecraft.server.v1_8_R3.Block.getById(location.getBlock().getTypeId());
 
