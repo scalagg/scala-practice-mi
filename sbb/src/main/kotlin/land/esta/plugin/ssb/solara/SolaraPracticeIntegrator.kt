@@ -3,6 +3,7 @@ package land.esta.plugin.ssb.solara
 import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.kit.feature.FeatureFlag
 import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
 import land.esta.plugin.ssb.bot.fixInventoryBasedOnRBTeamColor
@@ -148,24 +149,15 @@ object SolaraPracticeIntegrator
             })
         }
 
-        if (game.flag(FeatureFlag.WinWhenNHitsReached))
-        {
-            if (bot.isAlive)
-            {
-                bot.movements.isMove = true
+        Events
+            .subscribe(GameStartEvent::class.java)
+            .handler {
+                if (bot.isAlive)
+                {
+                    bot.movements.isMove = true
+                }
             }
-        } else
-        {
-            Schedulers
-                .sync()
-                .runLater({
-                    if (bot.isAlive)
-                    {
-                        bot.movements.isMove = true
-                    }
-                }, 5 * 20L)
-                .bindWith(bot.terminable)
-        }
+            .bindWith(bot.terminable)
 
         Events
             .subscribe(PotionSplashEvent::class.java)
