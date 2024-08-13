@@ -108,14 +108,6 @@ object GameService
     val playerToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
     val spectatorToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
 
-    private val ensureCauseDenied = EnumSet.of(
-        DamageCause.BLOCK_EXPLOSION,
-        DamageCause.FIRE,
-        DamageCause.LAVA,
-        DamageCause.STARVATION,
-        DamageCause.LIGHTNING
-    )
-
     @Configure
     fun configure()
     {
@@ -1157,12 +1149,6 @@ object GameService
             .filter { it.entity is Player }
             .handler {
                 if (it.entity.hasMetadata("spectator"))
-                {
-                    it.isCancelled = true
-                    return@handler
-                }
-
-                if (it.cause in ensureCauseDenied)
                 {
                     it.isCancelled = true
                     return@handler
