@@ -49,6 +49,12 @@ class PracticeDevTools : ExtendedScalaPlugin()
     @ContainerEnable
     fun containerEnable()
     {
+        Bukkit.getWorldContainer().listFiles()
+            ?.filter { it.name.startsWith("editor") }
+            ?.forEach {
+                it.deleteRecursively()
+            }
+
         Events
             .subscribe(EntitySpawnEvent::class.java)
             .handler {
@@ -69,12 +75,6 @@ class PracticeDevTools : ExtendedScalaPlugin()
             .filter { it.name.startsWith("editor") }
             .forEach {
                 Bukkit.unloadWorld(it, false)
-            }
-
-        Bukkit.getWorldContainer().listFiles()
-            ?.filter { it.name.startsWith("editor") }
-            ?.forEach {
-                it.deleteRecursively()
             }
     }
 }

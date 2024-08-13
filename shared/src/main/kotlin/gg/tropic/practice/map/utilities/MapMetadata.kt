@@ -23,7 +23,10 @@ data class MapMetadata(
             }
 
         blocks.forEach {
-            it.type = Material.AIR
+            if (it.type == Material.SIGN_POST || it.type == Material.WALL_SIGN)
+            {
+                it.type = Material.AIR
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.MapService
 import gg.tropic.practice.map.administration.MapAdminMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage

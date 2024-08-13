@@ -16,22 +16,15 @@ import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.bots.getBotMetdataOfPlayer
 import gg.tropic.practice.games.robot.RobotGameLifecycle
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.map.metadata.anonymous.toBlockFace
-import gg.tropic.practice.map.metadata.impl.MapBedMetadata
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
 import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
 import gg.tropic.practice.services.ReplicationManagerService
 import me.lucko.helper.Schedulers
-import net.evilblock.cubed.util.bukkit.Tasks
 import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World
-import org.bukkit.block.Block
-import org.bukkit.block.BlockFace
-import org.bukkit.block.BlockState
-import org.bukkit.entity.Item
 import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -391,70 +384,6 @@ object MapReplicationService
 
     private fun Map.prepare(world: World)
     {
-        metadata.metadata
-            .filterIsInstance<MapBedMetadata>()
-            .forEach {
-                Tasks.sync {
-                    val placedBlock = it.position.toLocation(world).block
-                    val blockFaces = listOf(
-                        BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST
-                    )
-
-                    fun attemptPlacement(bedFoot: BlockState, bedHead: BlockState): Boolean
-                    {
-                        if (!(bedFoot.type == Material.AIR && bedHead.type == Material.AIR))
-                        {
-                            return false
-                        }
-
-                        bedFoot.type = Material.BED_BLOCK
-                        bedHead.type = Material.BED_BLOCK
-                        bedFoot.rawData = 0x0.toByte()
-                        bedHead.rawData = 0x8.toByte()
-
-                        bedFoot.update(true, false)
-                        bedHead.update(true, true)
-
-                        bedFoot.block.world.entities
-                            .filterIsInstance<Item>()
-                            .forEach(Item::remove)
-
-                        if (
-                            bedFoot.block.type == Material.BED_BLOCK &&
-                            bedHead.block.type == Material.BED_BLOCK
-                        ) {
-                            listOf(bedHead, bedFoot).forEach { component ->
-                                component.block.setMetadata(
-                                    "tropicbed",
-                                    FixedMetadataValue(plugin, it.id)
-                                )
-                            }
-                            return true
-                        }
-
-                        return false
-                    }
-
-                    for (face in blockFaces) {
-                        val bedFoot = placedBlock.state
-                        val bedHead = placedBlock.getRelative(face).state
-
-                        if (attemptPlacement(bedFoot, bedHead)) {
-                            return@sync
-                        }
-                    }
-
-                    for (face in blockFaces) {
-                        val bedFoot = placedBlock.getRelative(face).state
-                        val bedHead = placedBlock.state
-
-                        if (attemptPlacement(bedFoot, bedHead)) {
-                            return@sync
-                        }
-                    }
-                }
-            }
-
         metadata.metadata
             .filterIsInstance<MapPortalMetadata>()
             .forEach {

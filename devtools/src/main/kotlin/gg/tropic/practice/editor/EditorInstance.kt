@@ -10,7 +10,7 @@ import java.io.File
  * @since 7/18/2024
  */
 data class EditorInstance(
-    val schematic: File,
+    val associatedElement: File,
     val world: World
 ): Terminable
 {
@@ -22,12 +22,5 @@ data class EditorInstance(
         }
 
         Bukkit.unloadWorld(world, false)
-
-        File(
-            Bukkit.getWorldContainer(),
-            world.name
-        ).apply {
-            deleteRecursively()
-        }
     }
 }

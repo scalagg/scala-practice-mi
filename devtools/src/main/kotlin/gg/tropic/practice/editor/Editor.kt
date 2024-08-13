@@ -23,9 +23,7 @@ import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.*
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.event.entity.EntitySpawnEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import java.io.File
@@ -165,8 +163,8 @@ class Editor(private val player: Player)
                         .legacySection()
                         .deserialize(
                             "${CC.BD_RED}Editor ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${
-                                "${CC.D_RED}Visiting: ${CC.WHITE}${visiting?.schematic?.nameWithoutExtension ?: "N/A"}${
-                                    if (visiting != null) "${CC.D_GRAY} (${schematics.indexOf(visiting?.schematic) + 1}/${schematics.size})" else ""
+                                "${CC.D_RED}Visiting: ${CC.WHITE}${visiting?.associatedElement?.nameWithoutExtension ?: "N/A"}${
+                                    if (visiting != null) "${CC.D_GRAY} (${schematics.indexOf(visiting?.associatedElement) + 1}/${schematics.size})" else ""
                                 }"
                             } ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${
                                 "${CC.D_RED}Schematics: ${CC.WHITE}$availableSchematics"
@@ -226,7 +224,7 @@ class Editor(private val player: Player)
                     return@context
                 }
 
-                val index = schematics.indexOf(visiting!!.schematic)
+                val index = schematics.indexOf(visiting!!.associatedElement)
                 visit(schematics.getOrNull(index - 1) ?: schematics.last())
             }
         })
@@ -246,7 +244,7 @@ class Editor(private val player: Player)
                     return@context
                 }
 
-                val index = schematics.indexOf(visiting!!.schematic)
+                val index = schematics.indexOf(visiting!!.associatedElement)
                 visit(schematics.getOrNull(index + 1) ?: schematics.first())
             }
         })
@@ -352,7 +350,7 @@ class Editor(private val player: Player)
                 val bounds = visiting!!.world.loadedChunks.toList().toBounds()
                 player.sendMessage("${CC.GREEN}Prepared bounds!")
 
-                val newMapName = visiting!!.schematic
+                val newMapName = visiting!!.associatedElement
                     .nameWithoutExtension
                     .replace("_", "")
                     .capitalize()
@@ -372,7 +370,7 @@ class Editor(private val player: Player)
                     prepareSlimeWorld(newMapName)
 
                     val map = gg.tropic.practice.map.Map(
-                        name = newMapName.lowercase(),
+                        name = newMapName.toLowerCase(),
                         bounds = bounds,
                         metadata = metadata,
                         displayName = newMapName.capitalize(),
@@ -497,7 +495,7 @@ class Editor(private val player: Player)
         player.playSound(player.location, Sound.LEVEL_UP, 1.0f, 1.0f)
         player.sendMessage("${CC.GREEN}Imported!")
 
-        val oldSchematic = visiting?.schematic
+        val oldSchematic = visiting?.associatedElement
         visiting?.closeAndReportException()
         visiting = null
 
