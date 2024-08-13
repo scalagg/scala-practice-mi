@@ -58,6 +58,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
+import kotlin.math.roundToInt
 
 /**
  * @author GrowlyX
@@ -804,6 +805,17 @@ open class GameImpl(
             ?.onEach {
                 it.remove()
             }
+    }
+
+    fun buildLimit(): Int?
+    {
+        val buildLimit = flagMetaData(
+            FeatureFlag.BuildLimit,
+            key = "blocks"
+        )?.toIntOrNull()
+            ?: return null
+
+        return (map.findSpawnLocationMatchingTeam(GameTeamSide.A)?.y?.roundToInt() ?: 0) + buildLimit
     }
 
     fun robot(solaraID: UUID) = robotInstance.firstOrNull { it.solaraID() == solaraID }

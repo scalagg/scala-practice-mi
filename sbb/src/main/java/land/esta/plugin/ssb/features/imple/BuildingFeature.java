@@ -33,12 +33,13 @@ public class BuildingFeature extends Feature {
 
     @Override
     public void tickEvent(Bot bot) {
-        if (!(!bot.getInventoryManager().hasItem(Material.WOOD).isEmpty() || !bot.getInventoryManager().hasItem(Material.COBBLESTONE).isEmpty() || !bot.getInventoryManager().hasItem(Material.WOOL).isEmpty())) return;
+        if (!(!bot.getInventoryManager().hasItem(Material.WOOD).isEmpty() || !bot.getInventoryManager().hasItem(Material.COBBLESTONE).isEmpty() || !bot.getInventoryManager().hasItem(Material.WOOL).isEmpty()))
+            return;
 
         if (bot.getMovements().getLocation().getBlock().getType().isSolid()) {
             if (bot.getMovements().getLocation().clone().add(0, 1, 0).getBlock().getType().isSolid()
-            || bot.getMovements().getLocation().clone().add(0, 2, 0).getBlock().getType().isSolid()) {}
-            else {
+                    || bot.getMovements().getLocation().clone().add(0, 2, 0).getBlock().getType().isSolid()) {
+            } else {
                 bot.getMovements().getLocation().add(0, 1, 0);
                 bot.getMovements().updatedLoc();
             }
@@ -99,9 +100,14 @@ public class BuildingFeature extends Feature {
 
         int delay = 0;
 
+        var buildLimit = bot.getGame().buildLimit();
+        if (buildLimit == null) {
+            buildLimit = 16;
+        }
+
         if (buildWhenPlayerIsHigh && Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
-        - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) >= buildWhenPlayerIsHighBlocks
-        && bot.getMovements().getLocation().getY() + 1.0 < getBuildLimit(bot.getMovements().getTargetLocate().getTargetEntity())) {
+                - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) >= buildWhenPlayerIsHighBlocks
+                && bot.getMovements().getLocation().getY() + 1.0 < buildLimit) {
             Location loc1 = bot.getMovements().getLocation().clone();
             loc1.setY(0);
             Location loc2 = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
@@ -554,39 +560,15 @@ public class BuildingFeature extends Feature {
                 int x = 1, y = 0, z = 0;
 
                 for (String key : placementDirections.keySet()) {
-                    if (key.equalsIgnoreCase("LEFT") || key.equalsIgnoreCase("RIGHT")) x += placementDirections.get(key);
+                    if (key.equalsIgnoreCase("LEFT") || key.equalsIgnoreCase("RIGHT"))
+                        x += placementDirections.get(key);
                     if (key.equalsIgnoreCase("UP") || key.equalsIgnoreCase("DOWN")) y += placementDirections.get(key);
-                    if (key.equalsIgnoreCase("BACKWARDS") || key.equalsIgnoreCase("FORWARDS")) z += placementDirections.get(key);
+                    if (key.equalsIgnoreCase("BACKWARDS") || key.equalsIgnoreCase("FORWARDS"))
+                        z += placementDirections.get(key);
                 }
 
                 return new Vector(x, y, z);
             }
         }
-    }
-
-    public int getBuildLimit(Player player) {
-        int buildLimit = 16;
-        GameImpl game = GameService.INSTANCE.byPlayer(player);
-        if (game == null) return buildLimit;
-
-        try {
-            String value = game
-                    .flagMetaData(
-                            FeatureFlag.BuildLimit,
-                            "blocks"
-                    );
-            if (value == null) return buildLimit;
-            buildLimit = Integer.parseInt(value);
-        } catch (Exception ignore) {
-            return buildLimit;
-        }
-
-        if (game.getMap()
-                .findSpawnLocationMatchingTeam(GameTeamSide.A) != null) {
-            return (int) Math.ceil(game.getMap()
-                    .findSpawnLocationMatchingTeam(GameTeamSide.A).getY() + buildLimit);
-        }
-
-        return buildLimit;
     }
 }
