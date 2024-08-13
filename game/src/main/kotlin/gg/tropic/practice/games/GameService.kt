@@ -28,6 +28,7 @@ import gg.tropic.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNe
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
+import gg.tropic.practice.listeners.BlockFormListener
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
@@ -121,6 +122,7 @@ object GameService
     {
         CosmeticLocalConfig.enableCosmeticResources = false
 
+        plugin.registerListener(BlockFormListener())
         plugin.registerListener(FireballFeature())
 
         AnticheatFeature.proxiedPlayerAllowAC = context@{

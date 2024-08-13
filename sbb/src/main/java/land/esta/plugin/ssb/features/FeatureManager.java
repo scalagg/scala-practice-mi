@@ -31,6 +31,7 @@ public class FeatureManager {
         addFeature(new EdgeFeature());
         addFeature(buildingFeature = new BuildingFeature());
         addFeature(new LiquidFeature());
+        addFeature(new SuffocationFeature());
     }
 
     public void addFeature(Feature feature) {

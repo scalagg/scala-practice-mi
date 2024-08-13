@@ -1,6 +1,9 @@
 package land.esta.plugin.ssb.features.imple;
 
+import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.games.GameService;
+import gg.tropic.practice.games.team.GameTeamSide;
+import gg.tropic.practice.kit.feature.FeatureFlag;
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import land.esta.plugin.ssb.bots.Bot;
@@ -17,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
@@ -32,8 +36,12 @@ public class BuildingFeature extends Feature {
         if (!(!bot.getInventoryManager().hasItem(Material.WOOD).isEmpty() || !bot.getInventoryManager().hasItem(Material.COBBLESTONE).isEmpty() || !bot.getInventoryManager().hasItem(Material.WOOL).isEmpty())) return;
 
         if (bot.getMovements().getLocation().getBlock().getType().isSolid()) {
-            bot.getMovements().getLocation().add(0, 1, 0);
-            bot.getMovements().updatedLoc();
+            if (bot.getMovements().getLocation().clone().add(0, 1, 0).getBlock().getType().isSolid()
+            || bot.getMovements().getLocation().clone().add(0, 2, 0).getBlock().getType().isSolid()) {}
+            else {
+                bot.getMovements().getLocation().add(0, 1, 0);
+                bot.getMovements().updatedLoc();
+            }
         }
 
         boolean enabled = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getEnabled());
@@ -92,7 +100,8 @@ public class BuildingFeature extends Feature {
         int delay = 0;
 
         if (buildWhenPlayerIsHigh && Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
-        - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) >= buildWhenPlayerIsHighBlocks) {
+        - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) >= buildWhenPlayerIsHighBlocks
+        && bot.getMovements().getLocation().getY() + 1.0 < getBuildLimit(bot.getMovements().getTargetLocate().getTargetEntity())) {
             Location loc1 = bot.getMovements().getLocation().clone();
             loc1.setY(0);
             Location loc2 = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
@@ -553,5 +562,31 @@ public class BuildingFeature extends Feature {
                 return new Vector(x, y, z);
             }
         }
+    }
+
+    public int getBuildLimit(Player player) {
+        int buildLimit = 16;
+        GameImpl game = GameService.INSTANCE.byPlayer(player);
+        if (game == null) return buildLimit;
+
+        try {
+            String value = game
+                    .flagMetaData(
+                            FeatureFlag.BuildLimit,
+                            "blocks"
+                    );
+            if (value == null) return buildLimit;
+            buildLimit = Integer.parseInt(value);
+        } catch (Exception ignore) {
+            return buildLimit;
+        }
+
+        if (game.getMap()
+                .findSpawnLocationMatchingTeam(GameTeamSide.A) != null) {
+            return (int) Math.ceil(game.getMap()
+                    .findSpawnLocationMatchingTeam(GameTeamSide.A).getY() + buildLimit);
+        }
+
+        return buildLimit;
     }
 }
