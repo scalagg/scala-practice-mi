@@ -33,14 +33,9 @@ class BlockFormListener : Listener
                         FixedMetadataValue(plugin, true)
                     )
 
-                    for (player in Bukkit.getOnlinePlayers())
-                    {
-                        if (player.location.distance(event.toBlock.location) <= 100)
-                        {
-                            val game = GameService.byPlayer(player) ?: continue
-                            game.placedBlocks += event.toBlock.location.toVector()
-                        }
-                    }
+                    val game = GameService.byWorld(event.block.world)
+                        ?: return@runLater
+                    game.placedBlocks += event.toBlock.location.toVector()
                 }
             }, 10L)
     }
