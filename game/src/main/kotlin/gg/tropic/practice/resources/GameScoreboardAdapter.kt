@@ -110,7 +110,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }
 
                         teamSection += "${CC.B_BLUE}R ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
-                            if (red.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
+                            if (blue.side == self.side && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
                     } else
                     {
