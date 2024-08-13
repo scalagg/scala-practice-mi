@@ -1560,7 +1560,7 @@ object GameService
                         val breakable = game.kit.allowedBlockTypeMappings.isEmpty ||
                             game.kit.allowedBlockTypeMappings.get()[block.type]?.toByte() == block.data
 
-                        breakable || block.hasMetadata("placed")
+                        !(breakable || block.hasMetadata("placed") || block.type == Material.BED_BLOCK)
                     }
             }
             .bindWith(plugin)
