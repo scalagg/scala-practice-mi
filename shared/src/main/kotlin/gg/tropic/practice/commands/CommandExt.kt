@@ -10,6 +10,7 @@ import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
 import net.evilblock.cubed.util.CC
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -24,6 +25,21 @@ val UUID.offlineProfile: PracticeProfile
         ?: throw ConditionFailedException(
             "${CC.YELLOW}${username()}${CC.RED} has not logged onto our duels server."
         )
+
+fun UUID.networkTransaction(block: PracticeProfile.() -> Unit): CompletableFuture<Void>
+{
+    val local = PracticeProfileService.find(this)
+    if (local != null)
+    {
+        block(local)
+        return local.save()
+    }
+
+    return PracticeProfileService.useAsyncThenSaveGlobally(this) {
+        block(it)
+        return@useAsyncThenSaveGlobally null
+    }
+}
 
 val UUID.basicsProfile: BasicsProfile
     get() = BasicsProfileService.find(this)

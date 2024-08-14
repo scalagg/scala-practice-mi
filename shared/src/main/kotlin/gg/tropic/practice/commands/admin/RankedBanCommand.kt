@@ -9,6 +9,7 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
+import gg.tropic.practice.commands.networkTransaction
 import gg.tropic.practice.commands.offlineProfile
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.Duration
@@ -57,20 +58,20 @@ object RankedBanCommand : ScalaCommand()
         target: AsyncLemonPlayer,
     ) = target
         .validatePlayers(player.bukkit(), false) {
-            val profile = it.uniqueId.offlineProfile
-            if (!profile.hasActiveRankedBan())
-            {
-                throw ConditionFailedException(
-                    "The player ${CC.YELLOW}${it.name}${CC.RED} does not have an active ranked ban."
+            it.uniqueId.networkTransaction {
+                if (!hasActiveRankedBan())
+                {
+                    throw ConditionFailedException(
+                        "The player ${CC.YELLOW}${it.name}${CC.RED} does not have an active ranked ban."
+                    )
+                }
+
+                removeRankedBan()
+            }.thenAccept { _ ->
+                player.sendMessage(
+                    "${CC.RED}You have removed ${CC.YELLOW}${it.name}'s${CC.RED} ranked ban."
                 )
-            }
-
-            profile.removeRankedBan()
-            profile.saveAndPropagate().join()
-
-            player.sendMessage(
-                "${CC.RED}You have removed ${CC.YELLOW}${it.name}'s${CC.RED} ranked ban."
-            )
+            }.join()
         }
 
     @CommandAlias("rankedban")
@@ -83,26 +84,26 @@ object RankedBanCommand : ScalaCommand()
         duration: Duration?
     ) = target
         .validatePlayers(player.bukkit(), false) {
-            val profile = it.uniqueId.offlineProfile
-            if (profile.hasActiveRankedBan())
-            {
-                throw ConditionFailedException(
-                    "The player ${CC.YELLOW}${it.name}${CC.RED} already has an active ranked ban."
+            it.uniqueId.networkTransaction {
+                if (hasActiveRankedBan())
+                {
+                    throw ConditionFailedException(
+                        "The player ${CC.YELLOW}${it.name}${CC.RED} already has an active ranked ban."
+                    )
+                }
+
+                applyRankedBan(duration ?: Duration.PERMANENT)
+            }.thenAccept { _ ->
+                player.sendMessage(
+                    "${CC.GREEN}You have applied a ranked ban on ${CC.WHITE}${it.name}${CC.GREEN} for: ${CC.WHITE}${
+                        if (duration == null) "forever" else TimeUtil
+                            .formatIntoAbbreviatedString(
+                                (duration.get() / 1000).toInt()
+                            )
+                    }"
                 )
-            }
 
-            profile.applyRankedBan(duration ?: Duration.PERMANENT)
-            profile.saveAndPropagate().join()
-
-            player.sendMessage(
-                "${CC.GREEN}You have applied a ranked ban on ${CC.WHITE}${it.name}${CC.GREEN} for: ${CC.WHITE}${
-                    if (duration == null) "forever" else TimeUtil
-                        .formatIntoAbbreviatedString(
-                            (duration.get() / 1000).toInt()
-                        )
-                }"
-            )
-
-            player.bukkit().performCommand("terminatematch ${it.name}")
+                player.bukkit().performCommand("terminatematch ${it.name}")
+            }.join()
         }
 }

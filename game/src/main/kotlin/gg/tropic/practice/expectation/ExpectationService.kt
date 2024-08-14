@@ -60,6 +60,15 @@ object ExpectationService
                         "${CC.RED}You do not have a game to join!"
                     )
 
+                if (game.arenaWorld == null)
+                {
+                    event.disallow(
+                        AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
+                        "${CC.RED}You do not have a game to join!"
+                    )
+                    return@handler
+                }
+
                 if (event.uniqueId in game.expectedSpectators)
                 {
                     GameService.spectatorToGameMappings[event.uniqueId] = game
