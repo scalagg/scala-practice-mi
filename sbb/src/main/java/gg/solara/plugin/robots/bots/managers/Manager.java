@@ -23,17 +23,18 @@ public class Manager {
     public void addPlayerToList(Player player) {}
 
     public void callEventAsync(Event event) {
-        ParallelKt.getAsyncEventThreadPool().submit(() -> {
-            for (BotEvent events : SolaraRobotsPlugin.getInstance().getEventManager().getEvents()) {
-                events.call(event);
-            }
-        });
+        ParallelKt.getAsyncEventThreadPool().submit(() -> callEvent(event));
     }
 
     public void callEvent(Event event) {
-        for (BotEvent events : SolaraRobotsPlugin.getInstance().getEventManager().getEvents()) {
+        var plugin = SolaraRobotsPlugin.getInstance();
+        for (var events : plugin.getEventManager().getEvents()) {
             events.call(event);
         }
+
+        plugin.getServer()
+                .getPluginManager()
+                .callEvent(event);
     }
 
     public void queueUpdate() {}
