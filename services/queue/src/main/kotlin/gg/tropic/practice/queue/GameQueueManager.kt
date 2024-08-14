@@ -47,7 +47,7 @@ import java.util.logging.Logger
 object GameQueueManager
 {
     var forceSpecificRegionGames: Region? = null
-    val developmentModePlayers = mutableListOf<UUID>()
+    val developmentModePlayers = mutableSetOf<UUID>()
 
     private val queues = mutableMapOf<String, GameQueue>()
     private val dpsQueueRedis = DPSRedisService("queue")
