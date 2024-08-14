@@ -1,7 +1,7 @@
 package land.esta.plugin.ssb.bots.managers;
 
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
-import land.esta.plugin.ssb.botevents.BotEvent;
+import land.esta.plugin.ssb.bots.events.BotEvent;
 import land.esta.plugin.ssb.bots.Bot;
 
 import java.util.ArrayList;

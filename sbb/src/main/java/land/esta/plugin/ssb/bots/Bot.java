@@ -5,14 +5,15 @@ import com.mojang.authlib.properties.Property;
 import gg.tropic.practice.games.GameImpl;
 import gg.tropic.practice.kit.Kit;
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
+import land.esta.plugin.ssb.bot.behavior.ActionController;
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile;
-import land.esta.plugin.ssb.bots.mechanics.*;
+import land.esta.plugin.ssb.bots.behavior.*;
 import lombok.Getter;
 import lombok.Setter;
-import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
-import land.esta.plugin.ssb.botevents.events.SpawnEvent;
+import land.esta.plugin.ssb.bots.events.impl.BotDeathEvent;
+import land.esta.plugin.ssb.bots.events.impl.SpawnEvent;
 import land.esta.plugin.ssb.bots.managers.ManagerService;
-import land.esta.plugin.ssb.bots.mechanics.movementsmanagement.MovementsMain;
+import land.esta.plugin.ssb.bots.behavior.movements.MovementsMain;
 import land.esta.plugin.ssb.npc.NPCEntity;
 import land.esta.plugin.ssb.npc.NPCNetworkManager;
 import land.esta.plugin.ssb.npc.NPCPlayerConnection;
@@ -49,6 +50,8 @@ public class Bot {
     private FleeManager fleeManager;
     private EventRunnable eventListener = (event) -> {};
     private DamageCalculator damageCalculator;
+
+    private final ActionController actionController = new ActionController(this);
 
     private boolean alive = true;
     private final UUID uniqueId = UUID.randomUUID();
@@ -154,37 +157,37 @@ public class Bot {
     );
 
     public void kill() {
-        if (!alive) {
-            return;
+        if (alive) {
+            attackingManager.setAttacking(false);
+            damageManager.setInvaluable(true);
+
+            //Animation
+            animateDeath();
         }
-
-        attackingManager.setAttacking(false);
-        damageManager.setInvaluable(true);
-
-        //Animation
-        animateDeath();
     }
 
     public void animateDeath() {
-        movements.setMove(false);
-        packetsManager.sendDeathPackets();
+        if (alive) {
+            movements.setMove(false);
+            packetsManager.sendDeathPackets();
 
-        Schedulers.sync().runLater(this::destroy, 14L);
+            Schedulers.sync()
+                    .runLater(this::destroy, 14L)
+                    .bindWith(terminable);
+        }
     }
 
     public void destroy() {
-        if (!alive) {
-            return;
+        if (alive) {
+            alive = false;
+            packetsManager.sendRemovePackets();
+            SolaraRobotsPlugin.getInstance().getBotManager().removeBot(this);
+
+            terminable.closeAndReportException();
+
+            npc.getBukkitEntity().remove();
+            Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
         }
-
-        alive = false;
-        packetsManager.sendRemovePackets();
-        SolaraRobotsPlugin.getInstance().getBotManager().removeBot(this);
-
-        terminable.closeAndReportException();
-
-        npc.getBukkitEntity().remove();
-        Bukkit.getServer().getPluginManager().callEvent(new BotDeathEvent(this));
     }
 
     public void tick() {
@@ -203,5 +206,13 @@ public class Bot {
 
         velocityCalculator.setEarly(false);
         eventManager.executeEvents();
+
+        /**
+         * Do tick last so that the above events have time to queue up new actions.
+         *
+         * If an action is overridden, the initialize sequence will run during
+         * {@link runAction}, and the actionController will run the initial tick.
+         */
+        actionController.tick();
     }
 }

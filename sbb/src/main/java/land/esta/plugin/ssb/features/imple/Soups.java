@@ -1,9 +1,9 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.botevents.Event;
-import land.esta.plugin.ssb.botevents.events.BotHealthChangeEvent;
+import land.esta.plugin.ssb.bots.events.Event;
+import land.esta.plugin.ssb.bots.events.impl.BotHealthChangeEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.bots.mechanics.InventoryManager;
+import land.esta.plugin.ssb.bots.behavior.InventoryManager;
 import land.esta.plugin.ssb.features.Feature;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Material;

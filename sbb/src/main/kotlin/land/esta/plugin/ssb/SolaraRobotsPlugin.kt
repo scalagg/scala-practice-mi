@@ -8,16 +8,11 @@ import gg.tropic.practice.menu.party.PartyPlayBotsIntegration
 import gg.tropic.practice.player.hotbar.LobbyHotbarService.buildNewBotFightMenu
 import land.esta.plugin.ssb.bot.menu.BotFightMenu
 import land.esta.plugin.ssb.bot.menu.PartyBotFightPrepareMenu
-import land.esta.plugin.ssb.bot.menu.openMenuProtected
 import land.esta.plugin.ssb.bot.menu.profiles.GenericDescribeProfilesMenu
-import land.esta.plugin.ssb.bot.menu.profiles.ProfileBackbone
-import land.esta.plugin.ssb.bot.menu.profiles.ProfileCategoryMenu
 import land.esta.plugin.ssb.bot.setting.BotSettingService
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor.attackSettings
 import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue
-import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
-import land.esta.plugin.ssb.bot.setting.setting.root
-import land.esta.plugin.ssb.botevents.EventManager
+import land.esta.plugin.ssb.bots.events.EventManager
 import land.esta.plugin.ssb.bots.BotManager
 import land.esta.plugin.ssb.features.FeatureManager
 import land.esta.plugin.ssb.solara.SolaraPracticeSupport

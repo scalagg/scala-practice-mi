@@ -3,11 +3,9 @@ package land.esta.plugin.ssb.solara
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.robot.RobotGameLifecycle.createNewRobotInstances
 import gg.tropic.practice.games.robot.RobotInstance
-import gg.tropic.practice.namespace
 import land.esta.plugin.ssb.bot.impl.SolaraPracticeRobotInstanceImpl
-import land.esta.plugin.ssb.botevents.events.BotDeathEvent
+import land.esta.plugin.ssb.bots.events.impl.BotDeathEvent
 import me.lucko.helper.Events
-import net.evilblock.cubed.ScalaCommonsSpigot
 import java.util.concurrent.atomic.AtomicInteger
 
 object SolaraPracticeSupport

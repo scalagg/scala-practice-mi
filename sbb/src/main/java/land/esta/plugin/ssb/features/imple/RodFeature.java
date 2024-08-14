@@ -1,12 +1,10 @@
 package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
-import land.esta.plugin.ssb.botevents.Event;
-import land.esta.plugin.ssb.botevents.events.BotDeathEvent;
-import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
+import land.esta.plugin.ssb.bots.events.Event;
+import land.esta.plugin.ssb.bots.events.impl.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
-import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import land.esta.plugin.ssb.npc.nms.FixedEntityFishingHook;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
@@ -14,13 +12,9 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
-import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class RodFeature extends Feature {
 

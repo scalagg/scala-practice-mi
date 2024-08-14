@@ -2,10 +2,10 @@ package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
 import lombok.Getter;
-import land.esta.plugin.ssb.botevents.Event;
-import land.esta.plugin.ssb.botevents.events.BotDamageEvent;
+import land.esta.plugin.ssb.bots.events.Event;
+import land.esta.plugin.ssb.bots.events.impl.BotDamageEvent;
 import land.esta.plugin.ssb.bots.Bot;
-import land.esta.plugin.ssb.botevents.events.BotAttackEvent;
+import land.esta.plugin.ssb.bots.events.impl.BotAttackEvent;
 import land.esta.plugin.ssb.features.Feature;
 import me.lucko.helper.Schedulers;
 import org.bukkit.Location;

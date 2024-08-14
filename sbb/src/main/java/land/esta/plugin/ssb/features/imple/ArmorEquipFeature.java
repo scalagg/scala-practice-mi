@@ -1,7 +1,7 @@
 package land.esta.plugin.ssb.features.imple;
 
-import land.esta.plugin.ssb.botevents.Event;
-import land.esta.plugin.ssb.botevents.events.BotArmorBreakEvent;
+import land.esta.plugin.ssb.bots.events.Event;
+import land.esta.plugin.ssb.bots.events.impl.BotArmorBreakEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import me.lucko.helper.Schedulers;

@@ -1,8 +1,8 @@
 package land.esta.plugin.ssb.features;
 
-import land.esta.plugin.ssb.botevents.BotEvent;
-import land.esta.plugin.ssb.botevents.Event;
-import land.esta.plugin.ssb.botevents.events.FinalMoveEvent;
+import land.esta.plugin.ssb.bots.events.BotEvent;
+import land.esta.plugin.ssb.bots.events.Event;
+import land.esta.plugin.ssb.bots.events.impl.FinalMoveEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.SolaraRobotsPlugin;
 import org.bukkit.Bukkit;

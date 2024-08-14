@@ -8,9 +8,9 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import land.esta.plugin.ssb.SolaraRobotsPlugin.Companion.instance
 import land.esta.plugin.ssb.bot.fixInventoryBasedOnRBTeamColor
 import land.esta.plugin.ssb.bot.setting.setting.persistence.SettingProfile
-import land.esta.plugin.ssb.botevents.Event
-import land.esta.plugin.ssb.botevents.events.BotAttackLandEvent
-import land.esta.plugin.ssb.botevents.events.BotDamageEvent
+import land.esta.plugin.ssb.bots.events.Event
+import land.esta.plugin.ssb.bots.events.impl.BotAttackLandEvent
+import land.esta.plugin.ssb.bots.events.impl.BotDamageEvent
 import land.esta.plugin.ssb.bots.Bot
 import land.esta.plugin.ssb.utils.Color
 import land.esta.plugin.ssb.utils.objects.EventRunnable

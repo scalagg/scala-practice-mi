@@ -1,6 +1,6 @@
 package land.esta.plugin.ssb.bot.setting.setting
 
-import land.esta.plugin.ssb.bots.setting.impl.*
+import land.esta.plugin.ssb.bots.settings.*
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 

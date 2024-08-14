@@ -1,8 +1,8 @@
 package land.esta.plugin.ssb.features.imple;
 
 import land.esta.plugin.ssb.bot.setting.setting.RootAccessor;
-import land.esta.plugin.ssb.botevents.Event;
-import land.esta.plugin.ssb.botevents.events.SpawnEvent;
+import land.esta.plugin.ssb.bots.events.Event;
+import land.esta.plugin.ssb.bots.events.impl.SpawnEvent;
 import land.esta.plugin.ssb.bots.Bot;
 import land.esta.plugin.ssb.features.Feature;
 import me.lucko.helper.Schedulers;
