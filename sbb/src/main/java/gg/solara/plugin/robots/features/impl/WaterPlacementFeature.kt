@@ -26,7 +26,7 @@ class WaterPlacementFeature : Feature()
         bot.actionController.runAction(
             WaterPlacementAction
         ) { configuration: ActionConfiguration ->
-            configuration.executionBehavior = ExecutionBehavior.Override
+            configuration.executionBehavior = ExecutionBehavior.Block
             configuration.shouldContinueMovement = false
         }
     }
