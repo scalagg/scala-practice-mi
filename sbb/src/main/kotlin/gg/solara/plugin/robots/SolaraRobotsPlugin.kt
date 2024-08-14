@@ -11,7 +11,7 @@ import gg.solara.plugin.robots.bot.menu.PartyBotFightPrepareMenu
 import gg.solara.plugin.robots.bot.menu.profiles.GenericDescribeProfilesMenu
 import gg.solara.plugin.robots.bot.setting.BotSettingService
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor.attackSettings
-import gg.solara.plugin.robots.bot.setting.setting.persistence.InternalValue
+import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue
 import gg.solara.plugin.robots.bots.events.EventManager
 import gg.solara.plugin.robots.bots.BotManager
 import gg.solara.plugin.robots.features.FeatureManager

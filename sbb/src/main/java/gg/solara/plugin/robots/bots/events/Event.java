@@ -9,6 +9,9 @@ import org.bukkit.event.HandlerList;
 @AllArgsConstructor
 public class Event extends org.bukkit.event.Event {
     public static final HandlerList HANDLER_LIST = new HandlerList();
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
 
     private final Bot bot;
 

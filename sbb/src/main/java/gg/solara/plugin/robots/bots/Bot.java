@@ -51,11 +51,11 @@ public class Bot {
     private EventRunnable eventListener = (event) -> {};
     private DamageCalculator damageCalculator;
 
+    private final CompositeTerminable terminable = CompositeTerminable.create();
     private final ActionController actionController = new ActionController(this);
 
     private boolean alive = true;
     private final UUID uniqueId = UUID.randomUUID();
-    private final CompositeTerminable terminable = CompositeTerminable.create();
 
     private final SettingProfile profile;
     private Location startLocation;

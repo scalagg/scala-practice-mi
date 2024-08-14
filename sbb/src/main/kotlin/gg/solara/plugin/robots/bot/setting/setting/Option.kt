@@ -3,7 +3,7 @@ package gg.solara.plugin.robots.bot.setting.setting
 import gg.solara.plugin.robots.bot.menu.profiles.ProfileBackbone
 import gg.solara.plugin.robots.bot.setting.setting.persistence.SettingProfile
 import gg.solara.plugin.robots.bot.setting.setting.persistence.SettingValue
-import gg.solara.plugin.robots.bot.setting.setting.persistence.toInternalValue
+import land.esta.plugin.ssb.bot.setting.setting.persistence.toInternalValue
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.Material
@@ -11,7 +11,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import kotlin.math.ceil
-import kotlin.math.max
 
 /**
  * @author GrowlyX

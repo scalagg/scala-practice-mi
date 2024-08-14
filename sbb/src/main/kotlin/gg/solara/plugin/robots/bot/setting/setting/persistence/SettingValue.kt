@@ -1,5 +1,10 @@
 package gg.solara.plugin.robots.bot.setting.setting.persistence
 
+import land.esta.plugin.ssb.bot.setting.setting.persistence.BooleanValue
+import land.esta.plugin.ssb.bot.setting.setting.persistence.DoubleValue
+import land.esta.plugin.ssb.bot.setting.setting.persistence.IntValue
+import land.esta.plugin.ssb.bot.setting.setting.persistence.InternalValue
+
 /**
  * @author GrowlyX
  * @since 7/21/2024

@@ -5,9 +5,9 @@ import gg.solara.plugin.robots.bot.setting.setting.Option
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor
 import gg.solara.plugin.robots.bot.setting.setting.root
 import gg.solara.plugin.robots.bots.Bot
+import land.esta.plugin.ssb.bot.setting.setting.persistence.toInternalValue
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import org.bukkit.Bukkit
 
 /**
  * @author GrowlyX
