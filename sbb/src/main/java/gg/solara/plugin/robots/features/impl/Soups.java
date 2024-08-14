@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class Soups extends Feature {
-
+    // SOUPS DOESNT WORK FOR BOTS NOW!
     private int soupTime = 5;
     private int soupHealth = 10;
 

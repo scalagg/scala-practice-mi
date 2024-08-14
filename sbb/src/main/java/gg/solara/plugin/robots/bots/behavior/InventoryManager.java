@@ -419,6 +419,16 @@ public class InventoryManager extends Manager {
         };
     }
 
+    public Consumer<Boolean> switchSlow(ItemStack item) {
+        //Hold the item
+        int slot = getItemSlot(item);
+        setMainHand(slot);
+
+        return (bool) -> {
+            setMainHand(1);
+        };
+    }
+
     private boolean allowToEat = true;
     private boolean eating;
 

@@ -1,10 +1,15 @@
 package gg.solara.plugin.robots.features.impl
 
+import gg.solara.plugin.robots.bot.behavior.ActionConfiguration
+import gg.solara.plugin.robots.bot.behavior.ExecutionBehavior
+import gg.solara.plugin.robots.bot.behavior.actions.PearlingAction
+import gg.solara.plugin.robots.bot.behavior.actions.WaterPlacementAction
 import gg.solara.plugin.robots.bots.Bot
 import gg.solara.plugin.robots.features.Feature
 import me.lucko.helper.Schedulers
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import java.util.function.Consumer
 
 /**
  * @author TastyCake
@@ -18,9 +23,18 @@ class WaterPlacementFeature : Feature()
 
         if (bot.healthManager.fireTicks < 5) return
 
+        bot.actionController.runAction(
+            WaterPlacementAction
+        ) { configuration: ActionConfiguration ->
+            configuration.executionBehavior = ExecutionBehavior.Override
+            configuration.shouldContinueMovement = false
+        }
+    }
+
+    fun place(bot: Bot, switchSlow: Consumer<Boolean>) {
         bot.lastPlacedWater = System.currentTimeMillis()
 
-        val previousSlot = bot.inventoryManager.mainHand
+        // val previousSlot = bot.inventoryManager.mainHand
 
         val buckets = bot.inventoryManager.hasItemUsingName(Material.WATER_BUCKET)
 
@@ -35,7 +49,7 @@ class WaterPlacementFeature : Feature()
         Schedulers
             .sync()
             .runLater({
-                bot.inventoryManager.mainHand = bot.inventoryManager.getItemSlot(buckets[0])
+                // bot.inventoryManager.mainHand = bot.inventoryManager.getItemSlot(buckets[0])
                 block.type = Material.WATER
                 bot.inventoryManager.setItem(bot.inventoryManager.mainHand, ItemStack(Material.BUCKET))
 
@@ -44,8 +58,10 @@ class WaterPlacementFeature : Feature()
                     .runLater({
                         block.type = Material.AIR
                         bot.inventoryManager.setItem(bot.inventoryManager.mainHand, ItemStack(Material.WATER_BUCKET))
-                        bot.inventoryManager.mainHand = previousSlot
+                        // bot.inventoryManager.mainHand = previousSlot
                         bot.movements.isLockLocation = false
+
+                        switchSlow.accept(true)
                     }, 10L)
                     .bindWith(bot.terminable)
             }, 10L)

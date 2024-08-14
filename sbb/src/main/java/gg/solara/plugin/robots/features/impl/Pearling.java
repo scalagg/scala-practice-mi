@@ -1,6 +1,9 @@
 package gg.solara.plugin.robots.features.impl;
 
 import gg.solara.plugin.robots.SolaraRobotsPlugin;
+import gg.solara.plugin.robots.bot.behavior.ExecutionBehavior;
+import gg.solara.plugin.robots.bot.behavior.actions.BuildingAction;
+import gg.solara.plugin.robots.bot.behavior.actions.PearlingAction;
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import gg.solara.plugin.robots.bots.Bot;
 import gg.solara.plugin.robots.features.Feature;
@@ -19,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Pearling extends Feature {
 
@@ -36,16 +40,22 @@ public class Pearling extends Feature {
         if (bot.getPearlTick() < bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlDelay()))
             return;
 
-        bot.setPearlTick(0);
-        pearl(pearls.get(0), bot);
+        bot.getActionController().runAction(
+                PearlingAction.INSTANCE,
+                (configuration) -> {
+                    configuration.setExecutionBehavior(ExecutionBehavior.OverrideType);
+                    configuration.setShouldContinueMovement(false);
+                    return null;
+                }
+        );
     }
 
     public void testPearl(Bot bot) {
-        pearl(getPearls(bot).get(0), bot);
+        pearl(getPearls(bot).get(0), bot, null);
     }
 
-    public void pearl(ItemStack pearl, Bot bot) {
-        bot.getInventoryManager().setMainHand(itemSlot(pearl, bot));
+    public void pearl(ItemStack pearl, Bot bot, Consumer<Boolean> switchSlowTemp) {
+        // bot.getInventoryManager().setMainHand(itemSlot(pearl, bot));
 
         Promise.start()
                 .thenRunDelayedSync(() -> {
@@ -71,7 +81,7 @@ public class Pearling extends Feature {
                     );
                 }, bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()))
                 .thenRunDelayedSync(() -> {
-                    bot.getInventoryManager().setMainHand(1);
+                    switchSlowTemp.accept(true);
                 }, 10L)
                 .bindWith(bot.getTerminable());
     }

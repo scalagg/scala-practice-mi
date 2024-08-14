@@ -1,5 +1,8 @@
 package gg.solara.plugin.robots.features.impl;
 
+import gg.solara.plugin.robots.bot.behavior.ExecutionBehavior;
+import gg.solara.plugin.robots.bot.behavior.actions.BuildingAction;
+import gg.solara.plugin.robots.bot.behavior.actions.GoldenAppleConsumeAction;
 import gg.tropic.practice.games.GameService;
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import gg.solara.plugin.robots.bots.Bot;
@@ -20,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class BuildingFeature extends Feature {
 
@@ -87,6 +91,53 @@ public class BuildingFeature extends Feature {
         )
                 && Math.floor(bot.getMovements().getLocation().getY()) == Math.floor(bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY());
 
+        var buildLimit = bot.getGame().buildLimit();
+        if (buildLimit == null) {
+            buildLimit = 16;
+        }
+
+        if (buildWhenPlayerIsHigh && Math.max(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY())
+                - Math.min(bot.getMovements().getLocation().getY(), bot.getMovements().getTargetLocate().getTargetEntity().getLocation().getY()) >= buildWhenPlayerIsHighBlocks
+                && bot.getMovements().getLocation().getY() + 1.0 < buildLimit) {
+            Location loc1 = bot.getMovements().getLocation().clone();
+            loc1.setY(0);
+            Location loc2 = bot.getMovements().getTargetLocate().getTargetEntity().getLocation().clone();
+            loc2.setY(0);
+
+            if (loc1.distance(loc2) < minDistanceFromPlayer) {
+                shouldBuild = true;
+            }
+        }
+
+        if (!shouldBuild) {
+            return;
+        }
+
+        bot.getActionController().runAction(
+                BuildingAction.INSTANCE,
+                (configuration) -> {
+                    configuration.setExecutionBehavior(ExecutionBehavior.Block);
+                    configuration.setShouldContinueMovement(false);
+                    return null;
+                }
+        );
+    }
+
+    public void build(Bot bot, Consumer<Boolean> switchSlow) {
+        double minDistanceFromPlayer = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getMinDistanceFromPlayer());
+        int placeCooldown = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getPlaceCooldown());
+        int buildingTicks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildingTicks());
+        boolean buildWhenCombo = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenCombo());
+        int buildWhenComboHits = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenComboHits());
+
+        var distanceToPlayer = bot.getMovements().getLocation().distance(bot.getMovements().getTargetLocate().getTargetEntity().getLocation());
+        var currentComboBots = bot.getCombo();
+        var currentTime = System.currentTimeMillis();
+
+        boolean buildWhenPlayerIsHigh = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHigh());
+        int buildWhenPlayerIsHighBlocks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildWhenPlayerIsHighBlocks());
+        int buildUpTicks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildingUpTicks());
+
         final boolean buildUp;
         final int finalTicks;
 
@@ -106,7 +157,6 @@ public class BuildingFeature extends Feature {
             loc2.setY(0);
 
             if (loc1.distance(loc2) < minDistanceFromPlayer) {
-                shouldBuild = true;
                 buildUp = true;
                 finalTicks = buildUpTicks;
                 delay = 20;
@@ -119,12 +169,8 @@ public class BuildingFeature extends Feature {
             buildUp = false;
         }
 
-        if (!shouldBuild) {
-            return;
-        }
-
         PlacementConfiguration placementConfiguration = new PlacementConfiguration().random().updateLocations(bot);
-        AtomicInteger previousSlot = new AtomicInteger(bot.getInventoryManager().getMainHand());
+        // AtomicInteger previousSlot = new AtomicInteger(bot.getInventoryManager().getMainHand());
 
         Schedulers
                 .sync()
@@ -135,9 +181,10 @@ public class BuildingFeature extends Feature {
                     if (!buildUp) {
                         if (!placementConfiguration.hasNext()) {
                             bot.setCurrentlyBuilding(false);
-                            bot.getInventoryManager().setMainHand(previousSlot.get());
+                            // bot.getInventoryManager().setMainHand(previousSlot.get());
                             bot.getBlockedLocations().clear();
                             bot.setLastPlaced(System.currentTimeMillis());
+                            switchSlow.accept(true);
                             task.closeAndReportException();
                             return;
                         }
@@ -159,9 +206,10 @@ public class BuildingFeature extends Feature {
 
                             if (betterLocation == null) {
                                 bot.setCurrentlyBuilding(false);
-                                bot.getInventoryManager().setMainHand(previousSlot.get());
+                                // bot.getInventoryManager().setMainHand(previousSlot.get());
                                 bot.getBlockedLocations().clear();
                                 bot.setLastPlaced(System.currentTimeMillis());
+                                switchSlow.accept(true);
                                 task.closeAndReportException();
                                 return;
                             }
@@ -182,10 +230,11 @@ public class BuildingFeature extends Feature {
                                 || location.clone().add(0, 3, 0).getBlock().getType().isSolid()) {
 
                             bot.setCurrentlyBuilding(false);
-                            bot.getInventoryManager().setMainHand(previousSlot.get());
+                            // bot.getInventoryManager().setMainHand(previousSlot.get());
                             bot.getBlockedLocations().clear();
                             bot.setLastPlaced(System.currentTimeMillis());
                             bot.getMovements().setLockLocation(false);
+                            switchSlow.accept(true);
                             task.closeAndReportException();
                             return;
                         } else {
@@ -196,10 +245,11 @@ public class BuildingFeature extends Feature {
 
                             if (loc1.distance(loc2) > minDistanceFromPlayer) {
                                 bot.setCurrentlyBuilding(false);
-                                bot.getInventoryManager().setMainHand(previousSlot.get());
+                                // bot.getInventoryManager().setMainHand(previousSlot.get());
                                 bot.getBlockedLocations().clear();
                                 bot.setLastPlaced(System.currentTimeMillis());
                                 bot.getMovements().setLockLocation(false);
+                                switchSlow.accept(true);
                                 task.closeAndReportException();
                                 return;
                             }
@@ -208,22 +258,13 @@ public class BuildingFeature extends Feature {
 
                     bot.setCurrentlyBuilding(true);
 
-                    List<ItemStack> blocks = bot.getInventoryManager().hasItemUsingName(Material.WOOD);
-                    if (blocks.isEmpty()) {
-                        blocks = bot.getInventoryManager().hasItemUsingName(Material.WOOL);
-
-                        if (blocks.isEmpty()) {
-                            blocks = bot.getInventoryManager().hasItemUsingName(Material.COBBLESTONE);
-
-                            if (blocks.isEmpty()) {
-                                return;
-                            }
-                        }
-                    }
-
-                    bot.getInventoryManager().setMainHand(
-                            bot.getInventoryManager().getItemSlot(blocks.get(0))
-                    );
+//                    List<ItemStack> blocks = BuildingAction.INSTANCE.getBlocks(bot);
+//
+//                    if (blocks.isEmpty()) return
+//
+//                    bot.getInventoryManager().setMainHand(
+//                            bot.getInventoryManager().getItemSlot(blocks.get(0))
+//                    );
 
                     var blockType = bot.getInventoryManager().getItemInMainHand().getType();
                     location.getBlock().setType(blockType);

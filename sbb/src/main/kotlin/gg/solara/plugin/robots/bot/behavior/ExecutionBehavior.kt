@@ -6,5 +6,8 @@ package gg.solara.plugin.robots.bot.behavior
  */
 enum class ExecutionBehavior
 {
-    Queue, Override
+    Queue, // Add to queue
+    Override, // Override queue
+    OverrideType, // Override only the queues of the same type
+    Block; // Block if there is a queue of this type already
 }

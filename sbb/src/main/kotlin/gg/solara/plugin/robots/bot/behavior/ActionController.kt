@@ -38,7 +38,26 @@ class ActionController(val bot: Bot)
             return
         }
 
-        queuedActions += queueableAction
+        if (actionConfiguration.executionBehavior == ExecutionBehavior.OverrideType)
+        {
+            queuedActions.removeIf { it.behavior::class == behavior::class }
+            currentAction = queueableAction
+            queueableAction.behavior.initialize(queueableAction, bot)
+            return
+        }
+
+        var add = true
+
+        if (actionConfiguration.executionBehavior == ExecutionBehavior.Block) {
+            for (queue in queuedActions) {
+                if (queue.behavior::class == behavior::class) {
+                    add = false
+                    break
+                }
+            }
+        }
+
+        if (add) queuedActions += queueableAction
     }
 
     fun tick()

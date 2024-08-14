@@ -19,6 +19,11 @@ object GoldenAppleConsumeAction : ActionBehavior
             return
         }
 
+        if (bot.inventoryManager.hasItem(322).isEmpty()) {
+            terminable.closeAndReportException()
+            return
+        }
+
         bot.inventoryManager.allowEating()
 
         val goldenApples = bot.inventoryManager.hasItem(322)

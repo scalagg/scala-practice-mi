@@ -14,6 +14,7 @@ public class FeatureManager {
     private final BuildingFeature buildingFeature;
     private final EatingAndDrinking eatingAndDrinking;
     private final Pearling pearling;
+    private final WaterPlacementFeature waterPlacementFeature;
 
     public FeatureManager() {
         features = new ArrayList<>();
@@ -31,7 +32,7 @@ public class FeatureManager {
         addFeature(buildingFeature = new BuildingFeature());
         addFeature(new LiquidFeature());
         addFeature(new SuffocationFeature());
-        addFeature(new WaterPlacementFeature());
+        addFeature(waterPlacementFeature = new WaterPlacementFeature());
     }
 
     public void addFeature(Feature feature) {
