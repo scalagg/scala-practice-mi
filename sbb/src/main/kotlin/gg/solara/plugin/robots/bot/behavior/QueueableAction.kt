@@ -13,10 +13,14 @@ class QueueableAction(
     val configuration: ActionConfiguration
 ) : CompositeTerminable by CompositeTerminable.create()
 {
+    private var closed = false
+    override fun isClosed() = closed
+
     init
     {
         with {
             behavior.complete(controller.bot)
+            closed = true
         }
     }
 }

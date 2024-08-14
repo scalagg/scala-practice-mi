@@ -10,7 +10,6 @@ import gg.solara.plugin.robots.bots.Bot;
 import gg.solara.plugin.robots.bots.managers.Manager;
 import gg.solara.plugin.robots.utils.Durability;
 import gg.solara.plugin.robots.utils.Nms;
-import gg.solara.plugin.robots.utils.objects.BooleanRunnable;
 import me.lucko.helper.Schedulers;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
@@ -28,6 +27,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -406,14 +406,16 @@ public class InventoryManager extends Manager {
         }
     }
 
-    public BooleanRunnable switchSlowTemp(ItemStack item) {
+    public Consumer<Boolean> switchSlowTemp(ItemStack item) {
         //Hold the item
         int slot = getItemSlot(item);
         setMainHand(slot);
 
-        return (a) -> {
+        return (allowedToEat) -> {
             setMainHand(1);
-            if (a) removeItem(slot);
+            if (allowedToEat) {
+                removeItem(slot);
+            }
         };
     }
 
@@ -431,22 +433,21 @@ public class InventoryManager extends Manager {
 
     public void eatEffects(Collection<PotionEffect> effects, ItemStack item, boolean drink) {
         bot.getMovements().setUse(true);
-        BooleanRunnable f1 = switchSlowTemp(item);
+        var switchSlowTemp = switchSlowTemp(item);
         eating = true;
-        BooleanRunnable f3 = (a) -> {
-            f1.run(a);
-            if (a) bot.getEffectsManager().addEffects(effects);
+        eatEffect((allowedToEat) -> {
+            switchSlowTemp.accept(allowedToEat);
+            if (allowedToEat) bot.getEffectsManager().addEffects(effects);
             if (!drink) {
                 bot.getHealthManager().addHealth(7);
             }
             bot.getMovements().setUse(false);
             eating = false;
             callEventAsync(new FinishEatingEvent(bot, item));
-        };
-        eatEffect(f3, item, drink);
+        }, item, drink);
     }
 
-    public void eatEffect(BooleanRunnable done, ItemStack item, boolean drink) {
+    public void eatEffect(Consumer<Boolean> onCompletion, ItemStack item, boolean drink) {
         final AtomicInteger ticks = new AtomicInteger();
         final int max = 32;
         final int soundTicks = 4;
@@ -463,12 +464,7 @@ public class InventoryManager extends Manager {
 
                     if (ticks.getAndIncrement() > max || !allowToEat) {
                         task.closeAndReportException();
-
-                        try {
-                            done.run(allowToEat);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        onCompletion.accept(allowToEat);
 
                         if (!allowToEat) {
                             callEventAsync(new EatingCancelEvent(bot));

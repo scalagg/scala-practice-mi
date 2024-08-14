@@ -11,7 +11,7 @@ public class FinishEatingEvent extends Event {
 
     private final ItemStack item;
 
-    public FinishEatingEvent(Bot bot,ItemStack item) {
+    public FinishEatingEvent(Bot bot, ItemStack item) {
         super(bot);
         this.item = item;
     }

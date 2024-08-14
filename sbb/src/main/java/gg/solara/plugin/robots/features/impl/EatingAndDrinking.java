@@ -1,6 +1,8 @@
 package gg.solara.plugin.robots.features.impl;
 
 import gg.solara.plugin.robots.SolaraRobotsPlugin;
+import gg.solara.plugin.robots.bot.behavior.ExecutionBehavior;
+import gg.solara.plugin.robots.bot.behavior.actions.GoldenAppleConsumeAction;
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import gg.solara.plugin.robots.bots.events.Event;
 import gg.solara.plugin.robots.bots.Bot;
@@ -68,8 +70,16 @@ public class EatingAndDrinking extends Feature {
                 }
 
                 if (able) {
-                    if (!bot.getInventoryManager().isEating())
-                        eatGap(bot);
+                    if (!bot.getInventoryManager().isEating()) {
+                        bot.getActionController().runAction(
+                                GoldenAppleConsumeAction.INSTANCE,
+                                (configuration) -> {
+                                    configuration.setExecutionBehavior(ExecutionBehavior.Queue);
+                                    configuration.setShouldContinueMovement(false);
+                                    return null;
+                                }
+                        );
+                    }
                 } else bot.getInventoryManager().setRequiredToEat(true);
             } else bot.getInventoryManager().setRequiredToEat(false);
         }

@@ -16,11 +16,9 @@ object GoldenAppleConsumeAction : ActionBehavior
     {
         if (System.currentTimeMillis() - bot.inventoryManager.gappleDelay < 2000) {
             terminable.closeAndReportException()
+            return
         }
-    }
 
-    override fun tick(terminable: CompositeTerminable, bot: Bot)
-    {
         bot.inventoryManager.allowEating()
 
         val goldenApples = bot.inventoryManager.hasItem(322)
@@ -28,14 +26,22 @@ object GoldenAppleConsumeAction : ActionBehavior
         {
             // TODO: how many golden apples do we need to eat lol
             bot.inventoryManager.eat(goldenApples.first())
+
+            Events
+                .subscribe(FinishEatingEvent::class.java)
+                .handler {
+                    terminable.closeAndReportException()
+                }
+                .bindWith(terminable)
+            return
         }
 
-        Events
-            .subscribe(FinishEatingEvent::class.java)
-            .handler {
-                terminable.closeAndReportException()
-            }
-            .bindWith(terminable)
+        terminable.closeAndReportException()
+    }
+
+    override fun tick(terminable: CompositeTerminable, bot: Bot)
+    {
+
     }
 
     override fun complete(bot: Bot)
