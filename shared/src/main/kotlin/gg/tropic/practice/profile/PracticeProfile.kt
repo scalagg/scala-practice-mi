@@ -77,12 +77,4 @@ data class PracticeProfile(
     fun save() = DataStoreObjectControllerCache
         .findNotNull<PracticeProfile>()
         .save(this)
-
-    fun saveAndPropagate() = save()
-        .thenComposeAsync {
-            PracticeProfileService.sendMessage(
-                "propagate",
-                "player" to identifier
-            )
-        }
 }

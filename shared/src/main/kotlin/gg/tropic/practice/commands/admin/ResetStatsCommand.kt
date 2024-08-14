@@ -7,7 +7,7 @@ import gg.scala.commons.acf.annotation.Optional
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
-import gg.tropic.practice.commands.offlineProfile
+import gg.tropic.practice.commands.networkTransaction
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.statistics.GlobalStatistics
@@ -67,20 +67,19 @@ object ResetStatsCommand : ScalaCommand()
     fun onResetStats(
         player: CommandSender,
         target: AsyncLemonPlayer,
-        spec: StatReset,
+        resetOptions: StatReset,
         @Optional kit: Kit?
     ) = target.validatePlayers(player, false) {
-        val profile = it.uniqueId.offlineProfile
-        spec.resetFor(profile, kit)
+        it.uniqueId.networkTransaction {
+            resetOptions.resetFor(this, kit)
 
-        profile.saveAndPropagate().join()
-
-        player.sendMessage(
-            "${CC.GREEN}You have reset the ${CC.BOLD}${
-                spec.name
-            }${CC.GREEN} for ${CC.WHITE}${it.name}${CC.GREEN}${
-                if (kit != null) " on kit ${CC.PRI}${kit.id}${CC.GREEN}" else ""
-            }."
-        )
+            player.sendMessage(
+                "${CC.GREEN}You have reset the ${CC.BOLD}${
+                    resetOptions.name
+                }${CC.GREEN} for ${CC.WHITE}${it.name}${CC.GREEN}${
+                    if (kit != null) " on kit ${CC.PRI}${kit.id}${CC.GREEN}" else ""
+                }."
+            )
+        }
     }
 }
