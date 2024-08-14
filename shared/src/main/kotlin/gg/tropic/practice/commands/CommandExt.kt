@@ -41,6 +41,17 @@ fun UUID.networkTransaction(block: PracticeProfile.() -> Unit): CompletableFutur
     }
 }
 
+fun UUID.acquireProfileImmutable(): CompletableFuture<PracticeProfile>
+{
+    val local = PracticeProfileService.find(this)
+    if (local != null)
+    {
+        return CompletableFuture.completedFuture(local)
+    }
+
+    return PracticeProfileService.loadCopyOf(this)
+}
+
 val UUID.basicsProfile: BasicsProfile
     get() = BasicsProfileService.find(this)
         ?: DataStoreObjectControllerCache

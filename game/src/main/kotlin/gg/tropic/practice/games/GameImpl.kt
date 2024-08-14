@@ -4,6 +4,8 @@ import com.grinderwolf.swm.nms.v1_8_R3.CustomWorldServer
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.Globals
+import gg.tropic.practice.commands.acquireProfileImmutable
+import gg.tropic.practice.commands.networkTransaction
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
@@ -209,88 +211,82 @@ open class GameImpl(
 
             sendInfoToTournamentService(losers = opponent.players)
 
-            val opponents = opponent.toBukkitPlayers()
-                .filterNotNull()
-                .mapNotNull(PracticeProfileService::find)
-                .apply {
-                    if (robot())
-                    {
-                        return@apply
-                    }
-
-                    onEach {
-                        it.useKitStatistics(this@GameImpl) {
+            if (!robot())
+            {
+                val kitStatisticsUpdates = opponent.players.map {
+                    it.networkTransaction {
+                        useKitStatistics(this@GameImpl) {
                             plays += 1
 
                             streakUpdates().apply(false)
                         }
-                        it.globalStatistics.userPlayedGameAndLost().apply()
+                        globalStatistics.userPlayedGameAndLost().apply()
                     }
-                }
-
-            val winners = winner.toBukkitPlayers()
-                .filterNotNull()
-                .mapNotNull(PracticeProfileService::find)
-                .apply {
-                    if (robot())
-                    {
-                        return@apply
-                    }
-
-                    onEach {
-                        it.useKitStatistics(this@GameImpl) {
+                } + opponent.players.map {
+                    it.networkTransaction {
+                        useKitStatistics(this@GameImpl) {
                             wins += 1
                             plays += 1
 
                             streakUpdates().apply(true)
                         }
-                        it.globalStatistics.userPlayedGameAndWon().apply()
+                        globalStatistics.userPlayedGameAndWon().apply()
                     }
                 }
 
-            if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)
-            {
-                val winnerProfile = winners.firstOrNull()
-                val loserProfile = opponents.firstOrNull()
-
-                if (winnerProfile != null && loserProfile != null)
+                val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
+                if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)
                 {
-                    val winnerRankedStats = winnerProfile.getRankedStatsFor(kit)
-                    val winnerCurrentELO = winnerRankedStats.elo
+                    future.thenRun {
+                        val winnerProfileID = winner.players.firstOrNull()
+                        val loserProfileID = opponent.players.firstOrNull()
 
-                    val loserRankedStats = loserProfile.getRankedStatsFor(kit)
-                    val loserCurrentELO = loserRankedStats.elo
+                        if (winnerProfileID != null && loserProfileID != null)
+                        {
+                            val winnerProfile = winnerProfileID.acquireProfileImmutable().join()
+                            val loserProfile = loserProfileID.acquireProfileImmutable().join()
 
-                    val eloChanges = PotPvPEloCalculator.INSTANCE
-                        .getNewRating(winnerCurrentELO, loserCurrentELO)
+                            val winnerRankedStats = winnerProfile.getRankedStatsFor(kit)
+                            val winnerCurrentELO = winnerRankedStats.elo
 
-                    // winner elo calculations
-                    winnerRankedStats.eloUpdates().apply(eloChanges.winnerNew)
-                    loserRankedStats.eloUpdates().apply(eloChanges.loserNew)
+                            val loserRankedStats = loserProfile.getRankedStatsFor(kit)
+                            val loserCurrentELO = loserRankedStats.elo
 
-                    newELOMappings[winnerProfile.identifier] = eloChanges.winnerNew to eloChanges.winnerGain
-                    positionUpdates[winnerProfile.identifier] = LeaderboardManagerService
-                        .updateScoreAndGetDiffs(
-                            winnerProfile.identifier,
-                            Reference(
-                                ReferenceLeaderboardType.ELO, kit.id
-                            ),
-                            newScore = eloChanges.winnerNew.toLong()
-                        )
+                            val eloChanges = PotPvPEloCalculator.INSTANCE
+                                .getNewRating(winnerCurrentELO, loserCurrentELO)
 
-                    newELOMappings[loserProfile.identifier] = eloChanges.loserNew to eloChanges.loserGain
-                    positionUpdates[loserProfile.identifier] = LeaderboardManagerService
-                        .updateScoreAndGetDiffs(
-                            loserProfile.identifier,
-                            Reference(
-                                ReferenceLeaderboardType.ELO, kit.id
-                            ),
-                            newScore = eloChanges.loserNew.toLong()
-                        )
+                            // winner elo network updates
+                            winnerProfileID.networkTransaction {
+                                getRankedStatsFor(kit).eloUpdates().apply(eloChanges.winnerNew)
+                            }
+                            loserProfileID.networkTransaction {
+                                getRankedStatsFor(kit).eloUpdates().apply(eloChanges.loserNew)
+                            }
+
+                            newELOMappings[winnerProfile.identifier] = eloChanges.winnerNew to eloChanges.winnerGain
+                            positionUpdates[winnerProfile.identifier] = LeaderboardManagerService
+                                .updateScoreAndGetDiffs(
+                                    winnerProfile.identifier,
+                                    Reference(
+                                        ReferenceLeaderboardType.ELO, kit.id
+                                    ),
+                                    newScore = eloChanges.winnerNew.toLong()
+                                )
+
+                            newELOMappings[loserProfile.identifier] = eloChanges.loserNew to eloChanges.loserGain
+                            positionUpdates[loserProfile.identifier] = LeaderboardManagerService
+                                .updateScoreAndGetDiffs(
+                                    loserProfile.identifier,
+                                    Reference(
+                                        ReferenceLeaderboardType.ELO, kit.id
+                                    ),
+                                    newScore = eloChanges.loserNew.toLong()
+                                )
+                        }
+                    }
                 }
             }
 
-            (winners + opponents).forEach(PracticeProfile::save)
 
             toBukkitPlayers()
                 .filterNotNull()
