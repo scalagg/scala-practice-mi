@@ -6,7 +6,6 @@ import gg.scala.commons.acf.annotation.CommandCompletion
 import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.acf.annotation.Subcommand
-import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
@@ -92,7 +91,7 @@ object StatResetTokenCommand : ScalaCommand()
         return@let ResetStatsCommand
             .onResetStats(
                 Bukkit.getConsoleSender(),
-                spec = ResetStatsCommand.StatReset.AllStats,
+                resetOptions = ResetStatsCommand.StatReset.AllStats,
                 target = AsyncLemonPlayer.of(player.uniqueId),
                 kit = null
             )
