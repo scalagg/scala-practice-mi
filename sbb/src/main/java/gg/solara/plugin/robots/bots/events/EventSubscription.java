@@ -2,7 +2,7 @@ package gg.solara.plugin.robots.bots.events;
 
 import gg.solara.plugin.robots.bots.Bot;
 
-public class BotEvent {
+public class EventSubscription {
 
     public void listen(Event event) {}
 

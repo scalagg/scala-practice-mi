@@ -3,7 +3,6 @@ package gg.solara.plugin.robots.bots.managers;
 import gg.solara.plugin.robots.SolaraRobotsPlugin;
 import gg.solara.plugin.robots.bot.impl.ParallelKt;
 import lombok.Getter;
-import gg.solara.plugin.robots.bots.events.BotEvent;
 import gg.solara.plugin.robots.bots.events.Event;
 import gg.solara.plugin.robots.bots.Bot;
 import gg.solara.plugin.robots.utils.objects.PlayerRunnable;

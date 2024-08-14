@@ -7,13 +7,13 @@ import java.util.ArrayList;
 @Getter
 public class EventManager {
 
-    private final ArrayList<BotEvent> events = new ArrayList<>();
+    private final ArrayList<EventSubscription> events = new ArrayList<>();
 
-    public void registerEvent(BotEvent event) {
+    public void registerEvent(EventSubscription event) {
         events.add(event);
     }
 
-    public void unregisterEvent(BotEvent event) {
+    public void unregisterEvent(EventSubscription event) {
         events.remove(event);
     }
 }

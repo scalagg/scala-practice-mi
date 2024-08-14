@@ -1,7 +1,7 @@
 package gg.solara.plugin.robots.bots.managers;
 
 import gg.solara.plugin.robots.SolaraRobotsPlugin;
-import gg.solara.plugin.robots.bots.events.BotEvent;
+import gg.solara.plugin.robots.bots.events.EventSubscription;
 import gg.solara.plugin.robots.bots.Bot;
 
 import java.util.ArrayList;
@@ -63,9 +63,12 @@ public class ManagerService {
     }
 
     public void executeEvents() {
-        // Run async
-        List<BotEvent> botEvents = SolaraRobotsPlugin.getInstance().getEventManager().getEvents();
-        for (BotEvent event : botEvents) {
+        List<EventSubscription> eventSubscriptions = SolaraRobotsPlugin
+                .getInstance()
+                .getEventManager()
+                .getEvents();
+
+        for (EventSubscription event : eventSubscriptions) {
             event.execute(bot);
         }
     }
