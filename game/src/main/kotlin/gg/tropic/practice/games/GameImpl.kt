@@ -223,7 +223,7 @@ open class GameImpl(
                         }
                         globalStatistics.userPlayedGameAndLost().apply()
                     }
-                } + opponent.players.map {
+                } + winner.players.map {
                     it.networkTransaction {
                         useKitStatistics(this@GameImpl) {
                             wins += 1

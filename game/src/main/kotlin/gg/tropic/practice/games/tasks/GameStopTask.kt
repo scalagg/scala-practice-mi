@@ -198,7 +198,7 @@ class GameStopTask(
                     game.sendMessage(
                         " ${CC.PINK}ELO Updates:",
                         " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}${winner.username()}:${CC.WHITE} ${it.winner.first} ${CC.GRAY}(${CC.GREEN}+${it.winner.second}${CC.GRAY})",
-                        " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${it.loser.first} ${CC.GRAY}(${CC.RED}${it.winner.second}${CC.GRAY})",
+                        " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${it.loser.first} ${CC.GRAY}(${CC.RED}-${it.winner.second}${CC.GRAY})",
                         ""
                     )
                 }
