@@ -56,10 +56,16 @@ class WaterPlacementFeature : Feature()
                 Schedulers
                     .sync()
                     .runLater({
-                        block.type = Material.AIR
-                        bot.inventoryManager.setItem(bot.inventoryManager.mainHand, ItemStack(Material.WATER_BUCKET))
-                        // bot.inventoryManager.mainHand = previousSlot
-                        bot.movements.isLockLocation = false
+                        if (block.type.equals(Material.WATER))
+                        {
+                            block.type = Material.AIR
+                            bot.inventoryManager.setItem(
+                                bot.inventoryManager.mainHand,
+                                ItemStack(Material.WATER_BUCKET)
+                            )
+                            // bot.inventoryManager.mainHand = previousSlot
+                            bot.movements.isLockLocation = false
+                        }
 
                         switchSlow.accept(true)
                     }, 10L)
