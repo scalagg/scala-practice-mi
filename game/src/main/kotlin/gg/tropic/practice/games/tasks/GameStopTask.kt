@@ -4,6 +4,7 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
+import gg.tropic.practice.games.elo.ELOUpdates
 import gg.tropic.practice.games.teleportToSpawnLocation
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.ScoreUpdates
@@ -39,7 +40,7 @@ import kotlin.math.abs
 class GameStopTask(
     private val game: GameImpl,
     private val report: GameReport,
-    private val eloMappings: Map<UUID, Pair<Int, Int>>,
+    private val eloMappings: CompletableFuture<ELOUpdates>?,
     private val positionUpdates: Map<UUID, CompletableFuture<ScoreUpdates>>,
     private val terminationReason: String,
     private val playerFeedback: Map<UUID, MutableList<String>>
@@ -189,16 +190,18 @@ class GameStopTask(
                 )
             }
 
-            if (eloMappings.isNotEmpty())
+            if (eloMappings != null)
             {
-                val winner = eloMappings.keys.first()
-                val loser = eloMappings.keys.last()
-                game.sendMessage(
-                    " ${CC.PINK}ELO Updates:",
-                    " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}${winner.username()}:${CC.WHITE} ${eloMappings[winner]!!.first} ${CC.GRAY}(${CC.GREEN}+${eloMappings[winner]!!.second}${CC.GRAY})",
-                    " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${eloMappings[loser]!!.first} ${CC.GRAY}(${CC.RED}${eloMappings[loser]!!.second}${CC.GRAY})",
-                    ""
-                )
+                val winner = report.winners.first()
+                val loser = report.losers.last()
+                eloMappings.thenAccept {
+                    game.sendMessage(
+                        " ${CC.PINK}ELO Updates:",
+                        " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}${winner.username()}:${CC.WHITE} ${it.winner.first} ${CC.GRAY}(${CC.GREEN}+${it.winner.second}${CC.GRAY})",
+                        " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${it.loser.first} ${CC.GRAY}(${CC.RED}${it.winner.second}${CC.GRAY})",
+                        ""
+                    )
+                }
 
                 (report.winners + report.losers)
                     .map { it to positionUpdates[it] }
