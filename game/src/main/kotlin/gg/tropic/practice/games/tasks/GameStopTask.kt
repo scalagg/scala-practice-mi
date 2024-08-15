@@ -278,7 +278,10 @@ class GameStopTask(
                     ""
                 )
             }
+        }
 
+        if (this.game.activeCountdown == 3)
+        {
             game.toBukkitPlayers()
                 .filterNotNull()
                 .forEach { player ->
@@ -289,9 +292,7 @@ class GameStopTask(
 
                             if (feedback.isNotEmpty())
                             {
-                                Tasks.delayed(10L) {
-                                    feedback.forEach(player::sendMessage)
-                                }
+                                feedback.forEach(player::sendMessage)
                             }
                         }
                 }
