@@ -38,7 +38,7 @@ public class Movements extends Manager {
         Vector motion = getDirection(bot.getMovements().getLocation().getYaw() + bot.getMovements().getStrafe(), 0);
         float friction = bot.getMovements().getFriction();
 
-        //The default movement speed
+        // The default movement speed
         double movementSpeed = 0.1;
         int speed = bot.getEffectsManager().getLevel(PotionEffectType.SPEED);
         movementSpeed += 0.02 * speed;
@@ -86,7 +86,7 @@ public class Movements extends Manager {
         motion.setZ(motion.getZ() * movementSpeed);
         boolean velocityTaken = false;
 
-        //Velocity
+        // Velocity
         if (bot.getVelocityCalculator().isVelocityReplace()) {
             velocityTaken = true;
             Vector velocityKb = bot.getVelocityCalculator().getReplacedVelocity(motion.clone());
@@ -101,7 +101,7 @@ public class Movements extends Manager {
         }
         motion.add(bot.getVelocityCalculator().getAccVelocity());
 
-        //Jumps
+        // Jumps
         if (bot.getMovements().isJump() && bot.getMovements().isOnGround()) {
             double jumpValue = 0.42 + (bot.getEffectsManager().getLevel(PotionEffectType.JUMP) * 0.1);
 
