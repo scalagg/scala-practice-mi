@@ -69,7 +69,7 @@ public class RodFeature extends Feature {
                                                     .getLocation()
                                     );
 
-                                    movementEvent.getBot().getAttackingManager().setProjectile(true); // Special velocity for the projectile
+                                    movementEvent.getBot().getAttackingManager().updateProjectile(); // Special velocity for the projectile
                                 }
                             })
                             .bindWith(bot.getTerminable());

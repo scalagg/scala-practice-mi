@@ -29,12 +29,17 @@ public class VelocityCalculator extends Manager {
     private boolean sprinting;
     private boolean early;
     private boolean next;
+    private Vector accVelocity = new Vector();
 
     public void attack(EntityPlayer attacker) {
         if (early) next = true;
         damage = true;
         this.attacker = attacker;
         velocityReplace = true;
+    }
+
+    void addVelocity(Vector v) {
+        accVelocity.add(v);
     }
 
     public boolean isVelocityReplace() {
