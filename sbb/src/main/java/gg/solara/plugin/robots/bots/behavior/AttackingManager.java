@@ -39,7 +39,13 @@ public class AttackingManager extends Manager {
 
     private boolean hitSelecting;
     private int hitSelectingTicks;
+    private long lastProjectile;
     private boolean projectile;
+
+    public void updateProjectile() {
+        lastProjectile = System.currentTimeMillis();
+        projectile = true;
+    }
 
     private long lastAttackedOrDamaged = System.currentTimeMillis();
 

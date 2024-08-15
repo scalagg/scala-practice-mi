@@ -25,8 +25,8 @@ public class Movements extends Manager {
         //bot.getMovements().setRequiredToMove(requireToMove);
         //if (!requireToMove) bot.getAttackingManager().setHitSelecting(false);
 
-
         move();
+        bot.getVelocityCalculator().setAccVelocity(new Vector(0, 0, 0));
     }
 
     private final double blockingMultiplier = 0.2;
@@ -38,7 +38,7 @@ public class Movements extends Manager {
         Vector motion = getDirection(bot.getMovements().getLocation().getYaw() + bot.getMovements().getStrafe(), 0);
         float friction = bot.getMovements().getFriction();
 
-        //The default movement speed
+        // The default movement speed
         double movementSpeed = 0.1;
         int speed = bot.getEffectsManager().getLevel(PotionEffectType.SPEED);
         movementSpeed += 0.02 * speed;
@@ -51,10 +51,12 @@ public class Movements extends Manager {
             int y = (int) (Math.floor(bot.getMovements().getLocation().getBlockY()) - 1);
             int z = (int) Math.floor(bot.getMovements().getLocation().getZ());
             Block belowBlock = bot.getNpc().getBukkitEntity().getWorld().getBlockAt(x, y, z);
+            Block curBlock = bot.getNpc().getBukkitEntity().getWorld().getBlockAt(x, y + 1, z);
+            Block cur2Block = bot.getNpc().getBukkitEntity().getWorld().getBlockAt(x, y + 2, z);
 
-            if (belowBlock.isLiquid()) {
-                friction = 0.9f;
-            } else if (belowBlock.getType() == Material.ICE) {
+            if (belowBlock.isLiquid() || curBlock.isLiquid() || cur2Block.isLiquid()) {
+                friction = 0.2f;
+            } else if (belowBlock.getType() == Material.ICE || curBlock.getType() == Material.PACKED_ICE) {
                 friction = 0.98f;
             }
 
@@ -84,7 +86,7 @@ public class Movements extends Manager {
         motion.setZ(motion.getZ() * movementSpeed);
         boolean velocityTaken = false;
 
-        //Velocity
+        // Velocity
         if (bot.getVelocityCalculator().isVelocityReplace()) {
             velocityTaken = true;
             Vector velocityKb = bot.getVelocityCalculator().getReplacedVelocity(motion.clone());
@@ -97,8 +99,9 @@ public class Movements extends Manager {
             motion.setY(0);
             motion.add(velocityKb);
         }
+        motion.add(bot.getVelocityCalculator().getAccVelocity());
 
-        //Jumps
+        // Jumps
         if (bot.getMovements().isJump() && bot.getMovements().isOnGround()) {
             double jumpValue = 0.42 + (bot.getEffectsManager().getLevel(PotionEffectType.JUMP) * 0.1);
 

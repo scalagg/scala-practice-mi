@@ -52,8 +52,9 @@ public class DataPlayer {
         if (bot == null) return false;
 
         long diff = System.currentTimeMillis() - bot.getAttackingManager().getAttacked();
+        long diff2 = System.currentTimeMillis() - bot.getAttackingManager().getLastProjectile();
         bot.getAttackingManager().setLandAttack(diff < 150);
-        return (diff < 150 && !bot.getDamageManager().isCombo()) || bot.getAttackingManager().isProjectile();
+        return (diff < 150 && !bot.getDamageManager().isCombo()) || diff2 < 1000;
     }
 
     public Vector velocity() {
@@ -61,7 +62,7 @@ public class DataPlayer {
         if (bot == null) return null;
 
         Vector dir = MathUtils.getDirection(bot.getMovements().getLocation().getYaw());
-        if (bot.getAttackingManager().isProjectile()) return dir.multiply(0.8).setY(0.4);
+        if (bot.getAttackingManager().isProjectile()) return dir.multiply(0.8).setY(0.4); // TODO check if the damge was handled by a projectile
         double h = 0.47;
         double v = 0.35;
         double reach = 3.5;
