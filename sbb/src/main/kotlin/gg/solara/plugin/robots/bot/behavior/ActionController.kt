@@ -48,18 +48,16 @@ class ActionController(val bot: Bot)
             return
         }
 
-        var add = true
-
-        if (actionConfiguration.executionBehavior == ExecutionBehavior.Block) {
-            for (queue in queuedActions) {
-                if (queue.behavior::class == behavior::class) {
-                    add = false
-                    break
-                }
+        if (actionConfiguration.executionBehavior == ExecutionBehavior.Block)
+        {
+            if (queuedActions.none { behavior::class == it.behavior::class })
+            {
+                queuedActions += queueableAction
             }
+        } else
+        {
+            queuedActions += queueableAction
         }
-
-        if (add) queuedActions += queueableAction
     }
 
     fun tick()
