@@ -22,10 +22,7 @@ object PearlingAction : ActionBehavior
         bot.pearlTick = 0
 
         val switchSlowTemp = bot.inventoryManager.switchSlowTemp(pearls.first())
-
-        SolaraRobotsPlugin.instance!!.featureManager.pearling.pearl(pearls.first(), bot, switchSlowTemp)
-
-        terminable.closeAndReportException()
+        SolaraRobotsPlugin.instance!!.featureManager.pearling.pearl(pearls.first(), terminable, bot, switchSlowTemp)
     }
 
     override fun tick(terminable: CompositeTerminable, bot: Bot)

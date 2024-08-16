@@ -8,6 +8,8 @@ import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import gg.solara.plugin.robots.bots.Bot;
 import gg.solara.plugin.robots.features.Feature;
 import me.lucko.helper.promise.Promise;
+import me.lucko.helper.terminable.Terminable;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import net.minecraft.server.v1_8_R3.EntityEnderPearl;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import org.apache.commons.lang.Validate;
@@ -51,10 +53,10 @@ public class Pearling extends Feature {
     }
 
     public void testPearl(Bot bot) {
-        pearl(getPearls(bot).get(0), bot, null);
+        pearl(getPearls(bot).get(0), CompositeTerminable.create(), bot, null);
     }
 
-    public void pearl(ItemStack pearl, Bot bot, Consumer<Boolean> switchSlowTemp) {
+    public void pearl(ItemStack pearl, Terminable terminable, Bot bot, Consumer<Boolean> switchSlowTemp) {
         // bot.getInventoryManager().setMainHand(itemSlot(pearl, bot));
 
         Promise.start()
@@ -82,6 +84,7 @@ public class Pearling extends Feature {
                 }, bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()))
                 .thenRunDelayedSync(() -> {
                     switchSlowTemp.accept(true);
+                    terminable.closeAndReportException();
                 }, 10L)
                 .bindWith(bot.getTerminable());
     }

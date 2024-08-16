@@ -22,10 +22,7 @@ object WaterPlacementAction : ActionBehavior
         }
 
         val switchSlow = bot.inventoryManager.switchSlow(buckets.first())
-
-        SolaraRobotsPlugin.instance!!.featureManager.waterPlacementFeature.place(bot, switchSlow)
-
-        terminable.closeAndReportException()
+        SolaraRobotsPlugin.instance!!.featureManager.waterPlacementFeature.place(bot, terminable, switchSlow)
     }
 
     override fun tick(terminable: CompositeTerminable, bot: Bot)
