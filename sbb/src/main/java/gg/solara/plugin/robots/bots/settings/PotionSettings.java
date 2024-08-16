@@ -78,7 +78,7 @@ public class PotionSettings extends Category {
         );
 
         addChildren(
-                fleeHealth, agroPotion, firstPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion,
+                fleeHealth, agroPotion, firstPotionTick, secondPotionTick, secondPotion, finishPotionTick, tickOffset, secondPotion,
                 cancelPotionDistance,
                 hotbarRefillPausing, hotbarRefillTime, hotbarRefillAmountRequired
         );
