@@ -7,6 +7,7 @@ import gg.solara.plugin.robots.bot.behavior.actions.WaterPlacementAction
 import gg.solara.plugin.robots.bots.Bot
 import gg.solara.plugin.robots.features.Feature
 import me.lucko.helper.Schedulers
+import me.lucko.helper.terminable.Terminable
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import java.util.function.Consumer
@@ -31,7 +32,7 @@ class WaterPlacementFeature : Feature()
         }
     }
 
-    fun place(bot: Bot, switchSlow: Consumer<Boolean>) {
+    fun place(bot: Bot, terminable: Terminable, switchSlow: Consumer<Boolean>) {
         bot.lastPlacedWater = System.currentTimeMillis()
 
         // val previousSlot = bot.inventoryManager.mainHand
@@ -68,6 +69,7 @@ class WaterPlacementFeature : Feature()
                         }
 
                         switchSlow.accept(true)
+                        terminable.closeAndReportException()
                     }, 10L)
                     .bindWith(bot.terminable)
             }, 10L)

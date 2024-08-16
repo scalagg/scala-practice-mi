@@ -3,6 +3,8 @@ package gg.solara.plugin.robots.bot.behavior
 import gg.solara.plugin.robots.bots.Bot
 import java.time.Duration
 import java.util.LinkedList
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * @author GrowlyX
@@ -12,6 +14,7 @@ class ActionController(val bot: Bot)
 {
     private var queuedActions = LinkedList<QueueableAction>()
     private var currentAction: QueueableAction? = null
+    private var actionLock = ReentrantLock()
 
     init
     {
@@ -24,8 +27,7 @@ class ActionController(val bot: Bot)
 
     fun current() = currentAction
 
-    fun runAction(behavior: ActionBehavior, configure: (ActionConfiguration) -> Unit)
-    {
+    fun runAction(behavior: ActionBehavior, configure: (ActionConfiguration) -> Unit) = actionLock.withLock {
         val actionConfiguration = ActionConfiguration()
         configure(actionConfiguration)
 
@@ -46,57 +48,57 @@ class ActionController(val bot: Bot)
             return
         }
 
-        var add = true
-
-        if (actionConfiguration.executionBehavior == ExecutionBehavior.Block) {
-            for (queue in queuedActions) {
-                if (queue.behavior::class == behavior::class) {
-                    add = false
-                    break
-                }
+        if (actionConfiguration.executionBehavior == ExecutionBehavior.Block)
+        {
+            if (queuedActions.none { behavior::class == it.behavior::class })
+            {
+                queuedActions += queueableAction
             }
+        } else
+        {
+            queuedActions += queueableAction
         }
-
-        if (add) queuedActions += queueableAction
     }
 
     fun tick()
     {
-        queuedActions.removeIf {
-            if (it.isClosed)
-            {
-                return@removeIf true
+        actionLock.withLock {
+            queuedActions.removeIf {
+                if (it.isClosed)
+                {
+                    return@removeIf true
+                }
+
+                if (it.configuration.evictFromQueueAfterDuration != Duration.ZERO)
+                {
+                    if (it.initialization + it.configuration.evictFromQueueAfterDuration.toMillis() < System.currentTimeMillis())
+                    {
+                        it.closeAndReportException()
+                        return@removeIf true
+                    }
+                }
+
+                return@removeIf false
             }
 
-            if (it.configuration.evictFromQueueAfterDuration != Duration.ZERO)
+            if (currentAction != null)
             {
-                if (it.initialization + it.configuration.evictFromQueueAfterDuration.toMillis() < System.currentTimeMillis())
+                if (currentAction!!.isClosed)
                 {
-                    it.closeAndReportException()
-                    return@removeIf true
+                    currentAction = null
+                } else
+                {
+                    currentAction!!.behavior.tick(currentAction!!, bot)
+                    return
                 }
             }
 
-            return@removeIf false
+            val nextQueueEntry = queuedActions.poll()
+                ?: return
+
+            currentAction = nextQueueEntry
+            nextQueueEntry.behavior.initialize(nextQueueEntry, bot)
+            nextQueueEntry.behavior.tick(nextQueueEntry, bot)
         }
-
-        if (currentAction != null)
-        {
-            if (currentAction!!.isClosed)
-            {
-                currentAction = null
-            } else
-            {
-                currentAction!!.behavior.tick(currentAction!!, bot)
-                return
-            }
-        }
-
-        val nextQueueEntry = queuedActions.poll()
-            ?: return
-
-        currentAction = nextQueueEntry
-        nextQueueEntry.behavior.initialize(nextQueueEntry, bot)
-        nextQueueEntry.behavior.tick(nextQueueEntry, bot)
     }
 }

@@ -29,8 +29,7 @@ object BuildingAction : ActionBehavior
         }
 
         val switchSlow = bot.inventoryManager.switchSlow(blocks.first())
-        SolaraRobotsPlugin.instance!!.featureManager.buildingFeature.build(bot, switchSlow)
-        terminable.closeAndReportException()
+        SolaraRobotsPlugin.instance!!.featureManager.buildingFeature.build(bot, terminable, switchSlow)
     }
 
     override fun tick(terminable: CompositeTerminable, bot: Bot)

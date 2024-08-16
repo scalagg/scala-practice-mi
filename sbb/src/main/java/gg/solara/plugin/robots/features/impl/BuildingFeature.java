@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.random.RandomSelector;
 import me.lucko.helper.random.Weighted;
+import me.lucko.helper.terminable.Terminable;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -123,7 +124,7 @@ public class BuildingFeature extends Feature {
         );
     }
 
-    public void build(Bot bot, Consumer<Boolean> switchSlow) {
+    public void build(Bot bot, Terminable terminable, Consumer<Boolean> switchSlow) {
         double minDistanceFromPlayer = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getMinDistanceFromPlayer());
         int placeCooldown = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getPlaceCooldown());
         int buildingTicks = bot.getProfile().value(RootAccessor.INSTANCE.getBuildingSetting().getBuildingTicks());
@@ -185,7 +186,9 @@ public class BuildingFeature extends Feature {
                             bot.getBlockedLocations().clear();
                             bot.setLastPlaced(System.currentTimeMillis());
                             switchSlow.accept(true);
+
                             task.closeAndReportException();
+                            terminable.closeAndReportException();
                             return;
                         }
 
