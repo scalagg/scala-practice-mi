@@ -106,7 +106,7 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
     {
         if (GameServer.`is`())
         {
-            for (bot in botManager.bots)
+            for (bot in botManager.bots.values)
             {
                 bot.destroy()
             }
