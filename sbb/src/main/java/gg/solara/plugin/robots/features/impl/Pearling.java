@@ -46,7 +46,7 @@ public class Pearling extends Feature {
                 PearlingAction.INSTANCE,
                 (configuration) -> {
                     configuration.setExecutionBehavior(ExecutionBehavior.OverrideType);
-                    configuration.setShouldContinueMovement(false);
+                    configuration.setShouldContinueMovement(true);
                     return null;
                 }
         );
