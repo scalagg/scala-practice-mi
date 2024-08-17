@@ -44,6 +44,7 @@ public class PacketListener implements Listener {
             @Deprecated
             public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
                 try {
+                    if (SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player) == null) return;
                     if (packet instanceof PacketPlayInUseEntity) {
                         PacketPlayInUseEntity wrapper = (PacketPlayInUseEntity) packet;
                         handleAttack(wrapper, player);
