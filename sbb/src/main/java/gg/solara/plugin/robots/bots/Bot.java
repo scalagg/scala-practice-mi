@@ -139,7 +139,7 @@ public class Bot {
         WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
         PlayerInteractManager interactManager = new PlayerInteractManager(world);
 
-        npc = new NPCEntity(server, world, profile, interactManager);
+        npc = new NPCEntity(this, server, world, profile, interactManager);
         npc.playerConnection = new NPCPlayerConnection(server, new NPCNetworkManager(EnumProtocolDirection.CLIENTBOUND), npc);
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setPosition(loc.getX(), loc.getY(), loc.getZ());

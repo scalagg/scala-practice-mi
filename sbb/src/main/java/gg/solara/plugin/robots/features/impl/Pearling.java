@@ -7,6 +7,7 @@ import gg.solara.plugin.robots.bot.behavior.actions.PearlingAction;
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import gg.solara.plugin.robots.bots.Bot;
 import gg.solara.plugin.robots.features.Feature;
+import me.lucko.helper.Events;
 import me.lucko.helper.promise.Promise;
 import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
@@ -81,6 +82,20 @@ public class Pearling extends Feature {
                             bot.getNpc().getBukkitEntity().getHandle(),
                             bot.getMovements().getLocation().getDirection()
                     );
+
+                    Events
+                            .subscribe(ProjectileHitEvent.class)
+                            .filter(event -> event.getEntity().getType().equals(EntityType.ENDER_PEARL))
+                            .filter(event -> event.getEntity().getShooter() instanceof LivingEntity)
+                            .filter(event -> ((LivingEntity) event.getEntity().getShooter()).getEntityId() == bot.getNpc().getBukkitEntity().getEntityId())
+                            .handler(event -> {
+                                var newLocation = event.getEntity().getLocation().clone();
+                                newLocation.setY(newLocation.getY() + 0.1);
+                                newLocation.setYaw(bot.getMovements().getLocation().getYaw());
+                                newLocation.setPitch(bot.getMovements().getLocation().getPitch());
+
+                                updateLocation(bot, newLocation);
+                            });
                 }, bot.getProfile().value(RootAccessor.INSTANCE.getPearlSettings().getPearlingTicks()))
                 .thenRunDelayedSync(() -> {
                     switchSlowTemp.accept(true);
@@ -108,21 +123,6 @@ public class Pearling extends Feature {
         final float yaw = location.getYaw();
         final float pitch = location.getPitch();
         bot.getNpc().setLocation(x, y, z, yaw, pitch);
-    }
-
-    @EventHandler
-    public void teleport(ProjectileHitEvent event) {
-        if (!event.getEntity().getType().equals(EntityType.ENDER_PEARL)) return;
-        if (event.getEntity().getShooter() instanceof LivingEntity shooter) {
-            Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromId(shooter.getEntityId());
-            if (bot == null) return;
-
-            var location = event.getEntity().getLocation().clone();
-            location.setY(location.getY() + 0.1);
-            location.setYaw(bot.getMovements().getLocation().getYaw());
-            location.setPitch(bot.getMovements().getLocation().getPitch());
-            updateLocation(bot, location);
-        }
     }
 
     public int itemSlot(ItemStack stack, Bot bot) {

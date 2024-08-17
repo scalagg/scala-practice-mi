@@ -13,7 +13,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -21,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Data
 public class DataPlayer {
     private final Player player;
+    private WeakReference<Bot> targetedByRobot = null;
     private Vector motion;
 
     private final CompositeTerminable terminable = CompositeTerminable.create();
@@ -36,7 +39,7 @@ public class DataPlayer {
                 .subscribe(EntityDamageByEntityEvent.class)
                 .handler(event -> {
                     if (event.getEntity().getEntityId() == getPlayer().getEntityId()) {
-                        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(getPlayer());
+                        Bot bot = getTargetedBy();
                         if (bot != null) {
                             bot.getAttackingManager().setAttackTicks(0);
                         }
@@ -47,6 +50,15 @@ public class DataPlayer {
 
     private int combo;
     private int botCombo;
+
+    @Nullable
+    public Bot getTargetedBy() {
+        if (targetedByRobot == null) {
+            return null;
+        }
+
+        return targetedByRobot.get();
+    }
 
     public void botHit() {
         botCombo++;
@@ -59,9 +71,7 @@ public class DataPlayer {
     }
 
     public boolean handle() {
-        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
-        if (bot == null) return false;
-
+        var bot = getTargetedBy();
         long diff = System.currentTimeMillis() - bot.getAttackingManager().getAttacked();
         long diff2 = System.currentTimeMillis() - bot.getAttackingManager().getLastProjectile();
         bot.getAttackingManager().setLandAttack(diff < 150);
@@ -69,9 +79,7 @@ public class DataPlayer {
     }
 
     public Vector velocity() {
-        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
-        if (bot == null) return null;
-
+        var bot = getTargetedBy();
         Vector dir = MathUtils.getDirection(bot.getMovements().getLocation().getYaw());
         if (bot.getAttackingManager().isProjectile())
             return dir.multiply(0.8).setY(0.4); // TODO check if the damge was handled by a projectile

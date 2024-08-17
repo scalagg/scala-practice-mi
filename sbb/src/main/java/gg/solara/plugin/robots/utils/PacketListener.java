@@ -44,11 +44,13 @@ public class PacketListener implements Listener {
             @Deprecated
             public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
                 try {
-                    if (SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player) == null) return;
                     if (packet instanceof PacketPlayInFlying) {
                         DataPlayer data = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(player);
                         if (data != null) {
-                            data.handleFlying((PacketPlayInFlying) packet);
+                            var target = data.getTargetedBy();
+                            if (target != null) {
+                                data.handleFlying((PacketPlayInFlying) packet);
+                            }
                         }
                     }
                 } catch (Exception exception) {
@@ -106,10 +108,10 @@ public class PacketListener implements Listener {
                         wrapper.b(packetData);
                         int id = packetData.e();
 
-                        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTargetView(player);
-
-                        if (bot != null && bot.getNpc().getId() == id && !bot.getPacketsManager().isRelativeMovement())
+                        var bot = SolaraRobotsPlugin.getInstance().getBotManager().getBots().get(id);
+                        if (bot != null && !bot.getPacketsManager().isRelativeMovement()) {
                             return;
+                        }
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();
