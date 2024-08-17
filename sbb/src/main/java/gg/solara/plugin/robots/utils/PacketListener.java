@@ -44,11 +44,6 @@ public class PacketListener implements Listener {
             @Deprecated
             public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
                 try {
-                    if (packet instanceof PacketPlayInUseEntity) {
-                        PacketPlayInUseEntity wrapper = (PacketPlayInUseEntity) packet;
-                        handleAttack(wrapper, player);
-                    }
-
                     if (packet instanceof PacketPlayInFlying) {
                         DataPlayer data = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(player);
                         if (data != null) {
@@ -65,50 +60,58 @@ public class PacketListener implements Listener {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
                 DataPlayer data = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(player);
+                if (data == null) {
+                    super.write(channelHandlerContext, packet, channelPromise);
+                    return;
+                }
 
                 //OverWrites Player velocity
 
-                if (packet instanceof PacketPlayOutEntityVelocity) {
-                    PacketPlayOutEntityVelocity wrapper = (PacketPlayOutEntityVelocity) packet;
-                    ByteBuf byteBuf = Unpooled.buffer();
-                    PacketDataSerializer packetData = new PacketDataSerializer(byteBuf);
+                try {
+                    if (packet instanceof PacketPlayOutEntityVelocity) {
+                        PacketPlayOutEntityVelocity wrapper = (PacketPlayOutEntityVelocity) packet;
+                        ByteBuf byteBuf = Unpooled.buffer();
+                        PacketDataSerializer packetData = new PacketDataSerializer(byteBuf);
 
-                    wrapper.b(packetData);
+                        wrapper.b(packetData);
 
-                    int id = packetData.e();
-                    double x = packetData.readShort() / 8000D;
-                    double y = packetData.readShort() / 8000D;
-                    double z = packetData.readShort() / 8000D;
+                        int id = packetData.e();
+                        double x = packetData.readShort() / 8000D;
+                        double y = packetData.readShort() / 8000D;
+                        double z = packetData.readShort() / 8000D;
 
-                    if (id == player.getEntityId()) {
-                        Vector velocity = new Vector(x, y, z);
+                        if (id == player.getEntityId()) {
+                            if (data.handle()) {
+                                Vector v = data.velocity();
+                                if (v != null) {
+                                    packetData = new PacketDataSerializer(byteBuf);
+                                    packetData.b(id);
+                                    packetData.writeShort((int) (v.getX() * 8000D));
+                                    packetData.writeShort((int) (v.getY() * 8000D));
+                                    packetData.writeShort((int) (v.getZ() * 8000D));
 
-                        if (data.handle()) {
-                            Vector v = data.velocity();
-                            packetData = new PacketDataSerializer(byteBuf);
-                            packetData.b(id);
-                            packetData.writeShort((int) (v.getX() * 8000D));
-                            packetData.writeShort((int) (v.getY() * 8000D));
-                            packetData.writeShort((int) (v.getZ() * 8000D));
-
-                            wrapper.a(packetData);
+                                    wrapper.a(packetData);
+                                }
+                            }
                         }
                     }
-                }
 
-                //OverWrites Relative move if enabled
-                if (packet instanceof PacketPlayOutEntity) {
-                    PacketPlayOutEntity wrapper = (PacketPlayOutEntity) packet;
-                    ByteBuf byteBuf = Unpooled.buffer();
-                    PacketDataSerializer packetData = new PacketDataSerializer(byteBuf);
+                    //OverWrites Relative move if enabled
+                    if (packet instanceof PacketPlayOutEntity) {
+                        PacketPlayOutEntity wrapper = (PacketPlayOutEntity) packet;
+                        ByteBuf byteBuf = Unpooled.buffer();
+                        PacketDataSerializer packetData = new PacketDataSerializer(byteBuf);
 
-                    wrapper.b(packetData);
-                    int id = packetData.e();
+                        wrapper.b(packetData);
+                        int id = packetData.e();
 
-                    Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTargetView(player);
+                        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTargetView(player);
 
-                    if (bot != null && bot.getNpc().getId() == id && !bot.getPacketsManager().isRelativeMovement())
-                        return;
+                        if (bot != null && bot.getNpc().getId() == id && !bot.getPacketsManager().isRelativeMovement())
+                            return;
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
 
                 super.write(channelHandlerContext, packet, channelPromise);
@@ -126,37 +129,6 @@ public class PacketListener implements Listener {
             pipeline.addBefore("packet_handler", handlerName, channelDuplexHandler);
             return null;
         });
-    }
-
-    public PacketDataSerializer getPacketData(Packet wrapper) throws IOException {
-        ByteBuf byteBuf = Unpooled.buffer();
-        PacketDataSerializer packetData = new PacketDataSerializer(byteBuf);
-
-        wrapper.b(packetData);
-        return packetData;
-    }
-
-    public void handleAttack(PacketPlayInUseEntity wrapper,Player player) throws NoSuchFieldException, IllegalAccessException {
-        if (!wrapper.a().equals(PacketPlayInUseEntity.EnumEntityUseAction.ATTACK)) return;
-
-        Field f = wrapper.getClass().getDeclaredField("a");
-        f.setAccessible(true);
-
-        int id = (int) f.get(wrapper);
-        attack(id,player);
-    }
-
-    public void attack(int id,Player attacker) {
-        if (SolaraRobotsPlugin.getInstance() == null) {
-            return;
-        }
-
-        for (Bot bot : SolaraRobotsPlugin.getInstance().getBotManager().getBots()) {
-            if (bot.getNpc().getId() == id) {
-                //Nms already does this for us
-                //bot.getDamageManager().damage(attacker,true);
-            }
-        }
     }
 
     public void removePlayer(Player player) {
