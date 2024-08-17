@@ -10,6 +10,7 @@ import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.bots.BotGameMetadata
+import gg.tropic.practice.games.elo.ELOUpdates
 import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
@@ -153,7 +154,7 @@ open class GameImpl(
             return
         }
 
-        val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
+        var eloUpdates: CompletableFuture<ELOUpdates>? = null
         val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
         val playerFeedback = mutableMapOf<UUID, MutableList<String>>()
@@ -222,7 +223,7 @@ open class GameImpl(
                         }
                         globalStatistics.userPlayedGameAndLost().apply()
                     }
-                } + opponent.players.map {
+                } + winner.players.map {
                     it.networkTransaction {
                         useKitStatistics(this@GameImpl) {
                             wins += 1
@@ -237,12 +238,18 @@ open class GameImpl(
                 val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
                 if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)
                 {
-                    future.thenRun {
-                        val winnerProfileID = winner.players.firstOrNull()
-                        val loserProfileID = opponent.players.firstOrNull()
+                    val winnerProfileID = winner.players.firstOrNull()
+                    val loserProfileID = opponent.players.firstOrNull()
 
-                        if (winnerProfileID != null && loserProfileID != null)
-                        {
+
+                    if (winnerProfileID != null && loserProfileID != null)
+                    {
+                        eloUpdates = CompletableFuture()
+
+                        positionUpdates[winnerProfileID] = CompletableFuture()
+                        positionUpdates[loserProfileID] = CompletableFuture()
+
+                        future.thenRun {
                             val winnerProfile = winnerProfileID.acquireProfileImmutable().join()
                             val loserProfile = loserProfileID.acquireProfileImmutable().join()
 
@@ -263,8 +270,14 @@ open class GameImpl(
                                 getRankedStatsFor(kit).eloUpdates().apply(eloChanges.loserNew)
                             }
 
-                            newELOMappings[winnerProfile.identifier] = eloChanges.winnerNew to eloChanges.winnerGain
-                            positionUpdates[winnerProfile.identifier] = LeaderboardManagerService
+                            val localELOUpdates = ELOUpdates(
+                                winner = eloChanges.winnerNew to eloChanges.winnerGain,
+                                loser = eloChanges.loserNew to eloChanges.loserGain
+                            )
+
+                            eloUpdates.complete(localELOUpdates)
+
+                            LeaderboardManagerService
                                 .updateScoreAndGetDiffs(
                                     winnerProfile.identifier,
                                     Reference(
@@ -272,9 +285,11 @@ open class GameImpl(
                                     ),
                                     newScore = eloChanges.winnerNew.toLong()
                                 )
+                                .thenAcceptAsync {
+                                    positionUpdates[winnerProfile.identifier]?.complete(it)
+                                }
 
-                            newELOMappings[loserProfile.identifier] = eloChanges.loserNew to eloChanges.loserGain
-                            positionUpdates[loserProfile.identifier] = LeaderboardManagerService
+                            LeaderboardManagerService
                                 .updateScoreAndGetDiffs(
                                     loserProfile.identifier,
                                     Reference(
@@ -282,11 +297,13 @@ open class GameImpl(
                                     ),
                                     newScore = eloChanges.loserNew.toLong()
                                 )
+                                .thenAcceptAsync {
+                                    positionUpdates[loserProfile.identifier]?.complete(it)
+                                }
                         }
                     }
                 }
             }
-
 
             toBukkitPlayers()
                 .filterNotNull()
@@ -328,7 +345,7 @@ open class GameImpl(
 
         val stopTask =
             GameStopTask(
-                this, this.report!!, newELOMappings, positionUpdates,
+                this, this.report!!, eloUpdates, positionUpdates,
                 reason,
                 playerFeedback = playerFeedback
             )

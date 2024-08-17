@@ -1,17 +1,15 @@
 package land.esta.plugin.ssb.bot.setting.setting.persistence
 
-import land.esta.plugin.ssb.utils.RandomUtil
 import net.evilblock.cubed.serializers.impl.AbstractTypeSerializable
 import net.evilblock.cubed.util.CC
-import org.bukkit.Bukkit
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.random.Random
-import kotlin.random.nextInt
 
 /**
+ * DO NOT REFACTOR!
+ *
  * @author GrowlyX
  * @since 7/21/2024
  */
