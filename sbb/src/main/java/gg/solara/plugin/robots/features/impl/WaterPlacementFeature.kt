@@ -24,6 +24,10 @@ class WaterPlacementFeature : Feature()
 
         if (bot.healthManager.fireTicks < 5) return
 
+        val buckets = bot.inventoryManager.hasItemUsingName(Material.WATER_BUCKET)
+
+        if (buckets.size < 1) return
+
         bot.actionController.runAction(
             WaterPlacementAction
         ) { configuration: ActionConfiguration ->
@@ -36,10 +40,6 @@ class WaterPlacementFeature : Feature()
         bot.lastPlacedWater = System.currentTimeMillis()
 
         // val previousSlot = bot.inventoryManager.mainHand
-
-        val buckets = bot.inventoryManager.hasItemUsingName(Material.WATER_BUCKET)
-
-        if (buckets.size < 1) return
 
         val block = bot.movements.location.block
 

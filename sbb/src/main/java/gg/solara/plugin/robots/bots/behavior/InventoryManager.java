@@ -426,6 +426,7 @@ public class InventoryManager extends Manager {
 
         return (bool) -> {
             setMainHand(1);
+            bot.getMovements().setLockLocation(false);
         };
     }
 
