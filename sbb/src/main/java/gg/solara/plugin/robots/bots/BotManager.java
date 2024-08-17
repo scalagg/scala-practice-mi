@@ -7,62 +7,40 @@ import me.lucko.helper.Schedulers;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class BotManager {
 
-    private final ArrayList<Bot> bots = new ArrayList<>();
-
+    private final ConcurrentHashMap<Integer, Bot> bots = new ConcurrentHashMap<>();
     public BotManager(SolaraRobotsPlugin plugin) {
         if (GameServer.is()) {
             Schedulers.sync()
                     .runRepeating(() -> {
-                        final ArrayList<Bot> cloned = new ArrayList<>(bots);
-                        for (Bot bot : cloned) {
-                            if (bot == null) {
-                                continue;
-                            }
-
+                        for (Bot bot : bots.values()) {
                             if (bot.isAlive()) {
                                 bot.tick();
                             }
                         }
-                    }, 1L, 1L)
+                    }, 0L, 1L)
                     .bindWith(plugin);
         }
     }
 
     public void addBot(Bot bot) {
-        bots.add(bot);
+        bots.put(
+                bot.getNpc().getId(),
+                bot
+        );
     }
 
     public void removeBot(Bot bot) {
-        bots.remove(bot);
-    }
-
-    public Bot getNpcFromId(int id) {
-        for (Bot npc : bots) {
-            if (npc.getNpc().getBukkitEntity().getEntityId() == id) {
-                return npc;
-            }
-        }
-
-        return null;
+        bots.remove(bot.getNpc().getId());
     }
 
     public Bot getNpcFromTarget(Player target) {
-        for (Bot npc : bots) {
+        for (Bot npc : bots.values()) {
             if (npc.getMovements().getTargetLocate().getTargetEntity().getUniqueId() == target.getUniqueId()) {
-                return npc;
-            }
-        }
-
-        return null;
-    }
-
-    public Bot getNpcFromTargetView(Player target) {
-        for (Bot npc : bots) {
-            if (npc.getViewsManager().getPlayers().contains(target)) {
                 return npc;
             }
         }
