@@ -33,14 +33,18 @@ public class TargetLocate extends Manager {
         this.targetEntity = UtilitiesKt.getTargetEntity(bot);
 
         if (previousTarget != targetEntity) {
-            var previousData = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(previousTarget);
-            if (previousData != null) {
-                previousData.setTargetedByRobot(null);
+            if (previousTarget != null) {
+                var previousData = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(previousTarget);
+                if (previousData != null) {
+                    previousData.setTargetedByRobot(null);
+                }
             }
 
-            var newTargetData = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(targetEntity);
-            if (newTargetData != null) {
-                newTargetData.setTargetedByRobot(new WeakReference<>(bot));
+            if (targetEntity != null) {
+                var newTargetData = SolaraRobotsPlugin.getInstance().getDataManager().getPlayer(targetEntity);
+                if (newTargetData != null) {
+                    newTargetData.setTargetedByRobot(new WeakReference<>(bot));
+                }
             }
         }
 
