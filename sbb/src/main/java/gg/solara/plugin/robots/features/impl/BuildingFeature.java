@@ -118,7 +118,7 @@ public class BuildingFeature extends Feature {
                 BuildingAction.INSTANCE,
                 (configuration) -> {
                     configuration.setExecutionBehavior(ExecutionBehavior.Block);
-                    configuration.setShouldContinueMovement(false);
+                    configuration.setShouldContinueMovement(true);
                     return null;
                 }
         );
@@ -214,6 +214,7 @@ public class BuildingFeature extends Feature {
                                 bot.setLastPlaced(System.currentTimeMillis());
                                 switchSlow.accept(true);
                                 task.closeAndReportException();
+                                terminable.closeAndReportException();
                                 return;
                             }
 
@@ -239,6 +240,7 @@ public class BuildingFeature extends Feature {
                             bot.getMovements().setLockLocation(false);
                             switchSlow.accept(true);
                             task.closeAndReportException();
+                            terminable.closeAndReportException();
                             return;
                         } else {
                             Location loc1 = bot.getMovements().getLocation().clone();
@@ -254,6 +256,7 @@ public class BuildingFeature extends Feature {
                                 bot.getMovements().setLockLocation(false);
                                 switchSlow.accept(true);
                                 task.closeAndReportException();
+                                terminable.closeAndReportException();
                                 return;
                             }
                         }
