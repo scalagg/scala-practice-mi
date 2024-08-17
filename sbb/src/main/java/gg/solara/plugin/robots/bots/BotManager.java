@@ -23,10 +23,8 @@ public class BotManager {
                                 continue;
                             }
 
-                            // Cannot measure distance between diff words patch
                             if (bot.isAlive()) {
                                 bot.tick();
-                                continue;
                             }
                         }
                     }, 1L, 1L)

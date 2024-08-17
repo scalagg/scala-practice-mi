@@ -4,6 +4,8 @@ import gg.solara.plugin.robots.SolaraRobotsPlugin;
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import lombok.Data;
 import gg.solara.plugin.robots.bots.Bot;
+import me.lucko.helper.Events;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import net.minecraft.server.v1_8_R3.PacketPlayInFlying;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,35 +16,44 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 public class DataPlayer {
     private final Player player;
     private Vector motion;
 
-    private final List<Vector> locations = new ArrayList<>();
+    private final CompositeTerminable terminable = CompositeTerminable.create();
+    private final CopyOnWriteArrayList<Vector> locations = new CopyOnWriteArrayList<>();
 
     public void handleFlying(PacketPlayInFlying wrapper) {
-        Vector posUpdate = new Vector(wrapper.a(),wrapper.b(),wrapper.c());
+        Vector posUpdate = new Vector(wrapper.a(), wrapper.b(), wrapper.c());
         handlePos(posUpdate);
     }
 
-    private int hitCounter;
+    {
+        Events
+                .subscribe(EntityDamageByEntityEvent.class)
+                .handler(event -> {
+                    if (event.getEntity().getEntityId() == getPlayer().getEntityId()) {
+                        Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(getPlayer());
+                        if (bot != null) {
+                            bot.getAttackingManager().setAttackTicks(0);
+                        }
+                    }
+                })
+                .bindWith(terminable);
+    }
+
     private int combo;
-    private int botHitCounter;
     private int botCombo;
-    private long timeOutChat;
-    private boolean saving = false;
-    private boolean updatingGui = false;
 
     public void botHit() {
-        botHitCounter++;
         botCombo++;
         combo = 0;
     }
 
     public void hit() {
-        hitCounter++;
         combo++;
         botCombo = 0;
     }
@@ -62,7 +73,8 @@ public class DataPlayer {
         if (bot == null) return null;
 
         Vector dir = MathUtils.getDirection(bot.getMovements().getLocation().getYaw());
-        if (bot.getAttackingManager().isProjectile()) return dir.multiply(0.8).setY(0.4); // TODO check if the damge was handled by a projectile
+        if (bot.getAttackingManager().isProjectile())
+            return dir.multiply(0.8).setY(0.4); // TODO check if the damge was handled by a projectile
         double h = 0.47;
         double v = 0.35;
         double reach = 3.5;
@@ -74,7 +86,7 @@ public class DataPlayer {
 
         if (bot.getMovements().isAttackSprint() || !wtapEnabled) h *= 1.2;
         if (player.isOnGround()) h *= 1.1;
-        double extraH = Math.min(Math.max((reach - (bot.getMovements().getLocation().distance(player.getLocation()) - 0.3)) * distMultiplier,0),0.4);
+        double extraH = Math.min(Math.max((reach - (bot.getMovements().getLocation().distance(player.getLocation()) - 0.3)) * distMultiplier, 0), 0.4);
         h += extraH;
         double speed = 1;
         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
@@ -89,22 +101,9 @@ public class DataPlayer {
     }
 
     public void handlePos(Vector pos) {
-        if (pos.equals(new Vector(0,0,0))) return;
+        if (pos.equals(new Vector(0, 0, 0))) return;
         locations.add(pos);
 
         if (locations.size() > 3) locations.remove(0);
-    }
-
-    public Vector getLastLoc() {
-        if (locations.isEmpty()) return new Vector(0,0,0);
-        return locations.get(locations.size() - 1);
-    }
-
-    @EventHandler
-    public void damage(EntityDamageByEntityEvent e) {
-        if (e.getEntity().getEntityId() == player.getEntityId()) {
-            Bot bot = SolaraRobotsPlugin.getInstance().getBotManager().getNpcFromTarget(player);
-            if (bot != null) bot.getAttackingManager().setAttackTicks(0);
-        }
     }
 }

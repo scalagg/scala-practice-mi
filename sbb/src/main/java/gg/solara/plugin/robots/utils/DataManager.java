@@ -32,7 +32,10 @@ public class DataManager {
         Events
                 .subscribe(PlayerQuitEvent.class)
                 .handler(event -> {
-                    players.remove(event.getPlayer().getUniqueId());
+                    var player = players.remove(event.getPlayer().getUniqueId());
+                    if (player != null) {
+                        player.getTerminable().closeAndReportException();
+                    }
                 })
                 .bindWith(plugin);
     }
