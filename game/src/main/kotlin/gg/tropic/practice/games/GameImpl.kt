@@ -351,9 +351,6 @@ open class GameImpl(
                 playerFeedback = playerFeedback
             )
 
-        println("BEING CALLED")
-        println(winner?.players)
-
         this.activeCountdown = 5
 
         stopTask.task = Schedulers.sync()
