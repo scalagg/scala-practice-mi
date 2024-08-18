@@ -154,6 +154,8 @@ open class GameImpl(
             return
         }
 
+        this.state = GameState.Completed
+
         var eloUpdates: CompletableFuture<ELOUpdates>? = null
         val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
@@ -340,7 +342,6 @@ open class GameImpl(
             )
         }
 
-        this.state = GameState.Completed
         GameReportFeature.saveSnapshotForAllParticipants(report!!)
 
         val stopTask =

@@ -10,8 +10,6 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="clean" />
-          <option value="game:clean" />
           <option value="game:build" />
         </list>
       </option>
