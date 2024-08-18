@@ -87,7 +87,6 @@ object RedisTabSync
                     val removedPlayers = remoteTrackedPlayers.filter { !updatedPlayers.containsKey(it.key) }
 
                     addedPlayers.values.broadcastUpdates {
-                        println("adding players")
                         TabSyncPacketCreator.create(this)
                     }
 
@@ -103,13 +102,11 @@ object RedisTabSync
                                     arrayListOf(it.username),
                                     3
                                 ).send(bukkitPlayer)
-                                println("Sent update mod")
                             }
                         }
                     }
 
                     changedPlayers.values.broadcastUpdates {
-                        println("updating players")
                         TabSyncPacketCreator.update(this)
                     }
 
@@ -120,7 +117,6 @@ object RedisTabSync
                     }
 
                     removedPlayers.values.broadcastUpdates {
-                        println("removing players")
                         TabSyncPacketCreator.remove(this)
                     }
 
