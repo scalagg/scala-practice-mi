@@ -1,6 +1,9 @@
 package gg.tropic.practice.games
 
+import com.cryptomorin.xseries.XSound
 import com.grinderwolf.swm.nms.v1_8_R3.CustomWorldServer
+import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.Globals
@@ -36,11 +39,13 @@ import gg.tropic.practice.region.Region
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import gg.tropic.practice.services.TournamentManagerService
+import gg.tropic.practice.utilities.BotMessages
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.*
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
@@ -361,6 +366,39 @@ open class GameImpl(
             )
 
         stopTask.task.bindWith(this)
+
+        if (robot())
+        {
+            val robot = robotInstance.firstOrNull() ?: return
+            Schedulers
+                .async()
+                .runLater({
+                    toBukkitPlayers()
+                        .filterNotNull()
+                        .forEach {
+                            if (winner!!.players.contains(it.uniqueId)) {
+                                it.sendMessage(BotMessages.getBotLose(robot.name()))
+                            } else {
+                                val opponent = this.getOpponent(winner)
+                                if (opponent != null && opponent.players.contains(it.uniqueId)) it.sendMessage(BotMessages.getBotWin(robot.name()))
+                            }
+                            val profile = BasicsProfileService.find(it)
+                            val messagingSoundsSettingValue = profile
+                                ?.setting(
+                                    id = "messages_sounds",
+                                    default = StateSettingValue.ENABLED
+                                )
+                            if (messagingSoundsSettingValue == StateSettingValue.ENABLED)
+                            {
+                                it.playSound(
+                                    it.location,
+                                    XSound.ENTITY_EXPERIENCE_ORB_PICKUP.parseSound(),
+                                    1F, 1F
+                                )
+                            }
+                        }
+                }, 50L)
+        }
     }
 
     private fun initializeTeamObjectives()
