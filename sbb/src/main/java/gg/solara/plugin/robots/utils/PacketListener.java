@@ -84,16 +84,19 @@ public class PacketListener implements Listener {
                         double z = packetData.readShort() / 8000D;
 
                         if (id == player.getEntityId()) {
-                            if (data.handle()) {
-                                Vector v = data.velocity();
-                                if (v != null) {
-                                    packetData = new PacketDataSerializer(byteBuf);
-                                    packetData.b(id);
-                                    packetData.writeShort((int) (v.getX() * 8000D));
-                                    packetData.writeShort((int) (v.getY() * 8000D));
-                                    packetData.writeShort((int) (v.getZ() * 8000D));
+                            var targetedBot = data.getTargetedBy();
+                            if (targetedBot != null) {
+                                if (data.handle(targetedBot)) {
+                                    Vector v = data.velocity(targetedBot);
+                                    if (v != null) {
+                                        packetData = new PacketDataSerializer(byteBuf);
+                                        packetData.b(id);
+                                        packetData.writeShort((int) (v.getX() * 8000D));
+                                        packetData.writeShort((int) (v.getY() * 8000D));
+                                        packetData.writeShort((int) (v.getZ() * 8000D));
 
-                                    wrapper.a(packetData);
+                                        wrapper.a(packetData);
+                                    }
                                 }
                             }
                         }

@@ -1,6 +1,5 @@
 package gg.solara.plugin.robots.utils;
 
-import gg.solara.plugin.robots.SolaraRobotsPlugin;
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor;
 import lombok.Data;
 import gg.solara.plugin.robots.bots.Bot;
@@ -8,16 +7,14 @@ import me.lucko.helper.Events;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import net.minecraft.server.v1_8_R3.PacketPlayInFlying;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
@@ -70,16 +67,14 @@ public class DataPlayer {
         botCombo = 0;
     }
 
-    public boolean handle() {
-        var bot = getTargetedBy();
+    public boolean handle(@NotNull Bot bot) {
         long diff = System.currentTimeMillis() - bot.getAttackingManager().getAttacked();
         long diff2 = System.currentTimeMillis() - bot.getAttackingManager().getLastProjectile();
         bot.getAttackingManager().setLandAttack(diff < 150);
         return (diff < 150 && !bot.getDamageManager().isCombo()) || diff2 < 1000;
     }
 
-    public Vector velocity() {
-        var bot = getTargetedBy();
+    public Vector velocity(@NotNull Bot bot) {
         Vector dir = MathUtils.getDirection(bot.getMovements().getLocation().getYaw());
         if (bot.getAttackingManager().isProjectile())
             return dir.multiply(0.8).setY(0.4); // TODO check if the damge was handled by a projectile
