@@ -44,7 +44,7 @@ open class GameQueue(
 
     fun queueId() = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
 
-    private fun expandRanges()
+    open fun expandRanges()
     {
         val entries = GameQueueManager.getQueueEntriesFromId(queueId())
 

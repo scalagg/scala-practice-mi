@@ -6,6 +6,7 @@ import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.game.GameTeam
 import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
+import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.bots.extractBotGameMetadata
 import gg.tropic.practice.namespace
@@ -14,6 +15,8 @@ import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.queue.QueueEntry
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.Region
+import gg.tropic.practice.serializable.Message
+import net.md_5.bungee.api.chat.ClickEvent
 import java.util.*
 
 /**
@@ -31,6 +34,55 @@ open class RobotDuoPlayerQueue(
             "${namespace()}:bot-metadata:$player"
         )
         .extractBotGameMetadata()
+
+    override fun expandRanges()
+    {
+        val entries = GameQueueManager.getQueueEntriesFromId(queueId())
+        for ((_, entry) in entries)
+        {
+            if (System.currentTimeMillis() - entry.joinQueueTimestamp >= 15_000L)
+            {
+                val currentBroadcastLastTimestamp = DPSRedisShared.keyValueCache.sync()
+                    .hget(
+                        "${namespace()}:bot-duos:queue-broadcast",
+                        entry.leader.toString()
+                    )
+                    ?.toLongOrNull()
+
+                if (
+                    currentBroadcastLastTimestamp != null &&
+                    System.currentTimeMillis() - currentBroadcastLastTimestamp <= 60_000L
+                )
+                {
+                    continue
+                }
+
+                val metadata = getBotMetdataOfPlayer(entry.leader)
+                DPSRedisShared.keyValueCache.sync()
+                    .hset(
+                        "${namespace()}:bot-duos:queue-broadcast",
+                        entry.leader.toString(),
+                        System.currentTimeMillis().toString()
+                    )
+
+                val kit = KitDataSync.cached().kits[metadata.kitID]
+                DPSRedisShared.sendBroadcast(
+                    Message()
+                        .withMessage("{primary}&lA 2v2 ${metadata.botNamespace.lowercase().capitalize()} Bot ${
+                            kit?.displayName ?: metadata.kitID
+                        } game is starting soon! ")
+                        .withMessage("&a(Click to Join)")
+                        .andHoverOf(
+                            "Join the game!"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/play ${metadata.botNamespace} ${metadata.kitID}"
+                        )
+                )
+            }
+        }
+    }
 
     override fun run()
     {
