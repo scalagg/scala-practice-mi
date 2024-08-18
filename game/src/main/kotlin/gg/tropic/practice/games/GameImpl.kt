@@ -376,18 +376,24 @@ open class GameImpl(
                     toBukkitPlayers()
                         .filterNotNull()
                         .forEach {
-                            if (winner!!.players.contains(it.uniqueId)) {
+                            if (winner!!.players.contains(it.uniqueId))
+                            {
                                 it.sendMessage(BotMessages.getBotLose(robot.name()))
-                            } else {
+                            } else
+                            {
                                 val opponent = this.getOpponent(winner)
-                                if (opponent != null && opponent.players.contains(it.uniqueId)) it.sendMessage(BotMessages.getBotWin(robot.name()))
+                                if (opponent != null && opponent.players.contains(it.uniqueId)) it.sendMessage(
+                                    BotMessages.getBotWin(robot.name())
+                                )
                             }
+
                             val profile = BasicsProfileService.find(it)
                             val messagingSoundsSettingValue = profile
                                 ?.setting(
                                     id = "messages_sounds",
                                     default = StateSettingValue.ENABLED
                                 )
+
                             if (messagingSoundsSettingValue == StateSettingValue.ENABLED)
                             {
                                 it.playSound(
