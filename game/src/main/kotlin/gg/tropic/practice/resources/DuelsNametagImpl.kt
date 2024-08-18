@@ -18,34 +18,34 @@ import org.bukkit.entity.Player
 @NametagProviderRegister
 object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 {
-    private val GREEN_TEAM_NAME_TAG = createNametag("${CC.B_GREEN}G${CC.GREEN} ", "")
     private val RED_TEAM_NAME_TAG = createNametag("${CC.B_RED}R${CC.RED} ", "")
+    private val GREEN_TEAM_NAME_TAG = createNametag("${CC.B_GREEN}G${CC.GREEN} ", "")
     private val BLUE_TEAM_NAME_TAG = createNametag("${CC.B_BLUE}B${CC.BLUE} ", "")
 
     private val SPECTATOR_NAME_TAG = createNametag("${CC.B_GRAY}S${CC.GRAY} ", "")
 
     override fun fetchNametag(
-        toRefresh: Player, refreshFor: Player
+        viewed: Player, viewer: Player
     ): NametagInfo?
     {
-        val playerGame = GameService
-            .byPlayerOrSpectator(toRefresh.uniqueId)
+        val viewedGame = GameService
+            .byPlayerOrSpectator(viewed.uniqueId)
             ?: return null
 
-        val targetGame = GameService
-            .byPlayerOrSpectator(refreshFor.uniqueId)
+        val viewerGame = GameService
+            .byPlayerOrSpectator(viewer.uniqueId)
             ?: return null
 
-        if (targetGame.expectation == playerGame.expectation)
+        if (viewerGame.expectation == viewedGame.expectation)
         {
-            if (refreshFor.hasMetadata("spectator"))
+            if (viewed.hasMetadata("spectator"))
             {
                 return SPECTATOR_NAME_TAG
             }
 
-            if (playerGame.flag(FeatureFlag.RedBlueTeams))
+            if (viewedGame.flag(FeatureFlag.RedBlueTeams))
             {
-                val team = playerGame.getNullableTeam(refreshFor)
+                val team = viewedGame.getNullableTeam(viewer)
                     ?: return SPECTATOR_NAME_TAG
 
                 val rbSide = team
@@ -56,7 +56,8 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
                     BLUE_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
             }
 
-            return if (playerGame.getTeamOf(toRefresh).side == GameTeamSide.A)
+            val team = viewedGame.getTeamOf(viewed)
+            return if (team.side == GameTeamSide.A)
                 GREEN_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
         }
 

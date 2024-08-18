@@ -16,6 +16,7 @@ import gg.solara.plugin.robots.utils.Color
 import gg.solara.plugin.robots.utils.objects.EventRunnable
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -149,15 +150,20 @@ object SolaraPracticeIntegrator
             })
         }
 
+        val terminable = CompositeTerminable.create()
+        terminable.bindWith(bot.terminable)
+
         Events
             .subscribe(GameStartEvent::class.java)
+            .filter { bot.game.expectation == it.game.expectation }
             .handler {
                 if (bot.isAlive)
                 {
                     bot.movements.isMove = true
+                    terminable.closeAndReportException()
                 }
             }
-            .bindWith(bot.terminable)
+            .bindWith(terminable)
 
         Events
             .subscribe(PotionSplashEvent::class.java)

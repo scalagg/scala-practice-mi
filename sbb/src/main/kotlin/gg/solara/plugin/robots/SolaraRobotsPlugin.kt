@@ -44,7 +44,7 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
     companion object
     {
         @JvmStatic
-        var instance: SolaraRobotsPlugin? = null
+        lateinit var instance: SolaraRobotsPlugin
     }
 
     lateinit var botManager: BotManager
@@ -73,16 +73,9 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
             botManager = BotManager(this)
             dataManager = DataManager(this)
 
-            if (GameServer.`is`())
-            {
-                Bukkit.getServer().pluginManager.registerEvents(PacketListener(), this)
-            }
-        }
+            Bukkit.getServer().pluginManager.registerEvents(PacketListener(), this)
 
-        eventManager = EventManager()
-
-        if (GameServer.`is`())
-        {
+            eventManager = EventManager()
             featureManager = FeatureManager()
             SolaraPracticeSupport.enable()
         } else
@@ -113,12 +106,10 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
     {
         if (GameServer.`is`())
         {
-            for (bot in botManager.bots)
+            for (bot in botManager.bots.values)
             {
                 bot.destroy()
             }
         }
-
-        instance = null
     }
 }
