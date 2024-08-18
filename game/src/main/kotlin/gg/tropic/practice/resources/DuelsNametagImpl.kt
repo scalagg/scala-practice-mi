@@ -1,6 +1,7 @@
 package gg.tropic.practice.resources
 
 import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.utilities.RBTeamSide
 import gg.tropic.practice.utilities.toRBTeamSide
@@ -17,6 +18,12 @@ import org.bukkit.entity.Player
 @NametagProviderRegister
 object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 {
+    private val GREEN_TEAM_NAME_TAG = createNametag("${CC.B_GREEN}G${CC.GREEN} ", "")
+    private val RED_TEAM_NAME_TAG = createNametag("${CC.B_RED}R${CC.RED} ", "")
+    private val BLUE_TEAM_NAME_TAG = createNametag("${CC.B_BLUE}B${CC.BLUE} ", "")
+
+    private val SPECTATOR_NAME_TAG = createNametag("${CC.B_GRAY}S${CC.GRAY} ", "")
+
     override fun fetchNametag(
         toRefresh: Player, refreshFor: Player
     ): NametagInfo?
@@ -33,39 +40,24 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
         {
             if (refreshFor.hasMetadata("spectator"))
             {
-                return createNametag(CC.GRAY, "", "Z")
+                return SPECTATOR_NAME_TAG
             }
 
             if (playerGame.flag(FeatureFlag.RedBlueTeams))
             {
                 val team = playerGame.getNullableTeam(refreshFor)
-                    ?: return createNametag(CC.GRAY, "", "Z")
+                    ?: return SPECTATOR_NAME_TAG
 
                 val rbSide = team
                     .side
                     .toRBTeamSide()
 
-                return createNametag(
-                    prefix = rbSide.color,
-                    suffix = "",
-                    name = if (rbSide == RBTeamSide.Blue) "X" else "Y"
-                )
+                return if (rbSide == RBTeamSide.Blue)
+                    BLUE_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
             }
 
-            return runCatching {
-                if (
-                    playerGame.getTeamOf(refreshFor).side ==
-                    playerGame.getTeamOf(toRefresh).side
-                )
-                {
-                    createNametag(CC.GREEN, "", "W")
-                } else
-                {
-                    createNametag(CC.RED, "", "V")
-                }
-            }.getOrNull() ?: createNametag(
-                CC.GREEN, "", "W"
-            )
+            return if (playerGame.getTeamOf(toRefresh).side == GameTeamSide.A)
+                GREEN_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
         }
 
         return null
