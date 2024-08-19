@@ -61,7 +61,7 @@ class SolaraPracticeRobotInstanceImpl(
             spawnedBot = SolaraPracticeIntegrator.spawn(
                 gameImpl.map
                     .findSpawnLocationMatchingTeam(
-                        gameImpl.robotSide().side
+                        gameImpl.robotSide().teamIdentifier
                     )!!
                     .toLocation(gameImpl.arenaWorld!!),
                 gameImpl,

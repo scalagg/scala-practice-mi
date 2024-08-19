@@ -4,8 +4,8 @@ import com.tinder.StateMachine
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.suffixWhenDev
@@ -24,7 +24,6 @@ class Tournament(val config: TournamentConfig) : () -> Unit
     private var ticker: ScheduledFuture<*>? = null
 
     var memberSet = mutableSetOf<TournamentMember>()
-
     var currentMatchList = mutableListOf<GameExpectation>()
 
     var expectedMatchList: ScheduledMatchList? = null

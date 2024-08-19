@@ -1,11 +1,10 @@
 package gg.tropic.practice.replications.manager
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.github.benmanes.caffeine.cache.RemovalCause
 import gg.scala.aware.thread.AwareThreadContext
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.GameExpectation
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.namespace
 import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
@@ -15,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 /**
  * @author GrowlyX

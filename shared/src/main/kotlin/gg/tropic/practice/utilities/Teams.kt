@@ -2,13 +2,11 @@ package gg.tropic.practice.utilities
 
 import gg.tropic.practice.games.AbstractGame
 import gg.tropic.practice.games.team.GameTeam
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Color
-import org.bukkit.Material
-import org.bukkit.entity.Player
 
 /**
  * @author GrowlyX
@@ -18,7 +16,7 @@ enum class RBTeamSide(
     val display: String,
     val color: String,
     val armorColor: Color,
-    val blockColor: Short,
+    val blockColor: Short
 )
 {
     Red(
@@ -26,7 +24,6 @@ enum class RBTeamSide(
         color = CC.RED,
         armorColor = Color.RED,
         blockColor = 14
-
     ),
     Blue(
         display = "Blue",
@@ -38,16 +35,17 @@ enum class RBTeamSide(
     fun format(message: String) = "$color$message"
 }
 
-fun GameTeamSide.toRBTeamSide() = if (this == GameTeamSide.A)
+fun TeamIdentifier.toRBTeamSide() = if (this == TeamIdentifier.A)
     RBTeamSide.Red else RBTeamSide.Blue
 
+// TODO: update colors to be compat with A/B/C/D/... (potentially Hypixel colors for bedwars?)
 fun AbstractGame.colorOf(team: GameTeam) = if (kit.features(FeatureFlag.RedBlueTeams))
 {
-    if (team.side == GameTeamSide.A)
+    if (team.teamIdentifier == TeamIdentifier.A)
         CC.RED else CC.BLUE
 } else
 {
-    if (team.side == GameTeamSide.A)
+    if (team.teamIdentifier == TeamIdentifier.A)
         CC.GREEN else CC.RED
 }
 

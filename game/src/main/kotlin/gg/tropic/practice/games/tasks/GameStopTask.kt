@@ -1,9 +1,9 @@
 package gg.tropic.practice.games.tasks
 
-import gg.tropic.practice.games.GameImpl
-import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
+import gg.tropic.practice.games.GameImpl
+import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.elo.ELOUpdates
 import gg.tropic.practice.games.teleportToSpawnLocation
 import gg.tropic.practice.kit.feature.FeatureFlag
@@ -17,7 +17,6 @@ import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.math.Numbers
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -29,7 +28,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.math.abs
 
@@ -70,7 +69,7 @@ class GameStopTask(
                     ?.toIntOrNull()
                     ?: 0
 
-                for ((_, team) in game.teams)
+                for (team in game.teams)
                 {
                     team.toBukkitPlayers()
                         .filterNotNull()

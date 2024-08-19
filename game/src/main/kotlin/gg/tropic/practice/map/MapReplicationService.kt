@@ -102,10 +102,19 @@ object MapReplicationService
                 expectation = expectation,
                 kit = kit
             )
-            newGame.buildResources()
+
+            if (!newGame.buildResources())
+            {
+                newGame.state = GameState.Completed
+                newGame.closeAndCleanup()
+                return@handler
+            }
 
             val scheduledMap = findScheduledReplication(expectation.identifier)
-                ?: return@handler
+                ?: return@handler run {
+                    newGame.state = GameState.Completed
+                    newGame.closeAndCleanup()
+                }
 
             Schedulers
                 .sync()

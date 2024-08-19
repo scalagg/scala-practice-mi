@@ -9,17 +9,17 @@ import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.agnostic.sync.server.state.ServerState
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.GameExpectation
-import gg.tropic.practice.application.api.defaults.game.GameTeam
-import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.gameGroup
 import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.games.spectate.SpectateRequest
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.GameReference
+import gg.tropic.practice.games.team.GameTeam
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.lobbyGroup
 import gg.tropic.practice.namespace
@@ -452,9 +452,9 @@ object GameQueueManager
                             expectation = GameExpectation(
                                 players = listOf(request.requester, request.requestee),
                                 identifier = UUID.randomUUID(),
-                                teams = mapOf(
-                                    GameTeamSide.A to GameTeam(GameTeamSide.A, listOf(request.requester)),
-                                    GameTeamSide.B to GameTeam(GameTeamSide.B, listOf(request.requestee))
+                                teams = setOf(
+                                    GameTeam(teamIdentifier = TeamIdentifier.A, listOf(request.requester)),
+                                    GameTeam(teamIdentifier = TeamIdentifier.B, listOf(request.requestee))
                                 ),
                                 kitId = request.kitID,
                                 mapId = map.name,

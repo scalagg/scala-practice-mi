@@ -1,13 +1,10 @@
 package gg.tropic.practice.games.tasks.lifecycle
 
-import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.*
 import gg.tropic.practice.games.GameService.plugin
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.utilities.toRBTeamSide
-import me.lucko.helper.Helper
 import me.lucko.helper.Schedulers
 import me.lucko.helper.scheduler.Task
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -19,9 +16,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.title.Title
-import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.entity.Player
 import org.bukkit.metadata.FixedMetadataValue
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -51,7 +46,7 @@ class RoundStartTask(
         }
     }
 
-    private var rbTeamSide = winner.side.toRBTeamSide()
+    private var rbTeamSide = winner.teamIdentifier.toRBTeamSide()
 
     private var task by Delegates.notNull<Task>()
     private var tick = game
@@ -100,7 +95,7 @@ class RoundStartTask(
         val opponent = game.getOpponent(winner)
         val primary = "${rbTeamSide.format(winnerDisplay ?: "???")} ${CC.SEC}scored!"
         val subText = " ${CC.I}${rbTeamSide.format(winner.gameLifecycleArbitraryObjectiveProgress.toString())}${CC.R} ${CC.GRAY}- ${CC.I}${
-            opponent!!.side.toRBTeamSide().format(opponent.gameLifecycleArbitraryObjectiveProgress.toString())
+            opponent.teamIdentifier.toRBTeamSide().format(opponent.gameLifecycleArbitraryObjectiveProgress.toString())
         }"
 
         game.sendMessage("", primary, "${CC.I}$subText", "")

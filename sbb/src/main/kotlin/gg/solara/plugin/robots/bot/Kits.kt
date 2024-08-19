@@ -20,7 +20,7 @@ fun Bot.fixInventoryBasedOnRBTeamColor()
     val team = game.robotSide()
     if (game.flag(FeatureFlag.RedBlueTeams))
     {
-        val teamSide = team.side.toRBTeamSide()
+        val teamSide = team.teamIdentifier.toRBTeamSide()
         inventoryManager.contents.indices.forEach { index ->
             val nmsItemStack = inventoryManager.contents[index]
                 ?: return@forEach

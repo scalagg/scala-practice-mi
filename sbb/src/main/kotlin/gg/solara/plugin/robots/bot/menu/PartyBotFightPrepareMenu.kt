@@ -7,7 +7,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.bots.BotGameMetadata
 import gg.tropic.practice.games.bots.storeForUser
 import gg.tropic.practice.games.team.GameTeam
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
@@ -277,9 +277,9 @@ class PartyBotFightPrepareMenu(
                     val gameExpectation = GameExpectation(
                         UUID.randomUUID(),
                         players = players.toList() + it.botInstances.toList(),
-                        teams = mapOf(
-                            GameTeamSide.A to GameTeam(GameTeamSide.A, players.toList()),
-                            GameTeamSide.B to GameTeam(GameTeamSide.B, it.botInstances.toList())
+                        teams = setOf(
+                            GameTeam(TeamIdentifier.A, players.toList()),
+                            GameTeam(TeamIdentifier.B, it.botInstances.toList())
                         ),
                         kitId = kit.id,
                         mapId = realMap.name,

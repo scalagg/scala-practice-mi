@@ -1,7 +1,7 @@
 package gg.tropic.practice.resources
 
 import gg.tropic.practice.games.GameService
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.utilities.RBTeamSide
 import gg.tropic.practice.utilities.toRBTeamSide
@@ -49,7 +49,7 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
                     ?: return SPECTATOR_NAME_TAG
 
                 val rbSide = team
-                    .side
+                    .teamIdentifier
                     .toRBTeamSide()
 
                 return if (rbSide == RBTeamSide.Blue)
@@ -57,7 +57,8 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
             }
 
             val team = viewedGame.getTeamOf(viewed)
-            return if (team.side == GameTeamSide.A)
+            // TODO: proper nametags for each team
+            return if (team.teamIdentifier == TeamIdentifier.A)
                 GREEN_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
         }
 

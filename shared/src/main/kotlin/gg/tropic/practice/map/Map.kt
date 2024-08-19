@@ -1,6 +1,6 @@
 package gg.tropic.practice.map
 
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.map.metadata.anonymous.Bounds
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.map.metadata.impl.MapLevelMetadata
@@ -8,13 +8,10 @@ import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
 import gg.tropic.practice.map.metadata.impl.MapZoneMetadata
 import gg.tropic.practice.map.utilities.MapMetadata
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
-import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
-import java.util.concurrent.CompletableFuture
 
 /**
  * Defines a map. Maps and available replications are decoupled, so
@@ -62,11 +59,11 @@ data class Map(
             it.bounds.contains(block.location.toPosition())
         }
 
-    fun findSpawnLocationMatchingTeam(team: GameTeamSide) = metadata
+    fun findSpawnLocationMatchingTeam(team: TeamIdentifier) = metadata
         .metadata
         .filterIsInstance<MapSpawnMetadata>()
         .firstOrNull {
-            it.id == team.name.lowercase()
+            it.id == team.label.lowercase()
         }
         ?.position
 }
