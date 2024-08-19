@@ -19,7 +19,9 @@ import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -74,24 +76,32 @@ object RedisTabSync
                                 ?.trackedPlayers
                                 ?: emptyList()
                         }
+                        .filter { it.uuid !in localReceivingPlayers }
                         .associateBy { it.uuid }
 
-                    val addedPlayers = updatedPlayers.filter { !remoteTrackedPlayers.containsKey(it.key) }
-                    val changedPlayers = remoteTrackedPlayers
+                    val remote = remoteTrackedPlayers
+                        .filter { it.key !in localReceivingPlayers }
+
+                    val addedPlayers = updatedPlayers.filter { !remote.containsKey(it.key) }
+                    val changedPlayers = remote
                         .filter {
                             val other = updatedPlayers[it.key]
                                 ?: return@filter false
 
                             it.value.requiresUpdate(other)
                         }
-                    val removedPlayers = remoteTrackedPlayers.filter { !updatedPlayers.containsKey(it.key) }
+                    val removedPlayers = remote.filter { !updatedPlayers.containsKey(it.key) }
 
                     addedPlayers.values.broadcastUpdates {
+                        forEach {
+                            remoteTrackedPlayers[it.uuid] = it
+                        }
+
                         TabSyncPacketCreator.create(this)
                     }
 
-                    updateLock.withLock {
-                        changedPlayers.values.forEach {
+                    changedPlayers.values.broadcastUpdates {
+                        forEach {
                             remoteTrackedPlayers[it.uuid] = it
                             localReceivingPlayers.forEach context@{ other ->
                                 val bukkitPlayer = Bukkit.getPlayer(other)
@@ -104,26 +114,16 @@ object RedisTabSync
                                 ).send(bukkitPlayer)
                             }
                         }
-                    }
 
-                    changedPlayers.values.broadcastUpdates {
                         TabSyncPacketCreator.update(this)
                     }
 
-                    updateLock.withLock {
-                        updatedPlayers.forEach { (t, u) ->
-                            remoteTrackedPlayers[t] = u
-                        }
-                    }
-
                     removedPlayers.values.broadcastUpdates {
-                        TabSyncPacketCreator.remove(this)
-                    }
-
-                    updateLock.withLock {
-                        removedPlayers.keys.forEach {
-                            remoteTrackedPlayers.remove(it)
+                        forEach {
+                            remoteTrackedPlayers.remove(it.uuid)
                         }
+
+                        TabSyncPacketCreator.remove(this)
                     }
                 }.onFailure {
                     it.printStackTrace()
@@ -134,13 +134,21 @@ object RedisTabSync
         }
 
         Events
+            .subscribe(
+                PlayerLoginEvent::class.java,
+                EventPriority.MONITOR
+            )
+            .handler {
+                updateLock.withLock {
+                    localReceivingPlayers += it.player.uniqueId
+                }
+            }
+
+        Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler {
                 Tasks.async {
-                    updateLock.withLock {
-                        sendBulkUpdatesTo(it.player)
-                        localReceivingPlayers += it.player.uniqueId
-                    }
+                    sendBulkUpdatesTo(it.player)
                 }
             }
 
@@ -157,13 +165,16 @@ object RedisTabSync
 
     fun sendBulkUpdatesTo(player: Player)
     {
-        val create = TabSyncPacketCreator.create(remoteTrackedPlayers.values.toList())
+        val remote = remoteTrackedPlayers.values
+            .filter { it.uuid !in localReceivingPlayers }
+
+        val create = TabSyncPacketCreator.create(remote)
         for (wrapperPlayServerPlayerInfo in create)
         {
             Protocol.sendPacket(player, wrapperPlayServerPlayerInfo.handle)
         }
 
-        remoteTrackedPlayers.values.forEach {
+        remote.forEach {
             ScoreboardTeamPacketMod(
                 it.teamName,
                 arrayListOf(it.username),
