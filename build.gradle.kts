@@ -11,14 +11,14 @@ plugins {
 }
 
 var currentBranch: String = grgit.branch.current().name
-if (currentBranch == "development") {
+if (currentBranch != "master") {
     println("Starting in development mode")
 }
 
 allprojects {
     group = "gg.solara.practice"
     version = "1.0.0${
-        if (currentBranch == "development") "-dev" else ""
+        if (currentBranch != "master") "-dev" else ""
     }"
 
     repositories {
@@ -101,7 +101,7 @@ subprojects {
     }
 
     publishing {
-        repositories.configureScalaRepository(dev = currentBranch == "development")
+        repositories.configureScalaRepository(dev = currentBranch != "master")
 
         publications {
             register(
