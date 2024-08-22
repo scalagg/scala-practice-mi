@@ -91,7 +91,15 @@ object SolaraPracticeIntegrator
         }
 
         if (game.flag(FeatureFlag.KnockbackProfile)) {
-            bot.damageManager.isCombo = true
+            val metadata = game.flagMetaData(
+                FeatureFlag.KnockbackProfile,
+                "profile"
+            )
+
+            if (metadata == "combo")
+            {
+                bot.damageManager.isCombo = true
+            }
         }
 
         //Boxing support
