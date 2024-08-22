@@ -4,7 +4,7 @@ import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.team.GameTeam
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
@@ -254,9 +254,9 @@ class PartyPlayTVTFights(private val onlinePlayerList: List<UUID>) : PaginatedMe
             val gameExpectation = GameExpectation(
                 UUID.randomUUID(),
                 players = team1 + team2,
-                teams = mapOf(
-                    GameTeamSide.A to GameTeam(GameTeamSide.A, team1),
-                    GameTeamSide.B to GameTeam(GameTeamSide.B, team2)
+                teams = setOf(
+                    GameTeam(TeamIdentifier.A, team1),
+                    GameTeam(TeamIdentifier.B, team2)
                 ),
                 kitId = kit.id,
                 mapId = map.name,

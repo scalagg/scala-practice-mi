@@ -1,12 +1,10 @@
 package gg.tropic.practice.games
 
 import com.cryptomorin.xseries.XSound
-import com.grinderwolf.swm.nms.v1_8_R3.CustomWorldServer
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
-import gg.tropic.practice.Globals
 import gg.tropic.practice.commands.acquireProfileImmutable
 import gg.tropic.practice.commands.networkTransaction
 import gg.tropic.practice.expectation.ExpectationService
@@ -14,7 +12,6 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.bots.BotGameMetadata
 import gg.tropic.practice.games.elo.ELOUpdates
-import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
 import gg.tropic.practice.games.loadout.SelectedLoadout
@@ -23,30 +20,35 @@ import gg.tropic.practice.games.robot.RobotInstance
 import gg.tropic.practice.games.tasks.GameStartTask
 import gg.tropic.practice.games.tasks.GameStopTask
 import gg.tropic.practice.games.team.GameTeam
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.BuiltMapReplication
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
-import gg.tropic.practice.profile.PracticeProfile
+import gg.tropic.practice.minigame.MiniGame
+import gg.tropic.practice.minigame.MiniGameRegistry
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import gg.tropic.practice.services.TournamentManagerService
+import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.utilities.BotMessages
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.Color
-import net.evilblock.cubed.util.bukkit.*
+import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.apache.commons.lang3.time.DurationFormatUtils
@@ -55,7 +57,6 @@ import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
@@ -75,12 +76,13 @@ import kotlin.math.roundToInt
 open class GameImpl(
     expectation: GameExpectation,
     kit: Kit,
-    teams: Map<GameTeamSide, GameTeam> = expectation.teams,
+    teams: Set<GameTeam> = expectation.teams,
     var state: GameState = GameState.Waiting,
     private val mapId: String = expectation.mapId
 ) : AbstractGame(expectation, teams, kit), CompositeTerminable by CompositeTerminable.create()
 {
     val expectedSpectators = mutableSetOf<UUID>()
+    var miniGame: MiniGame? = null
 
     @Transient
     var activeCountdown = 5
@@ -214,14 +216,15 @@ open class GameImpl(
                     }
                 }
 
-            val opponent = this.getOpponent(winner)
-                ?: return
+            val opponents = getAllOpponents(winner)
+            opponents.forEach {
+                sendInfoToTournamentService(losers = it.players)
+            }
 
-            sendInfoToTournamentService(losers = opponent.players)
-
+            val allOpponentPlayers = opponents.flatMap(GameTeam::players)
             if (!robot())
             {
-                val kitStatisticsUpdates = opponent.players.map {
+                val kitStatisticsUpdates = allOpponentPlayers.map {
                     it.networkTransaction {
                         useKitStatistics(this@GameImpl) {
                             plays += 1
@@ -243,11 +246,11 @@ open class GameImpl(
                 }
 
                 val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
-                if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)
+                val firstOpponent = opponents.first()
+                if (expectationModel.queueType == QueueType.Ranked && isTwoTeamGame() && firstOpponent.players.size == 1)
                 {
                     val winnerProfileID = winner.players.firstOrNull()
-                    val loserProfileID = opponent.players.firstOrNull()
-
+                    val loserProfileID = firstOpponent.players.firstOrNull()
 
                     if (winnerProfileID != null && loserProfileID != null)
                     {
@@ -337,7 +340,7 @@ open class GameImpl(
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
                 winners = winner.players,
-                losers = opponent.players,
+                losers = allOpponentPlayers,
                 snapshots = snapshots,
                 duration = this.durationMillis(),
                 map = this.mapId,
@@ -345,6 +348,47 @@ open class GameImpl(
                 status = GameReportStatus.Completed,
                 extraInformation = extraInformation
             )
+
+            if (robot())
+            {
+                val robot = robotInstance.firstOrNull() ?: return
+                Schedulers
+                    .async()
+                    .runLater({
+                        toBukkitPlayers()
+                            .filterNotNull()
+                            .forEach {
+                                if (winner.players.contains(it.uniqueId))
+                                {
+                                    it.sendMessage(BotMessages.getBotLose(robot.name()))
+                                } else
+                                {
+                                    if (it.uniqueId in allOpponentPlayers)
+                                    {
+                                        it.sendMessage(
+                                            BotMessages.getBotWin(robot.name())
+                                        )
+                                    }
+                                }
+
+                                val profile = BasicsProfileService.find(it)
+                                val messagingSoundsSettingValue = profile
+                                    ?.setting(
+                                        id = "messages_sounds",
+                                        default = StateSettingValue.ENABLED
+                                    )
+
+                                if (messagingSoundsSettingValue == StateSettingValue.ENABLED)
+                                {
+                                    it.playSound(
+                                        it.location,
+                                        XSound.ENTITY_EXPERIENCE_ORB_PICKUP.parseSound(),
+                                        1F, 1F
+                                    )
+                                }
+                            }
+                    }, 50L)
+            }
         }
 
         GameReportFeature.saveSnapshotForAllParticipants(report!!)
@@ -366,39 +410,6 @@ open class GameImpl(
             )
 
         stopTask.task.bindWith(this)
-
-        if (robot())
-        {
-            val robot = robotInstance.firstOrNull() ?: return
-            Schedulers
-                .async()
-                .runLater({
-                    toBukkitPlayers()
-                        .filterNotNull()
-                        .forEach {
-                            if (winner!!.players.contains(it.uniqueId)) {
-                                it.sendMessage(BotMessages.getBotLose(robot.name()))
-                            } else {
-                                val opponent = this.getOpponent(winner)
-                                if (opponent != null && opponent.players.contains(it.uniqueId)) it.sendMessage(BotMessages.getBotWin(robot.name()))
-                            }
-                            val profile = BasicsProfileService.find(it)
-                            val messagingSoundsSettingValue = profile
-                                ?.setting(
-                                    id = "messages_sounds",
-                                    default = StateSettingValue.ENABLED
-                                )
-                            if (messagingSoundsSettingValue == StateSettingValue.ENABLED)
-                            {
-                                it.playSound(
-                                    it.location,
-                                    XSound.ENTITY_EXPERIENCE_ORB_PICKUP.parseSound(),
-                                    1F, 1F
-                                )
-                            }
-                        }
-                }, 50L)
-        }
     }
 
     private fun initializeTeamObjectives()
@@ -516,28 +527,27 @@ open class GameImpl(
             }
     }
 
-    fun getTeamOf(player: Player) = this.teams.values
+    fun getTeamOf(player: Player) = this.teams
         .first {
             player.uniqueId in it.players
         }
 
-    fun getNullableTeam(player: Player) = this.teams.values
+    fun getNullableTeam(player: Player) = this.teams
         .firstOrNull {
             player.uniqueId in it.players
         }
+
+    fun isTwoTeamGame() = teams.size == 2
 
     fun getOpponent(player: Player) =
         this.getOpponent(
             this.getTeamOf(player)
         )
 
-    fun getOpponent(team: GameTeam) = this.teams[
-        when (team.side)
-        {
-            GameTeamSide.A -> GameTeamSide.B
-            GameTeamSide.B -> GameTeamSide.A
-        }
-    ]
+    fun getOpponent(team: GameTeam) = if (team.teamIdentifier == TeamIdentifier.A)
+        teams.first() else teams.last()
+
+    fun getAllOpponents(team: GameTeam) = teams.filterNot { it.teamIdentifier == team.teamIdentifier }
 
     fun getDuration(): String
     {
@@ -564,12 +574,12 @@ open class GameImpl(
         )
     }
 
-    fun toBukkitPlayers() = this.teams.values
+    fun toBukkitPlayers() = this.teams
         .flatMap {
             it.toBukkitPlayers()
         }
 
-    fun toPlayers() = this.teams.values
+    fun toPlayers() = this.teams
         .flatMap {
             it.players
         }
@@ -832,11 +842,18 @@ open class GameImpl(
     fun lifecycle() = kit.lifecycle()
 
     fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId) { Counter(player.uniqueId) }
-    fun buildResources()
+    fun buildResources(): Boolean
     {
+        if (flag(FeatureFlag.MiniGameType) && lifecycle() == GameLifecycle.MiniGame)
+        {
+            miniGame = MiniGameRegistry.miniGames[flagMetaData(FeatureFlag.MiniGameType, "id")]
+            return miniGame != null
+        }
+
         toPlayers().forEach {
             playerCounters[it] = Counter(it)
         }
+        return true
     }
 
     fun cleanupWorld()
@@ -867,7 +884,7 @@ open class GameImpl(
         )?.toIntOrNull()
             ?: return null
 
-        return (map.findSpawnLocationMatchingTeam(GameTeamSide.A)?.y?.roundToInt() ?: 0) + buildLimit
+        return (map.findSpawnLocationMatchingTeam(TeamIdentifier.A)?.y?.roundToInt() ?: 0) + buildLimit
     }
 
     fun robot(solaraID: UUID) = robotInstance.firstOrNull { it.solaraID() == solaraID }
@@ -877,6 +894,6 @@ open class GameImpl(
         return expectationModel.queueType == QueueType.Robot
     }
 
-    fun humanSide() = teams[GameTeamSide.A]!!
-    fun robotSide() = teams[GameTeamSide.B]!!
+    fun humanSide() = teams.first()
+    fun robotSide() = teams.last()
 }

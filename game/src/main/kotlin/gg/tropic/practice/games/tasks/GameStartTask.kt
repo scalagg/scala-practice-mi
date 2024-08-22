@@ -5,7 +5,7 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.resetPlayerForFight
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
@@ -53,7 +53,7 @@ class GameStartTask(
                     }
                 }
 
-            val teamVersus = this.game.teams.values
+            val teamVersus = this.game.teams
                 .reversed()
                 .map { it.players.size }
                 .joinToString("v")
@@ -67,11 +67,12 @@ class GameStartTask(
                 else -> "Private"
             }
 
+            // TODO: minigame implementation, describe all teams properly
             val components = mutableListOf(
                 "",
                 "${CC.PRI}$gameType $teamVersus ${game.kit.displayName}:",
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Players: ${CC.PRI}${
-                    this.game.teams[GameTeamSide.A]!!.players
+                    this.game.teams.first().players
                         .joinToString(", ") {
                             it.username()
                         }
@@ -84,7 +85,7 @@ class GameStartTask(
                             }
                     } else
                     {
-                        this.game.teams[GameTeamSide.B]!!.players
+                        this.game.teams.last().players
                             .joinToString(", ") {
                                 it.username()
                             }
@@ -96,7 +97,7 @@ class GameStartTask(
             {
                 components += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.B_WHITE} ELOs:"
 
-                this.game.teams.values
+                this.game.teams
                     .flatMap { it.toBukkitPlayers() }
                     .filterNotNull()
                     .forEach {

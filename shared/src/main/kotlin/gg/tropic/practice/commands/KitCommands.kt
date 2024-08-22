@@ -146,6 +146,34 @@ object KitCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("number-of-teams")
+    @CommandCompletion("@kits")
+    @Description("Change the game lifecycle of a kit.")
+    fun onNumberTeams(player: ScalaPlayer, kit: Kit, teams: Int)
+    {
+        if (kit.lifecycle() != GameLifecycle.MiniGame)
+        {
+            throw ConditionFailedException("You can only set the number of teams when the lifecycle is MiniGame!")
+        }
+
+        if (teams < 2 || teams > 10)
+        {
+            throw ConditionFailedException("You can only have a maximum of 10 teams and must have a minimum of 2 teams!")
+        }
+
+        val oldNumberTeams = kit.numberOfTeams()
+        kit.numberOfTeams = teams
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have updated the # of teams of the ${CC.YELLOW}${kit.displayName}${CC.GREEN} kit from ${CC.PRI}$oldNumberTeams${CC.GREEN} to ${CC.PRI}$teams${CC.GREEN}."
+        )
+    }
+
+    @AssignPermission
     @Subcommand("lifecycle")
     @CommandCompletion("@kits")
     @Description("Change the game lifecycle of a kit.")
@@ -153,6 +181,13 @@ object KitCommands : ScalaCommand()
     {
         val oldLifecycle = kit.lifecycle()
         kit.lifecycleType = newLifecycle
+        if (newLifecycle != GameLifecycle.MiniGame)
+        {
+            kit.numberOfTeams = 2
+            player.sendMessage(
+                "${CC.GREEN}Updating number of teams: 2."
+            )
+        }
 
         val removedFlags = mutableSetOf<FeatureFlag>()
         for (key in kit.features.keys.toSet())

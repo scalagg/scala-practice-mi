@@ -89,6 +89,18 @@ enum class FeatureFlag(
             "hunger in a match.",
         )
     ),
+    MiniGameType(
+        schema = mutableMapOf(
+            "id" to "skywars"
+        ),
+        description = listOf(
+            "Allows for custom scoreboards &",
+            "functionality to be enabled."
+        ),
+        availableLifecycles = setOf(
+            GameLifecycle.MiniGame
+        )
+    ),
     DoNotRemoveArmor(
         description = listOf(
             "Prevents you taking off your",

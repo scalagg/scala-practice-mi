@@ -20,7 +20,7 @@ fun Player.fixInventoryBasedOnRBTeamColor()
         val team = game.getTeamOf(player)
         if (game.flag(FeatureFlag.RedBlueTeams))
         {
-            val teamSide = team.side.toRBTeamSide()
+            val teamSide = team.teamIdentifier.toRBTeamSide()
             player.inventory.contents.indices.forEach { index ->
                 val itemStack = player.inventory.contents[index]
                     ?: return@forEach

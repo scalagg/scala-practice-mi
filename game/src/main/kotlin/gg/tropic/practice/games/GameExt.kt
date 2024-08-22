@@ -124,7 +124,7 @@ fun GameImpl.teleportToSpawnLocation(player: Player)
 {
     val spawnLocation = map
         .findSpawnLocationMatchingTeam(
-            getTeamOf(player).side
+            getTeamOf(player).teamIdentifier
         )!!
         .toLocation(arenaWorld!!)
 
