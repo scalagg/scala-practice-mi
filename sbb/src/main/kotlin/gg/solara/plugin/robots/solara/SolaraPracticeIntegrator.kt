@@ -90,6 +90,10 @@ object SolaraPracticeIntegrator
             bot.movements.isEdgeDetector = true
         }
 
+        if (game.flag(FeatureFlag.KnockbackProfile)) {
+            bot.damageManager.isCombo = true
+        }
+
         //Boxing support
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {
