@@ -619,14 +619,6 @@ object GameService
         }
 
         Events
-            .subscribe(EntityDamageEvent::class.java)
-            .filter { it.cause == DamageCause.VOID }
-            .handler {
-                it.isCancelled = true
-            }
-            .bindWith(plugin)
-
-        Events
             .subscribe(PlayerInteractEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)

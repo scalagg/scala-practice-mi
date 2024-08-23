@@ -133,7 +133,7 @@ object SolaraPracticeIntegrator
                             )
                         }
 
-                        val dataPlayer = instance!!.dataManager.getPlayer(player)
+                        val dataPlayer = instance.dataManager.getPlayer(player)
                         dataPlayer?.hit()
 
                         if (game.humanSide().gameLifecycleArbitraryObjectiveProgress >= metadata)
