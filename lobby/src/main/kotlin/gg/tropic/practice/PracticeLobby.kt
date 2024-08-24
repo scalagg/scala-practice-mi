@@ -6,6 +6,7 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
 import gg.tropic.practice.lifecycle.NightlyRebootScheduler
+import gg.tropic.practice.minigame.MiniGameSerializers
 import gg.tropic.practice.provider.SettingProvider
 import gg.tropic.practice.provider.impl.LemonSettingProvider
 import gg.tropic.practice.services.GameManagerService
@@ -45,6 +46,7 @@ class PracticeLobby : ExtendedScalaPlugin()
             "miplobbydev" in ServerSync.getLocalGameServer().groups
         }
 
+        MiniGameSerializers.configure()
         NightlyRebootScheduler.scheduleReboot(1, 35)
 
         SettingMenu.defaultCategory = "Practice"

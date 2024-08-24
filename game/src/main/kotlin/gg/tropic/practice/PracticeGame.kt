@@ -1,7 +1,6 @@
 package gg.tropic.practice
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
-import gg.scala.basics.plugin.shutdown.ShutdownService
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
@@ -11,19 +10,12 @@ import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
 import gg.tropic.practice.lifecycle.NightlyRebootScheduler
-import gg.tropic.practice.minigame.MiniGame
+import gg.tropic.practice.minigame.MiniGameOrchestrator
 import gg.tropic.practice.minigame.MiniGameRegistry
+import gg.tropic.practice.minigame.MiniGameSerializers
 import gg.tropic.practice.settings.ChatVisibility
 import gg.tropic.practice.settings.DuelsSettingCategory
-import me.lucko.helper.Schedulers
-import net.evilblock.cubed.util.bukkit.Tasks
-import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Bukkit
-import java.time.Duration
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.concurrent.TimeUnit
 
 /**
  * @author GrowlyX
@@ -63,8 +55,9 @@ class PracticeGame : ExtendedScalaPlugin()
             "mipgamedev" in ServerSync.getLocalGameServer().groups
         }
 
-        PreConfigureSubTypeProcessor.register<MiniGame> {
-            MiniGameRegistry.miniGames[it.id()] = it
+        MiniGameSerializers.configure()
+        PreConfigureSubTypeProcessor.register<MiniGameOrchestrator<*>> {
+            MiniGameRegistry.miniGameOrchestrators[it.id()] = it
         }
 
         ChatChannelService.default

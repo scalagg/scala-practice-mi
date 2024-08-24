@@ -30,7 +30,8 @@ import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.BuiltMapReplication
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
-import gg.tropic.practice.minigame.MiniGame
+import gg.tropic.practice.minigame.MiniGameLifecycle
+import gg.tropic.practice.minigame.MiniGameOrchestrator
 import gg.tropic.practice.minigame.MiniGameRegistry
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
@@ -82,7 +83,7 @@ open class GameImpl(
 ) : AbstractGame(expectation, teams, kit), CompositeTerminable by CompositeTerminable.create()
 {
     val expectedSpectators = mutableSetOf<UUID>()
-    var miniGame: MiniGame? = null
+    var miniGameLifecycle: MiniGameLifecycle<*>? = null
 
     @Transient
     var activeCountdown = 5
@@ -842,14 +843,8 @@ open class GameImpl(
     fun lifecycle() = kit.lifecycle()
 
     fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId) { Counter(player.uniqueId) }
-    fun buildResources(): Boolean
+    open fun buildResources(): Boolean
     {
-        if (flag(FeatureFlag.MiniGameType) && lifecycle() == GameLifecycle.MiniGame)
-        {
-            miniGame = MiniGameRegistry.miniGames[flagMetaData(FeatureFlag.MiniGameType, "id")]
-            return miniGame != null
-        }
-
         toPlayers().forEach {
             playerCounters[it] = Counter(it)
         }
