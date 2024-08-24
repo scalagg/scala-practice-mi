@@ -12,7 +12,6 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
-import gg.tropic.practice.replication.ReplicationPrepareResult
 import gg.tropic.practice.replication.ReplicationResult
 import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.models.ReplicationStatus
@@ -78,7 +77,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
     fun configure()
     {
         fun AwareMessage.prepareReplication(
-            future: (Map, GameExpectation) -> CompletableFuture<Void>
+            future: (Map, GameExpectation) -> CompletableFuture<ReplicationResult>
         )
         {
             val server = retrieve<String>("server")
@@ -117,10 +116,10 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,
-                        "result" to Serializers.gson.toJson(ReplicationResult(
+                        "result" to ReplicationResult(
                             status = ReplicationResultStatus.Unavailable,
                             message = "System threw an internal error"
-                        ))
+                        )
                     ).publish(
                         AwareThreadContext.SYNC,
                         channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
