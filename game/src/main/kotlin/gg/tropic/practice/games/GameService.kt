@@ -190,7 +190,8 @@ object GameService
                             server = ServerSync.local.id,
                             queueId = it.expectationModel.queueId,
                             majorityAllowsSpectators = players.isEmpty() ||
-                                (majoritySpectatorsEnabled / players.size) >= 0.50
+                                (majoritySpectatorsEnabled / players.size) >= 0.50,
+                            metadata = it.expectationModel.matchmakingMetadata
                         )
                     }
             )

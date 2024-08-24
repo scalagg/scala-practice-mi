@@ -9,9 +9,11 @@ import java.util.UUID
  */
 class GameTeam(
     val teamIdentifier: TeamIdentifier,
-    val players: List<UUID>
+    val players: MutableList<UUID>
 )
 {
+    constructor(teamIdentifier: TeamIdentifier, players: List<UUID>) : this(teamIdentifier, players.toMutableList())
+
     private var backingPlayerCombos: MutableMap<UUID, Int>? = null
         get()
         {

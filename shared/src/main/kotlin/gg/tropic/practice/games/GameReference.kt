@@ -1,5 +1,6 @@
 package gg.tropic.practice.games
 
+import gg.tropic.practice.games.matchmaking.MatchmakingMetadata
 import java.util.*
 
 /**
@@ -16,5 +17,6 @@ data class GameReference(
     val players: List<UUID>,
     val spectators: List<UUID>,
     val majorityAllowsSpectators: Boolean,
-    val queueId: String? = null
+    val queueId: String? = null,
+    val metadata: MatchmakingMetadata? = null
 )

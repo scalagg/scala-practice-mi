@@ -18,6 +18,8 @@ import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.games.spectate.SpectateRequest
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.GameReference
+import gg.tropic.practice.games.matchmaking.JoinIntoGameResult
+import gg.tropic.practice.games.matchmaking.JoinIntoGameStatus
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
@@ -115,16 +117,21 @@ object GameQueueManager
         cleanup: () -> Unit
     ): CompletableFuture<Void>
     {
-        val distinctUsers = expectation.players.distinct()
-        if (distinctUsers.size != expectation.players.size)
+        fun fail(message: String)
         {
             DPSRedisShared.sendMessage(
                 expectation.players,
                 listOf(
-                    "&cAn issue occurred when creating your game! (duplicate players on teams)"
+                    "&cWe were not able to send you to a game server! :(",
+                    "&cPlease report the following message to an administrator: &f$message"
                 )
             )
+        }
 
+        val distinctUsers = expectation.players.distinct()
+        if (distinctUsers.size != expectation.players.size)
+        {
+            fail("Duplicate players are on teams")
             return CompletableFuture.runAsync { cleanup() }
         }
 
@@ -134,13 +141,7 @@ object GameQueueManager
          */
         if (map.locked)
         {
-            DPSRedisShared.sendMessage(
-                expectation.players,
-                listOf(
-                    "&cThe map you were allocated to play a game on is locked!"
-                )
-            )
-
+            fail("Map service gave an unavailable result for the map")
             return CompletableFuture.runAsync { cleanup() }
         }
 
@@ -208,13 +209,7 @@ object GameQueueManager
                 }
                 ?.id
                 ?: return run {
-                    DPSRedisShared.sendMessage(
-                        expectation.players,
-                        listOf(
-                            "&cWe found no game server available to house your game!"
-                        )
-                    )
-
+                    fail("No game server available to house the game")
                     CompletableFuture.runAsync(cleanup)
                 })
 
@@ -227,17 +222,6 @@ object GameQueueManager
         {
             ReplicationManager.allocateReplication(
                 serverToRequestReplication, map.name, expectation
-            )
-        }
-
-        fun fail(message: String)
-        {
-            DPSRedisShared.sendMessage(
-                expectation.players,
-                listOf(
-                    "&cWe were not able to send you to a game server! :(",
-                    "&cPlease report the following message to an administrator: &f$message"
-                )
             )
         }
 
@@ -286,6 +270,21 @@ object GameQueueManager
         .expireAfterWrite(5L, TimeUnit.SECONDS)
         .build<UUID, CompletableFuture<SpectateResponse>>()
 
+    private val joinIntoCallbacks = Caffeine
+        .newBuilder()
+        .removalListener<UUID, CompletableFuture<JoinIntoGameResult>> { _, value, cause ->
+            if (cause == RemovalCause.EXPIRED)
+            {
+                value?.complete(
+                    JoinIntoGameResult(
+                        status = JoinIntoGameStatus.FailureNonEmptyTeams
+                    )
+                )
+            }
+        }
+        .expireAfterWrite(5L, TimeUnit.SECONDS)
+        .build<UUID, CompletableFuture<JoinIntoGameResult>>()
+
     fun requestSpectate(
         server: String,
         request: SpectateRequest,
@@ -306,6 +305,27 @@ object GameQueueManager
         )
 
         spectateCallbacks.put(requestID, future)
+        return future
+    }
+
+    fun requestJoinIntoGame(
+        player: UUID,
+        game: GameReference
+    ): CompletableFuture<JoinIntoGameResult>
+    {
+        val future = CompletableFuture<JoinIntoGameResult>()
+        val requestID = UUID.randomUUID()
+        dpsQueueRedis.createMessage(
+            "request-join-into",
+            "requestID" to requestID,
+            "player" to player,
+            "game" to game.uniqueId
+        ).publish(
+            AwareThreadContext.SYNC,
+            channel = "practice:queue-inhabitants".suffixWhenDev()
+        )
+
+        joinIntoCallbacks.put(requestID, future)
         return future
     }
 
