@@ -80,6 +80,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
             future: (Map, GameExpectation) -> CompletableFuture<ReplicationResult>
         )
         {
+            val requestID = retrieve<UUID>("requestID")
             val server = retrieve<String>("server")
             if (ServerSync.local.id != server)
             {
@@ -88,9 +89,20 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
 
             val map = MapService
                 .mapWithID(retrieve<String>("map"))
-                ?: return
+                ?: return run {
+                    createMessage(
+                        "replication-ready",
+                        "requestID" to requestID,
+                        "result" to ReplicationResult(
+                            status = ReplicationResultStatus.Unavailable,
+                            message = "Map service did not find the map you were looking for"
+                        )
+                    ).publish(
+                        AwareThreadContext.SYNC,
+                        channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
+                    )
+                }
 
-            val requestID = retrieve<UUID>("requestID")
             val expectation = Serializers.gson.fromJson(
                 String(
                     Base64.getDecoder().decode(
@@ -105,7 +117,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,
-                        "result" to it
+                        "result" to Serializers.gson.toJson(it)
                     ).publish(
                         AwareThreadContext.SYNC,
                         channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
@@ -116,10 +128,10 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,
-                        "result" to ReplicationResult(
+                        "result" to Serializers.gson.toJson(ReplicationResult(
                             status = ReplicationResultStatus.Unavailable,
                             message = "System threw an internal error"
-                        )
+                        ))
                     ).publish(
                         AwareThreadContext.SYNC,
                         channel = "practice:replicationmanager-inhibitor".suffixWhenDev()

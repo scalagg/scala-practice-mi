@@ -7,6 +7,7 @@ import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import java.util.*
+import kotlin.math.abs
 
 /**
  * @author GrowlyX
@@ -17,16 +18,19 @@ import java.util.*
 class ImmutableTrackedPlayer(
     val uuid: UUID,
     val username: String,
-    val latency: Int? = null,
+    val latency: Int,
     val skin: String? = null,
     val skinSignature: String? = null,
     val teamName: String,
     val displayName: String,
 )
 {
-    fun requiresUpdate(other: ImmutableTrackedPlayer) = other.latency != latency ||
-        other.displayName != displayName ||
-        other.teamName != teamName
+    fun requiresUpdate(other: ImmutableTrackedPlayer): Boolean
+    {
+        return (abs(other.latency - latency) > 10) ||
+            other.displayName != displayName ||
+            other.teamName != teamName
+    }
 
     companion object
     {
