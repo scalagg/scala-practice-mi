@@ -544,7 +544,7 @@ open class GameImpl(
             this.getTeamOf(player)
         )
 
-    fun getOpponent(team: GameTeam) = if (team.teamIdentifier == TeamIdentifier.A)
+    fun getOpponent(team: GameTeam) = if (team.teamIdentifier != TeamIdentifier.A)
         teams.first() else teams.last()
 
     fun getAllOpponents(team: GameTeam) = teams.filterNot { it.teamIdentifier == team.teamIdentifier }
