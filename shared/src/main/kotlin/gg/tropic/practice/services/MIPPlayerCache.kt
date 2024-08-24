@@ -23,12 +23,14 @@ import gg.tropic.practice.practiceGroup
 import gg.tropic.practice.suffixWhenDev
 import io.github.nosequel.tab.shared.entry.TabElement
 import io.github.nosequel.tab.shared.skin.SkinType
+import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerChatTabCompleteEvent
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -36,7 +38,7 @@ import java.util.concurrent.CompletableFuture
  * @since 12/17/2023
  */
 @Service
-object MIPPlayerCache : TablistPopulator
+object MIPPlayerCache
 {
     private var playerIDs = setOf<String>()
 
@@ -160,40 +162,20 @@ object MIPPlayerCache : TablistPopulator
         ListCommand.supplyCustomPlayerList { playerList }
     }
 
-    object NetworkPlayerProvider : PlayersProvider()
-    {
-        override fun getPlayers(viewer: Player) = localModelCache
-            .take(80)
-            .map {
-                TablistPlayer(
-                    skinValue = it.skinValue,
-                    skinSignature = it.skinSignature,
-                    ping = it.ping,
-                    displayName = it.displayName,
-                    rankWeight = it.rankWeight,
-                    username = it.username
-                )
-            }
-    }
-
-    override fun displayPreProcessor(player: Player) =
-        CompletableFuture.completedFuture(true)
-            .thenApply {
-                /*val handle = TablistManager.get().getTablist(player)
-                handle.tablistPopulator =
-                    PlayerTablistPopulator(handle, NetworkPlayerProvider)*/
-
-                PracticeConfigurationService.cached().enableMIPTabHandler()
-            }!!
-
-    override fun populate(player: Player, element: TabElement)
-    {
-        element.add(3, "test")
-    }
-
     @CommandManagerCustomizer
     fun customize(manager: ScalaCommandManager)
     {
+        Events
+            .subscribe(PlayerChatTabCompleteEvent::class.java)
+            .handler { event ->
+                playerIDs.toSet().forEach {
+                    if (it !in event.tabCompletions)
+                    {
+                        event.tabCompletions += it
+                    }
+                }
+            }
+
         manager.commandCompletions.registerCompletion("mip-players") { playerIDs }
     }
 }

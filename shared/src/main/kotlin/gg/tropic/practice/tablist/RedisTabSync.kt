@@ -95,6 +95,7 @@ object RedisTabSync
                     addedPlayers.values.broadcastUpdates {
                         forEach {
                             remoteTrackedPlayers[it.uuid] = it
+//                            println("Adding new players: ${it.uuid}")
                         }
 
                         TabSyncPacketCreator.create(this)
@@ -103,6 +104,8 @@ object RedisTabSync
                     changedPlayers.values.broadcastUpdates {
                         forEach {
                             remoteTrackedPlayers[it.uuid] = it
+//                            println("Updating existing player: ${it.uuid} -> ${it.latency} | ${it.displayName} | ${it.teamName}")
+
                             localReceivingPlayers.forEach context@{ other ->
                                 val bukkitPlayer = Bukkit.getPlayer(other)
                                     ?: return@context
@@ -121,6 +124,7 @@ object RedisTabSync
                     removedPlayers.values.broadcastUpdates {
                         forEach {
                             remoteTrackedPlayers.remove(it.uuid)
+//                            println("Removing old player: ${it.uuid}")
                         }
 
                         TabSyncPacketCreator.remove(this)
