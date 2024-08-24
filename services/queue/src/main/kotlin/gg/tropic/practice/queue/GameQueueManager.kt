@@ -469,7 +469,7 @@ object GameQueueManager
                         prepareGameFor(
                             map = map,
                             expectation = GameExpectation(
-                                players = listOf(request.requester, request.requestee),
+                                players = listOf(request.requester, request.requestee).toMutableList(),
                                 identifier = UUID.randomUUID(),
                                 teams = setOf(
                                     GameTeam(teamIdentifier = TeamIdentifier.A, listOf(request.requester)),

@@ -86,7 +86,7 @@ sealed class SideEffect : (Tournament) -> Unit
 
                 val expectation = GameExpectation(
                     identifier = UUID.randomUUID(),
-                    players = it.flatMap(TournamentMember::players),
+                    players = it.flatMap(TournamentMember::players).toMutableList(),
                     teams = setOf(
                         GameTeam(
                             teamIdentifier = TeamIdentifier.A,

@@ -25,7 +25,7 @@ import kotlin.math.min
  */
 open class GameQueue(
     val kit: ImmutableKit,
-    private val queueType: QueueType,
+    val queueType: QueueType,
     private val teamSize: Int
 ) : () -> Unit
 {
@@ -42,7 +42,7 @@ open class GameQueue(
     private val metadataUpdateThread = Executors
         .newSingleThreadScheduledExecutor()
 
-    fun queueId() = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
+    open fun queueId() = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
 
     open fun expandRanges()
     {
@@ -376,8 +376,19 @@ open class GameQueue(
         first = group.take(teamSize)
         second = group.takeLast(teamSize)
 
+        val cleanup = {
+            for (queueEntry in first + second)
+            {
+                GameQueueManager
+                    .destroyQueueStates(
+                        queueId(), queueEntry
+                    )
+            }
+        }
+
         if (first.size != teamSize || second.size != teamSize)
         {
+            cleanup()
             Thread.sleep(200)
             return
         }
@@ -393,6 +404,7 @@ open class GameQueue(
         val map = MapDataSync
             .selectRandomMapCompatibleWith(kit)
             ?: return run {
+                cleanup()
                 DPSRedisShared.sendMessage(
                     users,
                     listOf(
@@ -408,7 +420,8 @@ open class GameQueue(
                     it.flatMap { entry ->
                         entry.players
                     }
-                },
+                }
+                .toMutableList(),
             teams = setOf(
                 GameTeam(teamIdentifier = TeamIdentifier.A, players = firstPlayers),
                 GameTeam(teamIdentifier = TeamIdentifier.B, players = secondPlayers)
@@ -425,15 +438,7 @@ open class GameQueue(
             expectation = expectation,
             // prefer NA servers if queuing globally
             region = if (region == Region.Both) Region.NA else region,
-            cleanup = {
-                for (queueEntry in first + second)
-                {
-                    GameQueueManager
-                        .destroyQueueStates(
-                            queueId(), queueEntry
-                        )
-                }
-            }
+            cleanup = ::cleanup
         ).exceptionally {
             it.printStackTrace()
             return@exceptionally null

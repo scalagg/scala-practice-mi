@@ -85,12 +85,7 @@ object RequestService
                 {
                     val firstEmpty = emptyTeams.first()
                     val teamID = firstEmpty.teamIdentifier
-
-                    val expectationTeam = gameImpl.expectationModel.teams
-                        .firstOrNull { it.teamIdentifier == teamID }
-                    expectationTeam?.players?.plusAssign(player)
-
-                    firstEmpty.players += player
+                    gameImpl.preWaitAdd(player, teamID)
                 }
             }
 
