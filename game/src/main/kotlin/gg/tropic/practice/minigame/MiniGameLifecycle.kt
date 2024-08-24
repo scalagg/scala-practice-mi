@@ -11,4 +11,6 @@ interface MiniGameLifecycle<T : MiniGameConfiguration>
     val configuration: T
     val game: GameImpl
     val scoreboard: MiniGameScoreboard
+
+    fun configure()
 }

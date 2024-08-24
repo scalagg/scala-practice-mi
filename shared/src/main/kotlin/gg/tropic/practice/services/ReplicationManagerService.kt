@@ -12,6 +12,9 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.replication.ReplicationPrepareResult
+import gg.tropic.practice.replication.ReplicationResult
+import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.models.ReplicationStatus
 import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
@@ -63,11 +66,11 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
         plugin.logger.info("Bound status service. Status updates for available replications will be pushed to the replicationmanager channel ever 0.5 seconds.")
     }
 
-    var buildNewReplication: (Map, GameExpectation) -> CompletableFuture<Void> = { _, _ ->
+    var buildNewReplication: (Map, GameExpectation) -> CompletableFuture<ReplicationResult> = { _, _ ->
         CompletableFuture.completedFuture(null)
     }
 
-    var allocateExistingReplication: (Map, GameExpectation) -> CompletableFuture<Void> = { _, _ ->
+    var allocateExistingReplication: (Map, GameExpectation) -> CompletableFuture<ReplicationResult> = { _, _ ->
         CompletableFuture.completedFuture(null)
     }
 
@@ -99,27 +102,25 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
             )
 
             future(map, expectation)
-                .thenRun {
+                .thenAccept {
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,
-                        "result" to mapOf(
-                            "status" to "Completed",
-                            "message" to null
-                        )
+                        "result" to it
                     ).publish(
                         AwareThreadContext.SYNC,
                         channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
                     )
                 }
                 .exceptionally {
+                    it.printStackTrace()
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,
-                        "result" to mapOf(
-                            "status" to "Unavailable",
-                            "message" to it.message
-                        )
+                        "result" to Serializers.gson.toJson(ReplicationResult(
+                            status = ReplicationResultStatus.Unavailable,
+                            message = "System threw an internal error"
+                        ))
                     ).publish(
                         AwareThreadContext.SYNC,
                         channel = "practice:replicationmanager-inhibitor".suffixWhenDev()

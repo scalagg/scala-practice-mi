@@ -1,6 +1,7 @@
 package gg.tropic.practice.minigame
 
-import gg.tropic.practice.games.GameImpl
+import gg.tropic.practice.expectation.GameExpectation
+import gg.tropic.practice.kit.Kit
 
 /**
  * @author GrowlyX
@@ -9,5 +10,5 @@ import gg.tropic.practice.games.GameImpl
 interface MiniGameOrchestrator<T : MiniGameConfiguration>
 {
     fun id(): String
-    fun prepare(game: GameImpl, configuration: T): MiniGameLifecycle<T>
+    fun construct(kit: Kit, expectation: GameExpectation): AbstractMiniGameGameImpl<T>
 }

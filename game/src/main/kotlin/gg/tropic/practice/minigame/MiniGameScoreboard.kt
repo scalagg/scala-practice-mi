@@ -2,7 +2,6 @@ package gg.tropic.practice.minigame
 
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
-import me.lucko.helper.terminable.TerminableConsumer
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import org.bukkit.entity.Player
 
