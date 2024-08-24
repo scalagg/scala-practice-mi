@@ -16,7 +16,12 @@ import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.bots.getBotMetdataOfPlayer
 import gg.tropic.practice.games.robot.RobotGameLifecycle
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
+import gg.tropic.practice.minigame.MiniGameRegistry
+import gg.tropic.practice.replication.ReplicationResult
+import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
 import gg.tropic.practice.services.ReplicationManagerService
@@ -64,148 +69,9 @@ object MapReplicationService
         loader = slimePlugin.getLoader("mongodb")
         populateSlimeCache()
 
-        fun startIfReady(game: GameImpl): Boolean
-        {
-            if (game.robot())
-            {
-                if (
-                    game.humanSide().toBukkitPlayers().all { it != null } &&
-                    game.robotInstance.isNotEmpty()
-                )
-                {
-                    game.initializeAndStart()
-                    return true
-                }
-                return false
-            }
-
-            if (
-                game.toBukkitPlayers()
-                    .none { other ->
-                        other == null
-                    }
-            )
-            {
-                game.initializeAndStart()
-                return true
-            }
-
-            return false
-        }
-
-        val buildGameResources = handler@{ expectation: GameExpectation ->
-            val kit = KitService.cached()
-                .kits[expectation.kitId]
-                ?: return@handler
-
-            val newGame = GameImpl(
-                expectation = expectation,
-                kit = kit
-            )
-
-            if (!newGame.buildResources())
-            {
-                newGame.state = GameState.Completed
-                newGame.closeAndCleanup()
-                return@handler
-            }
-
-            val scheduledMap = findScheduledReplication(expectation.identifier)
-                ?: return@handler run {
-                    newGame.state = GameState.Completed
-                    newGame.closeAndCleanup()
-                }
-
-            Schedulers
-                .sync()
-                .run {
-                    newGame.map.metadata.clearSignLocations(scheduledMap.world)
-                    newGame.map.prepare(scheduledMap.world)
-                }
-                .join()
-
-            scheduledMap.inUse = true
-            newGame.arenaWorldName = scheduledMap.world.name
-
-            if (newGame.robot())
-            {
-                newGame.botGameMetadata = getBotMetdataOfPlayer(newGame.humanSide().players.first())
-
-                kotlin.runCatching {
-                    newGame.robotInstance.addAll(RobotGameLifecycle.createNewRobotInstances(newGame))
-                    newGame.robotInstance.forEach {
-                        it.terminable.bindWith(newGame)
-                    }
-
-                    Schedulers.sync()
-                        .run {
-                            for (robotInstance in newGame.robotInstance)
-                            {
-                                if (!robotInstance.hasInitialSpawned)
-                                {
-                                    robotInstance.apply {
-                                        runCatching {
-                                            initialSpawn()
-                                        }.onFailure { throwable ->
-                                            throwable.printStackTrace()
-
-                                            newGame.state = GameState.Completed
-                                            newGame.closeAndCleanup()
-                                            return@run
-                                        }
-                                        hasInitialSpawned = true
-                                    }
-                                }
-                            }
-                        }
-                        .join()
-                }.onFailure {
-                    it.printStackTrace()
-                    newGame.state = GameState.Completed
-                    newGame.closeAndCleanup()
-                    return@handler
-                }
-
-                if (newGame.robotInstance.isEmpty())
-                {
-                    newGame.state = GameState.Completed
-                    newGame.closeAndCleanup()
-                    return@handler
-                }
-            }
-
-            val start = System.currentTimeMillis()
-
-            Schedulers
-                .async()
-                .runRepeating(
-                    { task ->
-                        if (System.currentTimeMillis() >= start + 5000L)
-                        {
-                            newGame.state = GameState.Completed
-                            newGame.closeAndCleanup()
-
-                            task.closeAndReportException()
-                            return@runRepeating
-                        }
-
-                        if (newGame.state == GameState.Waiting)
-                        {
-                            if (startIfReady(newGame))
-                            {
-                                task.closeAndReportException()
-                            }
-                        }
-                    },
-                    0L, 1L
-                )
-
-            GameService.gameMappings[expectation.identifier] = newGame
-        }
-
         ReplicationManagerService.buildNewReplication = { map, expectation ->
             generateArenaWorld(map)
-                .thenAccept { repl ->
+                .thenApply { repl ->
                     repl.scheduledForExpectedGame = expectation.identifier
                     mapReplications += repl
 
@@ -282,6 +148,197 @@ object MapReplicationService
                         }
                 }
                 .toTypedArray()
+        )
+    }
+
+    // TODO: add waiting logic
+    fun startIfReady(game: GameImpl): Boolean
+    {
+        if (game.robot())
+        {
+            if (
+                game.humanSide().toBukkitPlayers().all { it != null } &&
+                game.robotInstance.isNotEmpty()
+            )
+            {
+                game.initializeAndStart()
+                return true
+            }
+            return false
+        }
+
+        if (
+            game.toBukkitPlayers()
+                .none { other ->
+                    other == null
+                }
+        )
+        {
+            game.initializeAndStart()
+            return true
+        }
+
+        return false
+    }
+
+    fun buildGameResources(expectation: GameExpectation): ReplicationResult
+    {
+        val kit = KitService.cached()
+            .kits[expectation.kitId]
+            ?: return ReplicationResult(
+                status = ReplicationResultStatus.Unavailable,
+                "Kit was unavailable"
+            )
+
+        fun flagMetaData(flag: FeatureFlag, key: String): String?
+        {
+            if (!kit.features(flag))
+            {
+                return null
+            }
+
+            return kit
+                .features[flag]
+                ?.get(key)
+                ?: flag.schema[key]
+        }
+
+        val meta = flagMetaData(FeatureFlag.MiniGameType, "id")
+        val miniGameOrchestrator = meta
+            ?.let {
+                MiniGameRegistry
+                    .miniGameOrchestrators[it]
+            }
+
+        val newGame = if (kit.lifecycle() != GameLifecycle.MiniGame)
+        {
+            GameImpl(
+                expectation = expectation,
+                kit = kit
+            )
+        } else
+        {
+            miniGameOrchestrator?.construct(kit, expectation)
+                ?: return ReplicationResult(
+                    status = ReplicationResultStatus.Unavailable,
+                    "MiniGame orchestrator was unable to construct a game"
+                )
+        }
+
+        if (!newGame.buildResources())
+        {
+            newGame.state = GameState.Completed
+            newGame.closeAndCleanup()
+
+            return ReplicationResult(
+                status = ReplicationResultStatus.Unavailable,
+                "Game orchestrator was unable to build game resources"
+            )
+        }
+
+        val scheduledMap = findScheduledReplication(expectation.identifier)
+            ?: return ReplicationResult(
+                status = ReplicationResultStatus.Unavailable,
+                "Game orchestrator was unable to find the respective map replication"
+            )
+
+        Schedulers
+            .sync()
+            .run {
+                newGame.map.metadata.clearSignLocations(scheduledMap.world)
+                newGame.map.prepare(scheduledMap.world)
+            }
+            .join()
+
+        scheduledMap.inUse = true
+        newGame.arenaWorldName = scheduledMap.world.name
+
+        if (newGame.robot())
+        {
+            newGame.botGameMetadata = getBotMetdataOfPlayer(newGame.humanSide().players.first())
+
+            kotlin.runCatching {
+                newGame.robotInstance.addAll(RobotGameLifecycle.createNewRobotInstances(newGame))
+                newGame.robotInstance.forEach {
+                    it.terminable.bindWith(newGame)
+                }
+
+                Schedulers.sync()
+                    .run {
+                        for (robotInstance in newGame.robotInstance)
+                        {
+                            if (!robotInstance.hasInitialSpawned)
+                            {
+                                robotInstance.apply {
+                                    runCatching {
+                                        initialSpawn()
+                                    }.onFailure { throwable ->
+                                        throwable.printStackTrace()
+
+                                        newGame.state = GameState.Completed
+                                        newGame.closeAndCleanup()
+                                        return@run
+                                    }
+                                    hasInitialSpawned = true
+                                }
+                            }
+                        }
+                    }
+                    .join()
+            }.onFailure {
+                it.printStackTrace()
+
+                newGame.state = GameState.Completed
+                newGame.closeAndCleanup()
+
+                return ReplicationResult(
+                    status = ReplicationResultStatus.Unavailable,
+                    "Robot orchestrator was unable to create a bot instance"
+                )
+            }
+
+            if (newGame.robotInstance.isEmpty())
+            {
+                newGame.state = GameState.Completed
+                newGame.closeAndCleanup()
+
+                return ReplicationResult(
+                    status = ReplicationResultStatus.Unavailable,
+                    "Robot orchestrator expected robots, but none were created"
+                )
+            }
+        }
+
+        val start = System.currentTimeMillis()
+
+        Schedulers
+            .async()
+            .runRepeating(
+                { task ->
+                    if (System.currentTimeMillis() >= start + 5000L)
+                    {
+                        newGame.state = GameState.Completed
+                        newGame.closeAndCleanup()
+
+                        task.closeAndReportException()
+                        return@runRepeating
+                    }
+
+                    if (newGame.state == GameState.Waiting)
+                    {
+                        if (startIfReady(newGame))
+                        {
+                            task.closeAndReportException()
+                        }
+                    }
+                },
+                0L, 1L
+            )
+
+        GameService.gameMappings[expectation.identifier] = newGame
+        return ReplicationResult(
+            status = ReplicationResultStatus.Completed,
+            message = "Game prepared successfully"
         )
     }
 

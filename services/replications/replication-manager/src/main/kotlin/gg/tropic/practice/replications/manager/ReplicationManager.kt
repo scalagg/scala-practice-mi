@@ -6,6 +6,8 @@ import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.namespace
+import gg.tropic.practice.replication.ReplicationResult
+import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
@@ -69,7 +71,7 @@ object ReplicationManager
                     it.value.second.complete(
                         ReplicationResult(
                             status = ReplicationResultStatus.Unavailable,
-                            message = "Expired"
+                            message = "Service did not get response in time"
                         )
                     )
 
@@ -102,17 +104,6 @@ object ReplicationManager
             }
         }
     }
-
-    enum class ReplicationResultStatus
-    {
-        Completed,
-        Unavailable
-    }
-
-    data class ReplicationResult(
-        val status: ReplicationResultStatus,
-        val message: String? = null
-    )
 
     private val replicationCallbacks = ConcurrentHashMap<UUID, Pair<Long, CompletableFuture<ReplicationResult>>>()
 

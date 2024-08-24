@@ -6,5 +6,5 @@ package gg.tropic.practice.minigame
  */
 object MiniGameRegistry
 {
-    val miniGames = mutableMapOf<String, MiniGame>()
+    val miniGameOrchestrators = mutableMapOf<String, MiniGameOrchestrator<*>>()
 }

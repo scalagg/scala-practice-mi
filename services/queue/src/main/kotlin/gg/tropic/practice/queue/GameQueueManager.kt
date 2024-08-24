@@ -26,6 +26,7 @@ import gg.tropic.practice.namespace
 import gg.tropic.practice.queue.robot.RobotDuoPlayerQueue
 import gg.tropic.practice.queue.robot.RobotSinglePlayerQueue
 import gg.tropic.practice.region.Region
+import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.suffixWhenDev
@@ -229,36 +230,34 @@ object GameQueueManager
             )
         }
 
+        fun fail(message: String)
+        {
+            DPSRedisShared.sendMessage(
+                expectation.players,
+                listOf(
+                    "&cWe were not able to send you to a game server! :(",
+                    "&cPlease report the following message to an administrator: &f$message"
+                )
+            )
+        }
+
         return replication
             .thenAcceptAsync {
-                if (it.status == ReplicationManager.ReplicationResultStatus.Completed)
+                if (it.status == ReplicationResultStatus.Completed)
                 {
-                    Thread.sleep(100L)
                     DPSRedisShared.redirect(
                         expectation.players, serverToRequestReplication
                     )
-                }
-
-                if (it.status == ReplicationManager.ReplicationResultStatus.Unavailable)
+                } else
                 {
-                    DPSRedisShared.sendMessage(
-                        expectation.players,
-                        listOf(
-                            "&cWe weren't able to allocate a map for you! (${it.message ?: "???"})",
-                        )
-                    )
+                    fail(it.message ?: "N/A")
                 }
 
                 cleanup()
             }
             .exceptionally {
-                DPSRedisShared.sendMessage(
-                    expectation.players,
-                    listOf(
-                        "&cWe weren't able to allocate a map for you! (${it.message ?: "???"})"
-                    )
-                )
-
+                it.printStackTrace()
+                fail("${fail(it.message ?: "N/A")} (Orchestration)")
                 cleanup()
                 return@exceptionally null
             }
