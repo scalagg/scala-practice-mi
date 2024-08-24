@@ -340,7 +340,7 @@ object MapReplicationService
             Schedulers
                 .async()
                 .runRepeating({ task ->
-                    if (!newGame.state(GameState.Waiting))
+                    if (!(newGame.state(GameState.Waiting) || newGame.state(GameState.Starting)))
                     {
                         task.closeAndReportException()
                         return@runRepeating

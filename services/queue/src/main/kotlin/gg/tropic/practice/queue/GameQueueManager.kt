@@ -28,6 +28,7 @@ import gg.tropic.practice.namespace
 import gg.tropic.practice.queue.robot.RobotDuoPlayerQueue
 import gg.tropic.practice.queue.robot.RobotSinglePlayerQueue
 import gg.tropic.practice.queue.skywars.BetaRankedSkyWarsGameQueue
+import gg.tropic.practice.queue.skywars.SkyWarsConstants
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.manager.ReplicationManager
@@ -787,19 +788,18 @@ object GameQueueManager
             }
 
         val rankedSkyWarsQueue = KitDataSync.cached().kits["RSWInternal"]
-        val queueID = "skywars:ranked"
         if (rankedSkyWarsQueue != null)
         {
-            if (queues[queueID] == null)
+            if (queues[SkyWarsConstants.QID] == null)
             {
                 val queue = BetaRankedSkyWarsGameQueue(rankedSkyWarsQueue)
                 queue.cleanup()
                 queue.start()
-                queues[queueID] = queue
+                queues[SkyWarsConstants.QID] = queue
             }
         } else
         {
-            queues.remove(queueID)?.destroy()
+            queues.remove(SkyWarsConstants.QID)?.destroy()
         }
 
         // cleanup queues for kits that no longer exist

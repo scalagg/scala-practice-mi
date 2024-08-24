@@ -1,6 +1,9 @@
 package gg.tropic.practice.queue.skywars
 
 import com.google.common.annotations.Beta
+import gg.solara.minigame.skywars.shared.SkyWarsConstants
+import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
+import gg.solara.minigame.skywars.shared.SkyWarsMode
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
@@ -34,8 +37,7 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
     private val metadataUpdateThread = Executors
         .newSingleThreadScheduledExecutor()
 
-    override fun queueId() = "skywars:ranked"
-
+    override fun queueId() = SkyWarsConstants.QID
     override fun start()
     {
         check(thread == null)
@@ -58,9 +60,11 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
         metadataUpdateThread.scheduleAtFixedRate({
             with(DPSRedisShared.keyValueCache.sync()) {
                 val queueSize = GameQueueManager.queueSizeFromId(queueId())
-                psetex("${namespace().suffixWhenDev()}:metadata:users-queued:${
-                    queueId()
-                }", 1000L, queueSize.toString())
+                psetex(
+                    "${namespace().suffixWhenDev()}:metadata:users-queued:${
+                        queueId()
+                    }", 1000L, queueSize.toString()
+                )
 
                 val gamesMatchingQueueID = GameManager.allGames()
                     .thenApply { refs ->
@@ -69,9 +73,11 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
                     .join()
                 val playersInGame = gamesMatchingQueueID.sumOf { it.players.size }
 
-                psetex("${namespace().suffixWhenDev()}:metadata:users-playing:${
-                    queueId()
-                }", 1000L, playersInGame.toString())
+                psetex(
+                    "${namespace().suffixWhenDev()}:metadata:users-playing:${
+                        queueId()
+                    }", 1000L, playersInGame.toString()
+                )
             }
         }, 0L, 50L, TimeUnit.MILLISECONDS)
 
@@ -133,7 +139,8 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
 
         GameQueueManager.removeQueueEntryFromId(queueId(), targetEntry.leader)
 
-        val preferredRegion = if (targetEntry.preferredQueueRegion == Region.Both) Region.NA else targetEntry.preferredQueueRegion
+        val preferredRegion =
+            if (targetEntry.preferredQueueRegion == Region.Both) Region.NA else targetEntry.preferredQueueRegion
         val matchmakingMetadata = MatchmakingMetadata(
             region = preferredRegion,
             bracket = InternalMatchmakingBracket.of(targetEntry.leaderELO)
@@ -182,24 +189,30 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
                 mapId = map.name,
                 queueType = queueType,
                 queueId = queueId(),
+                miniGameConfiguration = SkyWarsGameConfiguration(
+                    mode = SkyWarsMode.Ranked
+                ),
                 matchmakingMetadata = MatchmakingMetadata(
                     region = preferredRegion,
                     bracket = InternalMatchmakingBracket.of(targetEntry.leaderELO)
                 )
             )
 
-            GameQueueManager.prepareGameFor(
-                map = map,
-                expectation = expectation,
-                // prefer NA servers if queuing globally
-                region = preferredRegion,
-                cleanup = {
-                    GameQueueManager.destroyQueueStates(queueId(), targetEntry)
+            GameQueueManager
+                .prepareGameFor(
+                    map = map,
+                    expectation = expectation,
+                    // prefer NA servers if queuing globally
+                    region = preferredRegion,
+                    cleanup = {
+                        GameQueueManager.destroyQueueStates(queueId(), targetEntry)
+                    }
+                )
+                .exceptionally {
+                    it.printStackTrace()
+                    return@exceptionally null
                 }
-            ).exceptionally {
-                it.printStackTrace()
-                return@exceptionally null
-            }.join()
+                .join()
         }
 
         Thread.sleep(200)
