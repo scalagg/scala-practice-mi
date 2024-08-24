@@ -14,5 +14,5 @@ interface MiniGameScoreboard
 
     fun createWaitingScoreboardFor(player: Player, board: List<String>)
     fun createInGameScoreboardFor(player: Player, board: List<String>)
-    fun createEndingScoreboardFor(player: Player, report: GameReport, board: List<String>)
+    fun createEndingScoreboardFor(player: Player, report: GameReport?, board: List<String>)
 }

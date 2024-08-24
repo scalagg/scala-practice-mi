@@ -35,7 +35,7 @@ class SkyWarsLifecycle(
 
         }
 
-        override fun createEndingScoreboardFor(player: Player, report: GameReport, board: List<String>)
+        override fun createEndingScoreboardFor(player: Player, report: GameReport?, board: List<String>)
         {
 
         }
