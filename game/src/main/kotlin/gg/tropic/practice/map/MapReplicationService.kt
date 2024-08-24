@@ -151,7 +151,6 @@ object MapReplicationService
         )
     }
 
-    // TODO: add waiting logic
     fun startIfReady(game: GameImpl): Boolean
     {
         if (game.robot())
@@ -309,31 +308,53 @@ object MapReplicationService
             }
         }
 
-        val start = System.currentTimeMillis()
+        if (newGame.miniGameLifecycle == null)
+        {
+            val start = System.currentTimeMillis()
+            Schedulers
+                .async()
+                .runRepeating(
+                    { task ->
+                        if (System.currentTimeMillis() >= start + 5000L)
+                        {
+                            newGame.state = GameState.Completed
+                            newGame.closeAndCleanup()
 
-        Schedulers
-            .async()
-            .runRepeating(
-                { task ->
-                    if (System.currentTimeMillis() >= start + 5000L)
+                            task.closeAndReportException()
+                            return@runRepeating
+                        }
+
+                        if (newGame.state == GameState.Waiting)
+                        {
+                            if (startIfReady(newGame))
+                            {
+                                task.closeAndReportException()
+                            }
+                        }
+                    },
+                    0L, 1L
+                )
+        } else
+        {
+            // TODO: start smart start task
+            Schedulers
+                .async()
+                .runRepeating({ task ->
+                    if (!newGame.state(GameState.Waiting))
                     {
-                        newGame.state = GameState.Completed
-                        newGame.closeAndCleanup()
-
                         task.closeAndReportException()
                         return@runRepeating
                     }
 
-                    if (newGame.state == GameState.Waiting)
+                    if (newGame.expectationModel.players.isEmpty())
                     {
-                        if (startIfReady(newGame))
-                        {
-                            task.closeAndReportException()
-                        }
+                        newGame.state = GameState.Completed
+                        newGame.closeAndCleanup()
+                        task.closeAndReportException()
+                        return@runRepeating
                     }
-                },
-                0L, 1L
-            )
+                }, 0L, 1L)
+        }
 
         GameService.gameMappings[expectation.identifier] = newGame
         return ReplicationResult(
