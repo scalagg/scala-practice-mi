@@ -21,7 +21,8 @@ enum class InternalMatchmakingBracket(val range: IntRange)
     Twelve(2150..2249),
     Thirteen(2250..2349),
     Fourteen(2350..2449),
-    Fifteen(2450..2500);
+    Fifteen(2450..2500),
+    Post2500(2501..Int.MAX_VALUE);
 
     companion object
     {
