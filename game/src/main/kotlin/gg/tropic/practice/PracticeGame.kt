@@ -10,6 +10,7 @@ import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
 import gg.tropic.practice.lifecycle.NightlyRebootScheduler
+import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
 import gg.tropic.practice.minigame.MiniGameOrchestrator
 import gg.tropic.practice.minigame.MiniGameRegistry
 import gg.tropic.practice.minigame.MiniGameSerializers
@@ -56,7 +57,7 @@ class PracticeGame : ExtendedScalaPlugin()
         }
 
         MiniGameSerializers.configure()
-        PreConfigureSubTypeProcessor.register<MiniGameOrchestrator<*>> {
+        PreConfigureSubTypeProcessor.register<BasicMiniGameOrchestrator<*>> {
             MiniGameRegistry.miniGameOrchestrators[it.id()] = it
         }
 
