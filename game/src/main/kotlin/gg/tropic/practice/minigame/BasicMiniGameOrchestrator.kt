@@ -15,6 +15,9 @@ abstract class BasicMiniGameOrchestrator<T : MiniGameConfiguration> : MiniGameOr
         return object : AbstractMiniGameGameImpl<T>(expectation, kit)
         {
             override fun prepare(configuration: T) = this@BasicMiniGameOrchestrator.prepare(this, configuration)
+                .apply {
+                    bindWith(game)
+                }
         }
     }
 }
