@@ -3,7 +3,6 @@ package gg.tropic.practice.expectation
 import gg.tropic.practice.games.duels.PvPConfiguration
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.games.team.GameTeam
-import gg.tropic.practice.games.team.GameTeamSide
 import java.util.*
 
 /**
@@ -13,7 +12,7 @@ import java.util.*
 data class GameExpectation(
     val identifier: UUID,
     val players: List<UUID>,
-    val teams: Map<GameTeamSide, GameTeam>,
+    val teams: Set<GameTeam>,
     val kitId: String,
     val mapId: String,
     /**

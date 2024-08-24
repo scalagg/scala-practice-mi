@@ -1,12 +1,12 @@
 package gg.tropic.practice.queue
 
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.GameExpectation
-import gg.tropic.practice.application.api.defaults.game.GameTeam
-import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.manager.GameManager
+import gg.tropic.practice.games.team.GameTeam
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.namespace
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.suffixWhenDev
@@ -409,9 +409,9 @@ open class GameQueue(
                         entry.players
                     }
                 },
-            teams = mapOf(
-                GameTeamSide.A to GameTeam(side = GameTeamSide.A, players = firstPlayers),
-                GameTeamSide.B to GameTeam(side = GameTeamSide.B, players = secondPlayers),
+            teams = setOf(
+                GameTeam(teamIdentifier = TeamIdentifier.A, players = firstPlayers),
+                GameTeam(teamIdentifier = TeamIdentifier.B, players = secondPlayers)
             ),
             kitId = kit.id,
             mapId = map.name,

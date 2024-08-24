@@ -90,6 +90,18 @@ object SolaraPracticeIntegrator
             bot.movements.isEdgeDetector = true
         }
 
+        if (game.flag(FeatureFlag.KnockbackProfile)) {
+            val metadata = game.flagMetaData(
+                FeatureFlag.KnockbackProfile,
+                "profile"
+            )
+
+            if (metadata == "combo")
+            {
+                bot.damageManager.isCombo = true
+            }
+        }
+
         //Boxing support
         if (game.flag(FeatureFlag.WinWhenNHitsReached))
         {
@@ -121,7 +133,7 @@ object SolaraPracticeIntegrator
                             )
                         }
 
-                        val dataPlayer = instance!!.dataManager.getPlayer(player)
+                        val dataPlayer = instance.dataManager.getPlayer(player)
                         dataPlayer?.hit()
 
                         if (game.humanSide().gameLifecycleArbitraryObjectiveProgress >= metadata)

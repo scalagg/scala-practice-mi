@@ -2,13 +2,13 @@ package gg.tropic.practice.queue.robot
 
 import gg.tropic.practice.Globals
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.GameExpectation
-import gg.tropic.practice.application.api.defaults.game.GameTeam
-import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.bots.extractBotGameMetadata
+import gg.tropic.practice.games.team.GameTeam
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.namespace
 import gg.tropic.practice.queue.GameQueue
 import gg.tropic.practice.queue.GameQueueManager
@@ -176,13 +176,13 @@ open class RobotDuoPlayerQueue(
         val expectation = GameExpectation(
             identifier = UUID.randomUUID(),
             players = users,
-            teams = mapOf(
-                GameTeamSide.A to GameTeam(
-                    side = GameTeamSide.A,
+            teams = setOf(
+                GameTeam(
+                    teamIdentifier = TeamIdentifier.A,
                     players = first.players + second.players
                 ),
-                GameTeamSide.B to GameTeam(
-                    side = GameTeamSide.B,
+                GameTeam(
+                    teamIdentifier = TeamIdentifier.B,
                     players = robotPlayers
                 ),
             ),

@@ -81,7 +81,9 @@ data class Kit(
         }
 
     var lifecycleType: GameLifecycle? = GameLifecycle.SoulBound
+    var numberOfTeams: Int? = 2
 
+    fun numberOfTeams() = numberOfTeams ?: 2
     fun lifecycle() = lifecycleType ?: GameLifecycle.SoulBound
 
     fun features(flag: FeatureFlag) = features.containsKey(flag)

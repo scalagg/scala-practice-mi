@@ -8,7 +8,7 @@ import java.util.UUID
  * @since 8/9/2022
  */
 class GameTeam(
-    val side: GameTeamSide,
+    val teamIdentifier: TeamIdentifier,
     val players: List<UUID>
 )
 {

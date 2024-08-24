@@ -25,7 +25,7 @@ import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.features.FireballFeature
 import gg.tropic.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.tropic.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
-import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.listeners.BlockFormListener
@@ -37,7 +37,6 @@ import gg.tropic.practice.utilities.toRBTeamSide
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import me.lucko.helper.promise.Promise
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
@@ -74,7 +73,6 @@ import org.bukkit.potion.PotionEffectType
 import java.lang.reflect.Field
 import java.time.Duration
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
@@ -439,6 +437,7 @@ object GameService
                     }
             }
 
+            // TODO: support multiple stuff
             val killerPlayer = if (game.robot()) null else (event.killerPlayerOverride ?: killedBy())
             val killer = if (game.robot())
             {
@@ -455,11 +454,11 @@ object GameService
             }
 
             val killerName = if (game.flag(FeatureFlag.RedBlueTeams))
-                killer?.side?.toRBTeamSide()?.format(killerPlayer?.name ?: "???") ?: "???"
+                killer?.teamIdentifier?.toRBTeamSide()?.format(killerPlayer?.name ?: "???") ?: "???"
             else "${CC.GREEN}${killerPlayer?.name ?: "???"}"
 
             val killedName = if (game.flag(FeatureFlag.RedBlueTeams))
-                team.side.toRBTeamSide().format(name)
+                team.teamIdentifier.toRBTeamSide().format(name)
             else "${CC.RED}$name"
 
             val deathMessage = "${CC.RED}$killedName${CC.GRAY} ${
@@ -521,7 +520,7 @@ object GameService
 
             when (game.lifecycle())
             {
-                GameLifecycle.SoulBound ->
+                GameLifecycle.SoulBound, GameLifecycle.MiniGame ->
                 {
                     if (!game.robot())
                     {
@@ -618,14 +617,6 @@ object GameService
                 }
             }
         }
-
-        Events
-            .subscribe(EntityDamageEvent::class.java)
-            .filter { it.cause == DamageCause.VOID }
-            .handler {
-                it.isCancelled = true
-            }
-            .bindWith(plugin)
 
         Events
             .subscribe(PlayerInteractEvent::class.java)
@@ -870,7 +861,7 @@ object GameService
                     if (buildLimit != null)
                     {
                         val maxBuildLimit = (game.map
-                            .findSpawnLocationMatchingTeam(GameTeamSide.A)?.y
+                            .findSpawnLocationMatchingTeam(TeamIdentifier.A)?.y
                             ?: 0.0) + buildLimit
 
                         if (it.to.y > maxBuildLimit + 1)
@@ -1198,7 +1189,7 @@ object GameService
                     val team = game
                         .getTeamOf(event.entity as Player)
 
-                    if (damagerTeam.side == team.side)
+                    if (damagerTeam.teamIdentifier == team.teamIdentifier)
                     {
                         event.isCancelled = true
                         return@handler
@@ -1228,7 +1219,7 @@ object GameService
                     val team = game
                         .getTeamOf(event.entity as Player)
 
-                    if (damagerTeam.side == team.side)
+                    if (damagerTeam.teamIdentifier == team.teamIdentifier)
                     {
                         event.isCancelled = true
                         return@handler
@@ -1386,7 +1377,7 @@ object GameService
 
                 if (damagerGame.expectation == game.expectation)
                 {
-                    if (damagerTeam.side == team.side)
+                    if (damagerTeam.teamIdentifier == team.teamIdentifier)
                     {
                         it.isCancelled = true
                         it.damager.sendMessage(
@@ -1504,7 +1495,7 @@ object GameService
                     return@handler
                 }
 
-                val enteredIntoTeamPortal = GameTeamSide.valueOf(metadata.asString().uppercase())
+                val enteredIntoTeamPortal = TeamIdentifier.ID[metadata.asString().uppercase()]
                 if (!game.flag(FeatureFlag.StartNewRoundOnPortalEnter))
                 {
                     return@handler
@@ -1516,7 +1507,7 @@ object GameService
                 }
 
                 val teamOfPlayer = game.getTeamOf(it.player)
-                if (teamOfPlayer.side == enteredIntoTeamPortal)
+                if (teamOfPlayer.teamIdentifier == enteredIntoTeamPortal)
                 {
                     it.player.gracefullyRemoveFromGame(
                         GameRemovalEvent(
@@ -1529,7 +1520,7 @@ object GameService
 
                 // TODO: this might be a bit odd
                 val opponent = game.getOpponent(it.player)
-                val firstPlayer = opponent?.toBukkitPlayers()?.firstOrNull()
+                val firstPlayer = opponent.toBukkitPlayers()?.firstOrNull()
                     ?: return@handler
 
                 firstPlayer.gracefullyRemoveFromGame(
@@ -1626,7 +1617,7 @@ object GameService
                     val tropicBedSide = nearestSpawnLocation.id
 
                     val currentTeam = game.getTeamOf(it.player)
-                    val currentSide = currentTeam.side.name.lowercase()
+                    val currentSide = currentTeam.teamIdentifier.label.lowercase()
 
                     if (tropicBedSide == currentSide)
                     {
@@ -1646,9 +1637,9 @@ object GameService
                             "",
                             "${CC.B_WHITE}BED DESTRUCTION ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT}${CC.WHITE} ${
                                 "${
-                                    opponent.side.toRBTeamSide().let { side -> "${side.color}${side.display}" }
+                                    opponent.teamIdentifier.toRBTeamSide().let { side -> "${side.color}${side.display}" }
                                 } Bed${CC.GRAY} was destroyed by ${
-                                    "${currentTeam.side.toRBTeamSide().color}${it.player.name}${CC.GRAY}!"
+                                    "${currentTeam.teamIdentifier.toRBTeamSide().color}${it.player.name}${CC.GRAY}!"
                                 }"
                             }",
                             ""
@@ -1749,7 +1740,7 @@ object GameService
                 if (buildLimit != null)
                 {
                     val maxBuildLimit = (game.map
-                        .findSpawnLocationMatchingTeam(GameTeamSide.A)?.y
+                        .findSpawnLocationMatchingTeam(TeamIdentifier.A)?.y
                         ?: 0.0) + buildLimit
 
                     if (it.block.y > maxBuildLimit)

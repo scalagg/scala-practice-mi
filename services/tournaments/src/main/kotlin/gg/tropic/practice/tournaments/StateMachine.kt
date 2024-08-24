@@ -2,11 +2,11 @@ package gg.tropic.practice.tournaments
 
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.GameExpectation
-import gg.tropic.practice.application.api.defaults.game.GameTeam
-import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.expectation.GameExpectation
+import gg.tropic.practice.games.team.GameTeam
+import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.serializable.Message
 import java.util.*
@@ -87,13 +87,13 @@ sealed class SideEffect : (Tournament) -> Unit
                 val expectation = GameExpectation(
                     identifier = UUID.randomUUID(),
                     players = it.flatMap(TournamentMember::players),
-                    teams = mapOf(
-                        GameTeamSide.A to GameTeam(
-                            side = GameTeamSide.A,
+                    teams = setOf(
+                        GameTeam(
+                            teamIdentifier = TeamIdentifier.A,
                             players = it.first().players.toList()
                         ),
-                        GameTeamSide.B to GameTeam(
-                            side = GameTeamSide.B,
+                        GameTeam(
+                            teamIdentifier = TeamIdentifier.B,
                             players = it.last().players.toList()
                         ),
                     ),

@@ -6,10 +6,13 @@ import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
+import gg.scala.commons.preconfigure.PreConfigureSubTypeProcessor
 import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
 import gg.tropic.practice.lifecycle.NightlyRebootScheduler
+import gg.tropic.practice.minigame.MiniGame
+import gg.tropic.practice.minigame.MiniGameRegistry
 import gg.tropic.practice.settings.ChatVisibility
 import gg.tropic.practice.settings.DuelsSettingCategory
 import me.lucko.helper.Schedulers
@@ -58,6 +61,10 @@ class PracticeGame : ExtendedScalaPlugin()
     {
         devProvider = {
             "mipgamedev" in ServerSync.getLocalGameServer().groups
+        }
+
+        PreConfigureSubTypeProcessor.register<MiniGame> {
+            MiniGameRegistry.miniGames[it.id()] = it
         }
 
         ChatChannelService.default

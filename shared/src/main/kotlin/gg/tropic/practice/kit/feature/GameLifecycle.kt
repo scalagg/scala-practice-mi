@@ -9,5 +9,6 @@ enum class GameLifecycle
     ObjectiveBound,
     ObjectivePlusSoulBound,
     SoulBound,
-    RoundBound
+    RoundBound,
+    MiniGame
 }
