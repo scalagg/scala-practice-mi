@@ -338,7 +338,6 @@ object MapReplicationService
                 )
         } else
         {
-            // TODO: start smart start task
             if (newGame is AbstractMiniGameGameImpl<*>)
             {
                 newGame.startPreStartTask()
