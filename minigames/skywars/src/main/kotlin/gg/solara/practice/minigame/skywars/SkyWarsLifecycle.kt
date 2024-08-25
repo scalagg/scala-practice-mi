@@ -65,11 +65,15 @@ class SkyWarsLifecycle(
         val world = game.arenaWorld
         if (world != null)
         {
-            game.map.findSpawnLocations()
-                .forEach {
-                    it.position.toLocation(world).block
-                        .getRelative(BlockFace.DOWN)
-                        .setType(Material.AIR, false)
+            Schedulers
+                .sync()
+                .run {
+                    game.map.findSpawnLocations()
+                        .forEach {
+                            it.position.toLocation(world).block
+                                .getRelative(BlockFace.DOWN)
+                                .setType(Material.AIR, false)
+                        }
                 }
         }
 
