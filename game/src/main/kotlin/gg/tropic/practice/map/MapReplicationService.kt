@@ -226,17 +226,6 @@ object MapReplicationService
                 )
         }
 
-        if (!newGame.buildResources())
-        {
-            newGame.state = GameState.Completed
-            newGame.closeAndCleanup()
-
-            return ReplicationResult(
-                status = ReplicationResultStatus.Unavailable,
-                "Game orchestrator was unable to build game resources"
-            )
-        }
-
         val scheduledMap = findScheduledReplication(expectation.identifier)
             ?: return ReplicationResult(
                 status = ReplicationResultStatus.Unavailable,
@@ -253,6 +242,17 @@ object MapReplicationService
 
         scheduledMap.inUse = true
         newGame.arenaWorldName = scheduledMap.world.name
+
+        if (!newGame.buildResources())
+        {
+            newGame.state = GameState.Completed
+            newGame.closeAndCleanup()
+
+            return ReplicationResult(
+                status = ReplicationResultStatus.Unavailable,
+                "Game orchestrator was unable to build game resources"
+            )
+        }
 
         if (newGame.robot())
         {
