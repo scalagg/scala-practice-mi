@@ -9,11 +9,9 @@ import gg.scala.commons.preconfigure.PreConfigureSubTypeProcessor
 import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
+import gg.tropic.practice.games.GameService
 import gg.tropic.practice.lifecycle.NightlyRebootScheduler
-import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
-import gg.tropic.practice.minigame.MiniGameOrchestrator
-import gg.tropic.practice.minigame.MiniGameRegistry
-import gg.tropic.practice.minigame.MiniGameSerializers
+import gg.tropic.practice.minigame.*
 import gg.tropic.practice.settings.ChatVisibility
 import gg.tropic.practice.settings.DuelsSettingCategory
 import org.bukkit.Bukkit
@@ -71,10 +69,16 @@ class PracticeGame : ExtendedScalaPlugin()
                     ?: ChatVisibility.Global
 
                 val bukkitPlayer = Bukkit.getPlayer(player)
+                val game = GameService.byPlayerOrSpectator(player)
+                if (game is AbstractMiniGameGameImpl<*>)
+                {
+                    return@displayToPlayer bukkitPlayer.world.name == other.world.name
+                }
+
                 when (chatVisibility)
                 {
                     ChatVisibility.Global -> true
-                    ChatVisibility.Match -> bukkitPlayer != null && bukkitPlayer.world.name == other.world.name
+                    else -> bukkitPlayer != null && bukkitPlayer.world.name == other.world.name
                 }
             }
 

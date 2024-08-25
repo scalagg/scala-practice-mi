@@ -128,7 +128,7 @@ class SkyWarsLifecycle(
         private val dateFormat = SimpleDateFormat("MM/dd/yy")
         fun Player.addSurrounding(board: MutableList<String>, surrounded: () -> List<String>)
         {
-            board.add(1, "${CC.GRAY}${dateFormat.format(Date())} ${CC.D_GRAY}${
+            board.add(0, "${CC.D_GRAY}${dateFormat.format(Date())} ${
                 SplitUtil.splitUuid(game.expectation)
             }")
             board += surrounded()
