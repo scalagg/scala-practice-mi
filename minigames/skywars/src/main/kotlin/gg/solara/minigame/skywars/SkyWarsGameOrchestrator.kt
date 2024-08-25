@@ -5,9 +5,13 @@ import com.comphenix.protocol.PacketType
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
+import gg.solara.minigame.skywars.shared.cages.SchemaCageDefaultSchemas
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.event.AsyncPlayerPreJoinGameEvent
 import gg.tropic.practice.games.event.GameStartEvent
+import gg.tropic.practice.games.event.PlayerJoinGameEvent
+import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
 import gg.tropic.practice.minigame.broadcastSeconds
@@ -17,6 +21,7 @@ import me.lucko.helper.protocol.Protocol
 import net.evilblock.cubed.util.CC
 import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.block.BlockFace
 import org.bukkit.event.player.PlayerInteractEvent
 
 /**
@@ -46,6 +51,20 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 it.game.sendMessage("${CC.YELLOW}Cages open in ${CC.RED}${it.secondsLeftUntilStart}${CC.YELLOW} second${
                     if (it.secondsLeftUntilStart == 1) "" else "s"
                 }!")
+            }
+
+        Events
+            .subscribe(PlayerSelectSpawnLocationEvent::class.java)
+            .filter { it.game.miniGameLifecycle is SkyWarsLifecycle }
+            .filter { !it.spectator }
+            .filter { it.game.state(GameState.Waiting) || it.game.state(GameState.Starting) }
+            .handler {
+                val baseBlock = it.location.world
+                    .getBlockAt(it.location)
+                    .getRelative(BlockFace.DOWN)
+
+                // TODO: choose proper one based on cosmetics
+                SchemaCageDefaultSchemas.DEFAULT.applyTo(baseBlock)
             }
 
         /**
