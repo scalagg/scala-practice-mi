@@ -93,10 +93,10 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     createMessage(
                         "replication-ready",
                         "requestID" to requestID,
-                        "result" to ReplicationResult(
+                        "result" to Serializers.gson.toJson(ReplicationResult(
                             status = ReplicationResultStatus.Unavailable,
                             message = "Map service did not find the map you were looking for"
-                        )
+                        ))
                     ).publish(
                         AwareThreadContext.SYNC,
                         channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
