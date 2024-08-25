@@ -11,6 +11,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.matchmaking.InternalMatchmakingBracket
+import gg.tropic.practice.games.matchmaking.JoinIntoGameStatus
 import gg.tropic.practice.games.matchmaking.MatchmakingMetadata
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.TeamIdentifier
@@ -171,14 +172,19 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
         {
             GameQueueManager
                 .requestJoinIntoGame(targetEntry.leader, existingGameRequiringPlayers)
-                .thenRun {
-                    GameQueueManager.destroyQueueStates(queueId(), targetEntry)
+                .thenAccept {
+                    println("Status: ${it.status}")
+
+                    if (it.status == JoinIntoGameStatus.Success)
+                    {
+                        DPSRedisShared.redirect(
+                            listOf(targetEntry.leader),
+                            existingGameRequiringPlayers.server
+                        )
+                    }
                 }
                 .thenRun {
-                    DPSRedisShared.redirect(
-                        listOf(targetEntry.leader),
-                        existingGameRequiringPlayers.server
-                    )
+                    GameQueueManager.destroyQueueStates(queueId(), targetEntry)
                 }
                 .exceptionally {
                     it.printStackTrace()
