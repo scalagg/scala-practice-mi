@@ -8,7 +8,10 @@ import gg.tropic.practice.kit.Kit
  * @author GrowlyX
  * @since 8/23/2024
  */
-abstract class AbstractMiniGameGameImpl<T : MiniGameConfiguration>(expectation: GameExpectation, kit: Kit) : GameImpl(expectation, kit)
+abstract class AbstractMiniGameGameImpl<T : MiniGameConfiguration>(
+    val orchestrator: BasicMiniGameOrchestrator<T>,
+    expectation: GameExpectation, kit: Kit
+) : GameImpl(expectation, kit)
 {
     abstract fun prepare(configuration: T): MiniGameLifecycle<T>
 

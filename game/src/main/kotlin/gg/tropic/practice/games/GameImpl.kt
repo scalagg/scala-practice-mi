@@ -86,7 +86,7 @@ open class GameImpl(
     var miniGameLifecycle: MiniGameLifecycle<*>? = null
 
     @Transient
-    var activeCountdown = 5
+    var currentGameStartCountdown = 5
 
     private val snapshots =
         mutableMapOf<UUID, GameReportSnapshot>()
@@ -424,8 +424,6 @@ open class GameImpl(
                 reason,
                 playerFeedback = playerFeedback
             )
-
-        this.activeCountdown = 5
 
         stopTask.task = Schedulers.sync()
             .runRepeating(

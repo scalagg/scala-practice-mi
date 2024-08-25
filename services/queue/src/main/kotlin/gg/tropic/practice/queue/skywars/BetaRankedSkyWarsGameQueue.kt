@@ -139,8 +139,9 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
 
         GameQueueManager.removeQueueEntryFromId(queueId(), targetEntry.leader)
 
-        val preferredRegion =
-            if (targetEntry.preferredQueueRegion == Region.Both) Region.NA else targetEntry.preferredQueueRegion
+        val preferredRegion = if (targetEntry.preferredQueueRegion == Region.Both)
+            Region.NA else targetEntry.preferredQueueRegion
+
         val matchmakingMetadata = MatchmakingMetadata(
             region = preferredRegion,
             bracket = InternalMatchmakingBracket.of(targetEntry.leaderELO)

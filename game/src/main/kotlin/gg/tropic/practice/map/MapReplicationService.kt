@@ -19,7 +19,9 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
+import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.MiniGameRegistry
+import gg.tropic.practice.minigame.tasks.MiniGamePreStartTask.Companion.startPreStartTask
 import gg.tropic.practice.replication.ReplicationResult
 import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.models.Replication
@@ -337,23 +339,10 @@ object MapReplicationService
         } else
         {
             // TODO: start smart start task
-            Schedulers
-                .async()
-                .runRepeating({ task ->
-                    if (!(newGame.state(GameState.Waiting) || newGame.state(GameState.Starting)))
-                    {
-                        task.closeAndReportException()
-                        return@runRepeating
-                    }
-
-                    if (newGame.expectationModel.players.isEmpty())
-                    {
-                        newGame.state = GameState.Completed
-                        newGame.closeAndCleanup()
-                        task.closeAndReportException()
-                        return@runRepeating
-                    }
-                }, 0L, 1L)
+            if (newGame is AbstractMiniGameGameImpl<*>)
+            {
+                newGame.startPreStartTask()
+            }
         }
 
         GameService.gameMappings[expectation.identifier] = newGame

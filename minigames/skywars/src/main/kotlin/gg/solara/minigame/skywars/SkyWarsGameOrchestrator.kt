@@ -17,5 +17,6 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
         configuration: SkyWarsGameConfiguration
     ) = SkyWarsLifecycle(configuration, miniGame)
 
-    override fun id() = "skywars"
+    override val id = "skywars"
+    override val minimumPlayersRequiredToEnterStarting = 4
 }

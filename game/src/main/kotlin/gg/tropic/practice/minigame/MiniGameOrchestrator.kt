@@ -9,6 +9,8 @@ import gg.tropic.practice.kit.Kit
  */
 interface MiniGameOrchestrator<T : MiniGameConfiguration>
 {
-    fun id(): String
+    val id: String
+    val minimumPlayersRequiredToEnterStarting: Int
+
     fun construct(kit: Kit, expectation: GameExpectation): AbstractMiniGameGameImpl<T>
 }

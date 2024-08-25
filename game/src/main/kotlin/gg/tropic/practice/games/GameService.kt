@@ -1134,6 +1134,11 @@ object GameService
                     }
                 } else
                 {
+                    if (game.miniGameLifecycle != null)
+                    {
+                        return@handler
+                    }
+
                     if (
                         game.state(GameState.Starting) ||
                         game.state(GameState.Waiting)

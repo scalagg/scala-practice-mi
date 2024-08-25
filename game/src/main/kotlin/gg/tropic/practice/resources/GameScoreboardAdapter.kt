@@ -260,7 +260,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         val opponents = game
                             .getAllOpponents(game.getTeamOf(player))
                             .flatMap(GameTeam::players)
-                        board += "${CC.GRAY}Starting in: ${CC.PRI}${game.activeCountdown}s"
+                        board += "${CC.GRAY}Starting in: ${CC.PRI}${game.currentGameStartCountdown}s"
 
                         if (opponents.size == 1)
                         {
