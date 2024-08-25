@@ -2,7 +2,6 @@ package gg.tropic.practice.map.metadata.scanner.impl
 
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
-import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
 import gg.tropic.practice.map.metadata.scanner.AbstractMapMetadataScanner
 import gg.tropic.practice.map.metadata.sign.MapSignMetadataModel
 import org.bukkit.block.BlockFace
@@ -33,7 +32,15 @@ object MapChestMetadataScanner : AbstractMapMetadataScanner<MapChestMetadata>()
     ): MapChestMetadata
     {
         val model = models
-            .groupBy { it.extraMetadata.firstOrNull() ?: "global" }
+            .groupBy {
+                val scopedID = it.extraMetadata.firstOrNull()
+                if (scopedID.isNullOrBlank())
+                {
+                    return@groupBy "global"
+                }
+
+                return@groupBy scopedID
+            }
             .mapValues { grouped ->
                 grouped.value.map { model ->
                     val location = model.location.clone()

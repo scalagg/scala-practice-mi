@@ -16,6 +16,6 @@ data class MapChestMetadata(
     fun getGlobal() = locations["global"] ?: listOf()
     fun getByTeam(teamIdentifier: TeamIdentifier) = locations[teamIdentifier.label.lowercase()] ?: listOf()
 
-    override fun report() = "Chests | $id | ${locations.size}"
+    override fun report() = "Chests | $id | ${locations.size} group (${locations.entries.joinToString(", ") { "${it.key} -> ${it.value.size}"}})"
     override fun getAbstractType() = MapChestMetadata::class.java
 }
