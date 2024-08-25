@@ -72,6 +72,11 @@ class SkyWarsLifecycle(
                                 ?: BlockFace.EAST
 
                             val chest = Chest(face)
+                            world.getBlockAt(location)
+                                .apply {
+                                    setType(Material.CHEST, true)
+                                }
+
                             world.getBlockAt(location).state
                                 .apply {
                                     data = chest
