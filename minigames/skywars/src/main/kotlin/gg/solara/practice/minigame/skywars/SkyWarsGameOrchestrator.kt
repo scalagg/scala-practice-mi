@@ -156,6 +156,7 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                         with(
                             ChestRefillHologram(
                                 miniGameLifecycle,
+                                miniGameLifecycle.events.first(),
                                 it.clickedBlock.location
                                     .add(0.500, 0.0, 0.500)
                             )

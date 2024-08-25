@@ -117,7 +117,7 @@ class SkyWarsLifecycle(
                         }
 
                         val estimatedExecution = currentEvent.durationPostGameStart
-                            .plusMillis(game.startTimestamp)
+                            .plusMillis(lastEventExecution)
                             .toMillis()
 
                         if (estimatedExecution <= System.currentTimeMillis())

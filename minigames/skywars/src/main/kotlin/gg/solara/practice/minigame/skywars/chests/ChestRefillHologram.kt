@@ -1,7 +1,7 @@
 package gg.solara.practice.minigame.skywars.chests
 
 import gg.solara.practice.minigame.skywars.SkyWarsLifecycle
-import gg.solara.practice.minigame.skywars.events.ChestRefillEvent
+import gg.solara.practice.minigame.skywars.events.GameEvent
 import me.lucko.helper.Helper
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.entity.EntityHandler
@@ -9,12 +9,11 @@ import net.evilblock.cubed.entity.hologram.updating.UpdatingHologramEntity
 import net.evilblock.cubed.util.CC
 import org.bukkit.Location
 import org.bukkit.block.Chest
-import org.bukkit.craftbukkit.v1_8_R3.block.CraftBlock
-import org.bukkit.craftbukkit.v1_8_R3.block.CraftChest
 import org.bukkit.metadata.FixedMetadataValue
 
 class ChestRefillHologram(
     private val lifecycle: SkyWarsLifecycle,
+    private val associatedEvent: GameEvent,
     location: Location
 ) : UpdatingHologramEntity(
     "", location
@@ -42,21 +41,14 @@ class ChestRefillHologram(
     override fun getNewLines(): List<String>
     {
         val chest = location.block.state as Chest
-        if (chest.inventory.contents.isEmpty())
-        {
-            println(chest.inventory.contents)
-            return listOf("${CC.RED}Empty!")
-        }
 
-        val currentEvent = lifecycle.events.firstOrNull()
-        if (currentEvent !is ChestRefillEvent)
+        if (chest.inventory.contents.all { it == null })
         {
-            return listOf("")
+            return listOf("${CC.RED}Empty!", "", "${CC.GREEN}${associatedEvent.formattedEstimatedExecution()}")
         }
 
         return listOf(
-            "${CC.RED}Refill",
-            "${CC.GREEN}${currentEvent.formattedEstimatedExecution()}"
+            "${CC.GREEN}${associatedEvent.formattedEstimatedExecution()}"
         )
     }
 
