@@ -173,8 +173,6 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
             GameQueueManager
                 .requestJoinIntoGame(targetEntry.leader, existingGameRequiringPlayers)
                 .thenAccept {
-                    println("Status: ${it.status}")
-
                     if (it.status == JoinIntoGameStatus.Success)
                     {
                         DPSRedisShared.redirect(

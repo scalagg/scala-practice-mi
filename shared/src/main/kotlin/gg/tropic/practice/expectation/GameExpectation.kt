@@ -13,7 +13,7 @@ import java.util.*
  */
 data class GameExpectation(
     val identifier: UUID,
-    val players: MutableList<UUID>,
+    val players: MutableSet<UUID>,
     val teams: Set<GameTeam>,
     val kitId: String,
     val mapId: String,
