@@ -1,5 +1,6 @@
 package gg.solara.minigame.skywars
 
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.lemon.util.SplitUtil
 import gg.solara.minigame.skywars.events.FirstRefillGameEvent
 import gg.solara.minigame.skywars.events.GameEvent
@@ -126,11 +127,13 @@ class SkyWarsLifecycle(
         override fun titleFor(player: Player) = "${CC.B_PRI}SKYWARS"
 
         private val dateFormat = SimpleDateFormat("MM/dd/yy")
+        private val id = ServerSync.local.id
+            .replace("-practice-", "")
+            .replace("game", "g")
+
         fun Player.addSurrounding(board: MutableList<String>, surrounded: () -> List<String>)
         {
-            board.add(0, "${CC.D_GRAY}${dateFormat.format(Date())} ${
-                SplitUtil.splitUuid(game.expectation)
-            }")
+            board.add(0, "${CC.D_GRAY}${dateFormat.format(Date())} $id")
             board += surrounded()
             board += ""
             board += "${CC.GRAY}Players left: ${CC.PRI}${
@@ -145,10 +148,7 @@ class SkyWarsLifecycle(
 
         override fun createWaitingScoreboardFor(player: Player, board: MutableList<String>)
         {
-            board.add(1, "${CC.GRAY}${dateFormat.format(Date())} ${CC.D_GRAY}${
-                SplitUtil.splitUuid(game.expectation)
-            }")
-            board += ""
+            board.add(0, "${CC.D_GRAY}${dateFormat.format(Date())} $id")
             board += "${CC.GRAY}Players: ${CC.PRI}${game.allNonSpectators().size}/4"
             board += ""
             board += "${CC.GRAY}Waiting..."
