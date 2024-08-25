@@ -626,7 +626,6 @@ object GameQueueManager
                 val teamSize = retrieve<Int>("teamSize")
 
                 val queueId = "$kit:${queueType.name}:${teamSize}v${teamSize}"
-                println(queues.keys)
 
                 queues[queueId]?.apply {
                     dpsRedisCache.sync().hset(

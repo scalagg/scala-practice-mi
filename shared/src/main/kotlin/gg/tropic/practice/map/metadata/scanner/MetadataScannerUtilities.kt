@@ -14,6 +14,7 @@ object MetadataScannerUtilities
         MapSpawnMetadataScanner,
         MapLevelMetadataScanner,
         MapPortalMetadataScanner,
+        MapChestMetadataScanner,
         MapBedMetadataScanner
     )
 
