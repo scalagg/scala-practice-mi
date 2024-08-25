@@ -626,6 +626,7 @@ object GameQueueManager
                 val teamSize = retrieve<Int>("teamSize")
 
                 val queueId = "$kit:${queueType.name}:${teamSize}v${teamSize}"
+                println(queues.keys)
 
                 queues[queueId]?.apply {
                     dpsRedisCache.sync().hset(
@@ -787,7 +788,7 @@ object GameQueueManager
                     }
             }
 
-        val rankedSkyWarsQueue = KitDataSync.cached().kits["RSWInternal"]
+        val rankedSkyWarsQueue = KitDataSync.cached().kits[SkyWarsConstants.KitID]
         if (rankedSkyWarsQueue != null)
         {
             if (queues[SkyWarsConstants.QID] == null)
