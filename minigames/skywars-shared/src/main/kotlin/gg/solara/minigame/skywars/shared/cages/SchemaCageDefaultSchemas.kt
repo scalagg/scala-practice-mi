@@ -17,7 +17,7 @@ object SchemaCageDefaultSchemas
         pillar(0, -1, Material.GLASS)
 
         addBlockModifier(
-            Vector(0, 3, 0),
+            Vector(0, 4, 0),
             Material.GLASS
         )
     }
