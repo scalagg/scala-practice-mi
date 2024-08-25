@@ -5,6 +5,7 @@ import com.comphenix.protocol.PacketType
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
+import gg.solara.practice.minigame.skywars.shared.cages.SchemaCageDataSync
 import gg.solara.practice.minigame.skywars.shared.cages.SchemaCageDefaultSchemas
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
@@ -64,8 +65,11 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                     .getRelative(BlockFace.DOWN)
 
                 // TODO: choose proper one based on cosmetics
-                it.player.sendMessage("Applying cage")
-                SchemaCageDefaultSchemas.DEFAULT.applyTo(baseBlock)
+                val randomCage = SchemaCageDataSync.cached().schemas.values
+                    .firstOrNull()
+                    ?: SchemaCageDefaultSchemas.DEFAULT
+
+                randomCage.applyTo(baseBlock)
             }
 
         /**
