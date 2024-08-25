@@ -1,9 +1,9 @@
 package gg.tropic.practice.queue.skywars
 
 import com.google.common.annotations.Beta
-import gg.solara.minigame.skywars.shared.SkyWarsConstants
-import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
-import gg.solara.minigame.skywars.shared.SkyWarsMode
+import gg.solara.practice.minigame.skywars.shared.SkyWarsConstants
+import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
+import gg.solara.practice.minigame.skywars.shared.SkyWarsMode
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
