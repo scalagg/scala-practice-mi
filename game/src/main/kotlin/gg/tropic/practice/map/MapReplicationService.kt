@@ -92,9 +92,7 @@ object MapReplicationService
                 }
 
             replication.scheduledForExpectedGame = expectation.identifier
-            buildGameResources(expectation)
-
-            return@scope CompletableFuture.completedFuture(null)
+            return@scope CompletableFuture.completedFuture(buildGameResources(expectation))
         }
 
         ReplicationManagerService.bindToStatusService {

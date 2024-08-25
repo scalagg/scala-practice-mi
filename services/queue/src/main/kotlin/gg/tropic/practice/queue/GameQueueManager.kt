@@ -7,7 +7,7 @@ import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.agnostic.sync.server.state.ServerState
-import gg.solara.minigame.skywars.shared.SkyWarsConstants
+import gg.solara.practice.minigame.skywars.shared.SkyWarsConstants
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
