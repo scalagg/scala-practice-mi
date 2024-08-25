@@ -64,6 +64,7 @@ object UpdateRolloutOrchestrator : Thread()
 
             listen("start") {
                 val initiator = retrieve<UUID>("player")
+                val dev = retrieve<Boolean>("dev")
                 val region = retrieve<Region>("region")
 
                 if (region == Region.Both)
@@ -98,7 +99,7 @@ object UpdateRolloutOrchestrator : Thread()
 
                 val newEvent = RolloutEvent(
                     region = region,
-                    affected = ServerContainer.getServersInGroup("mipgame")
+                    affected = ServerContainer.getServersInGroup("mipgame${if (dev) "dev" else ""}")
                         .filter { it.region.name == region.name }
                         .map(AbstractServer::id)
                         .toSet()
