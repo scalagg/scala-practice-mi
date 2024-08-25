@@ -99,7 +99,8 @@ object UpdateRolloutOrchestrator : Thread()
 
                 val newEvent = RolloutEvent(
                     region = region,
-                    affected = ServerContainer.getServersInGroup("mipgame${if (dev) "dev" else ""}")
+                    affected = ServerContainer.getServersInGroup(if (dev) "mipdev" else "mipgame")
+                        .filter { "mipgame" in it.groups }
                         .filter { it.region.name == region.name }
                         .map(AbstractServer::id)
                         .toSet()

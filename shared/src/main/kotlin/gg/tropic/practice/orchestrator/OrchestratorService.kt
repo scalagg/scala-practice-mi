@@ -5,6 +5,7 @@ import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.commons.util.Players
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.util.QuickAccess
@@ -13,6 +14,7 @@ import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
+import org.bukkit.Bukkit
 import java.util.logging.Logger
 
 /**
@@ -47,15 +49,28 @@ object OrchestratorService
             terminable?.closeAndReportException()
             terminable = CompositeTerminable.create()
 
+            QuickAccess.sendGlobalBroadcast(
+                "${CC.BLUE}[O] ${CC.AQUA}[${
+                    ServerSync.getLocalGameServer().id
+                }] ${CC.D_AQUA}Update is being rolled out on this instance. Instance will reboot once empty.",
+                permission = "practice.admin"
+            )
+
             Schedulers
                 .sync()
                 .runRepeating({ _ ->
-                    QuickAccess.sendGlobalBroadcast(
-                        "${CC.BLUE}[O] ${CC.AQUA}[${
-                            ServerSync.getLocalGameServer().id
-                        }] ${CC.D_AQUA}Update is being rolled out on this instance. Instance will reboot once empty.",
-                        permission = "practice.admin"
-                    )
+                    if (Bukkit.getOnlinePlayers().isEmpty())
+                    {
+                        QuickAccess.sendGlobalBroadcast(
+                            "${CC.BLUE}[O] ${CC.AQUA}[${
+                                ServerSync.getLocalGameServer().id
+                            }] ${CC.RED}Rollout requires a reboot. Server is rebooting!",
+                            permission = "practice.admin"
+                        )
+
+                        terminable?.closeAndReportException()
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop")
+                    }
                 }, 0L, 20L)
                 .bindWith(terminable!!)
         }
