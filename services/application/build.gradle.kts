@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":services:queue"))
     implementation(project(":services:tournaments"))
     implementation(project(":services:statistics"))
+    implementation(project(":services:orchestrator"))
     implementation(project(":services:application:api"))
     implementation(project(":services:statistics:leaderboards"))
     implementation(project(":minigames:skywars-shared"))
