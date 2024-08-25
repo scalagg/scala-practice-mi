@@ -1,12 +1,11 @@
 package gg.solara.practice.minigame.skywars
 
-import com.comphenix.packetwrapper.WrapperPlayServerBlockAction
-import com.comphenix.protocol.PacketType
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.solara.practice.minigame.skywars.chests.ChestRefillHologram
+import gg.solara.practice.minigame.skywars.events.ChestRefillEvent
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.solara.practice.minigame.skywars.shared.cages.*
-import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
@@ -16,11 +15,10 @@ import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
 import gg.tropic.practice.minigame.broadcastSeconds
 import gg.tropic.practice.minigame.event.MiniGameStartTickEvent
 import me.lucko.helper.Events
-import me.lucko.helper.protocol.Protocol
 import net.evilblock.cubed.util.CC
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
@@ -102,22 +100,27 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 }
             }
 
-        /**
-         * Prevent close action from being sent, unless it's from the server
-         */
-        Protocol
-            .subscribe(PacketType.Play.Server.BLOCK_ACTION)
+        Events
+            .subscribe(BlockBreakEvent::class.java)
             .handler {
-                val blockAction = WrapperPlayServerBlockAction(it.packet)
-                println("block action is being sent ${blockAction.byte2} ${blockAction.byte1} ${blockAction.blockType} | ${it.packet.getMeta<Boolean>("programmatically").isPresent}")
-                if (blockAction.byte2 == 0 && blockAction.blockType == Material.CHEST && blockAction.byte1 == 0)
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                val miniGameLifecycle = game.miniGameLifecycle
+                if (miniGameLifecycle is SkyWarsLifecycle)
                 {
-                    if (it.packet.getMeta<Boolean>("programmatically").isPresent)
+                    if (!it.block.hasMetadata("hologram"))
                     {
                         return@handler
                     }
 
-                    it.isCancelled = true
+                    with(
+                        it.block.getMetadata("hologram")
+                            .first().value() as ChestRefillHologram
+                    )
+                    {
+                        closeAndReportException()
+                    }
                 }
             }
 
@@ -137,6 +140,30 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 if (game.state(GameState.Waiting) || game.state(GameState.Starting))
                 {
                     it.isCancelled = true
+                    return@handler
+                }
+
+                val miniGameLifecycle = game.miniGameLifecycle
+                if (miniGameLifecycle is SkyWarsLifecycle)
+                {
+                    if (it.clickedBlock.hasMetadata("hologram"))
+                    {
+                        return@handler
+                    }
+
+                    if (miniGameLifecycle.events.firstOrNull() is ChestRefillEvent)
+                    {
+                        with(
+                            ChestRefillHologram(
+                                miniGameLifecycle,
+                                it.clickedBlock.location
+                                    .add(0.500, 0.0, 0.500)
+                            )
+                        ) {
+                            create()
+                            bindWith(miniGameLifecycle.events.first())
+                        }
+                    }
                 }
             }
 

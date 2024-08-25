@@ -9,7 +9,7 @@ import java.time.Duration
  */
 class SecondRefillGameEvent(lifecycle: SkyWarsLifecycle) : GameEvent(
     lifecycle, "Refill", Duration.ofSeconds(80)
-)
+), ChestRefillEvent
 {
     override fun run()
     {

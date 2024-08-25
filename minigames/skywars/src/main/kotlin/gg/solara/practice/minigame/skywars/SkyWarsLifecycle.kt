@@ -2,6 +2,7 @@ package gg.solara.practice.minigame.skywars
 
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.lemon.util.SplitUtil
+import gg.solara.practice.minigame.skywars.chests.ChestController
 import gg.solara.practice.minigame.skywars.events.*
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.solara.practice.minigame.skywars.shared.cages.*
@@ -52,24 +53,35 @@ class SkyWarsLifecycle(
     var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
 
     val cages = mutableMapOf<UUID, LocalCage>()
+    val chestController = ChestController(this)
 
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
         val world = game.arenaWorld
-        if (world != null)
-        {
-            Schedulers
-                .sync()
-                .run {
-                    game.map.findSpawnLocations()
-                        .forEach {
-                            it.position.toLocation(world).block
-                                .getRelative(BlockFace.DOWN)
-                                .setType(Material.AIR, false)
-                        }
+            ?: return
+
+        Schedulers
+            .sync()
+            .run {
+                game.map.findSpawnLocations()
+                    .forEach {
+                        it.position.toLocation(world).block
+                            .getRelative(BlockFace.DOWN)
+                            .setType(Material.AIR, false)
+                    }
+            }
+
+        chestController.chests.putAll(
+            game.map.metadata.metadata
+                .filterIsInstance<MapChestMetadata>()
+                .flatMap { it.locations.entries }
+                .associate {
+                    it.key to it.value
                 }
-        }
+        )
+
+        println(chestController.chests)
 
         Events
             .subscribe(GameStartEvent::class.java)
@@ -128,7 +140,6 @@ class SkyWarsLifecycle(
 
         Schedulers.sync()
             .run {
-                val world = game.arenaWorld ?: return@run
                 game.map.metadata.metadata
                     .filterIsInstance<MapChestMetadata>()
                     .forEach {
