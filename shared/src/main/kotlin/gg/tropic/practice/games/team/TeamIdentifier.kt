@@ -13,6 +13,8 @@ data class TeamIdentifier(val label: String)
 
         @JvmStatic val A = ID["A"]!!
         @JvmStatic val B = ID["B"]!!
+        @JvmStatic val C = ID["C"]!!
+        @JvmStatic val D = ID["D"]!!
     }
 
     fun nextOf() = ID.keys.indexOf(label)

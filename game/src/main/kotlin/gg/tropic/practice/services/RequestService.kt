@@ -8,8 +8,12 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.matchmaking.JoinIntoGameResult
+import gg.tropic.practice.games.matchmaking.JoinIntoGameStatus
 import gg.tropic.practice.games.spectate.SpectateRequest
 import gg.tropic.practice.suffixWhenDev
+import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.logging.Logger
 
@@ -18,7 +22,7 @@ import java.util.logging.Logger
  * @since 10/20/2023
  */
 @Service
-object SpectateRequestService
+object RequestService
 {
     private val aware by lazy {
         AwareBuilder
@@ -53,6 +57,44 @@ object SpectateRequestService
             createMessage(
                 "spectate-ready",
                 "requestID" to requestID
+            ).publish(
+                AwareThreadContext.SYNC,
+                "practice:queue".suffixWhenDev()
+            )
+        }
+
+        aware.listen("request-join-into") {
+            val game = retrieve<UUID>("game")
+            val gameImpl = GameService.gameMappings[game]
+                ?: return@listen
+
+            val player = retrieve<UUID>("player")
+            val requestID = retrieve<UUID>("requestID")
+
+            var status = JoinIntoGameStatus.Success
+            if (gameImpl.state(GameState.Waiting))
+            {
+                status = JoinIntoGameStatus.FailureStarted
+            } else
+            {
+                val emptyTeams = gameImpl.teams.filter { it.players.isEmpty() }
+                if (emptyTeams.isEmpty())
+                {
+                    status = JoinIntoGameStatus.FailureNonEmptyTeams
+                } else
+                {
+                    val firstEmpty = emptyTeams.first()
+                    val teamID = firstEmpty.teamIdentifier
+                    gameImpl.preWaitAdd(player, teamID)
+                }
+            }
+
+            createMessage(
+                "join-into-ready",
+                "requestID" to requestID,
+                "result" to Serializers.gson.toJson(JoinIntoGameResult(
+                    status = status
+                ))
             ).publish(
                 AwareThreadContext.SYNC,
                 "practice:queue".suffixWhenDev()

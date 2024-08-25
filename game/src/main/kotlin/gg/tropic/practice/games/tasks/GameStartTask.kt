@@ -32,7 +32,7 @@ class GameStartTask(
 
     override fun run()
     {
-        if (this.game.activeCountdown >= 5)
+        if (this.game.currentGameStartCountdown >= 5)
         {
             this.game.state = GameState.Starting
 
@@ -67,7 +67,6 @@ class GameStartTask(
                 else -> "Private"
             }
 
-            // TODO: minigame implementation, describe all teams properly
             val components = mutableListOf(
                 "",
                 "${CC.PRI}$gameType $teamVersus ${game.kit.displayName}:",
@@ -133,7 +132,7 @@ class GameStartTask(
             )
         }
 
-        when (this.game.activeCountdown)
+        when (this.game.currentGameStartCountdown)
         {
             5, 4, 3, 2, 1 ->
             {
@@ -141,7 +140,7 @@ class GameStartTask(
                     it.sendTitlePart(
                         TitlePart.TITLE,
                         Component
-                            .text(this.game.activeCountdown)
+                            .text(this.game.currentGameStartCountdown)
                             .decorate(TextDecoration.BOLD)
                             .color(NamedTextColor.GREEN)
                     )
@@ -153,15 +152,15 @@ class GameStartTask(
                 }
 
                 this.game.sendMessage(
-                    "${CC.SEC}The game starts in ${CC.PRI}${this.game.activeCountdown}${CC.SEC} second${
-                        if (this.game.activeCountdown == 1) "" else "s"
+                    "${CC.SEC}The game starts in ${CC.PRI}${this.game.currentGameStartCountdown}${CC.SEC} second${
+                        if (this.game.currentGameStartCountdown == 1) "" else "s"
                     }..."
                 )
                 this.game.playSound(Sound.NOTE_STICKS)
             }
         }
 
-        if (this.game.activeCountdown <= 0)
+        if (this.game.currentGameStartCountdown <= 0)
         {
             val event = GameStartEvent(this.game)
             Bukkit.getPluginManager().callEvent(event)
@@ -257,6 +256,6 @@ class GameStartTask(
             return
         }
 
-        this.game.activeCountdown--
+        this.game.currentGameStartCountdown--
     }
 }

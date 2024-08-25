@@ -19,7 +19,9 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.map.metadata.impl.MapPortalMetadata
+import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.MiniGameRegistry
+import gg.tropic.practice.minigame.tasks.MiniGamePreStartTask.Companion.startPreStartTask
 import gg.tropic.practice.replication.ReplicationResult
 import gg.tropic.practice.replication.ReplicationResultStatus
 import gg.tropic.practice.replications.models.Replication
@@ -151,7 +153,6 @@ object MapReplicationService
         )
     }
 
-    // TODO: add waiting logic
     fun startIfReady(game: GameImpl): Boolean
     {
         if (game.robot())
@@ -309,31 +310,40 @@ object MapReplicationService
             }
         }
 
-        val start = System.currentTimeMillis()
-
-        Schedulers
-            .async()
-            .runRepeating(
-                { task ->
-                    if (System.currentTimeMillis() >= start + 5000L)
-                    {
-                        newGame.state = GameState.Completed
-                        newGame.closeAndCleanup()
-
-                        task.closeAndReportException()
-                        return@runRepeating
-                    }
-
-                    if (newGame.state == GameState.Waiting)
-                    {
-                        if (startIfReady(newGame))
+        if (newGame.miniGameLifecycle == null)
+        {
+            val start = System.currentTimeMillis()
+            Schedulers
+                .async()
+                .runRepeating(
+                    { task ->
+                        if (System.currentTimeMillis() >= start + 5000L)
                         {
+                            newGame.state = GameState.Completed
+                            newGame.closeAndCleanup()
+
                             task.closeAndReportException()
+                            return@runRepeating
                         }
-                    }
-                },
-                0L, 1L
-            )
+
+                        if (newGame.state == GameState.Waiting)
+                        {
+                            if (startIfReady(newGame))
+                            {
+                                task.closeAndReportException()
+                            }
+                        }
+                    },
+                    0L, 1L
+                )
+        } else
+        {
+            // TODO: start smart start task
+            if (newGame is AbstractMiniGameGameImpl<*>)
+            {
+                newGame.startPreStartTask()
+            }
+        }
 
         GameService.gameMappings[expectation.identifier] = newGame
         return ReplicationResult(

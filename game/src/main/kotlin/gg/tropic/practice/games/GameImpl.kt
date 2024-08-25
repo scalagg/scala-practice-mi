@@ -86,7 +86,7 @@ open class GameImpl(
     var miniGameLifecycle: MiniGameLifecycle<*>? = null
 
     @Transient
-    var activeCountdown = 5
+    var currentGameStartCountdown = 5
 
     private val snapshots =
         mutableMapOf<UUID, GameReportSnapshot>()
@@ -154,6 +154,30 @@ open class GameImpl(
     }
 
     private var endTimestamp: Long = 0L
+
+    fun preWaitAdd(user: UUID, teamID: TeamIdentifier)
+    {
+        val firstEmpty = teams.firstOrNull { it.teamIdentifier == teamID }
+
+        expectationModel.players += user
+        val expectationTeam = expectationModel.teams
+            .firstOrNull { it.teamIdentifier == teamID }
+        expectationTeam?.players?.plusAssign(user)
+
+        firstEmpty?.players?.plusAssign(user)
+    }
+
+    fun preWaitRemove(player: Player)
+    {
+        val team = getTeamOf(player)
+        expectationModel.players -= player.uniqueId
+
+        val expectationTeam = expectationModel.teams
+            .firstOrNull { it.teamIdentifier == team.teamIdentifier }
+
+        expectationTeam?.players?.minusAssign(player.uniqueId)
+        team.players.minusAssign(player.uniqueId)
+    }
 
     fun complete(winner: GameTeam?, reason: String = "")
     {
@@ -400,8 +424,6 @@ open class GameImpl(
                 reason,
                 playerFeedback = playerFeedback
             )
-
-        this.activeCountdown = 5
 
         stopTask.task = Schedulers.sync()
             .runRepeating(

@@ -9,6 +9,8 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.event.AsyncPlayerPreJoinGameEvent
+import gg.tropic.practice.games.event.PlayerJoinGameEvent
 import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
@@ -74,6 +76,9 @@ object ExpectationService
                     GameService.spectatorToGameMappings[event.uniqueId] = game
                 } else
                 {
+                    val preJoinEvent = AsyncPlayerPreJoinGameEvent(game, event.uniqueId)
+                    preJoinEvent.callEvent()
+
                     GameService.playerToGameMappings[event.uniqueId] = game
                 }
             }
@@ -208,6 +213,8 @@ object ExpectationService
                             robot.participantConnected(it.player)
                         }
                     }
+
+                    PlayerJoinGameEvent(game, it.player).callEvent()
 
                     it.player.removeMetadata("spectator", plugin)
                 }

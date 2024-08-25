@@ -253,10 +253,10 @@ class PartyPlayTVTFights(private val onlinePlayerList: List<UUID>) : PaginatedMe
         {
             val gameExpectation = GameExpectation(
                 UUID.randomUUID(),
-                players = team1 + team2,
+                players = (team1 + team2).toMutableList(),
                 teams = setOf(
-                    GameTeam(TeamIdentifier.A, team1),
-                    GameTeam(TeamIdentifier.B, team2)
+                    GameTeam(TeamIdentifier.A, team1.toMutableList()),
+                    GameTeam(TeamIdentifier.B, team2.toMutableList())
                 ),
                 kitId = kit.id,
                 mapId = map.name,

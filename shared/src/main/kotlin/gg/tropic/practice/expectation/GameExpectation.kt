@@ -1,6 +1,7 @@
 package gg.tropic.practice.expectation
 
 import gg.tropic.practice.games.duels.PvPConfiguration
+import gg.tropic.practice.games.matchmaking.MatchmakingMetadata
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.minigame.MiniGameConfiguration
@@ -12,7 +13,7 @@ import java.util.*
  */
 data class GameExpectation(
     val identifier: UUID,
-    val players: List<UUID>,
+    val players: MutableList<UUID>,
     val teams: Set<GameTeam>,
     val kitId: String,
     val mapId: String,
@@ -22,8 +23,6 @@ data class GameExpectation(
     val queueType: QueueType? = null,
     val queueId: String? = null,
     val configuration: PvPConfiguration? = null,
-    /**
-     * not yet implemented!!
-     */
-    val miniGameConfiguration: MiniGameConfiguration? = null
+    val matchmakingMetadata: MatchmakingMetadata? = null,
+    val miniGameConfiguration: MiniGameConfiguration? = null,
 )

@@ -6,10 +6,10 @@ import java.util.UUID
 /**
  * @author GrowlyX
  * @since 8/9/2022
- */
+*/
 class GameTeam(
     val teamIdentifier: TeamIdentifier,
-    val players: List<UUID>
+    val players: MutableList<UUID>
 )
 {
     private var backingPlayerCombos: MutableMap<UUID, Int>? = null

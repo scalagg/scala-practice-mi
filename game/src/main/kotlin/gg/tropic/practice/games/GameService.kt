@@ -29,6 +29,8 @@ import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.listeners.BlockFormListener
+import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
+import gg.tropic.practice.minigame.event.PlayerMiniGameQuitWhileStartingEvent
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
@@ -190,7 +192,8 @@ object GameService
                             server = ServerSync.local.id,
                             queueId = it.expectationModel.queueId,
                             majorityAllowsSpectators = players.isEmpty() ||
-                                (majoritySpectatorsEnabled / players.size) >= 0.50
+                                (majoritySpectatorsEnabled / players.size) >= 0.50,
+                            metadata = it.expectationModel.matchmakingMetadata
                         )
                     }
             )
@@ -1133,6 +1136,15 @@ object GameService
                     }
                 } else
                 {
+                    if (game.miniGameLifecycle != null)
+                    {
+                        PlayerMiniGameQuitWhileStartingEvent(
+                            game as AbstractMiniGameGameImpl<*>,
+                            it.player
+                        ).callEvent()
+                        return@handler
+                    }
+
                     if (
                         game.state(GameState.Starting) ||
                         game.state(GameState.Waiting)

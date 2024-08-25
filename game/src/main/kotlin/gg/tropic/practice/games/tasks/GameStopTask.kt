@@ -46,6 +46,7 @@ class GameStopTask(
 ) : Runnable
 {
     lateinit var task: Task
+    var currentCountdown = 5
 
     override fun run()
     {
@@ -55,7 +56,7 @@ class GameStopTask(
 
     private fun runCatching()
     {
-        if (this.game.activeCountdown == 5)
+        if (currentCountdown == 5)
         {
             this.game.sendMessage(
                 "",
@@ -279,7 +280,7 @@ class GameStopTask(
             }
         }
 
-        if (this.game.activeCountdown == 3)
+        if (currentCountdown == 3)
         {
             game.toBukkitPlayers()
                 .filterNotNull()
@@ -297,7 +298,7 @@ class GameStopTask(
                 }
         }
 
-        if (this.game.activeCountdown == 2 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueId != "party")
+        if (currentCountdown == 2 && game.expectationModel.queueId != "tournament" && game.expectationModel.queueId != "party")
         {
             if (game.expectationModel.queueId != null)
             {
@@ -333,12 +334,13 @@ class GameStopTask(
             }
         }
 
-        if (this.game.activeCountdown <= 0)
+        if (currentCountdown <= 0)
         {
+            task.closeAndReportException()
             this.game.closeAndCleanup()
             return
         }
 
-        this.game.activeCountdown--
+        currentCountdown--
     }
 }
