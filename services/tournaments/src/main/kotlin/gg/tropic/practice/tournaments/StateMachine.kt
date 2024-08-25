@@ -90,11 +90,11 @@ sealed class SideEffect : (Tournament) -> Unit
                     teams = setOf(
                         GameTeam(
                             teamIdentifier = TeamIdentifier.A,
-                            players = it.first().players.toList()
+                            players = it.first().players.toMutableList()
                         ),
                         GameTeam(
                             teamIdentifier = TeamIdentifier.B,
-                            players = it.last().players.toList()
+                            players = it.last().players.toMutableList()
                         ),
                     ),
                     kitId = tournament.config.kitID,
