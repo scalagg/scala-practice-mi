@@ -787,7 +787,7 @@ object GameQueueManager
                     }
             }
 
-        val rankedSkyWarsQueue = KitDataSync.cached().kits["RSWInternal"]
+        val rankedSkyWarsQueue = KitDataSync.cached().kits[SkyWarsConstants.KitID]
         if (rankedSkyWarsQueue != null)
         {
             if (queues[SkyWarsConstants.QID] == null)

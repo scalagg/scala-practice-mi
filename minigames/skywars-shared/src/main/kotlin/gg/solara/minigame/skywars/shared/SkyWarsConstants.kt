@@ -6,5 +6,6 @@ package gg.solara.minigame.skywars.shared
  */
 object SkyWarsConstants
 {
-    @JvmStatic val QID = "RSWInternal:Ranked:4v4"
+    @JvmStatic val KitID = "rswinternal"
+    @JvmStatic val QID = "$KitID:Ranked:4v4"
 }
