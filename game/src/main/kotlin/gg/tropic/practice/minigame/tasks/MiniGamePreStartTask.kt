@@ -91,13 +91,12 @@ class MiniGamePreStartTask(
                 return
             }
 
+            task.closeAndReportException()
+
+            game.state = GameState.Playing
             game.startTimestamp = System.currentTimeMillis()
-            game.sendMessage("${CC.GREEN}The game has started!")
             return
         }
-
-        game.playSound(Sound.NOTE_STICKS, 1.0f)
-        game.sendMessage("${CC.YELLOW}Game starts in ${CC.RED}${game.startCountDown}s${CC.YELLOW}...")
 
         MiniGameStartTickEvent(game, game.startCountDown).callEvent()
         game.startCountDown -= 1

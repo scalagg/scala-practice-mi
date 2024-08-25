@@ -515,7 +515,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                     GameState.Starting ->
                     {
-
+                        scoreboardProxy.createStartingScoreboardFor(player, board)
                     }
 
                     GameState.Playing ->

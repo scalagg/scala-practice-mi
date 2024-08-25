@@ -1,17 +1,19 @@
 package gg.solara.minigame.skywars
 
-import gg.scala.lemon.util.SplitUtil
+import gg.solara.minigame.skywars.events.FirstRefillGameEvent
 import gg.solara.minigame.skywars.events.GameEvent
 import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
-import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
+import gg.tropic.practice.games.GameState
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.MiniGameLifecycle
 import gg.tropic.practice.minigame.MiniGameScoreboard
+import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.entity.Player
+import java.util.LinkedList
 
 /**
  * @author GrowlyX
@@ -22,12 +24,33 @@ class SkyWarsLifecycle(
     override val game: AbstractMiniGameGameImpl<SkyWarsGameConfiguration>
 ) : MiniGameLifecycle<SkyWarsGameConfiguration>, CompositeTerminable by CompositeTerminable.create()
 {
-    val events = linkedSetOf<GameEvent>()
+    val events = LinkedList<GameEvent>().apply {
+        this += FirstRefillGameEvent(this@SkyWarsLifecycle)
+    }
 
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
+        Schedulers
+            .sync()
+            .runRepeating({ task ->
+                if (!game.state(GameState.Playing))
+                {
+                    return@runRepeating
+                }
 
+                val currentEvent = events.peekFirst()
+                val estimatedExecution = currentEvent.durationPostGameStart
+                    .plusMillis(game.startTimestamp)
+                    .toMillis()
+
+                if (estimatedExecution <= System.currentTimeMillis())
+                {
+                    currentEvent.run()
+                    events.pop()
+                }
+            }, 0L, 20L)
+            .bindWith(this)
     }
 
     inner class SkyWarsScoreboard(override val game: AbstractMiniGameGameImpl<SkyWarsGameConfiguration>) : MiniGameScoreboard
@@ -36,21 +59,31 @@ class SkyWarsLifecycle(
 
         fun Player.addSurrounding(board: MutableList<String>, surrounded: () -> List<String>)
         {
-            board += "${CC.D_GRAY}${SplitUtil.splitUuid(game.expectation)}"
-            board += ""
             board += surrounded()
             board += ""
-            board += "${CC.GRAY}Players left: ${CC.SEC}${
+            board += "${CC.GRAY}Players left: ${CC.PRI}${
                 game.allNonSpectators().size
             }"
             board += ""
-            board += "${CC.GRAY}Kills: ${CC.SEC}0" // TODO: implement
+            board += "${CC.GRAY}Kills: ${CC.PRI}0" // TODO: implement
             board += ""
-            board += "${CC.GRAY}Map: ${CC.SEC}${game.map.displayName}"
+            board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
             board += "${CC.GRAY}Mode: ${CC.AQUA}Ranked"
         }
 
         override fun createWaitingScoreboardFor(player: Player, board: MutableList<String>)
+        {
+            board += "${CC.GRAY}Players: ${CC.GREEN}${
+                game.allNonSpectators().size
+            }/4"
+            board += ""
+            board += "${CC.WHITE}Waiting..."
+            board += ""
+            board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
+            board += "${CC.GRAY}Mode: ${CC.AQUA}Ranked"
+        }
+
+        override fun createStartingScoreboardFor(player: Player, board: MutableList<String>)
         {
             player.addSurrounding(board) {
                 listOf(
@@ -62,10 +95,11 @@ class SkyWarsLifecycle(
 
         override fun createInGameScoreboardFor(player: Player, board: MutableList<String>)
         {
+            val nextEvent = events.peekFirst()
             player.addSurrounding(board) {
                 listOf(
                     "${CC.GRAY}Next Event:",
-                    "${CC.GREEN}Refill ${TimeUtil.formatIntoMMSS(game.startCountDown)}"
+                    "${CC.GREEN}${nextEvent?.describe() ?: "None"}"
                 )
             }
         }
