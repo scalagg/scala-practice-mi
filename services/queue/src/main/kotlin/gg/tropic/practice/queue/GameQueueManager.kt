@@ -388,6 +388,14 @@ object GameQueueManager
                     )
             }
 
+            listen("join-into-ready") {
+                val requestID = retrieve<UUID>("requestID")
+                val result = retrieve<JoinIntoGameResult>("result")
+
+                joinIntoCallbacks.getIfPresent(requestID)
+                    ?.complete(result)
+            }
+
             val futureMappings = mutableMapOf<String, ScheduledFuture<*>>()
             listen("accept-duel") {
                 val request = retrieve<DuelRequest>("request")

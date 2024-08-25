@@ -180,6 +180,10 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
                         existingGameRequiringPlayers.server
                     )
                 }
+                .exceptionally {
+                    it.printStackTrace()
+                    return@exceptionally null
+                }
                 .join()
         } else
         {
