@@ -7,6 +7,7 @@ import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.acf.annotation.Description
 import gg.scala.commons.acf.annotation.HelpCommand
+import gg.scala.commons.acf.annotation.Optional
 import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
@@ -31,7 +32,7 @@ object RolloutCommand : ScalaCommand()
 
     @Subcommand("start")
     @Description("Start a network update rollout.")
-    fun start(player: ScalaPlayer, region: Region)
+    fun start(player: ScalaPlayer, region: Region, @Optional dev: Boolean?)
     {
         player.sendMessage("${CC.GREEN}We've requested an update rollout, please wait a moment.")
 
@@ -39,6 +40,7 @@ object RolloutCommand : ScalaCommand()
             .createMessage(
                 "start",
                 "region" to region,
+                "dev" to (dev ?: false),
                 "player" to player.uniqueId
             )
             .publish(

@@ -64,7 +64,16 @@ object UpdateRolloutOrchestrator : Thread()
 
             listen("start") {
                 val initiator = retrieve<UUID>("player")
+                val dev = retrieve<Boolean>("dev")
                 val region = retrieve<Region>("region")
+
+                if (region == Region.Both)
+                {
+                    DPSRedisShared.sendMessage(listOf(initiator), listOf(
+                        "&cCannot use region \"Both\"! This will make rollout synchronization weird."
+                    ))
+                    return@listen
+                }
 
                 val similarEvent = events.firstOrNull { it.region == region && it.status == RolloutStatus.InProgress }
                 if (similarEvent != null)
@@ -90,7 +99,9 @@ object UpdateRolloutOrchestrator : Thread()
 
                 val newEvent = RolloutEvent(
                     region = region,
-                    affected = ServerContainer.getServersInGroup("mipgame")
+                    affected = ServerContainer.getServersInGroup(if (dev) "mipdev" else "mipgame")
+                        .filter { "mipgame" in it.groups }
+                        .filter { it.region.name == region.name }
                         .map(AbstractServer::id)
                         .toSet()
                 )
