@@ -12,7 +12,7 @@ abstract class BasicMiniGameOrchestrator<T : MiniGameConfiguration> : MiniGameOr
     abstract fun prepare(miniGame: AbstractMiniGameGameImpl<T>, configuration: T): MiniGameLifecycle<T>
     override fun construct(kit: Kit, expectation: GameExpectation): AbstractMiniGameGameImpl<T>
     {
-        return object : AbstractMiniGameGameImpl<T>(expectation, kit)
+        return object : AbstractMiniGameGameImpl<T>(this, expectation, kit)
         {
             override fun prepare(configuration: T) = this@BasicMiniGameOrchestrator.prepare(this, configuration)
                 .apply {

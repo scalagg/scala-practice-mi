@@ -6,14 +6,12 @@ import java.util.UUID
 /**
  * @author GrowlyX
  * @since 8/9/2022
- */
+*/
 class GameTeam(
     val teamIdentifier: TeamIdentifier,
     val players: MutableList<UUID>
 )
 {
-    constructor(teamIdentifier: TeamIdentifier, players: List<UUID>) : this(teamIdentifier, players.toMutableList())
-
     private var backingPlayerCombos: MutableMap<UUID, Int>? = null
         get()
         {

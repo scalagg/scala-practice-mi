@@ -58,7 +58,7 @@ class PracticeGame : ExtendedScalaPlugin()
 
         MiniGameSerializers.configure()
         PreConfigureSubTypeProcessor.register<BasicMiniGameOrchestrator<*>> {
-            MiniGameRegistry.miniGameOrchestrators[it.id()] = it
+            MiniGameRegistry.miniGameOrchestrators[it.id] = it
         }
 
         ChatChannelService.default
