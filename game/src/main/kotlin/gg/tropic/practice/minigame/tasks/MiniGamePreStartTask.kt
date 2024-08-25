@@ -63,7 +63,7 @@ class MiniGamePreStartTask(
                 game.state = GameState.Starting
                 MiniGameEnterStartEvent(game).callEvent()
 
-                game.startCountDown = 15
+                game.startCountDown = game.orchestrator.startGameCountDown
                 run()
             }
             return

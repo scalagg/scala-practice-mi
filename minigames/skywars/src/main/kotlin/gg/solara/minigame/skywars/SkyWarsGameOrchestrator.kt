@@ -17,7 +17,6 @@ import me.lucko.helper.protocol.Protocol
 import net.evilblock.cubed.util.CC
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.block.Chest
 import org.bukkit.event.player.PlayerInteractEvent
 
 /**
@@ -56,6 +55,7 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
             .subscribe(PacketType.Play.Server.BLOCK_ACTION)
             .handler {
                 val blockAction = WrapperPlayServerBlockAction(it.packet)
+                println("block action is being sent ${blockAction.byte2} ${blockAction.byte1} ${blockAction.blockType} | ${it.packet.getMeta<Boolean>("programmatically").isPresent}")
                 if (blockAction.byte2 == 0 && blockAction.blockType == Material.CHEST && blockAction.byte1 == 0)
                 {
                     if (it.packet.getMeta<Boolean>("programmatically").isPresent)
@@ -97,4 +97,5 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
 
     override val id = "skywars"
     override val minimumPlayersRequiredToEnterStarting = 4
+    override val startGameCountDown = 5
 }

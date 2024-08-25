@@ -13,7 +13,7 @@ abstract class AbstractMiniGameGameImpl<T : MiniGameConfiguration>(
     expectation: GameExpectation, kit: Kit
 ) : GameImpl(expectation, kit)
 {
-    var startCountDown = 15
+    var startCountDown = orchestrator.startGameCountDown
     abstract fun prepare(configuration: T): MiniGameLifecycle<T>
 
     override fun buildResources(): Boolean
