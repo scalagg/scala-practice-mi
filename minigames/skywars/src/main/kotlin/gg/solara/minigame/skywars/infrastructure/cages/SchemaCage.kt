@@ -5,5 +5,5 @@ package gg.solara.minigame.skywars.infrastructure.cages
  * @since 8/24/2024
  */
 data class SchemaCage(
-    val blockModifiers: Map<String, BlockModifier>
+    val blockModifiers: MutableMap<String, BlockModifier> = mutableMapOf()
 )
