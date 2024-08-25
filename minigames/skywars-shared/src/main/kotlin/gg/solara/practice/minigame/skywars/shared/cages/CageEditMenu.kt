@@ -24,6 +24,7 @@ class CageEditMenu(private val cage: Cage) : Menu("Editing cage ${cage.displayNa
         placeholder = true
     }
 
+    override fun size(buttons: Map<Int, Button>) = 27
     override fun getButtons(player: Player) = mapOf(
         10 to ItemBuilder
             .of(Material.NAME_TAG)
