@@ -3,6 +3,8 @@ package gg.solara.minigame.skywars
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
+import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
@@ -10,7 +12,10 @@ import gg.tropic.practice.minigame.broadcastSeconds
 import gg.tropic.practice.minigame.event.MiniGameStartTickEvent
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
+import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.block.Chest
+import org.bukkit.event.player.PlayerInteractEvent
 
 /**
  * @author GrowlyX
@@ -39,6 +44,19 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 it.game.sendMessage("${CC.YELLOW}Cages open in ${CC.RED}${it.secondsLeftUntilStart}${CC.YELLOW} second${
                     if (it.secondsLeftUntilStart == 1) "" else "s"
                 }!")
+            }
+
+        Events
+            .subscribe(PlayerInteractEvent::class.java)
+            .filter { it.clickedBlock.state.data is Chest }
+            .handler {
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                if (game.state(GameState.Waiting) || game.state(GameState.Starting))
+                {
+                    it.isCancelled = true
+                }
             }
 
         Events

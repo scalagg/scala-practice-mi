@@ -6,16 +6,21 @@ import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
+import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.MiniGameLifecycle
 import gg.tropic.practice.minigame.MiniGameScoreboard
+import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material
+import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.material.Chest
 import java.util.LinkedList
 
 /**
@@ -63,15 +68,22 @@ class SkyWarsLifecycle(
                     .forEach {
                         it.locations.values.flatten().forEach { position ->
                             val location = position.toLocation(world)
+                            val face = MapChestMetadataScanner.inverseValuesMappings[position.yaw]
+                                ?: BlockFace.EAST
 
-                            world.getBlockAt(location)
-                                .setType(Material.CHEST, true)
+                            val chest = Chest(face)
+                            world.getBlockAt(location).state
+                                .apply {
+                                    data = chest
+                                    update()
+                                }
                         }
                     }
             }
     }
 
-    inner class SkyWarsScoreboard(override val game: AbstractMiniGameGameImpl<SkyWarsGameConfiguration>) : MiniGameScoreboard
+    inner class SkyWarsScoreboard(override val game: AbstractMiniGameGameImpl<SkyWarsGameConfiguration>) :
+        MiniGameScoreboard
     {
         override fun titleFor(player: Player) = "${CC.B_PRI}SkyWars"
 
