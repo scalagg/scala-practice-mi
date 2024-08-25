@@ -10,9 +10,11 @@ import org.bukkit.entity.Player
  */
 interface MiniGameScoreboard
 {
-    val game: GameImpl
+    val game: AbstractMiniGameGameImpl<*>
 
-    fun createWaitingScoreboardFor(player: Player, board: List<String>)
-    fun createInGameScoreboardFor(player: Player, board: List<String>)
-    fun createEndingScoreboardFor(player: Player, report: GameReport?, board: List<String>)
+    fun titleFor(player: Player): String
+
+    fun createWaitingScoreboardFor(player: Player, board: MutableList<String>)
+    fun createInGameScoreboardFor(player: Player, board: MutableList<String>)
+    fun createEndingScoreboardFor(player: Player, report: GameReport?, board: MutableList<String>)
 }

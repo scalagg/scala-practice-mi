@@ -10,7 +10,7 @@ import me.lucko.helper.terminable.composite.CompositeTerminable
 interface MiniGameLifecycle<T : MiniGameConfiguration> : CompositeTerminable
 {
     val configuration: T
-    val game: GameImpl
+    val game: AbstractMiniGameGameImpl<T>
     val scoreboard: MiniGameScoreboard
 
     fun configure()

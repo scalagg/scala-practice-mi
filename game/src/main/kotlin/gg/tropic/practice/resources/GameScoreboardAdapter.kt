@@ -535,5 +535,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         board += "${CC.YELLOW}solara.gg${CC.GRAY}      ${CC.YELLOW}"
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player): String
+    {
+        val game = GameService.byPlayer(player)
+            ?: return ScoreboardTitleService.getCurrentTitle()
+
+        return game.miniGameLifecycle?.scoreboard?.titleFor(player)
+            ?: ScoreboardTitleService.getCurrentTitle()
+    }
 }

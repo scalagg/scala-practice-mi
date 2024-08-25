@@ -165,6 +165,7 @@ open class GameImpl(
         expectationTeam?.players?.plusAssign(user)
 
         firstEmpty?.players?.plusAssign(user)
+        expectationModel.players += user
     }
 
     fun preWaitRemove(player: Player)
@@ -492,6 +493,8 @@ open class GameImpl(
                 it.playSound(it.location, sound, 1.0f, pitch)
             }
     }
+
+    fun allNonSpectators() = teams.flatMap { it.nonSpectators() }
 
     fun sendMessage(vararg message: String)
     {
