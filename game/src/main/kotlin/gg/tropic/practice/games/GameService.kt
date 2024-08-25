@@ -29,6 +29,8 @@ import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.listeners.BlockFormListener
+import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
+import gg.tropic.practice.minigame.event.PlayerMiniGameQuitWhileStartingEvent
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
@@ -1136,6 +1138,10 @@ object GameService
                 {
                     if (game.miniGameLifecycle != null)
                     {
+                        PlayerMiniGameQuitWhileStartingEvent(
+                            game as AbstractMiniGameGameImpl<*>,
+                            it.player
+                        ).callEvent()
                         return@handler
                     }
 
