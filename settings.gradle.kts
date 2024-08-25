@@ -12,7 +12,7 @@ plugins {
 rootProject.name = "esta-practice"
 include(
     "shared", "game", "lobby", "devtools", "sbb",
-    "services:application", "services:queue", "services:statistics", "services:tournaments",
+    "services:application", "services:queue", "services:statistics", "services:orchestrator", "services:tournaments",
     "services:statistics:leaderboards",
     "services:application:api",
     "services:replications:replication-manager",
