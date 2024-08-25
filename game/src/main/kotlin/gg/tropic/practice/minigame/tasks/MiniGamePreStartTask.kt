@@ -37,7 +37,6 @@ class MiniGamePreStartTask(
     }
 
     lateinit var task: Task
-    private var startCountDown = 15
 
     override fun run()
     {
@@ -64,7 +63,7 @@ class MiniGamePreStartTask(
                 game.state = GameState.Starting
                 MiniGameEnterStartEvent(game).callEvent()
 
-                startCountDown = 15
+                game.startCountDown = game.orchestrator.startGameCountDown
                 run()
             }
             return
@@ -80,7 +79,7 @@ class MiniGamePreStartTask(
             return
         }
 
-        if (startCountDown == 0)
+        if (game.startCountDown == 0)
         {
             val event = GameStartEvent(game)
             Bukkit.getPluginManager().callEvent(event)
@@ -92,16 +91,15 @@ class MiniGamePreStartTask(
                 return
             }
 
+            task.closeAndReportException()
+
+            game.state = GameState.Playing
             game.startTimestamp = System.currentTimeMillis()
-            game.sendMessage("${CC.GREEN}The game has started!")
             return
         }
 
-        game.playSound(Sound.NOTE_STICKS, 1.0f)
-        game.sendMessage("${CC.YELLOW}Starting in ${CC.AQUA}${startCountDown}s${CC.YELLOW}...")
-
-        MiniGameStartTickEvent(game, startCountDown).callEvent()
-        startCountDown -= 1
+        MiniGameStartTickEvent(game, game.startCountDown).callEvent()
+        game.startCountDown -= 1
     }
 
     override fun close()

@@ -11,6 +11,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.matchmaking.InternalMatchmakingBracket
+import gg.tropic.practice.games.matchmaking.JoinIntoGameStatus
 import gg.tropic.practice.games.matchmaking.MatchmakingMetadata
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.TeamIdentifier
@@ -171,20 +172,33 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
         {
             GameQueueManager
                 .requestJoinIntoGame(targetEntry.leader, existingGameRequiringPlayers)
+                .thenAccept {
+                    if (it.status == JoinIntoGameStatus.Success)
+                    {
+                        DPSRedisShared.redirect(
+                            listOf(targetEntry.leader),
+                            existingGameRequiringPlayers.server
+                        )
+                    }
+                }
                 .thenRun {
                     GameQueueManager.destroyQueueStates(queueId(), targetEntry)
+                }
+                .exceptionally {
+                    it.printStackTrace()
+                    return@exceptionally null
                 }
                 .join()
         } else
         {
             val expectation = GameExpectation(
                 identifier = UUID.randomUUID(),
-                players = mutableListOf(targetEntry.leader),
+                players = mutableSetOf(targetEntry.leader),
                 teams = setOf(
-                    GameTeam(teamIdentifier = TeamIdentifier.A, players = mutableListOf(targetEntry.leader)),
-                    GameTeam(teamIdentifier = TeamIdentifier.B, players = mutableListOf()),
-                    GameTeam(teamIdentifier = TeamIdentifier.C, players = mutableListOf()),
-                    GameTeam(teamIdentifier = TeamIdentifier.D, players = mutableListOf())
+                    GameTeam(teamIdentifier = TeamIdentifier.A, players = mutableSetOf(targetEntry.leader)),
+                    GameTeam(teamIdentifier = TeamIdentifier.B, players = mutableSetOf()),
+                    GameTeam(teamIdentifier = TeamIdentifier.C, players = mutableSetOf()),
+                    GameTeam(teamIdentifier = TeamIdentifier.D, players = mutableSetOf())
                 ),
                 kitId = kit.id,
                 mapId = map.name,

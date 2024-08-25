@@ -276,10 +276,10 @@ class PartyBotFightPrepareMenu(
                     val realMap = map ?: filteredMaps.random()
                     val gameExpectation = GameExpectation(
                         UUID.randomUUID(),
-                        players = (players.toList() + it.botInstances.toList()).toMutableList(),
+                        players = (players.toList() + it.botInstances.toList()).toMutableSet(),
                         teams = setOf(
-                            GameTeam(TeamIdentifier.A, players.toMutableList()),
-                            GameTeam(TeamIdentifier.B, it.botInstances.toMutableList())
+                            GameTeam(TeamIdentifier.A, players.toMutableSet()),
+                            GameTeam(TeamIdentifier.B, it.botInstances.toMutableSet())
                         ),
                         kitId = kit.id,
                         mapId = realMap.name,

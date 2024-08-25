@@ -1,6 +1,5 @@
 package gg.tropic.practice.minigame
 
-import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import org.bukkit.entity.Player
 
@@ -10,9 +9,12 @@ import org.bukkit.entity.Player
  */
 interface MiniGameScoreboard
 {
-    val game: GameImpl
+    val game: AbstractMiniGameGameImpl<*>
 
-    fun createWaitingScoreboardFor(player: Player, board: List<String>)
-    fun createInGameScoreboardFor(player: Player, board: List<String>)
-    fun createEndingScoreboardFor(player: Player, report: GameReport?, board: List<String>)
+    fun titleFor(player: Player): String
+
+    fun createWaitingScoreboardFor(player: Player, board: MutableList<String>)
+    fun createStartingScoreboardFor(player: Player, board: MutableList<String>)
+    fun createInGameScoreboardFor(player: Player, board: MutableList<String>)
+    fun createEndingScoreboardFor(player: Player, report: GameReport?, board: MutableList<String>)
 }

@@ -23,6 +23,7 @@ import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.devProvider
 import gg.tropic.practice.games.manager.GameManager
+import gg.tropic.practice.minigame.MiniGameSerializers
 import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.statistics.leaderboards.LeaderboardManager
@@ -148,6 +149,8 @@ fun main(args: Array<String>) = mainBody {
         DistributedRedisUuidCacheTranslator(aware),
         MojangDataResolver
     )
+
+    MiniGameSerializers.configure()
 
     MapDataSync.load()
     KitDataSync.load()

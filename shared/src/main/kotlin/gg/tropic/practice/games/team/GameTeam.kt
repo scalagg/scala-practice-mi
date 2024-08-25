@@ -9,7 +9,7 @@ import java.util.UUID
 */
 class GameTeam(
     val teamIdentifier: TeamIdentifier,
-    val players: MutableList<UUID>
+    val players: MutableSet<UUID>
 )
 {
     private var backingPlayerCombos: MutableMap<UUID, Int>? = null

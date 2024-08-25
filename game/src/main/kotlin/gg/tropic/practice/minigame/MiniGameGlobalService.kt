@@ -28,11 +28,7 @@ object MiniGameGlobalService
             .subscribe(PlayerMiniGameQuitWhileStartingEvent::class.java)
             .handler {
                 it.game.preWaitRemove(it.player)
-                it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} left. ${CC.AQUA}(${
-                    it.game.expectationModel.players.size
-                }/${
-                    it.game.orchestrator.minimumPlayersRequiredToEnterStarting
-                })")
+                it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} has left!")
             }
             .bindWith(plugin)
 
@@ -43,11 +39,11 @@ object MiniGameGlobalService
                 if (it.game.state(GameState.Waiting) || it.game.state(GameState.Starting))
                 {
                     val miniGameOrchestrator = (it.game as AbstractMiniGameGameImpl<*>).orchestrator
-                    it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} joined. ${CC.AQUA}(${
+                    it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} has joined ${CC.YELLOW}(${CC.AQUA}${
                         it.game.expectationModel.players.size
-                    }/${
+                    }${CC.YELLOW}/${CC.AQUA}${
                         miniGameOrchestrator.minimumPlayersRequiredToEnterStarting
-                    })")
+                    }${CC.YELLOW})!")
                 }
             }
             .bindWith(plugin)

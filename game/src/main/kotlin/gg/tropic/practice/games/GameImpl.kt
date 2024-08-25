@@ -165,6 +165,7 @@ open class GameImpl(
         expectationTeam?.players?.plusAssign(user)
 
         firstEmpty?.players?.plusAssign(user)
+        expectationModel.players += user
     }
 
     fun preWaitRemove(player: Player)
@@ -243,7 +244,7 @@ open class GameImpl(
 
             val opponents = getAllOpponents(winner)
             opponents.forEach {
-                sendInfoToTournamentService(losers = it.players)
+                sendInfoToTournamentService(losers = it.players.toList())
             }
 
             val allOpponentPlayers = opponents.flatMap(GameTeam::players)
@@ -364,7 +365,7 @@ open class GameImpl(
 
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
-                winners = winner.players,
+                winners = winner.players.toList(),
                 losers = allOpponentPlayers,
                 snapshots = snapshots,
                 duration = this.durationMillis(),
@@ -492,6 +493,8 @@ open class GameImpl(
                 it.playSound(it.location, sound, 1.0f, pitch)
             }
     }
+
+    fun allNonSpectators() = teams.flatMap { it.nonSpectators() }
 
     fun sendMessage(vararg message: String)
     {

@@ -11,6 +11,7 @@ interface MiniGameOrchestrator<T : MiniGameConfiguration>
 {
     val id: String
     val minimumPlayersRequiredToEnterStarting: Int
+    val startGameCountDown: Int
 
     fun construct(kit: Kit, expectation: GameExpectation): AbstractMiniGameGameImpl<T>
 }

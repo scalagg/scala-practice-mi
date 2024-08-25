@@ -72,7 +72,7 @@ object RequestService
             val requestID = retrieve<UUID>("requestID")
 
             var status = JoinIntoGameStatus.Success
-            if (gameImpl.state(GameState.Waiting))
+            if (!gameImpl.state(GameState.Waiting))
             {
                 status = JoinIntoGameStatus.FailureStarted
             } else
