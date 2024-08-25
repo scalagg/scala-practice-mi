@@ -1,4 +1,4 @@
-package gg.solara.minigame.skywars.infrastructure.cages
+package gg.solara.minigame.skywars.shared.cages
 
 import org.bukkit.inventory.ItemStack
 
