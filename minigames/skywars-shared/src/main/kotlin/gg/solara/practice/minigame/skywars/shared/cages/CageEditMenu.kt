@@ -141,8 +141,9 @@ class CageEditMenu(private val cage: Cage) : Menu("Editing cage ${cage.displayNa
 
                     override fun onClose(player: Player)
                     {
-                        player.sendMessage("${CC.RED}Did not save!")
-                        this@CageEditMenu.openMenu(player)
+                        Tasks.delayed(1L) {
+                            CageEditMenu(cage).openMenu(player)
+                        }
                     }
 
                     override fun onSave(player: Player, list: List<String>)
@@ -152,7 +153,6 @@ class CageEditMenu(private val cage: Cage) : Menu("Editing cage ${cage.displayNa
                         }
 
                         player.sendMessage("${CC.GREEN}Saved description!")
-                        this@CageEditMenu.openMenu(player)
                     }
 
                 }
