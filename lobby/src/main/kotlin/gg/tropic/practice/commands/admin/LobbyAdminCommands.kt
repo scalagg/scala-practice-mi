@@ -17,6 +17,7 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.communications.PracticePlayerCommsService
 import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.kit.group.KitGroup
@@ -58,7 +59,7 @@ object LobbyAdminCommands : ScalaCommand()
     @Description("Request an application reboot.")
     fun onRequestAppReboot(player: ScalaPlayer)
     {
-        LobbyPlayerService.createMessage("reboot-app")
+        PracticePlayerCommsService.createMessage("reboot-app")
             .publish(
                 AwareThreadContext.ASYNC,
                 channel = "practice:application".suffixWhenDev()
@@ -73,7 +74,7 @@ object LobbyAdminCommands : ScalaCommand()
         player: ScalaPlayer, @Optional region: Region?
     )
     {
-        LobbyPlayerService
+        PracticePlayerCommsService
             .createMessage(
                 "force-specific-region",
                 "region-id" to (region?.name ?: "__RESET__")
@@ -92,7 +93,7 @@ object LobbyAdminCommands : ScalaCommand()
     @Description("Send yourself to dev game servers upon queuing by entering dev mode.")
     fun onJoinDevMode(player: ScalaPlayer)
     {
-        LobbyPlayerService
+        PracticePlayerCommsService
             .createMessage(
                 "enter-dev-mode",
                 "uniqueId" to player.uniqueId.toString()
@@ -148,7 +149,7 @@ object LobbyAdminCommands : ScalaCommand()
     @Description("Leave dev mode.")
     fun onLeaveDevMode(player: ScalaPlayer)
     {
-        LobbyPlayerService
+        PracticePlayerCommsService
             .createMessage(
                 "leave-dev-mode",
                 "uniqueId" to player.uniqueId.toString()
