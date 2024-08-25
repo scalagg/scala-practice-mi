@@ -42,11 +42,11 @@ object MiniGameGlobalService
             .handler {
                 if (it.game.state(GameState.Waiting) || it.game.state(GameState.Starting))
                 {
-                    val orch = (it.game as AbstractMiniGameGameImpl<*>).orchestrator
+                    val miniGameOrchestrator = (it.game as AbstractMiniGameGameImpl<*>).orchestrator
                     it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} joined. ${CC.AQUA}(${
                         it.game.expectationModel.players.size
                     }/${
-                        orch.minimumPlayersRequiredToEnterStarting
+                        miniGameOrchestrator.minimumPlayersRequiredToEnterStarting
                     })")
                 }
             }
