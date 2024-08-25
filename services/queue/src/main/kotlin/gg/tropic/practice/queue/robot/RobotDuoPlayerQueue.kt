@@ -175,15 +175,15 @@ open class RobotDuoPlayerQueue(
 
         val expectation = GameExpectation(
             identifier = UUID.randomUUID(),
-            players = users.toMutableList(),
+            players = users.toMutableSet(),
             teams = setOf(
                 GameTeam(
                     teamIdentifier = TeamIdentifier.A,
-                    players = (first.players + second.players).toMutableList()
+                    players = (first.players + second.players).toMutableSet()
                 ),
                 GameTeam(
                     teamIdentifier = TeamIdentifier.B,
-                    players = robotPlayers.toMutableList()
+                    players = robotPlayers.toMutableSet()
                 ),
             ),
             kitId = kit.id,

@@ -69,10 +69,10 @@ open class RobotSinglePlayerQueue(
 
         val expectation = GameExpectation(
             identifier = UUID.randomUUID(),
-            players = users.toMutableList(),
+            players = users.toMutableSet(),
             teams = setOf(
-                GameTeam(teamIdentifier = TeamIdentifier.A, players = first.players.toMutableList()),
-                GameTeam(teamIdentifier = TeamIdentifier.B, players = metadata.botInstances.toMutableList()),
+                GameTeam(teamIdentifier = TeamIdentifier.A, players = first.players.toMutableSet()),
+                GameTeam(teamIdentifier = TeamIdentifier.B, players = metadata.botInstances.toMutableSet()),
             ),
             kitId = kit.id,
             mapId = map.name,

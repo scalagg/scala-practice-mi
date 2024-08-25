@@ -122,7 +122,7 @@ object GameQueueManager
         fun fail(message: String)
         {
             DPSRedisShared.sendMessage(
-                expectation.players,
+                expectation.players.toList(),
                 listOf(
                     "&cWe were not able to send you to a game server! :(",
                     "&cPlease report the following message to an administrator: &f$message"
@@ -192,7 +192,7 @@ object GameQueueManager
                         if (expectation.players.any { player -> player in developmentModePlayers })
                         {
                             DPSRedisShared.sendMessage(
-                                expectation.players,
+                                expectation.players.toList(),
                                 listOf(
                                     "&6You are being routed to a development game server!"
                                 )
@@ -232,7 +232,7 @@ object GameQueueManager
                 if (it.status == ReplicationResultStatus.Completed)
                 {
                     DPSRedisShared.redirect(
-                        expectation.players, serverToRequestReplication
+                        expectation.players.toList(), serverToRequestReplication
                     )
                 } else
                 {
@@ -479,11 +479,11 @@ object GameQueueManager
                         prepareGameFor(
                             map = map,
                             expectation = GameExpectation(
-                                players = listOf(request.requester, request.requestee).toMutableList(),
+                                players = listOf(request.requester, request.requestee).toMutableSet(),
                                 identifier = UUID.randomUUID(),
                                 teams = setOf(
-                                    GameTeam(teamIdentifier = TeamIdentifier.A, mutableListOf(request.requester)),
-                                    GameTeam(teamIdentifier = TeamIdentifier.B, mutableListOf(request.requestee))
+                                    GameTeam(teamIdentifier = TeamIdentifier.A, mutableSetOf(request.requester)),
+                                    GameTeam(teamIdentifier = TeamIdentifier.B, mutableSetOf(request.requestee))
                                 ),
                                 kitId = request.kitID,
                                 mapId = map.name,

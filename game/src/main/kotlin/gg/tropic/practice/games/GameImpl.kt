@@ -243,7 +243,7 @@ open class GameImpl(
 
             val opponents = getAllOpponents(winner)
             opponents.forEach {
-                sendInfoToTournamentService(losers = it.players)
+                sendInfoToTournamentService(losers = it.players.toList())
             }
 
             val allOpponentPlayers = opponents.flatMap(GameTeam::players)
@@ -364,7 +364,7 @@ open class GameImpl(
 
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
-                winners = winner.players,
+                winners = winner.players.toList(),
                 losers = allOpponentPlayers,
                 snapshots = snapshots,
                 duration = this.durationMillis(),
