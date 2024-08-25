@@ -1,5 +1,7 @@
 package gg.solara.minigame.skywars
 
+import com.comphenix.packetwrapper.WrapperPlayServerBlockAction
+import com.comphenix.protocol.PacketType
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
@@ -11,6 +13,7 @@ import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
 import gg.tropic.practice.minigame.broadcastSeconds
 import gg.tropic.practice.minigame.event.MiniGameStartTickEvent
 import me.lucko.helper.Events
+import me.lucko.helper.protocol.Protocol
 import net.evilblock.cubed.util.CC
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -44,6 +47,24 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 it.game.sendMessage("${CC.YELLOW}Cages open in ${CC.RED}${it.secondsLeftUntilStart}${CC.YELLOW} second${
                     if (it.secondsLeftUntilStart == 1) "" else "s"
                 }!")
+            }
+
+        /**
+         * Prevent close action from being sent, unless it's from the server
+         */
+        Protocol
+            .subscribe(PacketType.Play.Server.BLOCK_ACTION)
+            .handler {
+                val blockAction = WrapperPlayServerBlockAction(it.packet)
+                if (blockAction.byte2 == 0 && blockAction.blockType == Material.CHEST && blockAction.byte1 == 0)
+                {
+                    if (it.packet.getMeta<Boolean>("programmatically").isPresent)
+                    {
+                        return@handler
+                    }
+
+                    it.isCancelled = true
+                }
             }
 
         Events
