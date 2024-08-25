@@ -73,9 +73,22 @@ class CageViewAllMenu : PaginatedMenu()
                     "",
                     "${CC.GRAY}Linked Schema: ${CC.WHITE}${it.linkedSchema}",
                     "",
-                    "${CC.YELLOW}Click to edit!"
+                    "${CC.YELLOW}Click to edit!",
+                    "${CC.RED}Click to delete!",
                 )
-                .toButton { _, _ ->
+                .toButton { _, type ->
+                    if (type!!.isRightClick)
+                    {
+                        Button.playNeutral(player)
+
+                        val cached = CageDataSync.cached()
+                        cached.cages.remove(it.id)
+                        CageDataSync.sync(cached)
+                        
+                        openMenu(player)
+                        return@toButton
+                    }
+
                     Button.playNeutral(player)
                     CageEditMenu(it).openMenu(player)
                 }

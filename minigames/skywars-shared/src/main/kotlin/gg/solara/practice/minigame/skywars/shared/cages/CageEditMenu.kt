@@ -80,8 +80,13 @@ class CageEditMenu(private val cage: Cage) : Menu("Editing cage ${cage.displayNa
                 SelectItemStackMenu("Select an item...") {
                     Button.playNeutral(player)
                     cage.editAndSave { item = it }
+
                     player.sendMessage("${CC.GREEN}Saved item!")
-                    openMenu(player)
+                    player.closeInventory()
+
+                    Tasks.delayed(1L) {
+                        CageEditMenu(cage).openMenu(player)
+                    }
                 }.openMenu(player)
             },
         14 to ItemBuilder
@@ -136,7 +141,8 @@ class CageEditMenu(private val cage: Cage) : Menu("Editing cage ${cage.displayNa
 
                     override fun onClose(player: Player)
                     {
-                        openMenu(player)
+                        player.sendMessage("${CC.RED}Did not save!")
+                        this@CageEditMenu.openMenu(player)
                     }
 
                     override fun onSave(player: Player, list: List<String>)
@@ -146,6 +152,7 @@ class CageEditMenu(private val cage: Cage) : Menu("Editing cage ${cage.displayNa
                         }
 
                         player.sendMessage("${CC.GREEN}Saved description!")
+                        this@CageEditMenu.openMenu(player)
                     }
 
                 }
