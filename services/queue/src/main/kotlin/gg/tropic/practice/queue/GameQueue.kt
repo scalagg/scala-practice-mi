@@ -423,8 +423,8 @@ open class GameQueue(
                 }
                 .toMutableList(),
             teams = setOf(
-                GameTeam(teamIdentifier = TeamIdentifier.A, players = firstPlayers),
-                GameTeam(teamIdentifier = TeamIdentifier.B, players = secondPlayers)
+                GameTeam(teamIdentifier = TeamIdentifier.A, players = firstPlayers.toMutableList()),
+                GameTeam(teamIdentifier = TeamIdentifier.B, players = secondPlayers.toMutableList())
             ),
             kitId = kit.id,
             mapId = map.name,

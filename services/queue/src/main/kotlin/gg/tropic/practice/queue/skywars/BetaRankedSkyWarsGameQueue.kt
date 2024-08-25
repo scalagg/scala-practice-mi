@@ -181,10 +181,10 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
                 identifier = UUID.randomUUID(),
                 players = mutableListOf(targetEntry.leader),
                 teams = setOf(
-                    GameTeam(teamIdentifier = TeamIdentifier.A, players = listOf(targetEntry.leader)),
-                    GameTeam(teamIdentifier = TeamIdentifier.B, players = listOf()),
-                    GameTeam(teamIdentifier = TeamIdentifier.C, players = listOf()),
-                    GameTeam(teamIdentifier = TeamIdentifier.D, players = listOf())
+                    GameTeam(teamIdentifier = TeamIdentifier.A, players = mutableListOf(targetEntry.leader)),
+                    GameTeam(teamIdentifier = TeamIdentifier.B, players = mutableListOf()),
+                    GameTeam(teamIdentifier = TeamIdentifier.C, players = mutableListOf()),
+                    GameTeam(teamIdentifier = TeamIdentifier.D, players = mutableListOf())
                 ),
                 kitId = kit.id,
                 mapId = map.name,

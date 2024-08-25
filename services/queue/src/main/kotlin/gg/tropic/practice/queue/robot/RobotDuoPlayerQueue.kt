@@ -179,11 +179,11 @@ open class RobotDuoPlayerQueue(
             teams = setOf(
                 GameTeam(
                     teamIdentifier = TeamIdentifier.A,
-                    players = first.players + second.players
+                    players = (first.players + second.players).toMutableList()
                 ),
                 GameTeam(
                     teamIdentifier = TeamIdentifier.B,
-                    players = robotPlayers
+                    players = robotPlayers.toMutableList()
                 ),
             ),
             kitId = kit.id,
