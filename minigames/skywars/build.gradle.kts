@@ -1,5 +1,5 @@
 dependencies {
     compileOnly(project(":game"))
     compileOnly(project(":shared"))
-    compileOnly(project(":minigames:skywars-shared"))
+    api(project(":minigames:skywars-shared"))
 }
