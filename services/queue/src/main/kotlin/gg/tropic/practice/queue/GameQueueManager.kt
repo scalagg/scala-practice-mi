@@ -26,6 +26,7 @@ import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.lobbyGroup
 import gg.tropic.practice.namespace
+import gg.tropic.practice.orchestrator.UpdateRolloutOrchestrator
 import gg.tropic.practice.queue.robot.RobotDuoPlayerQueue
 import gg.tropic.practice.queue.robot.RobotSinglePlayerQueue
 import gg.tropic.practice.queue.skywars.BetaRankedSkyWarsGameQueue
@@ -186,6 +187,7 @@ object GameQueueManager
             ?: (ServerContainer
                 .getServersInGroupCasted<GameServer>(gameGroup().suffixWhenDev())
                 .sortedBy(GameServer::getPlayersCount)
+                .filterNot { UpdateRolloutOrchestrator.isRolloutBlocked(it.id) }
                 .let { servers ->
                     if (servers.any { server -> "mipdev" in server.groups })
                     {
