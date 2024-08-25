@@ -11,11 +11,11 @@ import org.bukkit.entity.Player
  * @since 8/25/2024
  */
 class CageNonPurchasableCosmetic(
-    cage: Cage,
+    override val cage: Cage,
     override val description: List<String> = cage.description,
     override val icon: ItemBuilder = ItemBuilder.copyOf(cage.item),
     override val name: String = cage.displayName
-) : CosmeticLike
+) : CosmeticLike, CageCosmeticLike
 {
     override val resource: ImmutableResource
         get() = ImmutableResource("cage", name)

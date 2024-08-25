@@ -2,9 +2,7 @@ package gg.solara.practice.minigame.skywars
 
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.lemon.util.SplitUtil
-import gg.solara.practice.minigame.skywars.events.FirstRefillGameEvent
-import gg.solara.practice.minigame.skywars.events.GameEvent
-import gg.solara.practice.minigame.skywars.events.SecondRefillGameEvent
+import gg.solara.practice.minigame.skywars.events.*
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.solara.practice.minigame.skywars.shared.cages.*
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
@@ -46,22 +44,18 @@ class SkyWarsLifecycle(
     val events = LinkedList<GameEvent>().apply {
         this += FirstRefillGameEvent(this@SkyWarsLifecycle)
         this += SecondRefillGameEvent(this@SkyWarsLifecycle)
+        this += DoomGameEvent(this@SkyWarsLifecycle)
+        this += GameEndGameEvent(this@SkyWarsLifecycle)
     }
 
     var lastEventExecution: Long = 0L
     var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
 
+    val cages = mutableMapOf<UUID, LocalCage>()
+
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
-        data class LocalCage(
-            val cage: SchemaCage,
-            val location: Vector,
-            val owner: UUID
-        )
-
-        val cages = mutableMapOf<UUID, LocalCage>()
-
         val world = game.arenaWorld
         if (world != null)
         {
@@ -76,59 +70,6 @@ class SkyWarsLifecycle(
                         }
                 }
         }
-
-        Events
-            .subscribe(PlayerSelectSpawnLocationEvent::class.java)
-            .filter { it.game.miniGameLifecycle is SkyWarsLifecycle }
-            .filter { it.game.expectation == game.expectation }
-            .filter { !it.spectator }
-            .filter { it.game.state(GameState.Waiting) || it.game.state(GameState.Starting) }
-            .handler {
-                val baseBlock = it.location.world
-                    .getBlockAt(it.location)
-                    .getRelative(BlockFace.DOWN)
-
-                val randomCage = CosmeticRegistry
-                    .getSingleEquippedAs<CageCosmetic>(
-                        CageCategory,
-                        it.player
-                    )
-                    ?.cage
-                    ?.linkedSchema
-                    ?.let { schema ->
-                        SchemaCageDataSync.cached().schemas[schema]
-                    }
-                    ?: SchemaCageDefaultSchemas.DEFAULT
-
-                randomCage.applyTo(baseBlock)
-
-                cages[it.player.uniqueId] = LocalCage(
-                    cage = randomCage,
-                    location = baseBlock.location.toVector(),
-                    owner = it.player.uniqueId
-                )
-            }
-
-        Events
-            .subscribe(PlayerQuitEvent::class.java)
-            .handler {
-                val game = GameService.byPlayer(it.player)
-                    ?: return@handler
-
-                if (game.expectation != this.game.expectation)
-                {
-                    return@handler
-                }
-
-                if (game.state(GameState.Waiting) || game.state(GameState.Playing))
-                {
-                    cages[it.player.uniqueId]?.apply {
-                        cage.removeAll(
-                            location.toLocation(game.arenaWorld!!).block
-                        )
-                    }
-                }
-            }
 
         Events
             .subscribe(GameStartEvent::class.java)

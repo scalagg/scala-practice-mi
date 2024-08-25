@@ -11,7 +11,7 @@ import org.bukkit.entity.Player
  * @since 8/25/2024
  */
 class CagePurchasableCosmetic(
-    cage: Cage,
+    override val cage: Cage,
     override val description: List<String> = cage.description + listOf(
         "",
         "${CC.GRAY}Rarity: ${cage.rarity.fancy}"
@@ -19,7 +19,7 @@ class CagePurchasableCosmetic(
     override val icon: ItemBuilder = ItemBuilder.copyOf(cage.item),
     override val name: String = cage.displayName,
     override val price: Float = cage.price
-) : PurchasableCosmetic
+) : PurchasableCosmetic, CageCosmeticLike
 {
     override val resource: ImmutableResource
         get() = ImmutableResource("cage", name)

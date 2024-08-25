@@ -24,7 +24,7 @@ object CageCategory : ProxyCosmeticCategory<Cage>
     override val name = "Cages"
     override val resource = ImmutableResource("cage")
 
-    override fun proxied() = gg.solara.practice.minigame.skywars.shared.cages.CageDataSync.cached().cages.values.toList()
+    override fun proxied() = CageDataSync.cached().cages.values.toList()
     override fun convert(t: Cage) = if (t.purchasable)
         CagePurchasableCosmetic(t) else CageNonPurchasableCosmetic(t)
 

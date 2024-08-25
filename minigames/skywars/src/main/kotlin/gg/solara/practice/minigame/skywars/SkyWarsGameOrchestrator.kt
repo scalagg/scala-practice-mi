@@ -9,9 +9,7 @@ import gg.solara.practice.minigame.skywars.shared.cages.*
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
-import gg.tropic.practice.games.event.AsyncPlayerPreJoinGameEvent
 import gg.tropic.practice.games.event.GameStartEvent
-import gg.tropic.practice.games.event.PlayerJoinGameEvent
 import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
@@ -25,7 +23,6 @@ import org.bukkit.Sound
 import org.bukkit.block.BlockFace
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.util.Vector
 
 /**
  * @author GrowlyX
@@ -54,6 +51,71 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 it.game.sendMessage("${CC.YELLOW}Cages open in ${CC.RED}${it.secondsLeftUntilStart}${CC.YELLOW} second${
                     if (it.secondsLeftUntilStart == 1) "" else "s"
                 }!")
+            }
+
+        Events
+            .subscribe(PlayerSelectSpawnLocationEvent::class.java)
+            .filter { it.game.miniGameLifecycle is SkyWarsLifecycle }
+            .filter { !it.spectator }
+            .filter { it.game.state(GameState.Waiting) || it.game.state(GameState.Starting) }
+            .handler {
+                println("SILLY AHH")
+                val baseBlock = it.location.world
+                    .getBlockAt(it.location)
+                    .getRelative(BlockFace.DOWN)
+                println(baseBlock)
+
+                val randomCage = CosmeticRegistry
+                    .apply {
+                        println(this)
+                    }
+                    .getSingleEquippedAs<CageCosmeticLike>(CageCategory, it.player)
+                    ?.apply {
+                        println(this)
+                    }
+                    ?.cage
+                    ?.apply {
+                        println(this)
+                    }
+                    ?.linkedSchema
+                    ?.apply {
+                        println(this)
+                    }
+                    ?.let { schema ->
+                        SchemaCageDataSync.cached().schemas[schema]
+                    }
+                    ?.apply {
+                        println(this)
+                    }
+                    ?: SchemaCageDefaultSchemas.DEFAULT
+
+                randomCage.applyTo(baseBlock)
+
+                val skyWars = it.game.miniGameLifecycle as SkyWarsLifecycle
+                println("SKYWAR")
+                skyWars.cages[it.player.uniqueId] = LocalCage(
+                    cage = randomCage,
+                    location = baseBlock.location.toVector(),
+                    owner = it.player.uniqueId
+                )
+                println("BAMAMAMMA")
+            }
+
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
+            .handler {
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                if (game.state(GameState.Waiting) || game.state(GameState.Playing))
+                {
+                    val skyWars = game.miniGameLifecycle as SkyWarsLifecycle
+                    skyWars.cages[it.player.uniqueId]?.apply {
+                        cage.removeAll(
+                            location.toLocation(game.arenaWorld!!).block
+                        )
+                    }
+                }
             }
 
         /**

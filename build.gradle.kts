@@ -17,7 +17,7 @@ if (currentBranch != "master") {
 
 allprojects {
     group = "gg.solara.practice"
-    version = "1.0.0${
+    version = "1.0.2${
         if (currentBranch != "master") "-dev" else ""
     }"
 
