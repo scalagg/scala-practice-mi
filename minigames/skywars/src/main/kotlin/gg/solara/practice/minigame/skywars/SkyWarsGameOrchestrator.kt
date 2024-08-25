@@ -59,46 +59,30 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
             .filter { !it.spectator }
             .filter { it.game.state(GameState.Waiting) || it.game.state(GameState.Starting) }
             .handler {
-                println("SILLY AHH")
                 val baseBlock = it.location.world
                     .getBlockAt(it.location)
                     .getRelative(BlockFace.DOWN)
-                println(baseBlock)
 
-                val randomCage = CosmeticRegistry
-                    .apply {
-                        println(this)
-                    }
-                    .getSingleEquippedAs<CageCosmeticLike>(CageCategory, it.player)
-                    ?.apply {
-                        println(this)
-                    }
+                val randomCosmetic = CageCategory
+                    .cosmetics()
+                    .firstOrNull { cosmetic -> cosmetic.equipped(it.player) } as CageCosmeticLike?
+
+                val randomCage = randomCosmetic
                     ?.cage
-                    ?.apply {
-                        println(this)
-                    }
                     ?.linkedSchema
-                    ?.apply {
-                        println(this)
-                    }
                     ?.let { schema ->
                         SchemaCageDataSync.cached().schemas[schema]
-                    }
-                    ?.apply {
-                        println(this)
                     }
                     ?: SchemaCageDefaultSchemas.DEFAULT
 
                 randomCage.applyTo(baseBlock)
 
                 val skyWars = it.game.miniGameLifecycle as SkyWarsLifecycle
-                println("SKYWAR")
                 skyWars.cages[it.player.uniqueId] = LocalCage(
                     cage = randomCage,
                     location = baseBlock.location.toVector(),
                     owner = it.player.uniqueId
                 )
-                println("BAMAMAMMA")
             }
 
         Events
