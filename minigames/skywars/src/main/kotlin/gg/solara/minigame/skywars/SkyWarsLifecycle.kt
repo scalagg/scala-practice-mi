@@ -77,7 +77,7 @@ class SkyWarsLifecycle(
                 game.allNonSpectators().size
             }/4"
             board += ""
-            board += "${CC.WHITE}Waiting..."
+            board += "${CC.GRAY}Waiting..."
             board += ""
             board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
             board += "${CC.GRAY}Mode: ${CC.AQUA}Ranked"

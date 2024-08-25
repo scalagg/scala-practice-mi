@@ -43,7 +43,7 @@ object MiniGameGlobalService
                         it.game.expectationModel.players.size
                     }${CC.YELLOW}/${CC.AQUA}${
                         miniGameOrchestrator.minimumPlayersRequiredToEnterStarting
-                    }${CC.YELLOW})")
+                    }${CC.YELLOW})!")
                 }
             }
             .bindWith(plugin)
