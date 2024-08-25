@@ -1,5 +1,7 @@
 package gg.solara.minigame.skywars.shared.cages
 
+import net.evilblock.cubed.util.bukkit.Tasks
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.util.Vector
@@ -17,6 +19,12 @@ data class SchemaCage(
 {
     fun applyTo(baseBlock: Block)
     {
+        if (!Bukkit.isPrimaryThread())
+        {
+            Tasks.sync { applyTo(baseBlock) }
+            return
+        }
+
         blockModifiers.values.forEach {
             val newVector = baseBlock.location.toVector().add(it.relationToBaseBlock)
             val blockRelation = baseBlock.location.world.getBlockAt(
