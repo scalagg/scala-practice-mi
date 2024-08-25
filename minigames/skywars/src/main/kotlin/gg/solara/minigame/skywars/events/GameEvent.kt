@@ -1,11 +1,10 @@
 package gg.solara.minigame.skywars.events
 
 import gg.solara.minigame.skywars.SkyWarsLifecycle
-import gg.tropic.practice.minigame.MiniGameLifecycle
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.time.TimeUtil
 import java.time.Duration
 import kotlin.math.max
-import kotlin.math.min
 
 /**
  * @author GrowlyX
@@ -13,9 +12,9 @@ import kotlin.math.min
  */
 abstract class GameEvent(
     val lifecycle: SkyWarsLifecycle,
-    val name: String,
+    private val name: String,
     val durationPostGameStart: Duration
-): Runnable
+): Runnable, CompositeTerminable by CompositeTerminable.create()
 {
     fun describe() = "$name ${
         if (isNow()) "NOW!" else TimeUtil.formatIntoMMSS((millisUntilExecution() / 1000L).toInt())
@@ -24,6 +23,6 @@ abstract class GameEvent(
     fun isNow() = estimatedExecution() - System.currentTimeMillis() < 0
     fun millisUntilExecution() = max(0, estimatedExecution() - System.currentTimeMillis())
     fun estimatedExecution() = durationPostGameStart
-        .plusMillis(lifecycle.game.startTimestamp)
+        .plusMillis(lifecycle.lastEventExecution)
         .toMillis()
 }

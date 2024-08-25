@@ -8,7 +8,7 @@ import java.time.Duration
  * @since 8/24/2024
  */
 class SecondRefillGameEvent(lifecycle: SkyWarsLifecycle) : GameEvent(
-    lifecycle, "Refill", Duration.ofSeconds(145 + 80)
+    lifecycle, "Refill", Duration.ofSeconds(80)
 )
 {
     override fun run()

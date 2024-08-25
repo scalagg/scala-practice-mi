@@ -6,6 +6,7 @@ import gg.solara.minigame.skywars.events.SecondRefillGameEvent
 import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
 import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
@@ -38,29 +39,57 @@ class SkyWarsLifecycle(
         this += SecondRefillGameEvent(this@SkyWarsLifecycle)
     }
 
+    var lastEventExecution: Long = 0L
+    var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
+
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
-        Schedulers
-            .sync()
-            .runRepeating({ task ->
-                if (!game.state(GameState.Playing))
-                {
-                    return@runRepeating
-                }
+        Events
+            .subscribe(GameStartEvent::class.java)
+            .filter { it.game.expectation == game.expectation }
+            .handler {
+                lastEventExecution = System.currentTimeMillis()
 
-                val currentEvent = events.peekFirst()
-                val estimatedExecution = currentEvent.durationPostGameStart
-                    .plusMillis(game.startTimestamp)
-                    .toMillis()
+                Schedulers
+                    .sync()
+                    .runRepeating({ task ->
+                        if (!game.state(GameState.Playing))
+                        {
+                            task.closeAndReportException()
+                            previousTerminable?.closeAndReportException()
+                            return@runRepeating
+                        }
 
-                if (estimatedExecution <= System.currentTimeMillis())
-                {
-                    currentEvent.run()
-                    events.pop()
-                }
-            }, 0L, 20L)
-            .bindWith(this)
+                        val currentEvent = events.peekFirst()
+                        if (currentEvent == null)
+                        {
+                            task.closeAndReportException()
+                            previousTerminable?.closeAndReportException()
+                            return@runRepeating
+                        }
+
+                        val estimatedExecution = currentEvent.durationPostGameStart
+                            .plusMillis(game.startTimestamp)
+                            .toMillis()
+
+                        if (estimatedExecution <= System.currentTimeMillis())
+                        {
+                            previousTerminable?.closeAndReportException()
+                            previousTerminable = null
+
+                            currentEvent.run()
+                            currentEvent.bindWith(this)
+
+                            previousTerminable = currentEvent
+
+                            events.pop()
+                            lastEventExecution = System.currentTimeMillis()
+                        }
+                    }, 0L, 20L)
+                    .bindWith(this)
+            }
+            .bindWith(game)
 
         Schedulers.sync()
             .run {
