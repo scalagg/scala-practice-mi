@@ -1,8 +1,12 @@
 package gg.tropic.practice.minigame
 
+import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.util.QuickAccess
+import gg.tropic.practice.PracticeGame
+import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.event.PlayerJoinGameEvent
 import gg.tropic.practice.minigame.event.PlayerMiniGameQuitWhileStartingEvent
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
@@ -14,6 +18,9 @@ import net.evilblock.cubed.util.CC
 @Service
 object MiniGameGlobalService
 {
+    @Inject
+    lateinit var plugin: PracticeGame
+
     @Configure
     fun configure()
     {
@@ -27,5 +34,22 @@ object MiniGameGlobalService
                     it.game.orchestrator.minimumPlayersRequiredToEnterStarting
                 })")
             }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(PlayerJoinGameEvent::class.java)
+            .filter { it.game is AbstractMiniGameGameImpl<*> }
+            .handler {
+                if (it.game.state(GameState.Waiting) || it.game.state(GameState.Starting))
+                {
+                    val orch = (it.game as AbstractMiniGameGameImpl<*>).orchestrator
+                    it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} joined. ${CC.AQUA}(${
+                        it.game.expectationModel.players.size
+                    }/${
+                        orch.minimumPlayersRequiredToEnterStarting
+                    })")
+                }
+            }
+            .bindWith(plugin)
     }
 }
