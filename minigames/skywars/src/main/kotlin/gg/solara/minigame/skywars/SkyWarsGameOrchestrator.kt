@@ -48,10 +48,16 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
 
         Events
             .subscribe(PlayerInteractEvent::class.java)
-            .filter { it.clickedBlock.state.data is Chest }
+            .filter { it.clickedBlock != null && it.clickedBlock.state.data is org.bukkit.material.Chest }
             .handler {
                 val game = GameService.byPlayer(it.player)
                     ?: return@handler
+
+                if (it.player.hasMetadata("spectator"))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
 
                 if (game.state(GameState.Waiting) || game.state(GameState.Starting))
                 {
