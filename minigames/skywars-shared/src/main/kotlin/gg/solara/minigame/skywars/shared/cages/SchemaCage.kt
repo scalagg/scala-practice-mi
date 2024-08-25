@@ -48,9 +48,36 @@ data class SchemaCage(
         )
     }
 
+    fun addBlockModifier(baseBlock: Block, block: Block)
+    {
+        val relativeVector = block.location
+            .clone()
+            .toVector()
+            .subtract(baseBlock.location.toVector())
+
+        addBlockModifier(relativeVector, block.type, block.data)
+    }
+
     fun addBlockModifier(relationToBaseBlock: Vector, block: Block)
     {
         addBlockModifier(relationToBaseBlock, block.type, block.data)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    fun removeBlockModifier(relationToBaseBlock: Vector)
+    {
+        val hash = Base64.encode(relationToBaseBlock.toString().encodeToByteArray())
+        blockModifiers.remove(hash)
+    }
+
+    fun removeBlockModifier(baseBlock: Block, block: Block)
+    {
+        val relativeVector = block.location
+            .clone()
+            .toVector()
+            .subtract(baseBlock.location.toVector())
+
+        removeBlockModifier(relativeVector)
     }
 
     fun base(material: Material, data: Byte = 0) = addBlockModifier(Vector(0, 0, 0), material, data)

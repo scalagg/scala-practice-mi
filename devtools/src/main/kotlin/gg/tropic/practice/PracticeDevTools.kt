@@ -5,6 +5,7 @@ import gg.scala.commons.annotations.container.ContainerDisable
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.annotations.container.ContainerPreEnable
 import gg.scala.commons.core.plugin.*
+import gg.solara.minigame.skywars.shared.cages.SchemaCageCommandCustomizers
 import me.lucko.helper.Events
 import org.bukkit.Bukkit
 import org.bukkit.entity.EntityType
@@ -66,6 +67,8 @@ class PracticeDevTools : ExtendedScalaPlugin()
                 it.isCancelled = true
             }
             .bindWith(this)
+
+        SchemaCageCommandCustomizers.customize(commandManager)
     }
 
     @ContainerDisable

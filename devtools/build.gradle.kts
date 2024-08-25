@@ -6,6 +6,7 @@ repositories {
 
 dependencies {
     api(project(":shared"))
+    api(project(":minigames:skywars-shared"))
     compileOnly(fileTree("worldedit"))
 
 /*    implementation("com.github.haifengl:smile-core:2.3.0")
