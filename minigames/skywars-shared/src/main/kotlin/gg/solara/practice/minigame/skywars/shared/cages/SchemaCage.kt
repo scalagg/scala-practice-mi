@@ -38,6 +38,26 @@ data class SchemaCage(
         }
     }
 
+    fun removeAll(baseBlock: Block)
+    {
+        if (!Bukkit.isPrimaryThread())
+        {
+            Tasks.sync { removeAll(baseBlock) }
+            return
+        }
+
+        blockModifiers.values.forEach {
+            val newVector = baseBlock.location.toVector().add(it.relationToBaseBlock)
+            val blockRelation = baseBlock.location.world.getBlockAt(
+                newVector.toLocation(baseBlock.location.world)
+            )
+
+            val state = blockRelation.state
+            state.type = Material.AIR
+            state.update(true, true)
+        }
+    }
+
     @OptIn(ExperimentalEncodingApi::class)
     fun addBlockModifier(relationToBaseBlock: Vector, material: Material, data: Byte = 0)
     {
