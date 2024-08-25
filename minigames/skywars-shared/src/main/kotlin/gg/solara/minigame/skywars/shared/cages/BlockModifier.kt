@@ -10,5 +10,5 @@ import org.bukkit.util.Vector
 data class BlockModifier(
     val relationToBaseBlock: Vector,
     val blockType: Material,
-    val blockData: Int
+    val blockData: Byte = 0
 )

@@ -11,6 +11,7 @@ import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.AsyncPlayerPreJoinGameEvent
 import gg.tropic.practice.games.event.PlayerJoinGameEvent
+import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
@@ -139,6 +140,11 @@ object ExpectationService
                         .filterNotNull()
                         .first().location
                 }
+
+                PlayerSelectSpawnLocationEvent(
+                    game, it.player, spawnLocation,
+                    it.player.uniqueId !in game.expectedSpectators
+                ).callEvent()
 
                 it.spawnLocation = spawnLocation
             }
