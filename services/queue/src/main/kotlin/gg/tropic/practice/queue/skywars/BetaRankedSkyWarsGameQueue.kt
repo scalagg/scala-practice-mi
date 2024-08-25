@@ -174,6 +174,12 @@ open class BetaRankedSkyWarsGameQueue(kit: ImmutableKit) : GameQueue(kit, QueueT
                 .thenRun {
                     GameQueueManager.destroyQueueStates(queueId(), targetEntry)
                 }
+                .thenRun {
+                    DPSRedisShared.redirect(
+                        listOf(targetEntry.leader),
+                        existingGameRequiringPlayers.server
+                    )
+                }
                 .join()
         } else
         {
