@@ -12,6 +12,7 @@ import gg.tropic.practice.minigame.MiniGameScoreboard
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -54,17 +55,19 @@ class SkyWarsLifecycle(
             }, 0L, 20L)
             .bindWith(this)
 
-        val world = game.arenaWorld
-            ?: return
-        game.map.metadata.metadata
-            .filterIsInstance<MapChestMetadata>()
-            .forEach {
-                it.locations.values.flatten().forEach { position ->
-                    val location = position.toLocation(world)
+        Schedulers.sync()
+            .run {
+                val world = game.arenaWorld ?: return@run
+                game.map.metadata.metadata
+                    .filterIsInstance<MapChestMetadata>()
+                    .forEach {
+                        it.locations.values.flatten().forEach { position ->
+                            val location = position.toLocation(world)
 
-                    world.getBlockAt(location)
-                        .setType(Material.CHEST, true)
-                }
+                            world.getBlockAt(location)
+                                .setType(Material.CHEST, true)
+                        }
+                    }
             }
     }
 
