@@ -143,7 +143,7 @@ object ExpectationService
 
                 PlayerSelectSpawnLocationEvent(
                     game, it.player, spawnLocation,
-                    it.player.uniqueId !in game.expectedSpectators
+                    it.player.uniqueId in game.expectedSpectators
                 ).callEvent()
 
                 it.spawnLocation = spawnLocation

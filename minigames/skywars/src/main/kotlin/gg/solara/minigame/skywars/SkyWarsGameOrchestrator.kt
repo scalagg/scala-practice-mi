@@ -64,6 +64,7 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                     .getRelative(BlockFace.DOWN)
 
                 // TODO: choose proper one based on cosmetics
+                it.player.sendMessage("Applying cage")
                 SchemaCageDefaultSchemas.DEFAULT.applyTo(baseBlock)
             }
 
