@@ -2,6 +2,7 @@ package gg.solara.minigame.skywars
 
 import gg.solara.minigame.skywars.events.FirstRefillGameEvent
 import gg.solara.minigame.skywars.events.GameEvent
+import gg.solara.minigame.skywars.events.SecondRefillGameEvent
 import gg.solara.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameState
@@ -34,6 +35,7 @@ class SkyWarsLifecycle(
 {
     val events = LinkedList<GameEvent>().apply {
         this += FirstRefillGameEvent(this@SkyWarsLifecycle)
+        this += SecondRefillGameEvent(this@SkyWarsLifecycle)
     }
 
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
