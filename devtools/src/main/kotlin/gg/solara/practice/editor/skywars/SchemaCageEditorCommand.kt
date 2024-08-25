@@ -12,6 +12,10 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.solara.practice.minigame.skywars.shared.cages.SchemaCage
+import gg.solara.practice.minigame.skywars.shared.cages.SchemaCageDataSync
+import net.evilblock.cubed.util.CC
+import org.bukkit.Material
+import org.bukkit.util.Vector
 
 /**
  * @author GrowlyX
@@ -42,5 +46,35 @@ object SchemaCageEditorCommand : ScalaCommand()
         system.initialize()
 
         SchemaCageEditorSystem.instances[player.uniqueId] = system
+    }
+
+    @Subcommand("delete")
+    @CommandCompletion("@schemacages")
+    fun delete(player: ScalaPlayer, schemaCage: SchemaCage)
+    {
+        val cached = SchemaCageDataSync.cached()
+        cached.schemas.remove(schemaCage.id)
+        SchemaCageDataSync.sync(cached)
+        player.sendMessage("${CC.GREEN}Deleted!")
+    }
+
+    @Subcommand("create")
+    fun create(player: ScalaPlayer, id: String)
+    {
+        if (SchemaCageDataSync.cached().schemas[id] != null)
+        {
+            throw ConditionFailedException("Already exists!")
+        }
+
+        val cage = SchemaCage(id).apply {
+            addBlockModifier(Vector(0, 0, 0), Material.GLASS)
+        }
+
+        val cached = SchemaCageDataSync.cached()
+        cached.schemas[cage.id] = cage
+        SchemaCageDataSync.sync(cached)
+
+        player.sendMessage("${CC.GREEN}Created! Entering editor...")
+        edit(player, cage)
     }
 }

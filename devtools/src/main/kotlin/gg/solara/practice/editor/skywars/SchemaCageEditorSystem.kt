@@ -80,6 +80,7 @@ class SchemaCageEditorSystem(private val player: Player, private val instance: S
                         .runLater({
                             val state = it.block.state
                             state.type = itemInHand.type
+                            state.rawData = itemInHand.data.data
                             state.update(true, true)
 
                             editAndSaveSchema {
@@ -154,6 +155,7 @@ class SchemaCageEditorSystem(private val player: Player, private val instance: S
         player.gameMode = GameMode.CREATIVE
         player.allowFlight = true
         player.isFlying = true
+        player.flySpeed = 0.5f
         player.teleport(
             Location(
                 newWorld, -3.0, 65.0, -3.0

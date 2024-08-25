@@ -68,8 +68,6 @@ class PracticeDevTools : ExtendedScalaPlugin()
                 it.isCancelled = true
             }
             .bindWith(this)
-
-        SchemaCageCommandCustomizers.customize(commandManager)
     }
 
     @ContainerDisable
