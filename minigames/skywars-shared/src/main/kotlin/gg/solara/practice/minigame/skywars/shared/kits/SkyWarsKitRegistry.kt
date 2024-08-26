@@ -8,7 +8,15 @@ object SkyWarsKitRegistry
 {
     val kits = setOf(
         ArmorerKit,
-        ScoutKit,
-        BowmanKit
+        AthleteKit,
+        BlacksmithKit,
+        BowmanKit,
+        ChampionKit,
+        HealerKit,
+        HoundKit,
+        MagicianKit,
+        PaladinKit,
+        PyromancerKit,
+        ScoutKit
     ).associateBy { it.name }
 }
