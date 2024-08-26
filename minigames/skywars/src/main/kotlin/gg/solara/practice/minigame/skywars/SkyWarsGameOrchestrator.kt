@@ -174,7 +174,6 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                         ) {
                             create()
                             bindWith(firstEvent.terminable)
-                            println("Binding")
                         }
                     }
                 }
