@@ -16,9 +16,14 @@ import gg.tropic.practice.minigame.broadcastSeconds
 import gg.tropic.practice.minigame.event.MiniGameStartTickEvent
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
+import org.bukkit.block.Chest
+import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.chest.ChestCloseSoundAction
+import org.bukkit.event.block.chest.EntityChestCloseEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
@@ -125,8 +130,15 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
             }
 
         Events
+            .subscribe(EntityChestCloseEvent::class.java)
+            .handler {
+                it.chestCloseSoundSetting = ChestCloseSoundAction.BROADCAST
+                it.isShouldSendCloseAnimation = false
+            }
+
+        Events
             .subscribe(PlayerInteractEvent::class.java)
-            .filter { it.clickedBlock != null && it.clickedBlock.state.data is org.bukkit.material.Chest }
+            .filter { it.clickedBlock != null && it.action == Action.RIGHT_CLICK_BLOCK && it.clickedBlock.state.data is org.bukkit.material.Chest }
             .handler {
                 val game = GameService.byPlayer(it.player)
                     ?: return@handler
@@ -146,23 +158,23 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 val miniGameLifecycle = game.miniGameLifecycle
                 if (miniGameLifecycle is SkyWarsLifecycle)
                 {
-                    if (it.clickedBlock.hasMetadata("hologram"))
-                    {
-                        return@handler
-                    }
-
-                    if (miniGameLifecycle.events.firstOrNull() is ChestRefillEvent)
+                    val firstEvent = miniGameLifecycle.events.firstOrNull()
+                    if (
+                        firstEvent is ChestRefillEvent &&
+                        !it.clickedBlock.hasMetadata("hologram")
+                    )
                     {
                         with(
                             ChestRefillHologram(
                                 miniGameLifecycle,
-                                miniGameLifecycle.events.first(),
+                                firstEvent,
                                 it.clickedBlock.location
                                     .add(0.500, 0.0, 0.500)
                             )
                         ) {
                             create()
-                            bindWith(miniGameLifecycle.events.first())
+                            bindWith(firstEvent.terminable)
+                            println("Binding")
                         }
                     }
                 }

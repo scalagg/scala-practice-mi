@@ -47,12 +47,11 @@ object ScoutKit : SkyWarsKit
         val potion = Potion(PotionType.SPEED).splash()
         potion.effects += PotionEffect(PotionEffectType.SPEED, 30, 3)
 
-        player.inventory.addItem(
-            ItemBuilder
-                .copyOf(potion.toItemStack(1))
-                .name("${CC.WHITE}Splash Potion of Speed II (0:30)")
-                .amount(3)
-                .build()
-        )
+        val itemStack = potion.toItemStack(3)
+        val meta = itemStack.itemMeta
+        meta.displayName = "${CC.WHITE}Splash Potion of Speed II (0:30)"
+        itemStack.itemMeta = meta
+
+        player.inventory.addItem(itemStack)
     }
 }

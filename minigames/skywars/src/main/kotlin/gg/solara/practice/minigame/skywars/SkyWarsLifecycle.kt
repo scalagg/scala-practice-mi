@@ -38,6 +38,7 @@ import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
@@ -65,7 +66,6 @@ class SkyWarsLifecycle(
         this += GameEndGameEvent(this@SkyWarsLifecycle)
     }
 
-    var lastEventExecution: Long = 0L
     var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
 
     val cages = mutableMapOf<UUID, LocalCage>()
@@ -164,7 +164,6 @@ class SkyWarsLifecycle(
             .subscribe(GameStartEvent::class.java)
             .filter { it.game.expectation == game.expectation }
             .handler {
-                lastEventExecution = System.currentTimeMillis()
                 HotbarPresetHandler.forget(game.expectation.toString())
                 updateHotBarTerminable.closeAndReportException()
 
@@ -206,6 +205,8 @@ class SkyWarsLifecycle(
                     player.updateInventory()
                 }
 
+                events.first().start = System.currentTimeMillis()
+
                 Schedulers
                     .sync()
                     .runRepeating({ task ->
@@ -224,22 +225,21 @@ class SkyWarsLifecycle(
                             return@runRepeating
                         }
 
-                        val estimatedExecution = currentEvent.durationPostGameStart
-                            .plusMillis(lastEventExecution)
-                            .toMillis()
-
+                        val estimatedExecution = currentEvent.estimatedExecution()
                         if (estimatedExecution <= System.currentTimeMillis())
                         {
                             previousTerminable?.closeAndReportException()
                             previousTerminable = null
 
                             currentEvent.run()
-                            currentEvent.bindWith(this)
-
-                            previousTerminable = currentEvent
+                            previousTerminable = CompositeTerminable.create()
+                            previousTerminable!!.bindWith(this)
+                            currentEvent.terminable.bindWith(previousTerminable!!)
 
                             events.pop()
-                            lastEventExecution = System.currentTimeMillis()
+                            events.peekFirst()?.start = System.currentTimeMillis()
+
+                            Bukkit.broadcastMessage("Starting ${events.firstOrNull()?.javaClass?.name}")
                         }
                     }, 0L, 20L)
                     .bindWith(this)
