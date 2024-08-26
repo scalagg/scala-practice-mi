@@ -2,6 +2,7 @@ package gg.solara.practice.minigame.skywars.menus
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.commons.scheme.impl.SinglePageSchemedMenu
+import gg.solara.practice.minigame.skywars.shared.kits.SkyWarsKitDescriptions
 import gg.solara.practice.minigame.skywars.shared.kits.SkyWarsKitRegistry
 import gg.solara.practice.minigame.skywars.shared.profile.SkyWarsProfileService
 import net.evilblock.cubed.menu.Button
@@ -40,7 +41,16 @@ object KitSelectionMenu
             ItemBuilder
                 .copyOf(kit.icon)
                 .name("${CC.GREEN}${kit.name}")
-                .addToLore("${CC.GRAY}Click to select!")
+                .apply {
+                    val description = SkyWarsKitDescriptions.kitDescriptions[kit.name]
+                        ?: return@apply
+
+                    setLore(description)
+                }
+                .addToLore(
+                    "",
+                    "${CC.YELLOW}Click to select!"
+                )
                 .toButton { _, _ ->
                     val profile = SkyWarsProfileService.find(player)
                         ?: return@toButton
