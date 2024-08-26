@@ -188,6 +188,7 @@ class SkyWarsLifecycle(
                     {
                         ArmorerKit.applyArmor(player)
                         ArmorerKit.applyInventoryContents(player)
+                        player.updateInventory()
                         continue
                     }
 
@@ -196,11 +197,13 @@ class SkyWarsLifecycle(
                     {
                         ArmorerKit.applyArmor(player)
                         ArmorerKit.applyInventoryContents(player)
+                        player.updateInventory()
                         continue
                     }
 
                     kit.applyArmor(player)
                     kit.applyInventoryContents(player)
+                    player.updateInventory()
                 }
 
                 Schedulers
