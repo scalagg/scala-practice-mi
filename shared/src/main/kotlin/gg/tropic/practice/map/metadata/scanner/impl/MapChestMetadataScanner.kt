@@ -27,17 +27,7 @@ object MapChestMetadataScanner : AbstractMapMetadataScanner<MapChestMetadata>()
         BlockFace.NORTH_EAST to -135.0F
     )
 
-    val inverseValuesMappings = mutableMapOf(
-        BlockFace.NORTH to 180.0F,
-        BlockFace.WEST to 90.0F,
-        BlockFace.SOUTH to 0.0F,
-        BlockFace.EAST to -90.0F,
-
-        BlockFace.SOUTH_WEST to 45.0F,
-        BlockFace.SOUTH_EAST to -45.0F,
-        BlockFace.NORTH_WEST to 135.0F,
-        BlockFace.NORTH_EAST to -135.0F
-    ).map { it.value to it.key }
+    val inverseValuesMappings = manualMappings.map { it.value to it.key }
         .associate { it.first to it.second }
 
     override fun scan(

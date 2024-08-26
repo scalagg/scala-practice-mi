@@ -1,29 +1,26 @@
 package gg.solara.practice.minigame.skywars
 
-import com.comphenix.packetwrapper.WrapperPlayServerBlockAction
-import com.comphenix.protocol.PacketType
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.solara.practice.minigame.skywars.chests.ChestRefillHologram
+import gg.solara.practice.minigame.skywars.events.ChestRefillEvent
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
-import gg.solara.practice.minigame.skywars.shared.cages.SchemaCageDataSync
-import gg.solara.practice.minigame.skywars.shared.cages.SchemaCageDefaultSchemas
+import gg.solara.practice.minigame.skywars.shared.cages.*
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
-import gg.tropic.practice.games.event.AsyncPlayerPreJoinGameEvent
 import gg.tropic.practice.games.event.GameStartEvent
-import gg.tropic.practice.games.event.PlayerJoinGameEvent
 import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.BasicMiniGameOrchestrator
 import gg.tropic.practice.minigame.broadcastSeconds
 import gg.tropic.practice.minigame.event.MiniGameStartTickEvent
 import me.lucko.helper.Events
-import me.lucko.helper.protocol.Protocol
 import net.evilblock.cubed.util.CC
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerQuitEvent
 
 /**
  * @author GrowlyX
@@ -64,30 +61,66 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                     .getBlockAt(it.location)
                     .getRelative(BlockFace.DOWN)
 
-                // TODO: choose proper one based on cosmetics
-                val randomCage = SchemaCageDataSync.cached().schemas.values
-                    .firstOrNull()
+                val randomCosmetic = CageCategory
+                    .cosmetics()
+                    .firstOrNull { cosmetic -> cosmetic.equipped(it.player) } as CageCosmeticLike?
+
+                val randomCage = randomCosmetic
+                    ?.cage
+                    ?.linkedSchema
+                    ?.let { schema ->
+                        SchemaCageDataSync.cached().schemas[schema]
+                    }
                     ?: SchemaCageDefaultSchemas.DEFAULT
 
                 randomCage.applyTo(baseBlock)
+
+                val skyWars = it.game.miniGameLifecycle as SkyWarsLifecycle
+                skyWars.cages[it.player.uniqueId] = LocalCage(
+                    cage = randomCage,
+                    location = baseBlock.location.toVector(),
+                    owner = it.player.uniqueId
+                )
             }
 
-        /**
-         * Prevent close action from being sent, unless it's from the server
-         */
-        Protocol
-            .subscribe(PacketType.Play.Server.BLOCK_ACTION)
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
             .handler {
-                val blockAction = WrapperPlayServerBlockAction(it.packet)
-                println("block action is being sent ${blockAction.byte2} ${blockAction.byte1} ${blockAction.blockType} | ${it.packet.getMeta<Boolean>("programmatically").isPresent}")
-                if (blockAction.byte2 == 0 && blockAction.blockType == Material.CHEST && blockAction.byte1 == 0)
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                if (game.state(GameState.Waiting) || game.state(GameState.Playing))
                 {
-                    if (it.packet.getMeta<Boolean>("programmatically").isPresent)
+                    val skyWars = game.miniGameLifecycle as SkyWarsLifecycle
+                    skyWars.cages[it.player.uniqueId]?.apply {
+                        cage.removeAll(
+                            location.toLocation(game.arenaWorld!!).block
+                        )
+                    }
+                }
+            }
+
+        Events
+            .subscribe(BlockBreakEvent::class.java)
+            .handler {
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                val miniGameLifecycle = game.miniGameLifecycle
+                if (miniGameLifecycle is SkyWarsLifecycle)
+                {
+                    if (!it.block.hasMetadata("hologram"))
                     {
                         return@handler
                     }
 
-                    it.isCancelled = true
+                    with(
+                        it.block.getMetadata("hologram")
+                            .first().value() as ChestRefillHologram
+                    )
+                    {
+                        closeAndReportException()
+                    }
                 }
             }
 
@@ -107,6 +140,31 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                 if (game.state(GameState.Waiting) || game.state(GameState.Starting))
                 {
                     it.isCancelled = true
+                    return@handler
+                }
+
+                val miniGameLifecycle = game.miniGameLifecycle
+                if (miniGameLifecycle is SkyWarsLifecycle)
+                {
+                    if (it.clickedBlock.hasMetadata("hologram"))
+                    {
+                        return@handler
+                    }
+
+                    if (miniGameLifecycle.events.firstOrNull() is ChestRefillEvent)
+                    {
+                        with(
+                            ChestRefillHologram(
+                                miniGameLifecycle,
+                                miniGameLifecycle.events.first(),
+                                it.clickedBlock.location
+                                    .add(0.500, 0.0, 0.500)
+                            )
+                        ) {
+                            create()
+                            bindWith(miniGameLifecycle.events.first())
+                        }
+                    }
                 }
             }
 

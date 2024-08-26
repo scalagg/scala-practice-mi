@@ -20,6 +20,7 @@ abstract class GameEvent(
         if (isNow()) "NOW!" else TimeUtil.formatIntoMMSS((millisUntilExecution() / 1000L).toInt())
     }"
 
+    fun formattedEstimatedExecution() = TimeUtil.formatIntoMMSS((millisUntilExecution() / 1000L).toInt())
     fun isNow() = estimatedExecution() - System.currentTimeMillis() < 0
     fun millisUntilExecution() = max(0, estimatedExecution() - System.currentTimeMillis())
     fun estimatedExecution() = durationPostGameStart

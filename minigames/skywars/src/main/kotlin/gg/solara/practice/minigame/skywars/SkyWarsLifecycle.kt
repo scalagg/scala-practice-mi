@@ -2,13 +2,16 @@ package gg.solara.practice.minigame.skywars
 
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.lemon.util.SplitUtil
-import gg.solara.practice.minigame.skywars.events.FirstRefillGameEvent
-import gg.solara.practice.minigame.skywars.events.GameEvent
-import gg.solara.practice.minigame.skywars.events.SecondRefillGameEvent
+import gg.solara.practice.minigame.skywars.chests.ChestController
+import gg.solara.practice.minigame.skywars.events.*
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
+import gg.solara.practice.minigame.skywars.shared.cages.*
+import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.practice.games.GameReport
+import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
+import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
 import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
@@ -24,7 +27,9 @@ import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.material.Chest
+import org.bukkit.util.Vector
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -40,19 +45,58 @@ class SkyWarsLifecycle(
     val events = LinkedList<GameEvent>().apply {
         this += FirstRefillGameEvent(this@SkyWarsLifecycle)
         this += SecondRefillGameEvent(this@SkyWarsLifecycle)
+        this += DoomGameEvent(this@SkyWarsLifecycle)
+        this += GameEndGameEvent(this@SkyWarsLifecycle)
     }
 
     var lastEventExecution: Long = 0L
     var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
 
+    val cages = mutableMapOf<UUID, LocalCage>()
+    val chestController = ChestController(this)
+
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
+        val world = game.arenaWorld
+            ?: return
+
+        Schedulers
+            .sync()
+            .run {
+                game.map.findSpawnLocations()
+                    .forEach {
+                        it.position.toLocation(world).block
+                            .getRelative(BlockFace.DOWN)
+                            .setType(Material.AIR, false)
+                    }
+            }
+
+        chestController.chests.putAll(
+            game.map.metadata.metadata
+                .filterIsInstance<MapChestMetadata>()
+                .flatMap { it.locations.entries }
+                .associate {
+                    it.key to it.value
+                }
+        )
+
+        println(chestController.chests)
+
         Events
             .subscribe(GameStartEvent::class.java)
             .filter { it.game.expectation == game.expectation }
             .handler {
                 lastEventExecution = System.currentTimeMillis()
+
+                cages.values.forEach { localCage ->
+                    val arenaWorld = game.arenaWorld
+                        ?: return@forEach
+
+                    val baseBlock = localCage.location.toLocation(arenaWorld).block
+                    localCage.cage.removeAll(baseBlock)
+                }
+                cages.clear()
 
                 Schedulers
                     .sync()
@@ -73,7 +117,7 @@ class SkyWarsLifecycle(
                         }
 
                         val estimatedExecution = currentEvent.durationPostGameStart
-                            .plusMillis(game.startTimestamp)
+                            .plusMillis(lastEventExecution)
                             .toMillis()
 
                         if (estimatedExecution <= System.currentTimeMillis())
@@ -96,7 +140,6 @@ class SkyWarsLifecycle(
 
         Schedulers.sync()
             .run {
-                val world = game.arenaWorld ?: return@run
                 game.map.metadata.metadata
                     .filterIsInstance<MapChestMetadata>()
                     .forEach {
@@ -126,34 +169,27 @@ class SkyWarsLifecycle(
     {
         override fun titleFor(player: Player) = "${CC.B_PRI}SKYWARS"
 
-        private val dateFormat = SimpleDateFormat("MM/dd/yy")
-        private val id = ServerSync.local.id
-            .replace("-practice-", "")
-            .replace("game", "g")
-
         fun Player.addSurrounding(board: MutableList<String>, surrounded: () -> List<String>)
         {
-            board.add(0, "${CC.D_GRAY}${dateFormat.format(Date())} $id")
             board += surrounded()
-            board += ""
-            board += "${CC.GRAY}Players left: ${CC.PRI}${
+            board += "      ${CC.GRAY}       ${CC.GRAY}"
+            board += "${CC.GRAY}Players left: ${CC.GREEN}${
                 game.allNonSpectators().size
             }"
             board += ""
             board += "${CC.GRAY}Kills: ${CC.PRI}0" // TODO: implement
             board += ""
-            board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
+            board += "${CC.GRAY}Map: ${CC.GREEN}${game.map.displayName}"
             board += "${CC.GRAY}Mode: ${CC.AQUA}Ranked"
         }
 
         override fun createWaitingScoreboardFor(player: Player, board: MutableList<String>)
         {
-            board.add(0, "${CC.D_GRAY}${dateFormat.format(Date())} $id")
             board += "${CC.GRAY}Players: ${CC.PRI}${game.allNonSpectators().size}/4"
             board += ""
-            board += "${CC.GRAY}Waiting..."
+            board += "${CC.GRAY}Waiting for players..."
             board += ""
-            board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
+            board += "${CC.GRAY}Map: ${CC.GREEN}${game.map.displayName}"
             board += "${CC.GRAY}Mode: ${CC.AQUA}Ranked"
         }
 
