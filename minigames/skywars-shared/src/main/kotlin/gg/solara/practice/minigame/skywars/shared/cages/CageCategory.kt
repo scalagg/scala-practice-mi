@@ -21,12 +21,12 @@ object CageCategory : ProxyCosmeticCategory<Cage>
     )
     override val icon = ItemBuilder
         .of(XMaterial.PINK_STAINED_GLASS)
+
     override val name = "Cages"
     override val resource = ImmutableResource("cage")
 
     override fun proxied() = CageDataSync.cached().cages.values.toList()
-    override fun convert(t: Cage) = if (t.purchasable)
-        CagePurchasableCosmetic(t) else CageNonPurchasableCosmetic(t)
+    override fun convert(t: Cage) = CageCosmetic(t)
 
     @Configure
     fun configure()
