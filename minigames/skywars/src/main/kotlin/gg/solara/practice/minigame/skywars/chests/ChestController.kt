@@ -25,12 +25,12 @@ class ChestController(private val game: SkyWarsLifecycle)
 
     fun chestByScope(scope: String = "global") = chests[scope] ?: listOf()
 
-    fun Inventory.populateSmart(items: List<ItemStack>)
+    fun Inventory.populateSmart(items: List<ItemStack>, includeAll: Boolean = false)
     {
         val newContents = arrayOfNulls<ItemStack>(27)
         for ((index, item) in items.withIndex())
         {
-            if (Random.nextBoolean())
+            if (includeAll || Random.nextBoolean())
             {
                 newContents[index] = item
             }
@@ -57,14 +57,15 @@ class ChestController(private val game: SkyWarsLifecycle)
         chests.entries
             .filterNot { it.key == "global" }
             .onEach {
-                val islandLoot = StandardLootGenerator.INSTANCE.basic().chunked(27)
+                val islandLoot = StandardLootGenerator.INSTANCE.basic()
+                val chunked = islandLoot.chunked(islandLoot.size / it.value.size)
                 it.value.forEachIndexed { index, chest ->
-                    val lootForChest = islandLoot.getOrNull(index)
+                    val lootForChest = chunked.getOrNull(index)
                         ?: listOf()
                     val position = chest.toLocation(gameWorld)
 
                     val inventory = (position.block.state as Chest).inventory
-                    inventory.populateSmart(lootForChest)
+                    inventory.populateSmart(lootForChest, includeAll = true)
                 }
             }
     }

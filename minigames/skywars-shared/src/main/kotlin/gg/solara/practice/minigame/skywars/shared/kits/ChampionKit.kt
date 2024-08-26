@@ -1,5 +1,6 @@
 package gg.solara.practice.minigame.skywars.shared.kits
 
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -19,6 +20,7 @@ object ChampionKit : SkyWarsKit
         player.inventory.addItem(
             ItemBuilder
                 .of(Material.DIAMOND_SWORD)
+                .name("${CC.AQUA}Champion's Diamond Sword")
                 .enchant(Enchantment.DAMAGE_ALL, 2)
                 .build()
         )
