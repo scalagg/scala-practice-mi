@@ -45,7 +45,7 @@ object ScoutKit : SkyWarsKit
         )
 
         val potion = Potion(PotionType.SPEED).splash()
-        potion.effects += PotionEffect(PotionEffectType.SPEED, 30, 2)
+        potion.effects += PotionEffect(PotionEffectType.SPEED, 30, 3)
 
         player.inventory.addItem(
             ItemBuilder

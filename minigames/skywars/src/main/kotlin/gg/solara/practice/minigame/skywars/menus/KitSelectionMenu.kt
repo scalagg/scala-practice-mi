@@ -1,5 +1,6 @@
 package gg.solara.practice.minigame.skywars.menus
 
+import com.cryptomorin.xseries.XMaterial
 import gg.scala.commons.scheme.impl.SinglePageSchemedMenu
 import gg.solara.practice.minigame.skywars.shared.kits.SkyWarsKitRegistry
 import gg.solara.practice.minigame.skywars.shared.profile.SkyWarsProfileService
@@ -24,22 +25,16 @@ object KitSelectionMenu
         )
         .map('X') { player, _ ->
             ItemBuilder
-                .copyOf(
-                    PaginatedMenu.PLACEHOLDER
-                        .getButtonItem(player)
-                )
-                .data(2)
+                .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                .name(" ")
                 .toButton()
         }
         .map('0') { player, index ->
             val kit = SkyWarsKitRegistry.kits.values
-                .toList().getOrNull(index)
+                .toList().getOrNull(index - 10)
                 ?: return@map ItemBuilder
-                    .copyOf(
-                        PaginatedMenu.PLACEHOLDER
-                            .getButtonItem(player)
-                    )
-                    .data(2)
+                    .of(XMaterial.BLACK_STAINED_GLASS_PANE)
+                    .name(" ")
                     .toButton()
 
             ItemBuilder

@@ -19,6 +19,7 @@ import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
+import gg.tropic.practice.games.event.PlayerJoinGameEvent
 import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
 import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
@@ -124,6 +125,16 @@ class SkyWarsLifecycle(
                         .sendActionBar(Component.empty())
                 }
         }
+
+        Events
+            .subscribe(PlayerJoinGameEvent::class.java)
+            .filter { it.game.expectation == game.expectation }
+            .filter { it.game.miniGameLifecycle is SkyWarsLifecycle }
+            .filter { it.game.state(GameState.Waiting) || it.game.state(GameState.Starting) }
+            .handler {
+                hotbarPreset.applyToPlayer(it.player)
+            }
+            .bindWith(updateHotBarTerminable)
 
         Schedulers
             .sync()
