@@ -3,6 +3,7 @@ package gg.solara.practice.minigame.skywars.shared.cages
 import gg.tropic.game.extensions.cosmetics.CosmeticLike
 import gg.tropic.game.extensions.cosmetics.ImmutableResource
 import gg.tropic.game.extensions.cosmetics.PurchasableCosmetic
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.entity.Player
 
@@ -12,7 +13,10 @@ import org.bukkit.entity.Player
  */
 class CageNonPurchasableCosmetic(
     override val cage: Cage,
-    override val description: List<String> = cage.description,
+    override val description: List<String> = cage.description + listOf(
+        "",
+        "${CC.GRAY}Rarity: ${cage.rarity.fancy}"
+    ),
     override val icon: ItemBuilder = ItemBuilder.copyOf(cage.item),
     override val name: String = cage.displayName
 ) : CosmeticLike, CageCosmeticLike
