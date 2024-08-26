@@ -688,9 +688,30 @@ object GameService
             }
             .bindWith(plugin)
 
-        Events.subscribe(CraftItemEvent::class.java)
+        Events
+            .subscribe(CraftItemEvent::class.java)
             .handler {
-                it.isCancelled = true
+                val game = byPlayerOrSpectator(it.whoClicked.uniqueId)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (it.whoClicked.hasMetadata("spectator"))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
+                if (!game.state(GameState.Playing))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
+                if (game.miniGameLifecycle == null)
+                {
+                    it.isCancelled = true
+                }
             }
             .bindWith(plugin)
 

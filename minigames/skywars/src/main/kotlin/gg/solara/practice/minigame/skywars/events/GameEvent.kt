@@ -16,7 +16,6 @@ abstract class GameEvent(
     val durationPostGameStart: Duration
 ): Runnable
 {
-    val terminable = CompositeTerminable.create()
     var start: Long = 0L
 
     fun describe() = "$name ${

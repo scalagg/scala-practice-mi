@@ -22,8 +22,7 @@ interface ChestRefillEvent
                     .color(NamedTextColor.YELLOW)
             )
 
-            it.playSound(it.location, Sound.CHEST_OPEN, 2.0f, 0.75f)
-            it.playSound(it.location, Sound.CHEST_OPEN, 2.0f, 0.85f)
+            it.playSound(it.location, Sound.CHEST_OPEN, 2.0f, 0.95f)
         }
     }
 }

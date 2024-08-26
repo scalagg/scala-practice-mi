@@ -1,11 +1,9 @@
 package gg.solara.practice.minigame.skywars
 
 import com.cryptomorin.xseries.XMaterial
-import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
 import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
-import gg.scala.lemon.util.SplitUtil
 import gg.solara.practice.minigame.skywars.chests.ChestController
 import gg.solara.practice.minigame.skywars.events.*
 import gg.solara.practice.minigame.skywars.menus.KitSelectionMenu
@@ -14,13 +12,10 @@ import gg.solara.practice.minigame.skywars.shared.cages.*
 import gg.solara.practice.minigame.skywars.shared.kits.ArmorerKit
 import gg.solara.practice.minigame.skywars.shared.kits.SkyWarsKitRegistry
 import gg.solara.practice.minigame.skywars.shared.profile.SkyWarsProfileService
-import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.practice.games.GameReport
-import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.event.PlayerJoinGameEvent
-import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
 import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
@@ -33,21 +28,14 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.Sound
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.material.Chest
-import org.bukkit.util.Vector
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -66,7 +54,7 @@ class SkyWarsLifecycle(
         this += GameEndGameEvent(this@SkyWarsLifecycle)
     }
 
-    var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
+    var eventTerminable: CompositeTerminable = CompositeTerminable.create()
 
     val cages = mutableMapOf<UUID, LocalCage>()
     val chestController = ChestController(this)
@@ -167,6 +155,8 @@ class SkyWarsLifecycle(
                 HotbarPresetHandler.forget(game.expectation.toString())
                 updateHotBarTerminable.closeAndReportException()
 
+                chestController.refillAll()
+
                 cages.values.forEach { localCage ->
                     val arenaWorld = game.arenaWorld
                         ?: return@forEach
@@ -213,7 +203,7 @@ class SkyWarsLifecycle(
                         if (!game.state(GameState.Playing))
                         {
                             task.closeAndReportException()
-                            previousTerminable?.closeAndReportException()
+                            eventTerminable?.closeAndReportException()
                             return@runRepeating
                         }
 
@@ -221,25 +211,21 @@ class SkyWarsLifecycle(
                         if (currentEvent == null)
                         {
                             task.closeAndReportException()
-                            previousTerminable?.closeAndReportException()
+                            eventTerminable?.closeAndReportException()
                             return@runRepeating
                         }
 
                         val estimatedExecution = currentEvent.estimatedExecution()
                         if (estimatedExecution <= System.currentTimeMillis())
                         {
-                            previousTerminable?.closeAndReportException()
-                            previousTerminable = null
-
+                            eventTerminable.closeAndReportException()
                             currentEvent.run()
-                            previousTerminable = CompositeTerminable.create()
-                            previousTerminable!!.bindWith(this)
-                            currentEvent.terminable.bindWith(previousTerminable!!)
+
+                            eventTerminable = CompositeTerminable.create()
+                            eventTerminable.bindWith(this)
 
                             events.pop()
                             events.peekFirst()?.start = System.currentTimeMillis()
-
-                            Bukkit.broadcastMessage("Starting ${events.firstOrNull()?.javaClass?.name}")
                         }
                     }, 0L, 20L)
                     .bindWith(this)

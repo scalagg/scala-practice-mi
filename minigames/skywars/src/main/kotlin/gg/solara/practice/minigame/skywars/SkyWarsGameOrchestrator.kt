@@ -16,10 +16,8 @@ import gg.tropic.practice.minigame.broadcastSeconds
 import gg.tropic.practice.minigame.event.MiniGameStartTickEvent
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
-import org.bukkit.block.Chest
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.chest.ChestCloseSoundAction
@@ -124,7 +122,7 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                             .first().value() as ChestRefillHologram
                     )
                     {
-                        closeAndReportException()
+                        close()
                     }
                 }
             }
@@ -140,14 +138,14 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
             .subscribe(PlayerInteractEvent::class.java)
             .filter { it.clickedBlock != null && it.action == Action.RIGHT_CLICK_BLOCK && it.clickedBlock.state.data is org.bukkit.material.Chest }
             .handler {
-                val game = GameService.byPlayer(it.player)
-                    ?: return@handler
-
                 if (it.player.hasMetadata("spectator"))
                 {
                     it.isCancelled = true
                     return@handler
                 }
+
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
 
                 if (game.state(GameState.Waiting) || game.state(GameState.Starting))
                 {
@@ -166,14 +164,13 @@ object SkyWarsGameOrchestrator : BasicMiniGameOrchestrator<SkyWarsGameConfigurat
                     {
                         with(
                             ChestRefillHologram(
-                                miniGameLifecycle,
                                 firstEvent,
                                 it.clickedBlock.location
                                     .add(0.500, 0.0, 0.500)
                             )
                         ) {
                             create()
-                            bindWith(firstEvent.terminable)
+                            miniGameLifecycle.eventTerminable.with(this)
                         }
                     }
                 }
