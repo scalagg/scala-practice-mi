@@ -1,11 +1,19 @@
 package gg.solara.practice.minigame.skywars
 
+import com.cryptomorin.xseries.XMaterial
 import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.lemon.hotbar.HotbarPreset
+import gg.scala.lemon.hotbar.HotbarPresetHandler
+import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.util.SplitUtil
 import gg.solara.practice.minigame.skywars.chests.ChestController
 import gg.solara.practice.minigame.skywars.events.*
+import gg.solara.practice.minigame.skywars.menus.KitSelectionMenu
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.solara.practice.minigame.skywars.shared.cages.*
+import gg.solara.practice.minigame.skywars.shared.kits.ArmorerKit
+import gg.solara.practice.minigame.skywars.shared.kits.SkyWarsKitRegistry
+import gg.solara.practice.minigame.skywars.shared.profile.SkyWarsProfileService
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameService
@@ -17,13 +25,20 @@ import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.MiniGameLifecycle
 import gg.tropic.practice.minigame.MiniGameScoreboard
+import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
+import me.lucko.helper.Helper
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.time.TimeUtil
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerInteractEvent
@@ -58,6 +73,7 @@ class SkyWarsLifecycle(
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
+        val audiences = BukkitAudiences.create(Helper.hostPlugin())
         val world = game.arenaWorld
             ?: return
 
@@ -81,13 +97,65 @@ class SkyWarsLifecycle(
                 }
         )
 
-        println(chestController.chests)
+        val hotbarPreset = HotbarPreset()
+        hotbarPreset.addSlot(0, DynamicHotbarPresetEntry().apply {
+            onBuild = {
+                ItemBuilder.of(XMaterial.BOW)
+                    .name("${CC.GREEN}Select a Kit ${CC.GRAY}(Right Click)")
+                    .build()
+            }
+
+            onClick = context@{
+                KitSelectionMenu.schema.createAndOpen(it)
+            }
+        })
+
+        HotbarPresetHandler.startTrackingHotbar(
+            game.expectation.toString(),
+            hotbarPreset
+        )
+
+        val updateHotBarTerminable = CompositeTerminable.create()
+        updateHotBarTerminable.bindWith(game)
+        updateHotBarTerminable.with {
+            game.toBukkitPlayers().filterNotNull()
+                .forEach {
+                    audiences.player(it)
+                        .sendActionBar(Component.empty())
+                }
+        }
+
+        Schedulers
+            .sync()
+            .runRepeating({ _ ->
+                for (player in game.toBukkitPlayers().filterNotNull())
+                {
+                    val profile = SkyWarsProfileService.find(player)
+                        ?: continue
+
+                    audiences.player(player)
+                        .sendActionBar(Component.text {
+                            it.append(Component
+                                .text("Selected kit: ")
+                                .color(NamedTextColor.YELLOW)
+                            )
+
+                            it.append(Component
+                                .text(profile.selectedKit ?: "None")
+                                .color(NamedTextColor.GREEN)
+                            )
+                        })
+                }
+            }, 0L, 10L)
+            .bindWith(updateHotBarTerminable)
 
         Events
             .subscribe(GameStartEvent::class.java)
             .filter { it.game.expectation == game.expectation }
             .handler {
                 lastEventExecution = System.currentTimeMillis()
+                HotbarPresetHandler.forget(game.expectation.toString())
+                updateHotBarTerminable.closeAndReportException()
 
                 cages.values.forEach { localCage ->
                     val arenaWorld = game.arenaWorld
@@ -97,6 +165,32 @@ class SkyWarsLifecycle(
                     localCage.cage.removeAll(baseBlock)
                 }
                 cages.clear()
+
+                for (player in game.toBukkitPlayers().filterNotNull())
+                {
+                    val profile = SkyWarsProfileService.find(player)
+                        ?: continue
+
+                    player.resetAttributes(true)
+
+                    if (profile.selectedKit == null)
+                    {
+                        ArmorerKit.applyArmor(player)
+                        ArmorerKit.applyInventoryContents(player)
+                        continue
+                    }
+
+                    val kit = SkyWarsKitRegistry.kits[profile.selectedKit]
+                    if (kit == null)
+                    {
+                        ArmorerKit.applyArmor(player)
+                        ArmorerKit.applyInventoryContents(player)
+                        continue
+                    }
+
+                    kit.applyArmor(player)
+                    kit.applyInventoryContents(player)
+                }
 
                 Schedulers
                     .sync()
