@@ -28,8 +28,15 @@ object SkyWarsKitDescriptions
             "${CC.WHITE} - Anvil",
             "${CC.WHITE} - Random Diamond Armor Piece",
             "${CC.WHITE} - 15 EXP levels",
-            "${CC.WHITE} - Enchanted Book: Sharpness I, Knockback I, Protection I, or Projectile Protection I",
-            "${CC.WHITE} - Extra Enchanted Book: Sharpness I, Power I, or Protection I"
+            "${CC.WHITE} - Random Enchanted Book",
+            "${CC.WHITE}   | Sharpness I",
+            "${CC.WHITE}   | Knockback I",
+            "${CC.WHITE}   | Protection I",
+            "${CC.WHITE}   | Projectile Protection I",
+            "${CC.WHITE} - Random Enchanted Book",
+            "${CC.WHITE}   | Sharpness I",
+            "${CC.WHITE}   | Power I",
+            "${CC.WHITE}   | Protection I",
         ),
         "Bowman" to listOf(
             "${CC.GRAY}Precision at a distance with:",
