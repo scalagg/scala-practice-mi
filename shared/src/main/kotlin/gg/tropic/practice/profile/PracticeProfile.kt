@@ -2,6 +2,7 @@ package gg.tropic.practice.profile
 
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.storable.IDataStoreObject
+import gg.tropic.practice.divisions.Divisions
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.profile.loadout.Loadout
 import gg.tropic.practice.profile.ranked.RankedBan
@@ -41,6 +42,10 @@ data class PracticeProfile(
         >
     >()
 
+    var unrankedBotWins: Int = 0
+
+    var botDivision: String = Divisions.NONE.id
+
     fun getCasualStatsFor(kit: Kit) = casualStatistics
         .putIfAbsent(
             kit.id, KitStatistics()
@@ -72,6 +77,16 @@ data class PracticeProfile(
     fun removeRankedBan()
     {
         rankedBan = null
+    }
+
+    fun onUnrankedBotWin() {
+        unrankedBotWins++
+
+        save()
+
+        val div = Divisions.entries.first { it.requiredWins == unrankedBotWins }
+        botDivision = div.name
+        save()
     }
 
     fun save() = DataStoreObjectControllerCache

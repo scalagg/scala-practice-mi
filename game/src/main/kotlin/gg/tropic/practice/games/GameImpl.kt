@@ -387,6 +387,7 @@ open class GameImpl(
                                 if (winner.players.contains(it.uniqueId))
                                 {
                                     it.sendMessage(BotMessages.getBotLose(robot.name()))
+                                    if (robot.level().equals("unranked", ignoreCase = true)) it.uniqueId.acquireProfileImmutable().join()?.onUnrankedBotWin()
                                 } else
                                 {
                                     if (it.uniqueId in allOpponentPlayers)
