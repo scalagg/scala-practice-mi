@@ -168,12 +168,14 @@ object MIPPlayerCache
         Events
             .subscribe(PlayerChatTabCompleteEvent::class.java)
             .handler { event ->
-                playerIDs.toSet().forEach {
-                    if (it !in event.tabCompletions)
-                    {
-                        event.tabCompletions += it
+                playerIDs.toSet()
+                    .filter { it.startsWith(event.lastToken, true) }
+                    .forEach {
+                        if (it !in event.tabCompletions)
+                        {
+                            event.tabCompletions += it
+                        }
                     }
-                }
             }
 
         manager.commandCompletions.registerCompletion("mip-players") { playerIDs }
