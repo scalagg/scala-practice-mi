@@ -1,36 +1,41 @@
 package gg.solara.practice.minigame.skywars
 
-import gg.scala.commons.agnostic.sync.ServerSync
-import gg.scala.lemon.util.SplitUtil
+import com.cryptomorin.xseries.XMaterial
+import gg.scala.lemon.hotbar.HotbarPreset
+import gg.scala.lemon.hotbar.HotbarPresetHandler
+import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.solara.practice.minigame.skywars.chests.ChestController
 import gg.solara.practice.minigame.skywars.events.*
+import gg.solara.practice.minigame.skywars.menus.KitSelectionMenu
 import gg.solara.practice.minigame.skywars.shared.SkyWarsGameConfiguration
 import gg.solara.practice.minigame.skywars.shared.cages.*
-import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
+import gg.solara.practice.minigame.skywars.shared.kits.ArmorerKit
+import gg.solara.practice.minigame.skywars.shared.kits.SkyWarsKitRegistry
+import gg.solara.practice.minigame.skywars.shared.profile.SkyWarsProfileService
 import gg.tropic.practice.games.GameReport
-import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
-import gg.tropic.practice.games.event.PlayerSelectSpawnLocationEvent
+import gg.tropic.practice.games.event.PlayerJoinGameEvent
 import gg.tropic.practice.map.metadata.impl.MapChestMetadata
 import gg.tropic.practice.map.metadata.scanner.impl.MapChestMetadataScanner
 import gg.tropic.practice.minigame.AbstractMiniGameGameImpl
 import gg.tropic.practice.minigame.MiniGameLifecycle
 import gg.tropic.practice.minigame.MiniGameScoreboard
+import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
+import me.lucko.helper.Helper
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.time.TimeUtil
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.material.Chest
-import org.bukkit.util.Vector
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -49,8 +54,7 @@ class SkyWarsLifecycle(
         this += GameEndGameEvent(this@SkyWarsLifecycle)
     }
 
-    var lastEventExecution: Long = 0L
-    var previousTerminable: CompositeTerminable? = CompositeTerminable.create()
+    var eventTerminable: CompositeTerminable = CompositeTerminable.create()
 
     val cages = mutableMapOf<UUID, LocalCage>()
     val chestController = ChestController(this)
@@ -58,6 +62,7 @@ class SkyWarsLifecycle(
     override val scoreboard: MiniGameScoreboard = SkyWarsScoreboard(game)
     override fun configure()
     {
+        val audiences = BukkitAudiences.create(Helper.hostPlugin())
         val world = game.arenaWorld
             ?: return
 
@@ -81,13 +86,76 @@ class SkyWarsLifecycle(
                 }
         )
 
-        println(chestController.chests)
+        val hotbarPreset = HotbarPreset()
+        hotbarPreset.addSlot(0, DynamicHotbarPresetEntry().apply {
+            onBuild = {
+                ItemBuilder.of(XMaterial.BOW)
+                    .name("${CC.GREEN}Select a Kit ${CC.GRAY}(Right Click)")
+                    .build()
+            }
+
+            onClick = context@{
+                KitSelectionMenu.schema.createAndOpen(it)
+            }
+        })
+
+        HotbarPresetHandler.startTrackingHotbar(
+            game.expectation.toString(),
+            hotbarPreset
+        )
+
+        val updateHotBarTerminable = CompositeTerminable.create()
+        updateHotBarTerminable.bindWith(game)
+        updateHotBarTerminable.with {
+            game.toBukkitPlayers().filterNotNull()
+                .forEach {
+                    audiences.player(it)
+                        .sendActionBar(Component.empty())
+                }
+        }
+
+        Events
+            .subscribe(PlayerJoinGameEvent::class.java)
+            .filter { it.game.expectation == game.expectation }
+            .filter { it.game.miniGameLifecycle is SkyWarsLifecycle }
+            .filter { it.game.state(GameState.Waiting) || it.game.state(GameState.Starting) }
+            .handler {
+                hotbarPreset.applyToPlayer(it.player)
+            }
+            .bindWith(updateHotBarTerminable)
+
+        Schedulers
+            .sync()
+            .runRepeating({ _ ->
+                for (player in game.toBukkitPlayers().filterNotNull())
+                {
+                    val profile = SkyWarsProfileService.find(player)
+                        ?: continue
+
+                    audiences.player(player)
+                        .sendActionBar(Component.text {
+                            it.append(Component
+                                .text("Selected kit: ")
+                                .color(NamedTextColor.YELLOW)
+                            )
+
+                            it.append(Component
+                                .text(profile.selectedKit ?: "None")
+                                .color(NamedTextColor.GREEN)
+                            )
+                        })
+                }
+            }, 0L, 10L)
+            .bindWith(updateHotBarTerminable)
 
         Events
             .subscribe(GameStartEvent::class.java)
             .filter { it.game.expectation == game.expectation }
             .handler {
-                lastEventExecution = System.currentTimeMillis()
+                HotbarPresetHandler.forget(game.expectation.toString())
+                updateHotBarTerminable.closeAndReportException()
+
+                chestController.refillAll()
 
                 cages.values.forEach { localCage ->
                     val arenaWorld = game.arenaWorld
@@ -98,13 +166,44 @@ class SkyWarsLifecycle(
                 }
                 cages.clear()
 
+                for (player in game.toBukkitPlayers().filterNotNull())
+                {
+                    val profile = SkyWarsProfileService.find(player)
+                        ?: continue
+
+                    player.resetAttributes(true)
+
+                    if (profile.selectedKit == null)
+                    {
+                        ArmorerKit.applyArmor(player)
+                        ArmorerKit.applyInventoryContents(player)
+                        player.updateInventory()
+                        continue
+                    }
+
+                    val kit = SkyWarsKitRegistry.kits[profile.selectedKit]
+                    if (kit == null)
+                    {
+                        ArmorerKit.applyArmor(player)
+                        ArmorerKit.applyInventoryContents(player)
+                        player.updateInventory()
+                        continue
+                    }
+
+                    kit.applyArmor(player)
+                    kit.applyInventoryContents(player)
+                    player.updateInventory()
+                }
+
+                events.first().start = System.currentTimeMillis()
+
                 Schedulers
                     .sync()
                     .runRepeating({ task ->
                         if (!game.state(GameState.Playing))
                         {
                             task.closeAndReportException()
-                            previousTerminable?.closeAndReportException()
+                            eventTerminable?.closeAndReportException()
                             return@runRepeating
                         }
 
@@ -112,26 +211,21 @@ class SkyWarsLifecycle(
                         if (currentEvent == null)
                         {
                             task.closeAndReportException()
-                            previousTerminable?.closeAndReportException()
+                            eventTerminable?.closeAndReportException()
                             return@runRepeating
                         }
 
-                        val estimatedExecution = currentEvent.durationPostGameStart
-                            .plusMillis(lastEventExecution)
-                            .toMillis()
-
+                        val estimatedExecution = currentEvent.estimatedExecution()
                         if (estimatedExecution <= System.currentTimeMillis())
                         {
-                            previousTerminable?.closeAndReportException()
-                            previousTerminable = null
-
+                            eventTerminable.closeAndReportException()
                             currentEvent.run()
-                            currentEvent.bindWith(this)
 
-                            previousTerminable = currentEvent
+                            eventTerminable = CompositeTerminable.create()
+                            eventTerminable.bindWith(this)
 
                             events.pop()
-                            lastEventExecution = System.currentTimeMillis()
+                            events.peekFirst()?.start = System.currentTimeMillis()
                         }
                     }, 0L, 20L)
                     .bindWith(this)

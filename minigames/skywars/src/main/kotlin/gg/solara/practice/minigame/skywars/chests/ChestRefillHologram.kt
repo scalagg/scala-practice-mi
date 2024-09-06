@@ -1,9 +1,7 @@
 package gg.solara.practice.minigame.skywars.chests
 
-import gg.solara.practice.minigame.skywars.SkyWarsLifecycle
 import gg.solara.practice.minigame.skywars.events.GameEvent
 import me.lucko.helper.Helper
-import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.entity.EntityHandler
 import net.evilblock.cubed.entity.hologram.updating.UpdatingHologramEntity
 import net.evilblock.cubed.util.CC
@@ -12,12 +10,11 @@ import org.bukkit.block.Chest
 import org.bukkit.metadata.FixedMetadataValue
 
 class ChestRefillHologram(
-    private val lifecycle: SkyWarsLifecycle,
     private val associatedEvent: GameEvent,
     location: Location
 ) : UpdatingHologramEntity(
     "", location
-), CompositeTerminable by CompositeTerminable.create()
+), AutoCloseable
 {
     override fun close()
     {
@@ -41,15 +38,13 @@ class ChestRefillHologram(
     override fun getNewLines(): List<String>
     {
         val chest = location.block.state as Chest
-
-        if (chest.inventory.contents.all { it == null })
+        return listOf("${CC.GREEN}${associatedEvent.formattedEstimatedExecution()}") + if (chest.inventory.contents.all { it == null })
         {
-            return listOf("${CC.RED}Empty!", "", "${CC.GREEN}${associatedEvent.formattedEstimatedExecution()}")
+            listOf("", "${CC.RED}Empty!")
+        } else
+        {
+            emptyList()
         }
-
-        return listOf(
-            "${CC.GREEN}${associatedEvent.formattedEstimatedExecution()}"
-        )
     }
 
     override fun getTickInterval() = 500L

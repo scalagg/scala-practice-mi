@@ -17,6 +17,7 @@ abstract class RobotInstance
     abstract fun solaraID(): UUID
 
     abstract fun name(): String
+    abstract fun level(): String
     abstract fun ping(): Int
 
     abstract fun alive(): Boolean

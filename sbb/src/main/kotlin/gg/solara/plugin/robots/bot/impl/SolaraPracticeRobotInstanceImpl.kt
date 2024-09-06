@@ -1,5 +1,6 @@
 package gg.solara.plugin.robots.bot.impl
 
+import gg.solara.plugin.robots.bot.profile.UnrankedBotsService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.robot.RobotInstance
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor
@@ -16,7 +17,7 @@ import org.bukkit.entity.Player
  */
 class SolaraPracticeRobotInstanceImpl(
     private val gameImpl: GameImpl,
-    settingProfileOriginal: SettingProfile,
+    var settingProfileOriginal: SettingProfile,
     instanceID: Int
 ) : RobotInstance()
 {
@@ -52,6 +53,11 @@ class SolaraPracticeRobotInstanceImpl(
             }
         }
         ?.let(Color::translate) ?: ""
+
+    override fun level(): String
+    {
+        return if (UnrankedBotsService.bots.containsKey(settingProfileOriginal.id)) "unranked" else "normal"
+    }
 
     override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
     override fun initialSpawn()

@@ -20,4 +20,5 @@ include(
     "services:games:game-manager",
     "minigames:skywars",
     "minigames:skywars-shared",
+    "spigot-integration"
 )

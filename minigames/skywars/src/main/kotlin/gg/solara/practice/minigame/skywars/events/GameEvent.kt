@@ -14,8 +14,10 @@ abstract class GameEvent(
     val lifecycle: SkyWarsLifecycle,
     private val name: String,
     val durationPostGameStart: Duration
-): Runnable, CompositeTerminable by CompositeTerminable.create()
+): Runnable
 {
+    var start: Long = 0L
+
     fun describe() = "$name ${
         if (isNow()) "NOW!" else TimeUtil.formatIntoMMSS((millisUntilExecution() / 1000L).toInt())
     }"
@@ -24,6 +26,6 @@ abstract class GameEvent(
     fun isNow() = estimatedExecution() - System.currentTimeMillis() < 0
     fun millisUntilExecution() = max(0, estimatedExecution() - System.currentTimeMillis())
     fun estimatedExecution() = durationPostGameStart
-        .plusMillis(lifecycle.lastEventExecution)
+        .plusMillis(start)
         .toMillis()
 }

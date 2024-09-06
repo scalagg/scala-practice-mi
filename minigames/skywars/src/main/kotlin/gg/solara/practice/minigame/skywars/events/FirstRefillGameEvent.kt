@@ -13,6 +13,7 @@ class FirstRefillGameEvent(lifecycle: SkyWarsLifecycle) : GameEvent(
 {
     override fun run()
     {
-        // TODO
+        lifecycle.chestController.refillAll()
+        runEffects(lifecycle.game.arenaWorld!!)
     }
 }

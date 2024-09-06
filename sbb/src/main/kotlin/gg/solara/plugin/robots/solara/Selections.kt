@@ -1,6 +1,7 @@
 package gg.solara.plugin.robots.solara
 
 import gg.solara.plugin.robots.bot.profile.RobotProfileService
+import gg.solara.plugin.robots.bot.profile.UnrankedBotsService
 import gg.solara.plugin.robots.bot.setting.BotSettingService
 import gg.solara.plugin.robots.bot.setting.setting.persistence.SettingProfile
 import java.util.UUID
@@ -13,6 +14,9 @@ fun loadSettingsFromSelectionSync(player: UUID, selection: String, profileChoice
 {
     if (runCatching { UUID.fromString(selection) }.getOrNull() != null)
     {
+        if (selection.equals("UNRANKED", ignoreCase = true)) {
+            return UnrankedBotsService.bots[profileChoice]!!.settingProfile
+        }
         val profile = RobotProfileService.find(player)
             ?: RobotProfileService.loadCopyOf(player).join()
             ?: return BotSettingService.loadDefaultProfile("EASY")

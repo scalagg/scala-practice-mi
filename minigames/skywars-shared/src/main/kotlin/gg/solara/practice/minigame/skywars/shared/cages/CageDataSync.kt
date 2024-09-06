@@ -14,7 +14,7 @@ import net.kyori.adventure.key.Key
  * @since 8/24/2024
  */
 @Service
-object CageDataSync : DataSyncService<gg.solara.practice.minigame.skywars.shared.cages.CageContainer>()
+object CageDataSync : DataSyncService<CageContainer>()
 {
     object CageKeys : DataSyncKeys
     {
@@ -26,6 +26,6 @@ object CageDataSync : DataSyncService<gg.solara.practice.minigame.skywars.shared
 
     override fun locatedIn() = DataSyncSource.Mongo
 
-    override fun keys() = gg.solara.practice.minigame.skywars.shared.cages.CageDataSync.CageKeys
-    override fun type() = gg.solara.practice.minigame.skywars.shared.cages.CageContainer::class.java
+    override fun keys() = CageKeys
+    override fun type() = CageContainer::class.java
 }
