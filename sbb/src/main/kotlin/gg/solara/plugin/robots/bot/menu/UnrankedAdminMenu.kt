@@ -1,7 +1,12 @@
 package gg.solara.plugin.robots.bot.menu
 
+import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.scala.store.storage.type.DataStoreStorageType
 import gg.solara.plugin.robots.bot.menu.profiles.PlayerProfileBackbone
 import gg.solara.plugin.robots.bot.menu.profiles.ProfileCategoryMenu
+import gg.solara.plugin.robots.bot.menu.profiles.RobotProfileBackbone
+import gg.solara.plugin.robots.bot.profile.RobotProfile
+import gg.solara.plugin.robots.bot.profile.RobotSettingProfile
 import gg.solara.plugin.robots.bot.profile.UnrankedBotsService
 import gg.solara.plugin.robots.bot.setting.setting.persistence.SettingProfile
 import gg.solara.plugin.robots.bot.setting.setting.root
@@ -11,6 +16,7 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import java.util.*
 
 /**
  * @author TastyCake
@@ -28,8 +34,10 @@ class UnrankedAdminMenu : PaginatedMenu()
                         "${CC.GRAY}Click to create new profile!"
                     )
                     .toButton { player, _ ->
-                        UnrankedBotsService.bots.add(SettingProfile("default${buttons.size + 1}"))
-                        UnrankedBotsService.save()
+                        val id = "default${buttons.size + 1}"
+                        val settings = SettingProfile(id)
+                        UnrankedBotsService.bots[id] = RobotSettingProfile(UUID.randomUUID(), settings)
+                        UnrankedBotsService.save(id, settings)
                         Button.playSuccess(player!!)
                         openMenu(player)
                     }
@@ -38,25 +46,27 @@ class UnrankedAdminMenu : PaginatedMenu()
     override fun getAllPagesButtons(player: Player) =
         mutableMapOf<Int, Button>()
             .apply {
-                UnrankedBotsService.bots.forEach {
+                UnrankedBotsService.bots.values.forEach {
                     this[buttons.size] = ItemBuilder
                         .of(Material.PAPER)
-                        .name(it.id)
+                        .name(it.settingProfile.id)
                         .addToLore(
                             "${CC.GREEN}Click to edit",
                             "${CC.RED}Right Click to remove"
                         )
                         .toButton { player, clickType ->
                             if (clickType!!.isRightClick) {
-                                UnrankedBotsService.bots.removeIf { i -> it.id == i.id }
+                                UnrankedBotsService.bots.remove(it.settingProfile.id)
                                 Button.playSuccess(player!!)
                                 openMenu(player)
-                                UnrankedBotsService.save()
+                                DataStoreObjectControllerCache
+                                    .findNotNull<RobotSettingProfile>()
+                                    .delete(it.identifier, DataStoreStorageType.MONGO)
                                 return@toButton
                             }
 
                             Button.playNeutral(player!!)
-                            ProfileCategoryMenu(UnrankedBotsService.bots.first { i -> it.id == i.id }, PlayerProfileBackbone(player), root).openMenu(player)
+                            ProfileCategoryMenu(it.settingProfile, RobotProfileBackbone(it.settingProfile.id), root).openMenu(player)
                             return@toButton
                         }
                 }

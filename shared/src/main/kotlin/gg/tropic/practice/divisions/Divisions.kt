@@ -141,20 +141,6 @@ enum class Divisions(
     PARANORMAL("Paranormal", Color.translate("&7&l&k|&8&l&k|&7&l&k|&r &0&lParanormal &7&l&k|&8&l&k|&7&l&k|&r "), 5000000),
     LUNATIC("Lunatic", Color.translate("&0&l&k|&r &0&l&o&nLunatic&r &0&l&k|&r "), 10000000);
 
-    fun getName(): String
-    {
-        return name
-    }
-
-    fun getTitle(): String
-    {
-        return title
-    }
-
-    fun getRequiredWins(): Int
-    {
-        return requiredWins
-    }
 
     fun getID(): String
     {
