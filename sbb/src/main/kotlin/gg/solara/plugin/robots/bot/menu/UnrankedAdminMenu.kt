@@ -24,10 +24,24 @@ import java.util.*
  */
 class UnrankedAdminMenu : PaginatedMenu()
 {
+    companion object
+    {
+        val slots = mutableListOf(
+            10, 11, 12, 13, 14, 15, 16,
+            19, 20, 21, 22, 23, 24, 25,
+            19 + 9, 20 + 9, 21 + 9, 22 + 9, 23 + 9, 24 + 9, 25 + 9,
+        )
+    }
+
+    init
+    {
+        placeholdBorders = true
+    }
+
     override fun getGlobalButtons(player: Player) =
         mutableMapOf<Int, Button>()
             .apply {
-                this[5] = ItemBuilder
+                this[4] = ItemBuilder
                     .of(Material.EMERALD)
                     .name("${CC.GREEN}Create new profile")
                     .addToLore(
@@ -46,8 +60,9 @@ class UnrankedAdminMenu : PaginatedMenu()
     override fun getAllPagesButtons(player: Player) =
         mutableMapOf<Int, Button>()
             .apply {
+                var i = 0
                 UnrankedBotsService.bots.values.forEach {
-                    this[buttons.size] = ItemBuilder
+                    this[i++] = ItemBuilder
                         .of(Material.PAPER)
                         .name(it.settingProfile.id)
                         .addToLore(
@@ -58,7 +73,7 @@ class UnrankedAdminMenu : PaginatedMenu()
                             if (clickType!!.isRightClick) {
                                 UnrankedBotsService.bots.remove(it.settingProfile.id)
                                 Button.playSuccess(player!!)
-                                openMenu(player)
+                                UnrankedAdminMenu().openMenu(player)
                                 DataStoreObjectControllerCache
                                     .findNotNull<RobotSettingProfile>()
                                     .delete(it.identifier, DataStoreStorageType.MONGO)
@@ -72,8 +87,10 @@ class UnrankedAdminMenu : PaginatedMenu()
                 }
             }
 
+    override fun getAllPagesButtonSlots(): List<Int> = slots
+
     override fun getPrePaginatedTitle(player: Player) = "Unranked Admin"
 
     override fun size(buttons: Map<Int, Button>) = 45
-    override fun getMaxItemsPerPage(player: Player) = 36
+    override fun getMaxItemsPerPage(player: Player) = 25
 }

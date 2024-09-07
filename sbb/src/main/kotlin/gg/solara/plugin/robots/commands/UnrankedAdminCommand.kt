@@ -1,7 +1,10 @@
 package gg.solara.plugin.robots.commands
 
 import gg.scala.commons.acf.annotation.CommandAlias
+import gg.scala.commons.acf.annotation.CommandPermission
+import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.acf.annotation.Single
+import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
@@ -24,36 +27,20 @@ import kotlin.random.Random
  * @date 8/29/2024
  */
 @AutoRegister
+@CommandAlias("unrankedadmin|ura")
+@CommandPermission("practice.bot.unrankedadmin")
 object UnrankedAdminCommand : ScalaCommand()
 {
-    @CommandAlias("unrankedadmin|ura")
-    fun onUnrankedAdmin(player: ScalaPlayer, @Single arg: String) {
-        if (player.bukkit().isOp) {
-            if (arg.equals("fight", ignoreCase = true)) {
-                val kit = KitService.cached().kits["sumo"]!!
-                player.bukkit().closeInventory()
-                CompletableFuture.runAsync {
-                    val instances = mutableSetOf<UUID>()
-                    repeat(1) {
-                        instances += Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[it]
-                    }
+    var available = true
 
-                    BotGameMetadata("UNRANKED", UnrankedBotsService.bots.values.random().settingProfile.id, kit.id, null, botInstances = instances)
-                        .storeForUser(player.uniqueId)
-                }.thenAccept {
-                    QueueService.joinQueue(kit, QueueType.Robot, 1, player.bukkit())
-                    Button.playNeutral(player.bukkit())
+    @Default
+    fun onUnrankedAdmin(player: ScalaPlayer) {
+        UnrankedAdminMenu().openMenu(player.bukkit())
+    }
 
-                    player.sendMessage(
-                        "${CC.GREEN}Preparing your ${CC.PRI}${QueueType.Robot.name} ${kit.displayName}${CC.GREEN} match..."
-                    )
-                }.exceptionally {
-                    it.printStackTrace()
-                    player.sendMessage("${CC.RED}We weren't able to create a bot fight for you. Please report this to an administrator!")
-                    return@exceptionally null
-                }
-            }
-            else UnrankedAdminMenu().openMenu(player.bukkit())
-        }
+    @Subcommand("toggle")
+    fun onUnrankedBotToggle(player: ScalaPlayer) {
+        available = !available
+        player.sendMessage("${CC.GREEN}Toggled to: $available")
     }
 }

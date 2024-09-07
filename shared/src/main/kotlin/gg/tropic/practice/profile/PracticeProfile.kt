@@ -81,10 +81,9 @@ data class PracticeProfile(
     fun onUnrankedBotWin() {
         unrankedBotWins++
 
-        save()
+        val div = Divisions.entries.firstOrNull { it.requiredWins == unrankedBotWins }
+        botDivision = div?.name
 
-        val div = Divisions.entries.first { it.requiredWins == unrankedBotWins }
-        botDivision = div.name
         save()
     }
 

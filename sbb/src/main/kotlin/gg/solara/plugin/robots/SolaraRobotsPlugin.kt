@@ -8,6 +8,7 @@ import gg.tropic.practice.menu.party.PartyPlayBotsIntegration
 import gg.tropic.practice.player.hotbar.LobbyHotbarService.buildNewBotFightMenu
 import gg.solara.plugin.robots.bot.menu.BotFightMenu
 import gg.solara.plugin.robots.bot.menu.PartyBotFightPrepareMenu
+import gg.solara.plugin.robots.bot.menu.SelectBotFightMenu
 import gg.solara.plugin.robots.bot.menu.profiles.GenericDescribeProfilesMenu
 import gg.solara.plugin.robots.bot.setting.BotSettingService
 import gg.solara.plugin.robots.bot.setting.setting.RootAccessor.attackSettings
@@ -19,6 +20,7 @@ import gg.solara.plugin.robots.solara.SolaraPracticeSupport
 import gg.solara.plugin.robots.utils.DataManager
 import gg.solara.plugin.robots.utils.GameServer
 import gg.solara.plugin.robots.utils.PacketListener
+import gg.tropic.practice.player.hotbar.LobbyHotbarService.buildBotSelectorMenu
 import net.evilblock.cubed.serializers.Serializers.create
 import net.evilblock.cubed.serializers.impl.AbstractTypeSerializable
 import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
@@ -97,6 +99,10 @@ class SolaraRobotsPlugin : ExtendedScalaPlugin()
 
             buildNewBotFightMenu = {
                 BotFightMenu(it)
+            }
+
+            buildBotSelectorMenu = {
+                SelectBotFightMenu()
             }
         }
     }
