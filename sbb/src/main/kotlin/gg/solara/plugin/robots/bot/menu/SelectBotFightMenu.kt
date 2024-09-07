@@ -22,12 +22,14 @@ class SelectBotFightMenu : Menu("Select a bot fight...")
 
     override fun getButtons(player: Player): Map<Int, Button> =
     mutableMapOf<Int, Button>().apply {
-        this[13] = ItemBuilder
-            .of(Material.GOLD_BLOCK)
+        this[12] = ItemBuilder
+            .of(Material.GOLD_SWORD)
             .name("${CC.GOLD}Practice")
             .addToLore("${CC.GRAY}") // TODO: Add desc
             .toButton { player, _ ->
-                if (player!!.hasMetadata("frozen"))
+                Button.playNeutral(player!!)
+
+                if (player.hasMetadata("frozen"))
                 {
                     player.sendMessage("${CC.RED}You cannot join queues while frozen!")
                     return@toButton
@@ -41,12 +43,14 @@ class SelectBotFightMenu : Menu("Select a bot fight...")
                 menu.openMenu(player)
             }
 
-        this[15] = ItemBuilder
-            .of(Material.GOLD_BLOCK)
+        this[14] = ItemBuilder
+            .of(Material.IRON_SWORD)
             .name("${CC.GOLD}Unranked")
             .addToLore("${CC.GRAY}") // TODO: Add desc
             .toButton { player, _ ->
-                if (player!!.hasMetadata("frozen"))
+                Button.playNeutral(player!!)
+
+                if (player.hasMetadata("frozen"))
                 {
                     player.sendMessage("${CC.RED}You cannot join queues while frozen!")
                     return@toButton
