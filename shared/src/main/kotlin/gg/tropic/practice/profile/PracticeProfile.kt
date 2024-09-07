@@ -9,7 +9,9 @@ import gg.tropic.practice.profile.ranked.RankedBan
 import gg.tropic.practice.statistics.GlobalStatistics
 import gg.tropic.practice.statistics.KitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.Duration
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -82,7 +84,10 @@ data class PracticeProfile(
         unrankedBotWins++
 
         val div = Divisions.entries.firstOrNull { it.requiredWins == unrankedBotWins }
-        botDivision = div?.name
+        if (div != null) {
+            Bukkit.getPlayer(identifier).sendMessage("${CC.GREEN}You were granted a new division! ${div.title}")
+            botDivision = div.name
+        }
 
         save()
     }
