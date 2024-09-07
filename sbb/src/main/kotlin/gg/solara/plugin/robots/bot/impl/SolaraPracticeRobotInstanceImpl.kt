@@ -1,5 +1,8 @@
 package gg.solara.plugin.robots.bot.impl
 
+import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.scala.store.storage.type.DataStoreStorageType
+import gg.solara.plugin.robots.bot.profile.RobotSettingProfile
 import gg.solara.plugin.robots.bot.profile.UnrankedBotsService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.robot.RobotInstance
@@ -7,9 +10,12 @@ import gg.solara.plugin.robots.bot.setting.setting.RootAccessor
 import gg.solara.plugin.robots.bot.setting.setting.persistence.SettingProfile
 import gg.solara.plugin.robots.bots.Bot
 import gg.solara.plugin.robots.solara.SolaraPracticeIntegrator
+import me.lucko.helper.Schedulers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import org.bukkit.entity.Player
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * @author GrowlyX
@@ -24,6 +30,8 @@ class SolaraPracticeRobotInstanceImpl(
     var spawnedBot: Bot? = null
     private val settingProfile = settingProfileOriginal.deepCopy()
 
+    private var level = "normal"
+
     init
     {
         if (instanceID > 1)
@@ -34,6 +42,22 @@ class SolaraPracticeRobotInstanceImpl(
         terminable.with {
             spawnedBot?.destroy()
         }
+
+        Schedulers
+            .async()
+            .run {
+                DataStoreObjectControllerCache
+                    .findNotNull<RobotSettingProfile>()
+                    .loadAll(DataStoreStorageType.MONGO)
+                    .thenAccept {
+                        if (it.values.any { profile ->
+                            profile.settingProfile.id == settingProfileOriginal.id
+                        }) {
+                            level = "unranked"
+                        }
+                    }
+            }
+
     }
 
     override fun uniqueID() = spawnedBot?.uniqueId ?: throw IllegalStateException("Robot has not spawned in yet")
@@ -56,7 +80,7 @@ class SolaraPracticeRobotInstanceImpl(
 
     override fun level(): String
     {
-        return if (UnrankedBotsService.bots.containsKey(settingProfileOriginal.id)) "unranked" else "normal"
+        return level
     }
 
     override fun ping() = spawnedBot?.profile?.value(RootAccessor.connectionSettings.ping) ?: 100
