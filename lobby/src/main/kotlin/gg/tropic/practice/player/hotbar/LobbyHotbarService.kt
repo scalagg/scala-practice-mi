@@ -56,6 +56,7 @@ object LobbyHotbarService
     lateinit var audiences: BukkitAudiences
 
     var buildNewBotFightMenu: (Player) -> Menu? = { null }
+    var buildBotSelectorMenu: (Player) -> Menu? = { null }
     private val hotbarCache = mutableMapOf<PlayerState, HotbarPreset>()
 
     @Configure
@@ -258,7 +259,7 @@ object LobbyHotbarService
                         return@context
                     }
 
-                    val menu = buildNewBotFightMenu(player)
+                    val menu = buildBotSelectorMenu(player)
                         ?: return@context run {
                             player.sendMessage("${CC.RED}This feature is coming soon!")
                         }

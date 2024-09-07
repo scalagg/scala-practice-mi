@@ -13,7 +13,7 @@ enum class Divisions(
 )
 {
     NONE("None", Color.translate(""), 0),
-    BRONZE_I("Bronze I", Color.translate("&cBronze I "), 25),
+    BRONZE_I("Bronze I", Color.translate("&cBronze I "), 5),
     BRONZE_II("Bronze II", Color.translate("&cBronze II "), 50),
     BRONZE_III("Bronze III", Color.translate("&cBronze III "), 75),
     BRONZE_IV("Bronze IV", Color.translate("&cBronze IV "), 100),

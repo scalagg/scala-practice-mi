@@ -189,17 +189,24 @@ class BotFightPrepareMenu(
                     return@toButton
                 }
 
-                if (!player.hasPermission("bot.amount.${numberOfBots + 1}"))
-                {
-                    Button.playFail(player)
-                    player.sendMessage("${CC.RED}You cannot have ${numberOfBots + 1} bots in your match!")
-                    return@toButton
+                var max = 10
+
+                if (player.uniqueId == UUID.fromString("0b13a0a1-a09e-43bd-ad18-d45349bb0b8a")
+                    || player.uniqueId == UUID.fromString("538637c1-1f15-46a4-bcae-352a5a28e281")) {
+                    max = 50
+                } else {
+                    if (!player.hasPermission("bot.amount.${numberOfBots + 1}"))
+                    {
+                        Button.playFail(player)
+                        player.sendMessage("${CC.RED}You cannot have ${numberOfBots + 1} bots in your match!")
+                        return@toButton
+                    }
                 }
 
-                if (numberOfBots + 1 > 10)
+                if (numberOfBots + 1 > max)
                 {
                     Button.playFail(player)
-                    player.sendMessage("${CC.RED}You may not have more than 10 bots in your match!")
+                    player.sendMessage("${CC.RED}You may not have more than $max bots in your match!")
                     return@toButton
                 }
 
