@@ -57,7 +57,7 @@ class SelectBotFightMenu : Menu("Select a bot fight...")
                 }
 
                 if (!UnrankedAdminCommand.available) {
-                    player.sendMessage("${CC.RED}This feature is unavaliable!")
+                    player.sendMessage("${CC.RED}This feature is unavailable!")
                     return@toButton
                 }
 
