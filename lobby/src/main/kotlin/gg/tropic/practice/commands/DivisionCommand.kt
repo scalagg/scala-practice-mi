@@ -1,8 +1,8 @@
 package gg.tropic.practice.commands
 
 import gg.scala.commons.acf.annotation.CommandAlias
-import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.annotations.commands.AutoRegister
+import gg.scala.commons.annotations.commands.HighPriority
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.divisions.DivisionMenu
@@ -12,10 +12,10 @@ import gg.tropic.practice.divisions.DivisionMenu
  * @date 9/7/2024
  */
 @AutoRegister
-@CommandAlias("division|div|title|divisions|titles")
+@HighPriority
 object DivisionCommand : ScalaCommand()
 {
-    @Default
+    @CommandAlias("division|div|title|divisions|titles")
     fun onDivisions(player: ScalaPlayer) {
         DivisionMenu().openMenu(player.bukkit())
     }
