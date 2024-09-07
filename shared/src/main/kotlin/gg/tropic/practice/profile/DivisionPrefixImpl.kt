@@ -4,6 +4,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.channel.channels.DefaultChatChannel
 import gg.tropic.practice.divisions.Divisions
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 
 /**
@@ -16,8 +17,14 @@ object DivisionPrefixImpl
     @Configure
     fun configure() {
         DefaultChatChannel.provideAdditionalPrefix { player ->
+            val profile = PracticeProfileService.find(player)
+                ?: return@provideAdditionalPrefix Component.empty()
+            val botDivision = kotlin.runCatching { profile.botDivision?.let { Divisions.valueOf(it) } }
+                .getOrNull()
+                ?: return@provideAdditionalPrefix Component.empty()
+
             LegacyComponentSerializer.legacySection()
-                .deserialize(Divisions.valueOf(PracticeProfileService.find(player)!!.botDivision).title)
+                .deserialize(botDivision.title)
         }
     }
 }

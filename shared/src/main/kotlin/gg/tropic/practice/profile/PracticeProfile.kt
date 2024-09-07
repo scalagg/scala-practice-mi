@@ -43,8 +43,7 @@ data class PracticeProfile(
     >()
 
     var unrankedBotWins: Int = 0
-
-    var botDivision: String = Divisions.NONE.id
+    var botDivision: String? = Divisions.NONE.id
 
     fun getCasualStatsFor(kit: Kit) = casualStatistics
         .putIfAbsent(
