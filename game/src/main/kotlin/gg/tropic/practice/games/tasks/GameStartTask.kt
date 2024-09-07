@@ -80,7 +80,7 @@ class GameStartTask(
                     {
                         this.game.robotInstance
                             .joinToString("${CC.PRI}, ") { robot ->
-                                robot.name()
+                                robot.name() + "   ${robot.level()}"
                             }
                     } else
                     {

@@ -57,15 +57,22 @@ class DivisionMenu : PaginatedMenu()
             var i = 0
 
             for (division in Divisions.entries) {
-                val baseName = division.name.split(" ")[0]
-                val baseTitle = division.title.split(" ")[0]
-                if (uniqueTitles.add(baseName)) {
+                if (division == Divisions.NONE) continue
+                val baseName = division.id.split(" ")[0]
+                val split = division.title.split(" ")
+                var baseTitle = division.title.removeSuffix(split[split.size - 1])
+                if (split.size == 1) {
+                    baseTitle = division.title
+                }
+                if (!uniqueTitles.contains(baseName)) {
+                    uniqueTitles.add(baseName)
                     var material = Material.BOOK
 
-                    val hasMultipleLevels = Divisions.entries.any { it.name.startsWith(baseName) && it != division }
+                    val hasMultipleLevels = Divisions.entries.any { it.id.startsWith(baseName) && it != division }
 
                     if (!hasMultipleLevels) {
                         material = Material.PAPER
+                        baseTitle = division.title
                     }
 
                     this[i++] = ItemBuilder
@@ -73,6 +80,7 @@ class DivisionMenu : PaginatedMenu()
                         .name(baseTitle)
                         .setLore(mutableListOf<String>().apply {
                             if (hasMultipleLevels) add("${CC.GREEN}Click to view levels")
+                            else add("${CC.GRAY}Required wins: ${CC.GREEN}${division.requiredWins}")
                         })
                         .toButton { player, _ ->
                             Button.playNeutral(player!!)

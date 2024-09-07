@@ -18,10 +18,8 @@ import java.util.concurrent.TimeUnit
 fun loadSettingsFromSelectionSync(player: UUID, selection: String, profileChoice: String?): SettingProfile
 {
     if (selection.equals("unranked", ignoreCase = true)) {
-        val b = UnrankedBotsService.bots[profileChoice]
-        if (b != null) {
-            return b.settingProfile
-        }
+        val b = UnrankedBotsService.bots.values.random().settingProfile
+        return b
     }
 
     if (runCatching { UUID.fromString(selection) }.getOrNull() != null)

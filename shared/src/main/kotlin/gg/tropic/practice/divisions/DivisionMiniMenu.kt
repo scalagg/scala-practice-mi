@@ -33,7 +33,7 @@ class DivisionMiniMenu(
                         .of(Material.PAPER)
                         .name(div.title)
                         .addToLore(
-                            "${CC.GRAY}Required wins: ${div.requiredWins}"
+                            "${CC.GRAY}Required wins: ${CC.GREEN}${div.requiredWins}"
                         )
                         .toButton()
                 }

@@ -37,7 +37,7 @@ class UnrankedBotFightMenu(
                     instances += Globals.POSSIBLE_PLAYER_BOT_UNIQUE_IDS[it]
                 }
 
-                BotGameMetadata("UNRANKED", UnrankedBotsService.bots.values.random().settingProfile.id, kit.id, null, botInstances = instances)
+                BotGameMetadata("UNRANKED", "", kit.id, null, botInstances = instances)
                     .storeForUser(player.uniqueId)
             }.thenAccept {
                 QueueService.joinQueue(kit, QueueType.Robot, 1, player)
