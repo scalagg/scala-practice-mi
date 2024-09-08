@@ -27,7 +27,7 @@ class UnrankedBotFightMenu(
         BotKitMenu(player) { kit ->
             if (kit == null) {
                 player.closeInventory()
-                player.sendMessage("${CC.RED}You must select a kit!")
+                // player.sendMessage("${CC.RED}You must select a kit!")
                 return@BotKitMenu
             }
             player.closeInventory()

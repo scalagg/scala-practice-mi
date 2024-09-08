@@ -27,7 +27,7 @@ object PracticeProfileService : ProfileOrchestrator<PracticeProfile>()
                 val profile = find(uniqueId)
                     ?: return@delayed
 
-                val unrankedBotWins = profile.unrankedBotWins?: 0
+                val unrankedBotWins = profile.globalStatistics.totalUnrankedBotWins?: 0
                 var highestDiv = Divisions.NONE
 
                 Divisions.entries.forEach {

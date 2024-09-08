@@ -45,7 +45,7 @@ class DivisionMenu : PaginatedMenu()
                     "${CC.GRAY}you can unlock divisions by winning",
                     "${CC.GRAY}against unranked bots!",
                     "",
-                    "${CC.YELLOW}Your wins: ${PracticeProfileService.find(player)?.unrankedBotWins}"
+                    "${CC.GRAY}Your wins: ${CC.YELLOW}${PracticeProfileService.find(player)?.globalStatistics!!.totalUnrankedBotWins}"
                 )
                 .toButton()
         }

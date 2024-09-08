@@ -16,6 +16,8 @@ class GlobalStatistics
         private set
     var totalDeaths = 0
         private set
+    var totalUnrankedBotWins = 0
+        private set
 
     fun sharedGamePlays() = ApplyUpdatesStateless(listOf { totalPlays++ })
 
@@ -61,5 +63,11 @@ class GlobalStatistics
             totalKills++
         }),
         sharedGamePlays()
+    )
+
+    fun unrankedBotWin() = ApplyUpdatesStateless(
+        listOf {
+            totalUnrankedBotWins++
+        }
     )
 }

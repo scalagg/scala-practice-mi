@@ -248,8 +248,37 @@ open class GameImpl(
             }
 
             val allOpponentPlayers = opponents.flatMap(GameTeam::players)
-            if (!robot())
-            {
+            if (robot()) {
+                val kitStatisticsUpdates = if (winner.players.size < 1) {
+                    allOpponentPlayers.map {
+                        it.networkTransaction {
+                            useKitStatistics(this@GameImpl) {
+                                plays += 1
+                                deaths += 1
+
+                                streakUpdates().apply(false)
+                            }
+                        }
+                    }
+                }
+                else {
+                    winner.players.map {
+                        it.networkTransaction {
+                            useKitStatistics(this@GameImpl) {
+                                wins += 1
+                                plays += 1
+                                kills += 1
+
+                                streakUpdates().apply(true)
+                            }
+
+                            globalStatistics.unrankedBotWin().apply()
+                        }
+                    }
+                }
+
+                val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
+            } else {
                 val kitStatisticsUpdates = allOpponentPlayers.map {
                     it.networkTransaction {
                         useKitStatistics(this@GameImpl) {

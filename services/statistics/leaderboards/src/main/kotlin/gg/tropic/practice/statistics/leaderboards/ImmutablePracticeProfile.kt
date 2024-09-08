@@ -3,6 +3,7 @@ package gg.tropic.practice.statistics.leaderboards
 import gg.scala.store.storage.storable.IDataStoreObject
 import gg.tropic.practice.statistics.GlobalStatistics
 import gg.tropic.practice.statistics.KitStatistics
+import gg.tropic.practice.statistics.UnrankedBotKitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import java.util.*
 
@@ -18,4 +19,5 @@ data class ImmutablePracticeProfile(
 
     val casualStatistics: Map<String, KitStatistics> = mapOf()
     val rankedStatistics: Map<String, RankedKitStatistics> = mapOf()
+    val unrankedBotStatistics: Map<String, UnrankedBotKitStatistics> = mapOf()
 }

@@ -25,7 +25,11 @@ class SelectBotFightMenu : Menu("Select a bot fight...")
         this[12] = ItemBuilder
             .of(Material.GOLD_SWORD)
             .name("${CC.GOLD}Practice")
-            .addToLore("${CC.GRAY}") // TODO: Add desc
+            .addToLore(
+                "${CC.GRAY}Click to queue against",
+                "${CC.GRAY}a bot of your choice to practice",
+                "${CC.GRAY}your pvp!"
+            )
             .toButton { player, _ ->
                 Button.playNeutral(player!!)
 
@@ -45,8 +49,12 @@ class SelectBotFightMenu : Menu("Select a bot fight...")
 
         this[14] = ItemBuilder
             .of(Material.IRON_SWORD)
-            .name("${CC.GOLD}Unranked")
-            .addToLore("${CC.GRAY}") // TODO: Add desc
+            .name("${CC.YELLOW}Unranked")
+            .addToLore(
+                "${CC.GRAY}Click to queue against",
+                "${CC.GRAY}random premade bots and unlock",
+                "${CC.GRAY}divisions!"
+            )
             .toButton { player, _ ->
                 Button.playNeutral(player!!)
 

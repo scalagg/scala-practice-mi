@@ -1,10 +1,12 @@
 package gg.tropic.practice.menu
 
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.divisions.Divisions
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile
+import gg.tropic.practice.queue.QueueType
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -24,21 +26,32 @@ class StatisticsMenu(
 ) : TemplateKitMenu(player)
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit) =
-        state == StatisticMenuState.Casual || kit.features(FeatureFlag.Ranked)
+        state == StatisticMenuState.Casual || kit.features(FeatureFlag.Ranked) || (state == StatisticMenuState.UnrankedBot && kit.queueSizes.any { it.second.contains(
+            QueueType.Robot) })
     override fun shouldIncludeKitDescription() = false
 
-    override fun itemTitleFor(player: Player, kit: Kit) = if (state == StatisticMenuState.Casual)
+    override fun itemTitleFor(player: Player, kit: Kit) = when (state)
     {
-        "${CC.B_GREEN}${kit.displayName}"
-    } else
-    {
-        "${CC.B_AQUA}${kit.displayName}"
+        StatisticMenuState.Casual ->
+        {
+            "${CC.B_GREEN}${kit.displayName}"
+        }
+        StatisticMenuState.UnrankedBot ->
+        {
+            "${CC.B_YELLOW}${kit.displayName}"
+        }
+        else ->
+        {
+            "${CC.B_AQUA}${kit.displayName}"
+        }
     }
 
     override fun itemDescriptionOf(player: Player, kit: Kit) =
         with(this) {
             val casualStats = profile.getCasualStatsFor(kit)
             val rankedStats = profile.getRankedStatsFor(kit)
+            val unrankedBotStats = profile.getUnrankedBotStatsFor(kit)
+
             val unrankedLore = listOf(
                 "${CC.WHITE}Wins: ${CC.GREEN}${casualStats.wins}",
                 "${CC.WHITE}Losses: ${CC.GREEN}${casualStats.plays - casualStats.wins}",
@@ -72,10 +85,25 @@ class StatisticsMenu(
                 "${CC.WHITE}Peak: ${CC.AQUA}${rankedStats.longestStreak}"
             )
 
+            val unrankedBotLore = listOf(
+                "${CC.WHITE}Wins: ${CC.YELLOW}${unrankedBotStats.wins}",
+                "${CC.WHITE}Losses: ${CC.YELLOW}${unrankedBotStats.plays - unrankedBotStats.wins}",
+                "${CC.WHITE}Played: ${CC.YELLOW}${unrankedBotStats.plays}",
+                "",
+                "${CC.WHITE}Kills: ${CC.YELLOW}${unrankedBotStats.kills}",
+                "${CC.WHITE}Deaths: ${CC.YELLOW}${unrankedBotStats.deaths}",
+                "",
+                "${CC.YELLOW}Streaks:",
+                "${CC.WHITE}Daily: ${CC.YELLOW}${unrankedBotStats.dailyStreak()}",
+                "${CC.WHITE}Current: ${CC.YELLOW}${unrankedBotStats.streak}",
+                "${CC.WHITE}Peak: ${CC.YELLOW}${unrankedBotStats.longestStreak}"
+            )
+
             when (state)
             {
                 StatisticMenuState.Casual -> unrankedLore
                 StatisticMenuState.Ranked -> rankedLore
+                StatisticMenuState.UnrankedBot -> unrankedBotLore
             }
         }
 
@@ -103,6 +131,34 @@ class StatisticsMenu(
                 )
             )
             .toButton()
+
+        buttons[38] = ItemBuilder
+            .of(
+                if (state == StatisticMenuState.UnrankedBot)
+                    Material.WOOL else Material.CARPET
+            )
+            .apply {
+                if (state == StatisticMenuState.UnrankedBot)
+                    glow()
+            }
+            .name("${CC.B_YELLOW}Unranked Bot Statistics")
+            .data(4)
+            .addToLore(
+                " ",
+                "${CC.GREEN}Click to view!"
+            )
+            .toButton { _, _ ->
+                if (state == StatisticMenuState.UnrankedBot)
+                    return@toButton
+
+                Button.playNeutral(player)
+
+                StatisticsMenu(
+                    player,
+                    profile,
+                    StatisticMenuState.UnrankedBot
+                ).openMenu(player)
+            }
 
         buttons[39] = ItemBuilder
             .of(
@@ -168,6 +224,6 @@ class StatisticsMenu(
 
     enum class StatisticMenuState
     {
-        Ranked, Casual
+        Ranked, Casual, UnrankedBot
     }
 }

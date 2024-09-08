@@ -8,6 +8,7 @@ import gg.tropic.practice.profile.loadout.Loadout
 import gg.tropic.practice.profile.ranked.RankedBan
 import gg.tropic.practice.statistics.GlobalStatistics
 import gg.tropic.practice.statistics.KitStatistics
+import gg.tropic.practice.statistics.UnrankedBotKitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.Duration
@@ -37,6 +38,11 @@ data class PracticeProfile(
         RankedKitStatistics
     >()
 
+    var botStatistics = ConcurrentHashMap<
+        String,
+        UnrankedBotKitStatistics
+    >()
+
     val customLoadouts = mutableMapOf<
         String,
         MutableList<
@@ -44,7 +50,6 @@ data class PracticeProfile(
         >
     >()
 
-    var unrankedBotWins: Int = 0
     var botDivision: String? = Divisions.NONE.id
 
     fun getCasualStatsFor(kit: Kit) = casualStatistics
@@ -58,6 +63,19 @@ data class PracticeProfile(
             kit.id, RankedKitStatistics()
         )
         ?: rankedStatistics[kit.id]!!
+
+    fun getUnrankedBotStatsFor(kit: Kit) : UnrankedBotKitStatistics
+    {
+        return botStatistics?.putIfAbsent(
+            kit.id, UnrankedBotKitStatistics(),
+        )
+        ?: botStatistics?.get(kit.id) ?: run {
+            botStatistics = ConcurrentHashMap()
+            botStatistics.putIfAbsent(kit.id, UnrankedBotKitStatistics())
+            save()
+            botStatistics[kit.id]!!
+        }
+    }
 
     fun getLoadoutsFromKit(kit: Kit) = customLoadouts[kit.id] ?: mutableListOf()
 
@@ -81,9 +99,7 @@ data class PracticeProfile(
     }
 
     fun onUnrankedBotWin() {
-        unrankedBotWins++
-
-        val div = Divisions.entries.firstOrNull { it.requiredWins == unrankedBotWins }
+        val div = Divisions.entries.firstOrNull { it.requiredWins == globalStatistics.totalUnrankedBotWins }
         if (div != null) {
             Bukkit.getPlayer(identifier).sendMessage("${CC.GREEN}You were granted a new division! ${div.title}")
             botDivision = div.name

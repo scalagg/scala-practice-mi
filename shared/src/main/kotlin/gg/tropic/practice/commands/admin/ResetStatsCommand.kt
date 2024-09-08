@@ -12,6 +12,7 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.statistics.GlobalStatistics
 import gg.tropic.practice.statistics.KitStatistics
+import gg.tropic.practice.statistics.UnrankedBotKitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import net.evilblock.cubed.util.CC
 import org.bukkit.command.CommandSender
@@ -48,6 +49,14 @@ object ResetStatsCommand : ScalaCommand()
                 if (kit == null || kit.id == kitID)
                 {
                     profile.rankedStatistics[kitID] = RankedKitStatistics()
+                }
+            }
+        }),
+        UnrankedBotStats({ profile, kit ->
+            profile.botStatistics.toMap().forEach { (kitID, _) ->
+                if (kit == null || kit.id == kitID)
+                {
+                    profile.botStatistics[kitID] = UnrankedBotKitStatistics()
                 }
             }
         }),

@@ -36,7 +36,7 @@ fun PracticeProfile.useKitStatistics(
             getRankedStatsFor(game.kit)
         )
         null -> {}
-        QueueType.Robot -> getCasualStatsFor(game.kit)
+        QueueType.Robot -> getUnrankedBotStatsFor(game.kit)
     }
 }
 

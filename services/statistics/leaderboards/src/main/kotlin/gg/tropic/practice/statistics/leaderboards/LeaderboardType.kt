@@ -2,6 +2,7 @@ package gg.tropic.practice.statistics.leaderboards
 
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.statistics.KitStatistics
+import gg.tropic.practice.statistics.UnrankedBotKitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 
 /**
@@ -83,5 +84,33 @@ enum class LeaderboardType(
             if (result == -1L) null else result
         },
         enforceRanked = true
+    ),
+    UnrankedBotWins(
+        fromKit = {
+            unrankedBotStatistics[it.id]?.wins?.toLong()
+        },
+        fromGlobal = {
+            unrankedBotStatistics.values
+                .sumOf(KitStatistics::wins)
+                .toLong()
+        }
+    ),
+    UnrankedBotStreak(
+        fromKit = context@{
+            val volatile = unrankedBotStatistics[it.id]?.dailyStreak
+                ?: return@context null
+
+            volatile().toLong()
+        },
+        fromGlobal = {
+            val result = unrankedBotStatistics.maxOfOrNull {
+                val volatile = unrankedBotStatistics[it.key]?.dailyStreak
+                    ?: return@maxOfOrNull -1L
+
+                volatile().toLong()
+            }
+
+            if (result == -1L) null else result
+        }
     )
 }

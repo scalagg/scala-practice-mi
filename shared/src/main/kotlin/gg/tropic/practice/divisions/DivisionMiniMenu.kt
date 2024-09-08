@@ -44,7 +44,7 @@ class DivisionMiniMenu(
     {
         if (manualClose) {
             Tasks
-                .delayed(5) {
+                .delayed(2) {
                     DivisionMenu().openMenu(player)
                 }
         }
