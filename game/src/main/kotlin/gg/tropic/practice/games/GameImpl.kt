@@ -33,6 +33,7 @@ import gg.tropic.practice.map.MapService
 import gg.tropic.practice.minigame.MiniGameLifecycle
 import gg.tropic.practice.minigame.MiniGameOrchestrator
 import gg.tropic.practice.minigame.MiniGameRegistry
+import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.Region
@@ -262,8 +263,8 @@ open class GameImpl(
                     }
                 }
                 else {
-                    winner.players.map {
-                        it.networkTransaction {
+                    winner.players.map { player ->
+                        player.networkTransaction {
                             useKitStatistics(this@GameImpl) {
                                 wins += 1
                                 plays += 1
@@ -273,6 +274,7 @@ open class GameImpl(
                             }
 
                             globalStatistics.unrankedBotWin().apply()
+                            PracticeProfileService.find(player)?.save()
                         }
                     }
                 }
