@@ -193,7 +193,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                     if (FreeBotFridays.isFreeBotFriday())
                     {
                         addToLore(
-                            "${CC.B_GOLD}${CC.MAGIC}AAA${CC.B_GOLD} IT'S FREE BOT FRIDAY! ${CC.B_GOLD}${CC.MAGIC}AAA",
+                            "${CC.B_GOLD}${CC.MAGIC}AAA${CC.B_GOLD} IT'S FREE BOT WEEKEND! ${CC.B_GOLD}${CC.MAGIC}AAA",
                             "${CC.GOLD}All players have access to use",
                             "${CC.GOLD}custom bots!",
                             "",
@@ -202,10 +202,10 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                     } else
                     {
                         addToLore(
-                            "${CC.B_WHITE}Free Bot Friday:",
+                            "${CC.B_WHITE}Free Bot Weekend:",
                             "${CC.WHITE}Come back later for ${CC.GREEN}free${CC.WHITE}",
                             "${CC.WHITE}access to custom bots every",
-                            "${CC.WHITE}friday from ${CC.GOLD}3:30PM${CC.WHITE} to ${CC.GOLD}7:30PM${CC.WHITE} EST!",
+                            "${CC.WHITE}Friday from ${CC.GOLD}3:30PM${CC.WHITE} to Saturday ${CC.GOLD}10:00PM${CC.WHITE} EST!",
                             "",
                             "${CC.B_WHITE}Next event: ${CC.WHITE}${FreeBotFridays.fancyStatus()}"
                         )
