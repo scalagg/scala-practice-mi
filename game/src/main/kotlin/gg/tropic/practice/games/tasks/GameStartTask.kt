@@ -49,7 +49,7 @@ class GameStartTask(
 
                     if (profile != null)
                     {
-                        SPABindings.setPlayerKnockback(player, profile)
+//                        SPABindings.setPlayerKnockback(player, profile)
                     }
                 }
 
