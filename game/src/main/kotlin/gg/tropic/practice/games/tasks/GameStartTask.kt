@@ -1,17 +1,18 @@
 package gg.tropic.practice.games.tasks
 
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.ScalaSpigotKnockbackHandler
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.resetPlayerForFight
-import gg.tropic.practice.games.team.TeamIdentifier
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.spa.SPABindings
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.Reflection
 import net.evilblock.cubed.util.bukkit.Constants
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -29,6 +30,17 @@ class GameStartTask(
 ) : Runnable
 {
     lateinit var task: Task
+
+    private val scalaSpigotEnabled = Reflection
+        .getClassSuppressed(
+            "gg.scala.spigot.ScalaSpigotService"
+        ) != null
+
+
+    private val tropicSpigotEnabled = Reflection
+        .getClassSuppressed(
+            "dev.reximian9k.spigot.knockback.DefaultKnockbackProfileReference"
+        ) != null
 
     override fun run()
     {
@@ -49,7 +61,12 @@ class GameStartTask(
 
                     if (profile != null)
                     {
-//                        SPABindings.setPlayerKnockback(player, profile)
+                        if (tropicSpigotEnabled) {
+                            SPABindings.setPlayerKnockback(player, profile)
+                        }
+                        if (scalaSpigotEnabled) {
+                            ScalaSpigotKnockbackHandler.handleKnockback(player, profile)
+                        }
                     }
                 }
 

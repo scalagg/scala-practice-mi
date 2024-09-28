@@ -2,6 +2,7 @@ package gg.tropic.practice.games.tasks
 
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
+import gg.tropic.practice.ScalaSpigotKnockbackHandler
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.elo.ELOUpdates
@@ -15,6 +16,7 @@ import me.lucko.helper.Events
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.Reflection
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.math.Numbers
@@ -47,6 +49,11 @@ class GameStopTask(
 {
     lateinit var task: Task
     var currentCountdown = 5
+
+    private val scalaSpigotEnabled = Reflection
+        .getClassSuppressed(
+            "gg.scala.spigot.ScalaSpigotService"
+        ) != null
 
     override fun run()
     {
@@ -285,6 +292,12 @@ class GameStopTask(
             game.toBukkitPlayers()
                 .filterNotNull()
                 .forEach { player ->
+
+                    if (scalaSpigotEnabled)
+                    {
+                        ScalaSpigotKnockbackHandler.reset(player)
+                    }
+
                     MapRatingService.sendMapRatingRequest(player, game.map)
                         .thenRun {
                             val feedback = playerFeedback[player.uniqueId]
