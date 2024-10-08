@@ -14,7 +14,6 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.protocol.Protocol
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.ScalaCommonsSpigot
-import net.evilblock.cubed.scoreboard.ScoreboardTeamPacketMod
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Bukkit
@@ -105,17 +104,6 @@ object RedisTabSync
                         forEach {
                             remoteTrackedPlayers[it.uuid] = it
 //                            println("Updating existing player: ${it.uuid} -> ${it.latency} | ${it.displayName} | ${it.teamName}")
-
-                            localReceivingPlayers.forEach context@{ other ->
-                                val bukkitPlayer = Bukkit.getPlayer(other)
-                                    ?: return@context
-
-                                ScoreboardTeamPacketMod(
-                                    it.teamName,
-                                    arrayListOf(it.username),
-                                    3
-                                ).send(bukkitPlayer)
-                            }
                         }
 
                         TabSyncPacketCreator.update(this)
@@ -176,14 +164,6 @@ object RedisTabSync
         for (wrapperPlayServerPlayerInfo in create)
         {
             Protocol.sendPacket(player, wrapperPlayServerPlayerInfo.handle)
-        }
-
-        remote.forEach {
-            ScoreboardTeamPacketMod(
-                it.teamName,
-                arrayListOf(it.username),
-                3
-            ).send(player)
         }
     }
 
