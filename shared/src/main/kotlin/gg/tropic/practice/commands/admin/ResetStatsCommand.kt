@@ -36,11 +36,11 @@ object ResetStatsCommand : ScalaCommand()
                 }
             }
         }),
-        CasualStats({ profile, kit ->
-            profile.casualStatistics.toMap().forEach { (kitID, _) ->
+        UnrankedStats({ profile, kit ->
+            profile.unrankedStatistics.toMap().forEach { (kitID, _) ->
                 if (kit == null || kit.id == kitID)
                 {
-                    profile.casualStatistics[kitID] = KitStatistics()
+                    profile.unrankedStatistics[kitID] = KitStatistics()
                 }
             }
         }),
@@ -66,7 +66,7 @@ object ResetStatsCommand : ScalaCommand()
         AllStats({ profile, kit ->
             RankedStats.resetFor(profile, kit)
             GlobalStats.resetFor(profile, kit)
-            CasualStats.resetFor(profile, kit)
+            UnrankedStats.resetFor(profile, kit)
         })
     }
 

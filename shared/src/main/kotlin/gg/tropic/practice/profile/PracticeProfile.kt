@@ -28,7 +28,7 @@ data class PracticeProfile(
     private var rankedBan: RankedBan? = null
 
     var globalStatistics = GlobalStatistics()
-    val casualStatistics = ConcurrentHashMap<
+    val unrankedStatistics = ConcurrentHashMap<
         String,
         KitStatistics
     >()
@@ -52,11 +52,11 @@ data class PracticeProfile(
 
     var botDivision: String? = Divisions.NONE.id
 
-    fun getCasualStatsFor(kit: Kit) = casualStatistics
+    fun getUnrankedStatsFor(kit: Kit) = unrankedStatistics
         .putIfAbsent(
             kit.id, KitStatistics()
         )
-        ?: casualStatistics[kit.id]!!
+        ?: unrankedStatistics[kit.id]!!
 
     fun getRankedStatsFor(kit: Kit) = rankedStatistics
         .putIfAbsent(

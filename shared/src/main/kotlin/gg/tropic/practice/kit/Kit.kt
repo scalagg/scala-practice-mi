@@ -73,7 +73,7 @@ data class Kit(
                         split[0].toInt() to (split.getOrNull(1)
                             ?.split("+")
                             ?.map(QueueType::valueOf)
-                            ?: listOf(QueueType.Casual))
+                            ?: listOf(QueueType.Unranked))
                     }
             }
 

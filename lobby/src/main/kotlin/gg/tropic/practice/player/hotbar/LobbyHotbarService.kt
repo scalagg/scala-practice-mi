@@ -230,7 +230,7 @@ object LobbyHotbarService
             0,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.IRON_SWORD)
-                    .name("${CC.GREEN}Play Casual ${CC.GRAY}(Right Click)")
+                    .name("${CC.GREEN}Play Unranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
@@ -240,34 +240,37 @@ object LobbyHotbarService
                         return@context
                     }
 
-                    JoinQueueMenu(player, QueueType.Casual, 1).openMenu(player)
+                    JoinQueueMenu(player, QueueType.Unranked, 1).openMenu(player)
                 }
             }
         )
 
-        idlePreset.addSlot(
-            2,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.GOLD_SWORD)
-                    .name("${CC.GOLD}Play Bot Fights ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
-            ).also {
-                it.onClick = context@{ player ->
-                    if (player.hasMetadata("frozen"))
-                    {
-                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
-                        return@context
-                    }
-
-                    val menu = buildBotSelectorMenu(player)
-                        ?: return@context run {
-                            player.sendMessage("${CC.RED}This feature is coming soon!")
+        if (Bukkit.getPluginManager().isPluginEnabled("Practice-SmartBots"))
+        {
+            idlePreset.addSlot(
+                2,
+                StaticHotbarPresetEntry(
+                    ItemBuilder(Material.GOLD_SWORD)
+                        .name("${CC.GOLD}Play Bot Fights ${CC.GRAY}(Right Click)")
+                        .setUnbreakable(true)
+                ).also {
+                    it.onClick = context@{ player ->
+                        if (player.hasMetadata("frozen"))
+                        {
+                            player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                            return@context
                         }
 
-                    menu.openMenu(player)
+                        val menu = buildBotSelectorMenu(player)
+                            ?: return@context run {
+                                player.sendMessage("${CC.RED}This feature is coming soon!")
+                            }
+
+                        menu.openMenu(player)
+                    }
                 }
-            }
-        )
+            )
+        }
 
         idlePreset.addSlot(
             1,
@@ -322,7 +325,7 @@ object LobbyHotbarService
         idlePreset.addSlot(
             4,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.NETHER_STAR)
+                ItemBuilder(Material.NAME_TAG)
                     .name("${CC.PINK}Create a Party ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = scope@{ player ->
@@ -352,7 +355,7 @@ object LobbyHotbarService
         idlePreset.addSlot(
             6,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.ITEM_FRAME)
+                ItemBuilder(Material.EMERALD)
                     .name("${CC.YELLOW}View Leaderboards ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
@@ -362,7 +365,7 @@ object LobbyHotbarService
             }
         )
 
-        idlePreset.addSlot(6, kitEditor)
+        idlePreset.addSlot(7, kitEditor)
         idlePreset.addSlot(8, settings)
 
         HotbarPresetHandler.startTrackingHotbar("idle", idlePreset)

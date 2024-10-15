@@ -33,15 +33,15 @@ enum class FeatureFlag(
         )
     ),
     QueueSizes(
-        // another example: 3:Ranked,2:Casual,10:Ranked+Casual
-        schema = mutableMapOf("sizes" to "1:Casual+Ranked"),
+        // another example: 3:Ranked,2:Unranked,10:Ranked+Unranked
+        schema = mutableMapOf("sizes" to "1:Unranked+Ranked"),
         description = listOf(
             "Define which queue types this kit",
             "is eligible for.",
             "",
             "Examples:",
-            "3:Ranked,2:Casual,10:Ranked+Casual",
-            "1:Casual+Ranked"
+            "3:Ranked,2:Unranked,10:Ranked+Unranked",
+            "1:Unranked+Ranked"
         )
     ),
     HeartsBelowNameTag(

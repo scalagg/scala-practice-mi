@@ -2,7 +2,6 @@ package gg.tropic.practice.statistics.leaderboards
 
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.statistics.KitStatistics
-import gg.tropic.practice.statistics.UnrankedBotKitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 
 /**
@@ -28,12 +27,12 @@ enum class LeaderboardType(
         },
         enforceRanked = true
     ),
-    CasualWins(
+    UnrankedWins(
         fromKit = {
-            casualStatistics[it.id]?.wins?.toLong()
+            unrankedStatistics[it.id]?.wins?.toLong()
         },
         fromGlobal = {
-            casualStatistics.values
+            unrankedStatistics.values
                 .sumOf(KitStatistics::wins)
                 .toLong()
         }
@@ -48,16 +47,16 @@ enum class LeaderboardType(
                 .toLong()
         }
     ),
-    CasualWinStreak(
+    UnrankedWinStreak(
         fromKit = context@{
-            val volatile = casualStatistics[it.id]?.dailyStreak
+            val volatile = unrankedStatistics[it.id]?.dailyStreak
                 ?: return@context null
 
             volatile().toLong()
         },
         fromGlobal = {
-            val result = casualStatistics.maxOfOrNull {
-                val volatile = casualStatistics[it.key]?.dailyStreak
+            val result = unrankedStatistics.maxOfOrNull {
+                val volatile = unrankedStatistics[it.key]?.dailyStreak
                     ?: return@maxOfOrNull -1L
 
                 volatile().toLong()

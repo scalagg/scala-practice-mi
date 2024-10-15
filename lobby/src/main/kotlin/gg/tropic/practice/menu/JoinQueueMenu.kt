@@ -1,19 +1,15 @@
 package gg.tropic.practice.menu
 
-import gg.scala.basics.plugin.profile.BasicsProfileService
-import gg.scala.staff.ScalaStaffConfig
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
-import gg.tropic.practice.menu.TemplateKitMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
-import gg.tropic.practice.queue.queueId
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
@@ -70,7 +66,7 @@ class JoinQueueMenu(
             "",
             *local3ScoreDescriptionOf(
                 player,
-                Reference(if (queueType == QueueType.Ranked) ReferenceLeaderboardType.ELO else ReferenceLeaderboardType.CasualWinStreak, kit.id),
+                Reference(if (queueType == QueueType.Ranked) ReferenceLeaderboardType.ELO else ReferenceLeaderboardType.UnrankedWinStreak, kit.id),
                 if (queueType == QueueType.Ranked) "ELO" else "Daily Streak"
             ).toTypedArray(),
             "",

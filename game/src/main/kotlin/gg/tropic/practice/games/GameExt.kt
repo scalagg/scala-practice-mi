@@ -29,8 +29,8 @@ fun PracticeProfile.useKitStatistics(
 {
     when (game.expectationModel.queueType)
     {
-        QueueType.Casual -> block(
-            getCasualStatsFor(game.kit)
+        QueueType.Unranked -> block(
+            getUnrankedStatsFor(game.kit)
         )
         QueueType.Ranked -> block(
             getRankedStatsFor(game.kit)

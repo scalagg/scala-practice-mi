@@ -12,9 +12,9 @@ enum class ReferenceLeaderboardType(
 )
 {
     ELO("Ranked ELO", true),
-    CasualWins("Casual Wins"),
+    UnrankedWins("Unranked Wins"),
     RankedWins("Ranked Wins", true),
-    CasualWinStreak("Casual Daily Win Streak"),
+    UnrankedWinStreak("Unranked Daily Win Streak"),
     RankedWinStreak("Ranked Daily Win Streak", true),
     UnrankedBotWins("Unranked Bot Wins"),
     UnrankedBotStreak("Unranked Bot Streak");

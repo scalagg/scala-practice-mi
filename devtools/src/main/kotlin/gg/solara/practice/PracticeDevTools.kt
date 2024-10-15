@@ -18,7 +18,7 @@ import kotlin.properties.Delegates
  * @since 9/22/2023
  */
 @Plugin(
-    name = "TropicPractice-DevTools",
+    name = "Practice-DevTools",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthor("Tropic")

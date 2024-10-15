@@ -5,7 +5,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.2")
+    compileOnly(kotlin("stdlib"))
+    compileOnly(fileTree("lib"))
+//    compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.2")
 
     api(project(":shared"))
     api(project(":services:statistics"))

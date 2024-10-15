@@ -8,16 +8,16 @@ import gg.scala.commons.core.plugin.*
  * @since 8/24/2024
  */
 @Plugin(
-    name = "SolaraPractice-MiniGame-SkyWars",
+    name = "Practice-MiniGame-SkyWars",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthorComposite(
     PluginAuthor("GrowlyX")
 )
-@PluginWebsite("https://solara.gg")
+@PluginWebsite("https://potpvp.com")
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
-    PluginDependency("SolaraPractice")
+    PluginDependency("Practice")
 )
 class MiniGameSkyWars : ExtendedScalaPlugin()

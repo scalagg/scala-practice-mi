@@ -27,7 +27,7 @@ import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
 import org.bukkit.Bukkit
 
 @Plugin(
-    name = "SolaraPractice-SmartBots",
+    name = "Practice-SmartBots",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthorComposite(
@@ -35,11 +35,11 @@ import org.bukkit.Bukkit
     PluginAuthor("GrowlyX"),
     PluginAuthor("TastyCake")
 )
-@PluginWebsite("https://solara.gg")
+@PluginWebsite("https://potpvp.com")
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
-    PluginDependency("SolaraPractice")
+    PluginDependency("Practice")
 )
 class SolaraRobotsPlugin : ExtendedScalaPlugin()
 {

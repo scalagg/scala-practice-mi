@@ -16,13 +16,13 @@ if (currentBranch != "master") {
 }
 
 allprojects {
-    group = "gg.solara.practice"
+    group = "com.potpvp.practice"
     version = "1.0.0${
         if (currentBranch != "master") "-dev" else ""
     }"
 
     repositories {
-        configureScalaRepository()
+        configurePotPvPRepository()
         mavenCentral()
         maven {
             url = uri("https://repo.dmulloy2.net/repository/public/")
@@ -39,19 +39,19 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        kapt("gg.scala.commons:bukkit:3.5.5")
-        compileOnly("gg.scala.commons:bukkit:3.5.5")
+        kapt("gg.scala.commons:bukkit:4.0.0")
+        compileOnly("gg.scala.commons:bukkit:4.0.0")
 
         compileOnly("gg.scala.cgs:parties:1.4.3")
-        compileOnly("gg.scala.store:spigot:0.1.8")
+        compileOnly("gg.scala.store:spigot:1.0.0")
         compileOnly("gg.scala.staff:scala-scstaff-plugin:1.0.9")
-        compileOnly("gg.scala.friends:scala-friends:2.1.0")
+        compileOnly("gg.scala.friends:scala-friends:2.0.1")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 
-        compileOnly("gg.scala.spigot:server:1.1.3")
+        compileOnly("gg.scala.spigot:server:1.1.4")
 
         compileOnly("gg.scala.lemon:bukkit:1.8.1")
-        compileOnly("gg.scala.cloudsync:spigot:1.0.1")
+        compileOnly("gg.scala.cloudsync:spigot:1.0.4")
     }
 
     kapt {
@@ -77,7 +77,7 @@ subprojects {
             )
 
             archiveFileName.set(
-                "SolaraPractice-${project.name}.jar"
+                "Practice-${project.name}.jar"
             )
         }
 
@@ -95,13 +95,13 @@ subprojects {
         getByName("build") {
             dependsOn(
                 "shadowJar",
-                "publishMavenJavaPublicationToScalaRepository"
+                "publishMavenJavaPublicationToPotPvPRepository"
             )
         }
     }
 
     publishing {
-        repositories.configureScalaRepository(dev = currentBranch != "master")
+        repositories.configurePotPvPRepository(dev = currentBranch != "master")
 
         publications {
             register(
@@ -113,10 +113,10 @@ subprojects {
     }
 }
 
-fun RepositoryHandler.configureScalaRepository(dev: Boolean = false)
+fun RepositoryHandler.configurePotPvPRepository(dev: Boolean = false)
 {
     maven("${property("artifactory_contextUrl")}/gradle-${if (dev) "dev" else "release"}") {
-        name = "scala"
+        name = "PotPvP"
         credentials {
             username = property("artifactory_user").toString()
             password = property("artifactory_password").toString()

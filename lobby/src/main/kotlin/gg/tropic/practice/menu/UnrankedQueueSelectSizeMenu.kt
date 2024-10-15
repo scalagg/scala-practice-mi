@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 10/15/2023
  */
-class CasualQueueSelectSizeMenu : Menu("Casual Queue")
+class UnrankedQueueSelectSizeMenu : Menu("Unranked Queue")
 {
     init
     {
@@ -26,7 +26,7 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
             .of(XMaterial.ORANGE_DYE)
             .name("${CC.B_GOLD}Solos")
             .addToLore(
-                "${CC.WHITE}Queue for a casual",
+                "${CC.WHITE}Queue for a unranked",
                 "${CC.WHITE}solos game with no",
                 "${CC.WHITE}loss penalty.",
                 "",
@@ -36,13 +36,13 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                JoinQueueMenu(player, QueueType.Casual, 1).openMenu(player)
+                JoinQueueMenu(player, QueueType.Unranked, 1).openMenu(player)
             },
         14 to ItemBuilder
             .of(XMaterial.LIGHT_BLUE_DYE)
             .name("${CC.B_AQUA}Duos")
             .addToLore(
-                "${CC.WHITE}Queue for a casual",
+                "${CC.WHITE}Queue for a unranked",
                 "${CC.WHITE}duos game with no",
                 "${CC.WHITE}loss penalty.",
                 "",
@@ -52,7 +52,7 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
-                JoinQueueMenu(player, QueueType.Casual, 2).openMenu(player)
+                JoinQueueMenu(player, QueueType.Unranked, 2).openMenu(player)
             }
     )
 }

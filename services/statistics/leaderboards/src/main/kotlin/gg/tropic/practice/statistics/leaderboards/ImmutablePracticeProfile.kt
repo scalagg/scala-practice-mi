@@ -17,7 +17,7 @@ data class ImmutablePracticeProfile(
 {
     val globalStatistics: GlobalStatistics = GlobalStatistics()
 
-    val casualStatistics: Map<String, KitStatistics> = mapOf()
+    val unrankedStatistics: Map<String, KitStatistics> = mapOf()
     val rankedStatistics: Map<String, RankedKitStatistics> = mapOf()
     val unrankedBotStatistics: Map<String, UnrankedBotKitStatistics> = mapOf()
 }
