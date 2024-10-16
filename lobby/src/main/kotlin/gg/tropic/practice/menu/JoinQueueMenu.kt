@@ -87,7 +87,7 @@ class JoinQueueMenu(
 
         buttons[i] = ItemBuilder
             .of(Material.EMERALD)
-            .name("${CC.AQUA}All Kits")
+            .name("${CC.YELLOW}All Kits")
             .addToLore("${CC.GRAY}View all of our kits!")
             .addToLore(
                 "",
@@ -124,7 +124,7 @@ class JoinQueueMenu(
                     .of(it.item)
                     .addFlags(ItemFlag.HIDE_ATTRIBUTES)
                     .data(if (it.item == Material.POTION) 16421 else 0)
-                    .name("${CC.AQUA}${it.name}${
+                    .name("${CC.YELLOW}${it.name}${
                         if (it.newCategory) " ${CC.B_AQUA}NEW!" else ""
                     }")
                     .addFlags(
