@@ -82,6 +82,8 @@ abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: 
             .sortedByDescending {
                 it.featureConfig(FeatureFlag.MenuOrderWeight, "weight")
                     .toInt()
+            }.filter {
+                category == null || it.kitCategory == category!!.id
             }
             .forEach {
                 buttons[buttons.size] = ItemBuilder
