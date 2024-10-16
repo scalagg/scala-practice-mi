@@ -24,6 +24,7 @@ data class Kit(
         .of(Material.IRON_SWORD)
         .build(),
     var enabled: Boolean = false,
+    var kitCategory: String? = null,
     var armorContents: Array<ItemStack?> = arrayOfNulls(4),
     var contents: Array<ItemStack?> = arrayOfNulls(36),
     var additionalContents: Array<ItemStack?> = arrayOfNulls(27),
@@ -128,6 +129,7 @@ data class Kit(
         if (description != other.description) return false
         if (displayIcon != other.displayIcon) return false
         if (enabled != other.enabled) return false
+        if (kitCategory != other.kitCategory) return false
         if (!armorContents.contentEquals(other.armorContents)) return false
         if (!contents.contentEquals(other.contents)) return false
         if (!additionalContents.contentEquals(other.additionalContents)) return false
@@ -146,6 +148,7 @@ data class Kit(
         result = 31 * result + description.hashCode()
         result = 31 * result + displayIcon.hashCode()
         result = 31 * result + enabled.hashCode()
+        result = 31 * result + kitCategory.hashCode()
         result = 31 * result + armorContents.contentHashCode()
         result = 31 * result + contents.contentHashCode()
         result = 31 * result + additionalContents.contentHashCode()

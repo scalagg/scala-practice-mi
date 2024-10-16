@@ -12,6 +12,7 @@ import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.kit.administration.KitAdminMenu
+import gg.tropic.practice.kit.category.KitCategory
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.feature.GameLifecycle
 import gg.tropic.practice.kit.group.KitGroup
@@ -794,6 +795,23 @@ object KitCommands : ScalaCommand()
 
         player.sendMessage(
             "${CC.GREEN}Kit group ${CC.YELLOW}${group.id}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
+    @Subcommand("setcategory")
+    @CommandCompletion("@kits @categories")
+    @Description("Sets the category this kit will be in.")
+    fun onCategory(player: ScalaPlayer, kit: Kit, category: KitCategory)
+    {
+        kit.kitCategory = category.id
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}Kit Category ${CC.YELLOW}${category.id}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
         )
     }
 

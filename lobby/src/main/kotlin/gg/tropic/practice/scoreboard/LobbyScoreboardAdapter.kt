@@ -108,6 +108,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 }"
                 board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Privacy: ${CC.PRI}${privacy}"
             }
+        } else
+        {
 
             BasicsProfileService.find(player)
                 ?.apply {

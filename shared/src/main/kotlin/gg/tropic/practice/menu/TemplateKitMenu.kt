@@ -2,6 +2,7 @@ package gg.tropic.practice.menu
 
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.category.KitCategory
 import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
@@ -70,6 +71,8 @@ abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: 
     {
         return 1
     }
+
+    var category: KitCategory? = null
 
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {

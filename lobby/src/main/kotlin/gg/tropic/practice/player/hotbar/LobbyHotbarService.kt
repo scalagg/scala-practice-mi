@@ -230,7 +230,7 @@ object LobbyHotbarService
             0,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.IRON_SWORD)
-                    .name("${CC.GREEN}Play Unranked ${CC.GRAY}(Right Click)")
+                    .name("${CC.YELLOW}Play Unranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
@@ -251,7 +251,7 @@ object LobbyHotbarService
                 2,
                 StaticHotbarPresetEntry(
                     ItemBuilder(Material.GOLD_SWORD)
-                        .name("${CC.GOLD}Play Bot Fights ${CC.GRAY}(Right Click)")
+                        .name("${CC.AQUA}Play Robot ${CC.GRAY}(Right Click)")
                         .setUnbreakable(true)
                 ).also {
                     it.onClick = context@{ player ->
@@ -276,7 +276,7 @@ object LobbyHotbarService
             1,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.DIAMOND_SWORD)
-                    .name("${CC.AQUA}Play Ranked ${CC.GRAY}(Right Click)")
+                    .name("${CC.PRI}Play Ranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->

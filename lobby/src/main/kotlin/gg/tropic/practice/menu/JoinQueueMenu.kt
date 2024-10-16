@@ -1,8 +1,10 @@
 package gg.tropic.practice.menu
 
+import com.cryptomorin.xseries.XMaterial
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.category.KitCategoryService
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
@@ -12,11 +14,16 @@ import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.services.LeaderboardManagerService
+import gg.tropic.practice.utilities.MenuConstants
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.math.Numbers
+import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
+import org.bukkit.inventory.ItemFlag
 
 /**
  * @author GrowlyX
@@ -51,6 +58,104 @@ class JoinQueueMenu(
             it.first == teamSize && queueType in it.second
         }
 
+    override fun size(buttons: Map<Int, Button>) = 54
+
+    override fun getMaxItemsPerPage(player: Player) = MenuConstants.SLOTS_TRIPLE.size
+
+    override fun getAllPagesButtonSlots() = MenuConstants.SLOTS_TRIPLE.map { it + 9 }
+
+    override fun getGlobalButtons(player: Player): Map<Int, Button>
+    {
+
+        val buttons = mutableMapOf<Int, Button>()
+
+        for (i in 9..17)
+        {
+            buttons[i] = PLACEHOLDER
+        }
+
+        var i = 1
+        i++
+
+        if (category == null)
+        {
+            buttons[i + 9] = ItemBuilder
+                .of(XMaterial.LIME_STAINED_GLASS_PANE)
+                .name(" ")
+                .toButton()
+        }
+
+        buttons[i] = ItemBuilder
+            .of(Material.EMERALD)
+            .name("${CC.AQUA}All Kits")
+            .addToLore("${CC.GRAY}View all of our kits!")
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to view!"
+            )
+            .toButton { _, _ ->
+                if (category == null)
+                {
+                    return@toButton
+                }
+
+                category = null
+                openMenu(player)
+
+                player.playSound(
+                    player.location, Sound.NOTE_PLING, 1.0f, 1.2f
+                )
+            }
+
+        KitCategoryService.cached()
+            .categories
+            .forEach {
+                i++
+
+                if (category == it)
+                {
+                    buttons[i + 9] = ItemBuilder
+                        .of(XMaterial.LIME_STAINED_GLASS_PANE)
+                        .name(" ")
+                        .toButton()
+                }
+
+                buttons[i] = ItemBuilder
+                    .of(it.item)
+                    .addFlags(ItemFlag.HIDE_ATTRIBUTES)
+                    .data(if (it.item == Material.POTION) 16421 else 0)
+                    .name("${CC.AQUA}${it.name}${
+                        if (it.newCategory) " ${CC.B_AQUA}NEW!" else ""
+                    }")
+                    .addFlags(
+                        ItemFlag.HIDE_ATTRIBUTES,
+                        ItemFlag.HIDE_ENCHANTS,
+                        ItemFlag.HIDE_POTION_EFFECTS
+                    )
+                    .setLore(it.description.map { "${CC.GRAY}$it" })
+                    .addToLore(
+                        "",
+                        "${CC.GREEN}Click to view!"
+                    )
+                    .toButton { _, _ ->
+                        if (category == it)
+                        {
+                            return@toButton
+                        }
+
+                        category = it
+                        openMenu(player)
+
+                        player.playSound(
+                            player.location, Sound.NOTE_PLING, 1.0f, 1.2f
+                        )
+                    }
+            }
+
+        return buttons
+    }
+
+
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.PRI}${kit.displayName}${
         if (kit.features(FeatureFlag.NewlyCreated)) " ${CC.B_AQUA}NEW!" else ""
     }"
@@ -61,8 +166,8 @@ class JoinQueueMenu(
         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
 
         return listOf(
-            "${CC.GRAY}Playing: ${CC.PRI}${metadata.inGame}",
-            "${CC.GRAY}Queuing: ${CC.PRI}${metadata.inQueue}",
+            "${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}",
+            "${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}",
             "",
             *local3ScoreDescriptionOf(
                 player,
