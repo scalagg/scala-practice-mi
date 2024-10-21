@@ -532,7 +532,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         }
 
         board += ""
-        board += "${CC.WHITE}potpvp.com${CC.GRAY}      ${CC.YELLOW}"
+        board += "${CC.GRAY}potpvp.com${CC.GRAY}      ${CC.YELLOW}"
     }
 
     override fun getTitle(player: Player): String

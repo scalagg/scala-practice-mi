@@ -5,9 +5,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly(kotlin("stdlib"))
-    compileOnly(fileTree("lib"))
-//    compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.2")
+    compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.2")
 
     api(project(":shared"))
     api(project(":services:statistics"))
@@ -22,3 +20,4 @@ dependencies {
     compileOnly("com.lunarclient:apollo-api:1.0.6")
     compileOnly("com.lunarclient:apollo-extra-adventure4:1.0.6")
 }
+

@@ -50,8 +50,7 @@ abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: 
             .kits
             .values
             .filter {
-                val developmentFilter =
-                    viewer.hasPermission("practice.development-kits") || !it.features(FeatureFlag.Development)
+                val developmentFilter = viewer.hasPermission("practice.development-kits") || !it.features(FeatureFlag.Development)
                 it.enabled && filterDisplayOfKit(viewer, it) && developmentFilter
             }
     }
