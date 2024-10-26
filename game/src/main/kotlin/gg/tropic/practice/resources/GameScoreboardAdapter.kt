@@ -1,6 +1,7 @@
 package gg.tropic.practice.resources
 
 import gg.scala.flavor.service.Service
+import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.Globals
 import gg.tropic.practice.games.GameService
@@ -532,7 +533,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         }
 
         board += ""
-        board += "${CC.YELLOW}solara.gg${CC.GRAY}      ${CC.YELLOW}"
+        board += "${CC.PRI}${LemonConstants.WEB_LINK}${CC.GRAY}      ${CC.PRI}"
     }
 
     override fun getTitle(player: Player): String
