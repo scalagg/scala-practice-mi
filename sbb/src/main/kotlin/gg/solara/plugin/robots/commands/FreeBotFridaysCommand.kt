@@ -20,13 +20,13 @@ object FreeBotFridaysCommand : ScalaCommand()
     {
         if (FreeBotFridays.isFreeBotFriday())
         {
-            player.sendMessage("${CC.GREEN}It is currently Free Bot Weekend!")
+            player.sendMessage("${CC.GREEN}It is currently Free Bot Friday!")
             return
         }
 
         player.sendMessage(
             "${CC.B_WHITE}Free Bot Friday:",
-            "${CC.WHITE}Join from Friday 3:30PM to Saturday 7:30PM EST for free access to custom bots!",
+            "${CC.WHITE}Join from Friday 3:30PM to Sunday 10PM EST for free access to custom bots!",
             "",
             "${CC.B_WHITE}Next: ${CC.GREEN}${
                 TimeUtil.formatIntoAbbreviatedString(
