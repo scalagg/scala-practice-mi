@@ -1,5 +1,6 @@
 package gg.tropic.practice.resources
 
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
@@ -539,9 +540,13 @@ object GameScoreboardAdapter : ScoreboardAdapter()
     override fun getTitle(player: Player): String
     {
         val game = GameService.byPlayer(player)
-            ?: return ScoreboardTitleService.getCurrentTitle()
+            ?: return "${CC.B_PRI}Duels${
+                if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
+            }"
 
         return game.miniGameLifecycle?.scoreboard?.titleFor(player)
-            ?: ScoreboardTitleService.getCurrentTitle()
+            ?: "${CC.B_PRI}Duels${
+                if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
+            }"
     }
 }

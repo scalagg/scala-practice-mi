@@ -1,6 +1,7 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
@@ -201,5 +202,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player) = "${CC.B_PRI}Duels${
+                if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
+            }"
 }
