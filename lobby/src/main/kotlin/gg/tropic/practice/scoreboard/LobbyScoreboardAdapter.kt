@@ -9,10 +9,8 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
-import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
-import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
 import gg.tropic.practice.settings.layout

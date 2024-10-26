@@ -19,7 +19,7 @@ object ScoreboardTitleService
     private val titleAnimator = TextAnimator.of(
         TextFadeAnimation(
             "${CC.BOLD}Duels",
-            ChatColor.getByChar(CC.PRI),
+            ChatColor.YELLOW,
             ChatColor.DARK_GRAY,
             ChatColor.GREEN
         )

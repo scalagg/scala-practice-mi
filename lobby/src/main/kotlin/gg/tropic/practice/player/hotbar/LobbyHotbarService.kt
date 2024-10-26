@@ -245,8 +245,6 @@ object LobbyHotbarService
             }
         )
 
-        if (Bukkit.getPluginManager().isPluginEnabled("SolaraPractice-SmartBots"))
-        {
             idlePreset.addSlot(
                 2,
                 StaticHotbarPresetEntry(
@@ -270,7 +268,6 @@ object LobbyHotbarService
                     }
                 }
             )
-        }
 
         idlePreset.addSlot(
             1,
