@@ -1,6 +1,7 @@
 package gg.tropic.practice
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.SettingMenu
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
@@ -88,6 +89,7 @@ class PracticeGame : ExtendedScalaPlugin()
         lobbyRedirector.subscribe()
 
         NightlyRebootScheduler.scheduleReboot(1, 0)
+        SettingMenu.defaultCategory = "Practice"
 
         flavor {
             bind<ServerAggregateHandler>() to lobbyRedirector

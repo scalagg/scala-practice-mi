@@ -331,10 +331,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                                     val playerCombo = teamOfPlayer.playerCombos[player.uniqueId] ?: 0
 
-                                    board += "${CC.PRI}Hits:"
-                                    board += "${CC.WHITE}You: ${CC.GREEN}${
-                                        teamOfPlayer.gameLifecycleArbitraryObjectiveProgress
-                                    }${
+                                    board += "${CC.PRI}Hits:${
                                         if (hitsDiff == 0)
                                             ""
                                         else
@@ -343,19 +340,36 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                             else
                                                 " ${CC.RED}($hitsDiff)"
                                     }"
+                                    board += "${CC.WHITE} You: ${CC.GREEN}${
+                                        teamOfPlayer.gameLifecycleArbitraryObjectiveProgress
+                                    }"
+
+                                    board += "${CC.WHITE} Them: ${CC.RED}${
+                                        teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
+                                    }"
                                     board += " ${
                                         if (playerCombo == 0)
-                                            "${CC.D_GRAY}No combo"
+                                            "${CC.RED}No combo"
                                         else
                                             if (playerCombo > 0)
                                                 "${CC.GREEN}+$playerCombo combo"
                                             else
                                                 ""
                                     }"
-
-                                    board += "${CC.WHITE}Them: ${CC.RED}${
-                                        teamOfOpponent.gameLifecycleArbitraryObjectiveProgress
-                                    }"
+                                    board += ""
+                                    board += "${CC.WHITE}Your Ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                                    board += if (!game.robot())
+                                    {
+                                        "${CC.WHITE}Their Ping: ${CC.RED}${
+                                            if (Bukkit.getPlayer(opponentPlayer) != null)
+                                                MinecraftReflection.getPing(
+                                                    Bukkit.getPlayer(opponentPlayer)
+                                                ) else "0"
+                                        }ms"
+                                    } else
+                                    {
+                                        "${CC.WHITE}Their Ping: ${CC.RED}${game.robotInstance.first().ping()}ms"
+                                    }
                                 } else
                                 {
                                     if (game.lifecycle() != GameLifecycle.SoulBound)
@@ -374,7 +388,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                         }ms"
                                     } else
                                     {
-                                        "${CC.WHITE}Them: ${CC.RED}${game.robotInstance.first().ping()}ms"
+                                        "${CC.WHITE}Their Ping: ${CC.RED}${game.robotInstance.first().ping()}ms"
                                     }
                                 }
 
