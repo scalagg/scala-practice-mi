@@ -245,29 +245,29 @@ object LobbyHotbarService
             }
         )
 
-        idlePreset.addSlot(
-            2,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.GOLD_SWORD)
-                    .name("${CC.GOLD}Play Bot Fights ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
-            ).also {
-                it.onClick = context@{ player ->
-                    if (player.hasMetadata("frozen"))
-                    {
-                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
-                        return@context
-                    }
-
-                    val menu = buildBotSelectorMenu(player)
-                        ?: return@context run {
-                            player.sendMessage("${CC.RED}This feature is coming soon!")
+            idlePreset.addSlot(
+                2,
+                StaticHotbarPresetEntry(
+                    ItemBuilder(Material.GOLD_SWORD)
+                        .name("${CC.GOLD}Play Bot Fights ${CC.GRAY}(Right Click)")
+                        .setUnbreakable(true)
+                ).also {
+                    it.onClick = context@{ player ->
+                        if (player.hasMetadata("frozen"))
+                        {
+                            player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                            return@context
                         }
 
-                    menu.openMenu(player)
+                        val menu = buildBotSelectorMenu(player)
+                            ?: return@context run {
+                                player.sendMessage("${CC.RED}This feature is coming soon!")
+                            }
+
+                        menu.openMenu(player)
+                    }
                 }
-            }
-        )
+            )
 
         idlePreset.addSlot(
             1,

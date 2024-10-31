@@ -20,5 +20,13 @@ include(
     "services:games:game-manager",
     "minigames:skywars",
     "minigames:skywars-shared",
+//    "minigames:hctranked",
+//    "minigames:hctranked-shared",
     "spigot-integration"
 )
+//include("minigames:hctranked-shared")
+//findProject(":minigames:hctranked-shared")?.name = "hctranked-shared"
+//include("minigames:hctranked-shared")
+//findProject(":minigames:hctranked-shared")?.name = "hctranked-shared"
+//include("minigames:hctranked")
+//findProject(":minigames:hctranked")?.name = "hctranked"

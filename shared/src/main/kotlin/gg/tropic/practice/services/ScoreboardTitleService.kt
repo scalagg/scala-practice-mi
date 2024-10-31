@@ -25,7 +25,7 @@ object ScoreboardTitleService
         )
     )
 
-    fun getCurrentTitle() = "${CC.B_YELLOW}Duels${
+    fun getCurrentTitle() = "${titleAnimator.current().text}${
         if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
     }"
 

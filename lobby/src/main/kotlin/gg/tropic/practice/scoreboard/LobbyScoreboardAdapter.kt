@@ -1,6 +1,7 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
@@ -8,10 +9,8 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
-import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
-import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
 import gg.tropic.practice.settings.layout
@@ -52,10 +51,10 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
 
         board += ""
-        board += "${CC.GRAY}Online: ${CC.PRI}${
+        board += "${CC.SEC}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
-        board += "${CC.GRAY}In-game: ${CC.PRI}${
+        board += "${CC.SEC}In-game: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
         }"
 
@@ -69,7 +68,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }v${
                 profile.queuedForTeamSize()
             }"
-            board += "${CC.GRAY}Queued for ${CC.PRI}${
+            board += "${CC.SEC}Queued for ${CC.PRI}${
                 TimeUtil.formatIntoMMSS((profile.queuedForTime() / 1000).toInt())
             }"
 
@@ -91,10 +90,10 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.PRI}Party:"
 
             with(profile.partyOf().delegate) {
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.GRAY}Leader: ${CC.PRI}${
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.SEC} ${CC.SEC}Leader: ${CC.PRI}${
                     leader.uniqueId.username()
                 }"
-                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.GRAY}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
+                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} ${CC.SEC}Online: ${CC.PRI}${profile.partyOf().currentPlayers}/$limit"
                 board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Party is " + status.capitalized + "..."
             }
         } else
@@ -102,10 +101,10 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             if (coreProfile != null)
             {
                 board += ""
-                board += "${CC.GRAY}Level: ${CC.GREEN}${
+                board += "${CC.SEC}Level: ${CC.GREEN}${
                     Numbers.format(coreProfile.level)
                 } ✪"
-                board += "${CC.GRAY}Coins: ${CC.GOLD}${
+                board += "${CC.SEC}Coins: ${CC.GOLD}${
                     Numbers.format(coreProfile.coins)
                 } ⛃"
             }
@@ -127,21 +126,21 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     {
                         LobbyScoreboardView.Dev ->
                         {
-                            board += "${CC.GRAY}Game servers: ${CC.PRI}${
+                            board += "${CC.SEC}Game servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
-                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Mean TPS: ${CC.GREEN}${
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.SEC} Mean TPS: ${CC.GREEN}${
                                 ScoreboardInfoService.scoreboardInfo.meanTPS.run {
                                     if (this > 20.0) "*20.0" else "%.1f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
                                 }
                             }"
-                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.GRAY} Games: ${CC.PRI}${
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE}${CC.SEC} Games: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
                             } ${CC.D_GRAY}(${
                                 "%.2f".format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
                             }%)"
                             board += ""
-                            board += "${CC.GRAY}NA/EU Players: ${CC.PRI}${
+                            board += "${CC.SEC}NA/EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)
                             } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.euServerTotalPlayers)
@@ -155,16 +154,16 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                                 "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
 
                             val basicsProfile = BasicsProfileService.find(player)
-                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Vanish: ${metadataDisplay("vanished")}"
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Vanish: ${metadataDisplay("vanished")}"
 
                             if (basicsProfile != null)
                             {
-                                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Silent Spec: ${
+                                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Silent Spec: ${
                                     if (player.isASilentSpectator()) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
                                 }"
                             }
 
-                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Mod Mode: ${metadataDisplay("mod-mode")}"
+                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Mod Mode: ${metadataDisplay("mod-mode")}"
                         }
 
                         LobbyScoreboardView.None ->
@@ -176,7 +175,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
 
         board += ""
-        board += "${CC.YELLOW}solara.gg${CC.GRAY}      ${CC.YELLOW}"
+        board += "${CC.PRI}${LemonConstants.WEB_LINK}${CC.GRAY}      ${CC.PRI}"
     }
 
     @Configure
@@ -201,5 +200,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player) = "${CC.B_PRI}Duels${
+                if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
+            }"
 }
