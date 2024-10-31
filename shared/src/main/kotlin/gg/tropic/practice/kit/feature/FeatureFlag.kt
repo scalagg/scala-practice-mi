@@ -107,6 +107,12 @@ enum class FeatureFlag(
             "armor in a match.",
         )
     ),
+    HardcoreHealing(
+        description = listOf(
+            "Prevents you from naturally",
+            "regenerating health.",
+        )
+    ),
     KnockbackProfile(
         description = listOf(
             "Use a custom knockback profile",
