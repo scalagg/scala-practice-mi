@@ -1055,18 +1055,18 @@ object GameService
                 val game = byPlayer(it.entity as Player)
                     ?: return@handler
 
-                if (game.flag(FeatureFlag.HardcoreHealing))
-                {
-                    it.isCancelled = true
-                    return@handler
-                }
-
                 if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN)
                 {
                     game.counter(it.entity as Player)
                         .apply {
                             increment("healthRegained", it.amount)
                         }
+                }
+
+                if (game.flag(FeatureFlag.HardcoreHealing))
+                {
+                    it.isCancelled = true
+                    return@handler
                 }
             }
 
