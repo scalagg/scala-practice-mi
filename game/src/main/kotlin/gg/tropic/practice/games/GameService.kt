@@ -1055,6 +1055,11 @@ object GameService
                 val game = byPlayer(it.entity as Player)
                     ?: return@handler
 
+                if (it.regainReason != EntityRegainHealthEvent.RegainReason.SATIATED)
+                {
+                    return@handler
+                }
+
                 if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN)
                 {
                     game.counter(it.entity as Player)
