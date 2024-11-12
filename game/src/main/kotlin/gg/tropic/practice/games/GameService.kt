@@ -1061,6 +1061,7 @@ object GameService
                         .apply {
                             increment("healthRegained", it.amount)
                         }
+                    return@handler
                 }
 
                 if (game.flag(FeatureFlag.HardcoreHealing))
