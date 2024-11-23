@@ -21,7 +21,7 @@ object FreeBotFridays
         val currentTime = now.toLocalTime()
 
         return (now.dayOfWeek == DayOfWeek.FRIDAY &&
-            currentTime.isAfter(fbfStart)) || (now.dayOfWeek == DayOfWeek.SUNDAY && currentTime.isBefore(fbfEnd))
+            currentTime.isAfter(fbfStart)) || (now.dayOfWeek == DayOfWeek.SATURDAY && currentTime.isBefore(fbfEnd))
     }
 
     fun timeUntilNextFreeBotFriday(): Duration
