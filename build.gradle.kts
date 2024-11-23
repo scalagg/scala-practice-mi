@@ -17,13 +17,17 @@ if (currentBranch != "master") {
 
 allprojects {
     group = "gg.solara.practice"
-    version = "1.0.0${
+    version = "1.0.1${
         if (currentBranch != "master") "-dev" else ""
     }"
 
     repositories {
         configureScalaRepository()
         mavenCentral()
+        maven {
+            name = "lunarclient"
+            url = uri("https://repo.lunarclient.dev")
+        }
         maven {
             url = uri("https://repo.dmulloy2.net/repository/public/")
         }
@@ -49,7 +53,7 @@ subprojects {
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 
         compileOnly("gg.scala.spigot:server:1.1.3")
-
+        compileOnly("com.lunarclient:apollo-api:1.1.6")
         compileOnly("gg.scala.lemon:bukkit:1.8.1")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
     }
