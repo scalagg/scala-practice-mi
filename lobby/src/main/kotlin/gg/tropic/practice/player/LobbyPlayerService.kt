@@ -1,6 +1,7 @@
 package gg.tropic.practice.player
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -217,8 +218,11 @@ object LobbyPlayerService
                 val profile = PracticeProfileService
                     .find(event.player)
                     ?: return@handler
+                val basicsProfile = BasicsProfileService
+                    .find(event.player)
+                    ?: return@handler
                 Tasks.delayed(2L) {
-                    if (event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished"))
+                    if (event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished") && basicsProfile.setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:join-message") == StateSettingValue.ENABLED)
                     {
                         val lemonPlayer = PlayerHandler
                             .find(player.uniqueId)
