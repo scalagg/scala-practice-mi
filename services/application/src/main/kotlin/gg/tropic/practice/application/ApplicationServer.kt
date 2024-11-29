@@ -1,6 +1,7 @@
 package gg.tropic.practice.application
 
 import com.mongodb.MongoClient
+import com.mongodb.MongoClientURI
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 import com.xenomachina.argparser.mainBody
@@ -61,13 +62,6 @@ class ApplicationServerArgs(parser: ArgParser)
         )
         .default("")
 
-    val mongoHost by parser
-        .storing(
-            "--mongohost",
-            help = "The host of the Mongo server"
-        )
-        .default("127.0.0.1")
-
     val mongoDatabase by parser
         .storing(
             "--mongodatabase",
@@ -75,14 +69,12 @@ class ApplicationServerArgs(parser: ArgParser)
         )
         .default("Scala")
 
-    val mongoPort by parser
+    val mongoUri by parser
         .storing(
-            "--mongoport",
-            help = "The port of the Mongo server"
-        ) {
-            toInt()
-        }
-        .default(27017)
+            "--mongouri",
+            help = "The mongodb URI"
+        )
+        .default("mongodb://127.0.0.1:27017")
 }
 
 /**
@@ -127,13 +119,15 @@ fun main(args: Array<String>) = mainBody {
                 }
             }
 
-            override fun getNewMongoConnection(): AbstractDataStoreMongoConnection
-            {
+            override fun getNewMongoConnection(): AbstractDataStoreMongoConnection {
+                val mongoClientUri = MongoClientURI(parsedArgs.mongoUri)
+                val mongoClient = MongoClient(mongoClientUri)
+
                 return UriDataStoreMongoConnection(
                     DataStoreMongoConnectionDetails(
-                        database = parsedArgs.mongoDatabase
+                        database = mongoClientUri.database ?: parsedArgs.mongoDatabase
                     ),
-                    MongoClient(parsedArgs.mongoHost, parsedArgs.mongoPort)
+                    mongoClient
                 )
             }
 
