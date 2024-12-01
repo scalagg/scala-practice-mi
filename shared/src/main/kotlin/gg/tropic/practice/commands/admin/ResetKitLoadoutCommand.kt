@@ -7,6 +7,8 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.util.QuickAccess
+import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
@@ -30,10 +32,14 @@ object ResetKitLoadoutCommand : ScalaCommand()
             profile.save()
         }),
         Everyone({ _, _ ->
-            for (profile in PracticeProfileService.controller.localCache())
-            {
-                profile.value.customLoadouts.clear()
-                profile.value.save()
+            DataStoreObjectControllerCache
+                .findNotNull<PracticeProfile>()
+                .loadAll(DataStoreStorageType.MONGO)
+                .thenAccept {
+                    it.values.forEach { profile ->
+                        profile.customLoadouts.clear()
+                        profile.save()
+                    }
                 }
         }),
         KitLoadout({ profile, kit ->
@@ -48,13 +54,20 @@ object ResetKitLoadoutCommand : ScalaCommand()
         player: CommandSender,
         resetOptions: LoadoutReset,
         @Optional target: ScalaPlayer?,
-        @Optional kit: Kit?)
+        @Optional kit: Kit?
+    )
     {
         val profile: PracticeProfile? = PracticeProfileService.find(target!!.uniqueId)
 
-            resetOptions.resetFor(profile, kit)
-            player.sendMessage(
-                "${CC.GREEN}You have reset the ${CC.BOLD}${resetOptions.name}${CC.GREEN} for ${if (profile != null) "${CC.WHITE}${QuickAccess.nameOrConsole(target.uniqueId)}${CC.GREEN}" else ""}${if (kit != null) " on kit ${CC.PRI}${kit.id}${CC.GREEN}" else ""}."
-            )
+        resetOptions.resetFor(profile, kit)
+        player.sendMessage(
+            "${CC.GREEN}You have reset the ${CC.BOLD}${resetOptions.name}${CC.GREEN} for ${
+                if (profile != null) "${CC.WHITE}${
+                    QuickAccess.nameOrConsole(
+                        target.uniqueId
+                    )
+                }${CC.GREEN}" else ""
+            }${if (kit != null) " on kit ${CC.PRI}${kit.id}${CC.GREEN}" else ""}."
+        )
     }
 }
