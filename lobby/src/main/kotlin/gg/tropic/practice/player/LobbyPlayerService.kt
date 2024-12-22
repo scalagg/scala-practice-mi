@@ -1,9 +1,13 @@
 package gg.tropic.practice.player
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
+import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.scala.lemon.handler.PlayerHandler
+import gg.scala.lemon.util.QuickAccess
 import gg.tropic.game.extensions.cosmetics.EquipOnLoginCosmeticService
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.PracticeConfigurationService
@@ -214,6 +218,28 @@ object LobbyPlayerService
                 val profile = PracticeProfileService
                     .find(event.player)
                     ?: return@handler
+                val basicsProfile = BasicsProfileService
+                    .find(event.player)
+                    ?: return@handler
+                Tasks.delayed(2L) {
+                    if (event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished") && basicsProfile.setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:join-message") == StateSettingValue.ENABLED)
+                    {
+                        val lemonPlayer = PlayerHandler
+                            .find(player.uniqueId)
+                            ?: return@delayed
+
+                        Bukkit.broadcastMessage(
+                            "${CC.GRAY}[${CC.B_GOLD}⚡${CC.GRAY}] ${
+                                lemonPlayer
+                                    .getColoredName(
+                                        rank = lemonPlayer.disguiseRank() ?: QuickAccess.realRank(event.player),
+                                        customColor = false,
+                                        prefixIncluded = true
+                                    )
+                            }${CC.YELLOW} has joined the lobby!"
+                        )
+                    }
+                }
 
                 if (profile.hasActiveRankedBan())
                 {

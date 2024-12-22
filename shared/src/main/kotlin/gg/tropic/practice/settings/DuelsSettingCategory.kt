@@ -112,6 +112,22 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.EYE_OF_ENDER)
         },
         SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:join-message"
+            displayName = "Lobby Join Message"
+
+            clazz = StateSettingValue::class.java
+            default = StateSettingValue.ENABLED
+
+            description += "Let's players know"
+            description += "when you join practice lobby."
+
+            displayPredicate = {
+                it.hasPermission("tangerine.join-notifs")
+            }
+
+            item = ItemBuilder.of(XMaterial.SLIME_BALL)
+        },
+        SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:chat-visibility"
             displayName = "Chat visibility"
 
@@ -164,7 +180,7 @@ object DuelsSettingCategory : SettingCategory
             displayName = "Silent Spectator"
 
             clazz = StateSettingValue::class.java
-            default = StateSettingValue.DISABLED
+            default = StateSettingValue.ENABLED
 
             description += "Prevents other players"
             description += "from viewing you as a spectator."

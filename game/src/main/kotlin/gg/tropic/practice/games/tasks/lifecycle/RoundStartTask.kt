@@ -74,6 +74,11 @@ class RoundStartTask(
             }
 
         game.toBukkitPlayers().filterNotNull()
+            .forEach {
+                game.prepareForNewLife(it, true)
+            }
+
+        game.toBukkitPlayers().filterNotNull()
             .forEach { player ->
                 // enter a "light" spectator mode, where they can't interact with anything yet
                 game.prepareForNewLife(player, true)

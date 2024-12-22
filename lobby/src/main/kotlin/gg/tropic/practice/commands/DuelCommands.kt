@@ -71,6 +71,13 @@ object DuelCommands : ScalaCommand()
             }
         }
 
+        if (it.hasMetadata("vanished"))
+        {
+            throw ConditionFailedException(
+                "${CC.YELLOW}${it.name}${CC.RED} is not logged onto the network!"
+            )
+        }
+
         if (player.bukkit().hasMetadata("frozen"))
         {
             throw ConditionFailedException(
@@ -151,6 +158,13 @@ object DuelCommands : ScalaCommand()
                     "You must be friends with ${CC.YELLOW}${it.name}${CC.RED} to send them a duel request!"
                 )
             }
+        }
+
+        if (it.hasMetadata("vanished"))
+        {
+            throw ConditionFailedException(
+                "${CC.YELLOW}${it.name}${CC.RED} is not logged onto the network!"
+            )
         }
 
         val server = QuickAccess.server(it.uniqueId)

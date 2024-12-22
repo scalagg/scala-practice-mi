@@ -1052,22 +1052,25 @@ object GameService
             .subscribe(EntityRegainHealthEvent::class.java)
             .filter { it.entity is Player }
             .handler {
-                val game = byPlayer(it.entity as Player)
-                    ?: return@handler
+                val player = it.entity as Player
+                val game = byPlayer(player) ?: return@handler
 
-                if (game.flag(FeatureFlag.HardcoreHealing))
-                {
-                    it.isCancelled = true
+                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN) {
+                    if (game.flag(FeatureFlag.HardcoreHealing)) {
+                        it.isCancelled = true
+                    } else {
+                        game.counter(player)
+                            .apply {
+                                increment("healthRegained", it.amount)
+                            }
+                    }
                     return@handler
                 }
 
-                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN)
-                {
-                    game.counter(it.entity as Player)
-                        .apply {
-                            increment("healthRegained", it.amount)
-                        }
-                }
+                game.counter(player)
+                    .apply {
+                        increment("healthRegained", it.amount)
+                    }
             }
 
         Events

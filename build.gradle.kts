@@ -16,15 +16,18 @@ if (currentBranch != "master") {
 }
 
 allprojects {
-    group = "com.potpvp.practice"
-    version = "1.0.0${
+    group = "gg.solara.practice"
+    version = "1.0.3${
         if (currentBranch != "master") "-dev" else ""
     }"
 
     repositories {
         configureScalaRepository()
         mavenCentral()
-        mavenLocal()
+        maven {
+            name = "lunarclient"
+            url = uri("https://repo.lunarclient.dev")
+        }
         maven {
             url = uri("https://repo.dmulloy2.net/repository/public/")
         }
@@ -40,8 +43,8 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        kapt("gg.scala.commons:bukkit:3.5.3")
-        compileOnly("gg.scala.commons:bukkit:3.5.3")
+        kapt("gg.scala.commons:bukkit:3.5.5")
+        compileOnly("gg.scala.commons:bukkit:3.5.5")
 
         compileOnly("gg.scala.cgs:parties:1.4.3")
         compileOnly("gg.scala.store:spigot:0.1.8")
@@ -50,7 +53,7 @@ subprojects {
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 
         compileOnly("gg.scala.spigot:server:1.1.3")
-
+        compileOnly("com.lunarclient:apollo-api:1.1.6")
         compileOnly("gg.scala.lemon:bukkit:1.8.1")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
     }
@@ -78,7 +81,7 @@ subprojects {
             )
 
             archiveFileName.set(
-                "Practice-${project.name}.jar"
+                "SolaraPractice-${project.name}.jar"
             )
         }
 
@@ -117,7 +120,7 @@ subprojects {
 fun RepositoryHandler.configureScalaRepository(dev: Boolean = false)
 {
     maven("${property("artifactory_contextUrl")}/gradle-${if (dev) "dev" else "release"}") {
-        name = "Scala"
+        name = "scala"
         credentials {
             username = property("artifactory_user").toString()
             password = property("artifactory_password").toString()

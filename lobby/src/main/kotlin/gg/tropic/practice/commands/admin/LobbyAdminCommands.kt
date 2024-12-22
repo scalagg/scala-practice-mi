@@ -33,6 +33,7 @@ import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.entity.Player
+import org.bukkit.metadata.FixedMetadataValue
 import java.io.File
 import java.util.concurrent.CompletableFuture
 
@@ -86,6 +87,26 @@ object LobbyAdminCommands : ScalaCommand()
 
         player.sendMessage(
             "${CC.GREEN}We've requested a region restriction to: ${CC.WHITE}${region ?: "Unrestricted"}."
+        )
+    }
+
+    @Subcommand("enter-build-mode")
+    @Description("Allow yourself to build in spawn.")
+    fun onJoinBuildMode(player: ScalaPlayer)
+    {
+        player.bukkit().setMetadata("builder", FixedMetadataValue(plugin, true))
+        player.sendMessage(
+            "${CC.GREEN}You are now in build mode."
+        )
+    }
+
+    @Subcommand("leave-build-mode")
+    @Description("Revoke yourself from building in spawn.")
+    fun onLeaveBuildMode(player: ScalaPlayer)
+    {
+        player.bukkit().removeMetadata("builder", plugin)
+        player.sendMessage(
+            "${CC.RED}You are no longer in build mode."
         )
     }
 
