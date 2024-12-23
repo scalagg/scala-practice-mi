@@ -202,5 +202,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default)
+        ScoreboardTitleService.getCurrentTitle() else "${CC.B_PRI}${
+        player.getMetadata("region").firstOrNull()?.value() ?: "NA"
+    } Practice"
 }

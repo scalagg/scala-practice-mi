@@ -147,7 +147,7 @@ fun main(args: Array<String>) = mainBody {
 
     MiniGameSerializers.configure()
 
-    gg.scala.practice.application.api.defaults.map.MapDataSync.load()
+    MapDataSync.load()
     KitDataSync.load()
     KitGroupDataSync.load()
 

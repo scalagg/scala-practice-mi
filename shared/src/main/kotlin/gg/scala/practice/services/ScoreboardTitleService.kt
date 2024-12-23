@@ -21,13 +21,11 @@ object ScoreboardTitleService
             "${CC.BOLD}Practice",
             ChatColor.GOLD,
             ChatColor.YELLOW,
-            ChatColor.DARK_GRAY
+            ChatColor.WHITE
         )
     )
 
-    fun getCurrentTitle() = "${titleAnimator.current().text}${
-        if ("mipdev" in ServerSync.getLocalGameServer().groups) " ${CC.WHITE}(dev)" else ""
-    }"
+    fun getCurrentTitle() = titleAnimator.current().text
 
     @Configure
     fun configure()
