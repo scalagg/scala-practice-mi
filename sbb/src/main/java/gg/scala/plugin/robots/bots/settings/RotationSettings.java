@@ -1,0 +1,39 @@
+package gg.scala.plugin.robots.bots.settings;
+
+import gg.scala.plugin.robots.bot.setting.setting.Category;
+import gg.scala.plugin.robots.bot.setting.setting.Option;
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
+
+@Getter
+@Setter
+public class RotationSettings extends Category {
+
+    private Option<Integer> speed = new Option<>("Speed", Material.EXP_BOTTLE, this, 18, 2, 60);
+    private Option<Integer> jitterRotation = new Option<>(
+            "jitter_rotation_fixed", "Jitter Rotation", Material.FLINT, this, 1, 1, 35
+    );
+    private Option<Integer> speedRandom = new Option<>(
+            "speed_rotation_fixed", "Speed Random", Material.FIREWORK, this, 1, 1, 35
+    );
+
+    public RotationSettings(Category parent) {
+        super(
+                "rotationsettings",
+                Arrays.asList(
+                        "Configurable rotation",
+                        "settings for the robot."
+                ),
+                new ItemStack(Material.WEB),
+                parent,
+                "Rotation Settings",
+                "botgui.rotationsettings"
+        );
+
+        addChildren(speed, jitterRotation, speedRandom);
+    }
+}

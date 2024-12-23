@@ -16,7 +16,7 @@ if (currentBranch != "master") {
 }
 
 allprojects {
-    group = "gg.solara.practice"
+    group = "gg.scala.practice-mi"
     version = "1.0.3${
         if (currentBranch != "master") "-dev" else ""
     }"
@@ -81,7 +81,7 @@ subprojects {
             )
 
             archiveFileName.set(
-                "SolaraPractice-${project.name}.jar"
+                "ScalaPractice-${project.name}.jar"
             )
         }
 

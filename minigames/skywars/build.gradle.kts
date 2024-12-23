@@ -8,5 +8,5 @@ dependencies {
     compileOnly(project(":spigot-integration"))
     api(project(":minigames:skywars-shared"))
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
-    compileOnly("gg.tropic.game.extensions:tropic-core-game-extensions:1.3.0")
+    compileOnly("gg.scala.game.extensions:scala-core-game-extensions:1.3.0")
 }

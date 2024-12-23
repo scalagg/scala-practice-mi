@@ -43,5 +43,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("gg.tropic.practice.application.ApplicationServerKt")
+    mainClass.set("gg.scala.practice.application.ApplicationServerKt")
 }

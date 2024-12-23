@@ -1,0 +1,173 @@
+package gg.scala.practice.application
+
+import com.mongodb.MongoClient
+import com.mongodb.MongoClientURI
+import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.default
+import com.xenomachina.argparser.mainBody
+import gg.scala.aware.AwareHub
+import gg.scala.aware.uri.WrappedAwareUri
+import gg.scala.cache.uuid.ScalaStoreUuidCache
+import gg.scala.cache.uuid.impl.distribution.DistributedRedisUuidCacheTranslator
+import gg.scala.cache.uuid.resolver.impl.MojangDataResolver
+import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.store.ScalaDataStoreShared
+import gg.scala.store.connection.AbstractDataStoreConnection
+import gg.scala.store.connection.mongo.AbstractDataStoreMongoConnection
+import gg.scala.store.connection.mongo.impl.UriDataStoreMongoConnection
+import gg.scala.store.connection.mongo.impl.details.DataStoreMongoConnectionDetails
+import gg.scala.store.connection.redis.AbstractDataStoreRedisConnection
+import gg.scala.practice.application.api.DPSRedisService
+import gg.scala.practice.application.api.DPSRedisShared
+import gg.scala.practice.application.api.defaults.kit.KitDataSync
+import gg.scala.practice.application.api.defaults.kit.group.KitGroupDataSync
+import gg.scala.practice.application.api.defaults.map.MapDataSync
+import gg.scala.practice.devProvider
+import gg.scala.practice.games.manager.GameManager
+import gg.scala.practice.minigame.MiniGameSerializers
+import gg.scala.practice.orchestrator.UpdateRolloutOrchestrator
+import gg.scala.practice.queue.GameQueueManager
+import gg.scala.practice.replications.manager.ReplicationManager
+import gg.scala.practice.statistics.leaderboards.LeaderboardManager
+import gg.scala.practice.tournaments.TournamentManager
+import net.evilblock.cubed.serializers.Serializers
+import kotlin.system.exitProcess
+
+class ApplicationServerArgs(parser: ArgParser)
+{
+    val dev by parser
+        .storing("--dev", help = "Whether this server is a dev server or not")
+        .default("false")
+
+    val redisHost by parser
+        .storing(
+            "--redishost",
+            help = "The host of the Redis server"
+        )
+        .default("127.0.0.1")
+
+    val redisPort by parser
+        .storing(
+            "--redisport",
+            help = "The port of the Redis server"
+        ) {
+            toInt()
+        }
+        .default(6379)
+
+    val redisPassword by parser
+        .storing(
+            "--redispass",
+            help = "The port of the Redis server"
+        )
+        .default("")
+
+    val mongoDatabase by parser
+        .storing(
+            "--mongodatabase",
+            help = "The database for the Mongo server"
+        )
+        .default("Scala")
+
+    val mongoUri by parser
+        .storing(
+            "--mongouri",
+            help = "The mongodb URI"
+        )
+        .default("mongodb://127.0.0.1:27017")
+}
+
+/**
+ * @author GrowlyX
+ * @since 9/23/2023
+ */
+fun main(args: Array<String>) = mainBody {
+    val parsedArgs = ArgParser(args)
+        .parseInto {
+            ApplicationServerArgs(it)
+        }
+
+    devProvider = {
+        parsedArgs.dev == "true"
+    }
+
+    AwareHub.configure(
+        WrappedAwareUri(
+            parsedArgs.redisHost,
+            parsedArgs.redisPort,
+            if (parsedArgs.redisPassword == "")
+                null else parsedArgs.redisPassword
+        )
+    ) {
+        Serializers.gson
+    }
+
+    DPSRedisShared.keyValueCache
+    ServerSync.configureIndependent()
+
+    val aware = DPSRedisService("dps")
+        .configure { this }
+
+    ScalaDataStoreShared.INSTANCE =
+        object : ScalaDataStoreShared()
+        {
+            override fun getNewRedisConnection(): AbstractDataStoreRedisConnection
+            {
+                return object : AbstractDataStoreRedisConnection()
+                {
+                    override fun createNewConnection() = aware
+                }
+            }
+
+            override fun getNewMongoConnection(): AbstractDataStoreMongoConnection {
+                val mongoClientUri = MongoClientURI(parsedArgs.mongoUri)
+                val mongoClient = MongoClient(mongoClientUri)
+
+                return UriDataStoreMongoConnection(
+                    DataStoreMongoConnectionDetails(
+                        database = mongoClientUri.database ?: parsedArgs.mongoDatabase
+                    ),
+                    mongoClient
+                )
+            }
+
+            override fun debug(from: String, message: String)
+            {
+                AbstractDataStoreConnection.LOGGER.info("$from: $message")
+            }
+
+            override fun forceDisableRedisThreshold() = true
+        }
+
+
+    ScalaStoreUuidCache.configure(
+        DistributedRedisUuidCacheTranslator(aware),
+        MojangDataResolver
+    )
+
+    MiniGameSerializers.configure()
+
+    gg.scala.practice.application.api.defaults.map.MapDataSync.load()
+    KitDataSync.load()
+    KitGroupDataSync.load()
+
+    UpdateRolloutOrchestrator.load()
+
+    GameManager.load()
+    GameQueueManager.load()
+    ReplicationManager.load()
+    TournamentManager.load()
+
+    LeaderboardManager.load()
+
+    DPSRedisShared.applicationBridge.configure {
+        listen("reboot-app") {
+            exitProcess(1)
+        }
+    }
+
+    while (true)
+    {
+        Thread.sleep(Long.MAX_VALUE)
+    }
+}

@@ -1,12 +1,12 @@
-# Tropic Practice
-A highly-scalable practice plugin used on the `tropic.gg` and `duels.us` servers.
+# Scala Practice
+A highly-scalable practice plugin used on the `potpvp.com` and `solara.gg` servers.
 
 ## Docs
 - [Infrastructure Overview](docs/infrastructure.md)
 - [Setup](docs/setup.md)
 
 -----
-![yklogo](https://github.com/tropicserver/tropic-practice/assets/62861393/45cbbfbd-f936-4347-8516-61ca24a0d1f4)
+![yklogo](https://github.com/scalagg/scala-practice-mi/assets/62861393/45cbbfbd-f936-4347-8516-61ca24a0d1f4)
 
 YourKit supports open source projects with innovative and intelligent tools
 for monitoring and profiling Java and .NET applications.

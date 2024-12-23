@@ -5,7 +5,7 @@
 - A DevTools server
   - Ensure SWM `async-world-generation` is `false` on your DevTools server.
 - Ensure MongoDB details are configured properly for SWM on **all game and devtools** server instances.
-- Ensure the `TropicPractice-DevTools` plugin is in your DevTools server.
+- Ensure the `ScalaPractice-DevTools` plugin is in your DevTools server.
 
 **Setting up a map:**
 - Create a new SWM world in your Mongo database using `/swm create <templateName> mongo`.

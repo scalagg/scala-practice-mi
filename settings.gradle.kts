@@ -9,7 +9,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
 
-rootProject.name = "practice"
+rootProject.name = "scala-practice-mi"
 include(
     "shared", "game", "lobby", "devtools", "sbb",
     "services:application", "services:queue", "services:statistics", "services:orchestrator", "services:tournaments",
@@ -20,13 +20,5 @@ include(
     "services:games:game-manager",
     "minigames:skywars",
     "minigames:skywars-shared",
-//    "minigames:hctranked",
-//    "minigames:hctranked-shared",
     "spigot-integration"
 )
-//include("minigames:hctranked-shared")
-//findProject(":minigames:hctranked-shared")?.name = "hctranked-shared"
-//include("minigames:hctranked-shared")
-//findProject(":minigames:hctranked-shared")?.name = "hctranked-shared"
-//include("minigames:hctranked")
-//findProject(":minigames:hctranked")?.name = "hctranked"

@@ -1,0 +1,826 @@
+package gg.scala.practice.queue
+
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.RemovalCause
+import gg.scala.aware.thread.AwareThreadContext
+import gg.scala.cache.uuid.ScalaStoreUuidCache
+import gg.scala.commons.agnostic.sync.server.ServerContainer
+import gg.scala.commons.agnostic.sync.server.impl.GameServer
+import gg.scala.commons.agnostic.sync.server.state.ServerState
+import gg.scala.practice.minigame.skywars.shared.SkyWarsConstants
+import gg.scala.practice.application.api.DPSRedisService
+import gg.scala.practice.application.api.DPSRedisShared
+import gg.scala.practice.application.api.defaults.kit.KitDataSync
+import gg.scala.practice.application.api.defaults.map.ImmutableMap
+import gg.scala.practice.application.api.defaults.map.MapDataSync
+import gg.scala.practice.expectation.GameExpectation
+import gg.scala.practice.gameGroup
+import gg.scala.practice.games.duels.DuelRequest
+import gg.scala.practice.games.spectate.SpectateRequest
+import gg.scala.practice.games.manager.GameManager
+import gg.scala.practice.games.GameReference
+import gg.scala.practice.games.matchmaking.JoinIntoGameResult
+import gg.scala.practice.games.matchmaking.JoinIntoGameStatus
+import gg.scala.practice.games.team.GameTeam
+import gg.scala.practice.games.team.TeamIdentifier
+import gg.scala.practice.kit.feature.FeatureFlag
+import gg.scala.practice.lobbyGroup
+import gg.scala.practice.namespace
+import gg.scala.practice.orchestrator.UpdateRolloutOrchestrator
+import gg.scala.practice.queue.robot.RobotDuoPlayerQueue
+import gg.scala.practice.queue.robot.RobotSinglePlayerQueue
+import gg.scala.practice.queue.skywars.BetaRankedSkyWarsGameQueue
+import gg.scala.practice.region.Region
+import gg.scala.practice.replication.ReplicationResultStatus
+import gg.scala.practice.replications.manager.ReplicationManager
+import gg.scala.practice.serializable.Message
+import gg.scala.practice.suffixWhenDev
+import gg.scala.practice.utilities.formatPlayerPing
+import io.lettuce.core.api.sync.RedisCommands
+import net.evilblock.cubed.serializers.Serializers
+import net.md_5.bungee.api.chat.ClickEvent
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
+import java.util.logging.Logger
+
+/**
+ * @author GrowlyX
+ * @since 9/24/2023
+ */
+object GameQueueManager
+{
+    var forceSpecificRegionGames: Region? = null
+    val developmentModePlayers = mutableSetOf<UUID>()
+
+    private val queues = mutableMapOf<String, GameQueue>()
+    private val dpsQueueRedis = DPSRedisService("queue")
+        .apply(DPSRedisService::start)
+
+    private val dpsRedisCache = DPSRedisShared.keyValueCache
+
+    fun useCache(
+        block: RedisCommands<String, String>.() -> Unit
+    )
+    {
+        block(dpsRedisCache.sync())
+    }
+
+    fun queueSizeFromId(id: String) = dpsRedisCache
+        .sync()
+        .llen("${namespace().suffixWhenDev()}:queues:$id:queue")
+
+    fun getQueueEntriesFromId(id: String) = dpsRedisCache.sync()
+        .hgetall("${namespace().suffixWhenDev()}:queues:$id:entries")
+        .mapValues {
+            Serializers.gson.fromJson(
+                it.value,
+                QueueEntry::class.java
+            )
+        }
+
+    fun getQueueEntryFromId(id: String, player: String) = Serializers.gson
+        .fromJson(
+            dpsRedisCache.sync()
+                .hget(
+                    "${namespace().suffixWhenDev()}:queues:$id:entries",
+                    player
+                ),
+            QueueEntry::class.java
+        )
+
+    fun removeQueueEntryFromId(id: String, entry: UUID) = dpsRedisCache
+        .sync()
+        .lrem("${namespace().suffixWhenDev()}:queues:$id:queue", 1, entry.toString())
+
+    fun getAllQueuePlayers(id: String) = dpsRedisCache
+        .sync()
+        .lrange("${namespace().suffixWhenDev()}:queues:$id:queue", 0, -1)
+
+    fun popQueueEntryFromId(id: String, amount: Int) = dpsRedisCache
+        .sync()
+        .lpop("${namespace().suffixWhenDev()}:queues:$id:queue", amount.toLong())
+        .map {
+            Serializers.gson.fromJson(
+                dpsRedisCache.sync()
+                    .hget(
+                        "${namespace().suffixWhenDev()}:queues:$id:entries",
+                        it
+                    ),
+                QueueEntry::class.java
+            )
+        }
+
+    fun prepareGameFor(
+        map: ImmutableMap,
+        expectation: GameExpectation,
+        region: Region,
+        cleanup: () -> Unit
+    ): CompletableFuture<Void>
+    {
+        fun fail(message: String)
+        {
+            DPSRedisShared.sendMessage(
+                expectation.players.toList(),
+                listOf(
+                    "&cWe were not able to send you to a game server! :(",
+                    "&cPlease report the following message to an administrator: &f$message"
+                )
+            )
+        }
+
+        val distinctUsers = expectation.players.distinct()
+        if (distinctUsers.size != expectation.players.size)
+        {
+            fail("Duplicate players are on teams")
+            return CompletableFuture.runAsync { cleanup() }
+        }
+
+        /**
+         * Although we check for the map lock when searching for a random map,
+         * we want to handle this edge case for duels and anything else.
+         */
+        if (map.locked)
+        {
+            fail("Map service gave an unavailable result for the map")
+            return CompletableFuture.runAsync { cleanup() }
+        }
+
+        /**
+         * At this point, we have a [GameExpectation] that is saved in Redis, and
+         * we've gotten rid of the queue entries from the list portion of queue. The players
+         * still think they are in the queue, so we can generate the map and THEN update
+         * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
+         */
+        val serverStatuses = ReplicationManager.allServerStatuses()
+        val serverToReplicationMappings = serverStatuses.entries
+            .filter {
+                val game = ServerContainer
+                    .getServer<GameServer?>(it.key)
+                    ?: return@filter false
+
+                game.lastHeartbeat + 5000L > System.currentTimeMillis() && game.state == ServerState.Loaded
+            }
+            .flatMap {
+                it.value.replications.values.flatten()
+            }
+
+        val availableReplication = serverToReplicationMappings
+            .sortedBy {
+                val game = ServerContainer
+                    .getServer<GameServer?>(it.server)
+                    ?: return@sortedBy Int.MAX_VALUE
+
+                game.getPlayersCount() ?: Int.MAX_VALUE
+            }
+            .firstOrNull {
+                !it.inUse && it.associatedMapName == map.name &&
+                    Region.extractFrom(it.server)
+                        .withinScopeOf(forceSpecificRegionGames ?: region)
+            }
+
+        // if there's an existing replication to house the game, we can send them directly
+        // there. if not, we'll take the server with the least player count
+        val serverToRequestReplication = availableReplication?.server
+            ?: (ServerContainer
+                .getServersInGroupCasted<GameServer>(gameGroup().suffixWhenDev())
+                .sortedBy(GameServer::getPlayersCount)
+                .filterNot { UpdateRolloutOrchestrator.isRolloutBlocked(it.id) }
+                .let { servers ->
+                    if (servers.any { server -> "mipdev" in server.groups })
+                    {
+                        if (expectation.players.any { player -> player in developmentModePlayers })
+                        {
+                            DPSRedisShared.sendMessage(
+                                expectation.players.toList(),
+                                listOf(
+                                    "&6You are being routed to a development game server!"
+                                )
+                            )
+                            return@let servers.filter { server -> "mipdev" in server.groups }
+                        }
+
+                        return@let servers.filter { server -> "mipdev" !in server.groups }
+                    }
+
+                    servers
+                }
+                .firstOrNull {
+                    // ensure server of NEW replication is in the same region
+                    Region.extractFrom(it.id).withinScopeOf(forceSpecificRegionGames ?: region)
+                }
+                ?.id
+                ?: return run {
+                    fail("No game server available to house the game")
+                    CompletableFuture.runAsync(cleanup)
+                })
+
+        val replication = if (availableReplication == null)
+        {
+            ReplicationManager.requestReplication(
+                serverToRequestReplication, map.name, expectation
+            )
+        } else
+        {
+            ReplicationManager.allocateReplication(
+                serverToRequestReplication, map.name, expectation
+            )
+        }
+
+        return replication
+            .thenAcceptAsync {
+                if (it.status == ReplicationResultStatus.Completed)
+                {
+                    DPSRedisShared.redirect(
+                        expectation.players.toList(), serverToRequestReplication
+                    )
+                } else
+                {
+                    fail(it.message ?: "N/A")
+                }
+
+                cleanup()
+            }
+            .exceptionally {
+                it.printStackTrace()
+                fail("${fail(it.message ?: "N/A")} (Orchestration)")
+                cleanup()
+                return@exceptionally null
+            }
+    }
+
+    data class SpectateResponse(val status: SpectateResult, val message: String)
+
+    enum class SpectateResult
+    {
+        Complete, Unavailable
+    }
+
+    private val spectateCallbacks = Caffeine
+        .newBuilder()
+        .removalListener<UUID, CompletableFuture<SpectateResponse>> { _, value, cause ->
+            if (cause == RemovalCause.EXPIRED)
+            {
+                value?.complete(
+                    SpectateResponse(
+                        status = SpectateResult.Unavailable,
+                        message = "We weren't able to put you as a spectator in the game!"
+                    )
+                )
+            }
+        }
+        .expireAfterWrite(5L, TimeUnit.SECONDS)
+        .build<UUID, CompletableFuture<SpectateResponse>>()
+
+    private val joinIntoCallbacks = Caffeine
+        .newBuilder()
+        .removalListener<UUID, CompletableFuture<JoinIntoGameResult>> { _, value, cause ->
+            if (cause == RemovalCause.EXPIRED)
+            {
+                value?.complete(
+                    JoinIntoGameResult(
+                        status = JoinIntoGameStatus.FailureNonEmptyTeams
+                    )
+                )
+            }
+        }
+        .expireAfterWrite(5L, TimeUnit.SECONDS)
+        .build<UUID, CompletableFuture<JoinIntoGameResult>>()
+
+    fun requestSpectate(
+        server: String,
+        request: SpectateRequest,
+        game: GameReference
+    ): CompletableFuture<SpectateResponse>
+    {
+        val future = CompletableFuture<SpectateResponse>()
+        val requestID = UUID.randomUUID()
+        dpsQueueRedis.createMessage(
+            "request-spectate",
+            "requestID" to requestID,
+            "request" to request,
+            "server" to server,
+            "game" to game.uniqueId
+        ).publish(
+            AwareThreadContext.SYNC,
+            channel = "practice:queue-inhabitants".suffixWhenDev()
+        )
+
+        spectateCallbacks.put(requestID, future)
+        return future
+    }
+
+    fun requestJoinIntoGame(
+        player: UUID,
+        game: GameReference
+    ): CompletableFuture<JoinIntoGameResult>
+    {
+        val future = CompletableFuture<JoinIntoGameResult>()
+        val requestID = UUID.randomUUID()
+        dpsQueueRedis.createMessage(
+            "request-join-into",
+            "requestID" to requestID,
+            "player" to player,
+            "game" to game.uniqueId
+        ).publish(
+            AwareThreadContext.SYNC,
+            channel = "practice:queue-inhabitants".suffixWhenDev()
+        )
+
+        joinIntoCallbacks.put(requestID, future)
+        return future
+    }
+
+    fun playerIsOnline(uniqueId: UUID) = dpsRedisCache.sync()
+        .hexists("player:$uniqueId", "server")
+
+    fun playerServerOf(uniqueId: UUID) = dpsRedisCache.sync()
+        .hget("player:$uniqueId", "server")
+
+    fun playerIsQueued(uniqueId: UUID) = dpsRedisCache.sync()
+        .hexists("${namespace().suffixWhenDev()}:queue-states", uniqueId.toString())
+
+    fun load()
+    {
+        KitDataSync.onReload {
+            buildAndValidateQueueIndexes()
+        }
+
+        buildAndValidateQueueIndexes()
+        dpsRedisCache.sync().del("${namespace().suffixWhenDev()}:duelrequests:*")
+
+        Logger.getGlobal().info("Invalidated existing duel requests")
+
+        val executor = Executors.newSingleThreadScheduledExecutor()
+        Runtime.getRuntime().addShutdownHook(Thread {
+            println("Terminating all duel request invalidators before shutdown")
+            executor.shutdownNow()
+        })
+
+        dpsQueueRedis.configure {
+            listen("force-specific-region") {
+                val regionID = retrieve<String>("region-id")
+                forceSpecificRegionGames = if (regionID != "__RESET__")
+                {
+                    Region.valueOf(regionID)
+                } else
+                {
+                    null
+                }
+            }
+
+            listen("enter-dev-mode") {
+                val uniqueId = retrieve<String>("uniqueId")
+                developmentModePlayers += UUID.fromString(uniqueId)
+            }
+
+            listen("leave-dev-mode") {
+                val uniqueId = retrieve<String>("uniqueId")
+                developmentModePlayers -= UUID.fromString(uniqueId)
+            }
+
+            listen("spectate-ready") {
+                val requestID = retrieve<UUID>("requestID")
+
+                spectateCallbacks.getIfPresent(requestID)
+                    ?.complete(
+                        SpectateResponse(SpectateResult.Complete, "")
+                    )
+            }
+
+            listen("join-into-ready") {
+                val requestID = retrieve<UUID>("requestID")
+                val result = retrieve<JoinIntoGameResult>("result")
+
+                joinIntoCallbacks.getIfPresent(requestID)
+                    ?.complete(result)
+            }
+
+            val futureMappings = mutableMapOf<String, ScheduledFuture<*>>()
+            listen("accept-duel") {
+                val request = retrieve<DuelRequest>("request")
+
+                val key = "${namespace().suffixWhenDev()}:duelrequests:${request.requester}:${request.kitID}"
+                futureMappings[key]?.cancel(true)
+
+                dpsRedisCache.sync().hdel(key, request.requestee.toString())
+
+                if (!playerIsOnline(request.requester))
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cThe player that sent you the duel request is no longer online!")
+                    )
+                    return@listen
+                }
+
+                val server = playerServerOf(request.requester)
+                val model = ServerContainer.getServer(server)
+
+                if (model == null || lobbyGroup().suffixWhenDev() !in model.groups)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cThe player that sent you the duel request is no longer on a practice lobby!")
+                    )
+                    return@listen
+                }
+
+                if (playerIsQueued(request.requester))
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cThe player that sent you the duel request is currently queued for a game!")
+                    )
+                    return@listen
+                }
+
+                GameManager.allGames()
+                    .thenApply {
+                        it.firstOrNull { ref -> request.requester in ref.players }
+                    }
+                    .thenAccept {
+                        if (it != null)
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.requestee),
+                                listOf("&cThe player that sent you the duel request is currently in a game!")
+                            )
+                            return@thenAccept
+                        }
+
+                        val kit = KitDataSync.cached().kits[request.kitID]
+                            ?: return@thenAccept run {
+                                DPSRedisShared.sendMessage(
+                                    listOf(request.requestee),
+                                    listOf(
+                                        "&cThe kit you received a duel request for no longer exists!"
+                                    )
+                                )
+                            }
+
+                        // we need to do the check again, so why not
+                        val map = if (request.mapID == null)
+                        {
+                            gg.scala.practice.application.api.defaults.map.MapDataSync
+                                .selectRandomMapCompatibleWith(kit)
+                        } else
+                        {
+                            MapDataSync.cached().maps[request.mapID]
+                        } ?: return@thenAccept run {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.requestee),
+                                listOf(
+                                    "&cWe found no map compatible with the kit you received a duel request for!"
+                                )
+                            )
+                        }
+
+                        prepareGameFor(
+                            map = map,
+                            expectation = GameExpectation(
+                                players = listOf(request.requester, request.requestee).toMutableSet(),
+                                identifier = UUID.randomUUID(),
+                                teams = setOf(
+                                    GameTeam(teamIdentifier = TeamIdentifier.A, mutableSetOf(request.requester)),
+                                    GameTeam(teamIdentifier = TeamIdentifier.B, mutableSetOf(request.requestee))
+                                ),
+                                kitId = request.kitID,
+                                mapId = map.name,
+                                configuration = request.configuration
+                            ),
+                            region = request.region
+                        ) {
+                            println("[debug] prepared duel game for ${request.requester}")
+                        }
+                    }
+            }
+
+            listen("create-match") {
+                val config = retrieve<GameExpectation>("config")
+                val mapID = retrieveNullable<String>("map")
+                val kitID = retrieve<String>("kit")
+                val region = Region.valueOf(retrieve<String>("region"))
+
+                val kit = KitDataSync.cached().kits[kitID]
+                    ?: return@listen
+
+                // we need to do the check again, so why not
+                val map = if (mapID == null)
+                {
+                    MapDataSync
+                        .selectRandomMapCompatibleWith(kit)
+                } else
+                {
+                    MapDataSync.cached().maps[mapID]
+                } ?: return@listen
+
+                prepareGameFor(
+                    map = map,
+                    expectation = config,
+                    region = region
+                ) {
+
+                }
+            }
+
+            listen("request-duel") {
+                val request = retrieve<DuelRequest>("request")
+                val key = "${namespace().suffixWhenDev()}:duelrequests:${request.requester}:${request.kitID}"
+                dpsRedisCache.sync().hset(
+                    key,
+                    request.requestee.toString(),
+                    Serializers.gson.toJson(request)
+                )
+
+                val kit = KitDataSync.cached().kits[request.kitID]!!
+                val map = if (request.mapID != null)
+                {
+                    MapDataSync.cached().maps[request.mapID]
+                } else null
+
+                val requesterName = ScalaStoreUuidCache.username(request.requester)
+                val requesterRegion = request.region
+
+                val pingColor = formatPlayerPing(request.requesterPing)
+
+                DPSRedisShared.sendMessage(
+                    listOf(request.requestee),
+                    Message()
+                        .withMessage(
+                            " ",
+                            "{primary}Duel Request:",
+                            "&7┃ &fFrom: {primary}$requesterName &7(${pingColor}${request.requesterPing}ms&7)",
+                            "&7┃ &fKit: {primary}${kit.displayName}",
+                            "&7┃ &fMap: {primary}${map?.displayName ?: "Random"}",
+                            "&7┃ &fRegion: {primary}$requesterRegion",
+                            " "
+                        )
+                        .withMessage(
+                            "&a(Click to accept)"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/accept $requesterName ${kit.id}"
+                        )
+                        .andHoverOf("Click to accept!")
+                        .withMessage("")
+                )
+
+                DPSRedisShared.sendNotificationSound(
+                    listOf(request.requestee),
+                    "duel-sounds"
+                )
+
+                futureMappings[key] = executor.schedule({
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cYour duel request from &f${requesterName}&c with kit &f${kit.displayName}&c has expired!")
+                    )
+
+                    dpsRedisCache.sync().hdel(key, request.requestee.toString())
+                }, 1L, TimeUnit.MINUTES)
+            }
+
+            listen("spectate") {
+                val request = retrieve<SpectateRequest>("request")
+
+                GameManager.allGames()
+                    .thenApply {
+                        it.firstOrNull { ref -> request.target in ref.players }
+                    }
+                    .thenCompose {
+                        if (it == null)
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.player),
+                                listOf("&cThe player you tried to spectate is not in a game!")
+                            )
+                            return@thenCompose CompletableFuture
+                                .completedFuture(null)
+                        }
+
+                        if (!it.majorityAllowsSpectators && !request.bypassesSpectatorAllowanceChecks)
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.player),
+                                listOf("&cThe game you tried to spectate has spectators disabled!")
+                            )
+                            return@thenCompose CompletableFuture
+                                .completedFuture(null)
+                        }
+
+                        requestSpectate(it.server, request, it)
+                            .thenApply { resp ->
+                                resp to it.server
+                            }
+                    }
+                    .thenApply {
+                        if (it?.first?.status == SpectateResult.Complete)
+                        {
+                            DPSRedisShared.redirect(
+                                listOf(request.player),
+                                it.second
+                            )
+                        }
+                    }
+            }
+
+            listen("join") {
+                val entry = retrieve<QueueEntry>("entry")
+
+                val kit = retrieve<String>("kit")
+                val queueType = retrieve<QueueType>("queueType")
+                val teamSize = retrieve<Int>("teamSize")
+
+                val queueId = "$kit:${queueType.name}:${teamSize}v${teamSize}"
+
+                queues[queueId]?.apply {
+                    dpsRedisCache.sync().hset(
+                        "${namespace().suffixWhenDev()}:queues:$queueId:entries",
+                        entry.leader.toString(),
+                        Serializers.gson.toJson(entry)
+                    )
+
+                    dpsRedisCache.sync().lpush(
+                        "${namespace().suffixWhenDev()}:queues:$queueId:queue",
+                        entry.leader.toString()
+                    )
+
+                    val queueState = QueueState(
+                        kitId = kit,
+                        queueType = queueType,
+                        teamSize = teamSize,
+                        joined = System.currentTimeMillis()
+                    )
+                    val jsonQueueState = Serializers.gson.toJson(queueState)
+
+                    for (player in entry.players)
+                    {
+                        dpsRedisCache.sync().hset(
+                            "${namespace().suffixWhenDev()}:queue-states",
+                            player.toString(),
+                            jsonQueueState
+                        )
+                    }
+                }
+            }
+
+            listen("leave") {
+                val leader = retrieve<UUID>("leader")
+                val queueId = retrieve<String>("queueID")
+
+                queues[queueId]?.apply {
+                    dpsRedisCache.sync().lrem(
+                        "${namespace().suffixWhenDev()}:queues:$queueId:queue",
+                        1,
+                        leader.toString()
+                    )
+
+                    val queueEntry = Serializers
+                        .gson.fromJson(
+                            dpsRedisCache.sync().hget(
+                                "${namespace().suffixWhenDev()}:queues:$queueId:entries",
+                                leader.toString()
+                            ),
+                            QueueEntry::class.java
+                        )
+
+                    if (queueEntry != null)
+                    {
+                        destroyQueueStates(queueId(), queueEntry)
+                    }
+                }
+            }
+        }
+    }
+
+    fun destroyQueueStates(queueID: String, entry: QueueEntry)
+    {
+        dpsRedisCache.sync().hdel(
+            "${namespace().suffixWhenDev()}:queues:$queueID:entries",
+            entry.leader.toString()
+        )
+
+        dpsRedisCache.sync().hdel(
+            "${namespace().suffixWhenDev()}:queue-states",
+            *entry.players
+                .map { it.toString() }
+                .toTypedArray()
+        )
+    }
+
+    private fun buildAndValidateQueueIndexes()
+    {
+        KitDataSync.cached().kits.values
+            .forEach { kit ->
+                val sizeModels = kit
+                    .featureConfig(
+                        FeatureFlag.QueueSizes,
+                        key = "sizes"
+                    )
+                    .split(",")
+                    .map { sizeModel ->
+                        val split = sizeModel.split(":")
+                        split[0].toInt() to (split.getOrNull(1)
+                            ?.split("+")
+                            ?.map(QueueType::valueOf)
+                            ?: listOf(QueueType.Unranked))
+                    }
+
+                QueueType.entries
+                    .forEach scope@{
+                        for (model in sizeModels)
+                        {
+                            if (
+                                it == QueueType.Ranked &&
+                                (
+                                    !kit.features(FeatureFlag.Ranked) ||
+                                        QueueType.Ranked !in model.second
+                                    )
+                            )
+                            {
+                                // a ranked queue exists for this kit, but the kit no longer supports ranked
+                                val existingRanked = GameQueue(kit, it, model.first)
+                                if (queues.containsKey(existingRanked.queueId()))
+                                {
+                                    queues
+                                        .remove(existingRanked.queueId())
+                                        ?.destroy()
+                                }
+                                return@scope
+                            }
+
+                            val queue = if (it != QueueType.Robot)
+                            {
+                                GameQueue(
+                                    kit = kit,
+                                    queueType = it,
+                                    teamSize = model.first
+                                )
+                            } else
+                            {
+                                RobotSinglePlayerQueue(kit)
+                            }
+
+                            if (!queues.containsKey(queue.queueId()))
+                            {
+                                runCatching {
+                                    queue.cleanup()
+                                }.onFailure { failure ->
+                                    failure.printStackTrace()
+                                }
+
+                                queue.start()
+                                queues[queue.queueId()] = queue
+                            }
+
+                            if (queue is RobotSinglePlayerQueue)
+                            {
+                                val additionalQueue = RobotDuoPlayerQueue(kit)
+
+                                if (!queues.containsKey(additionalQueue.queueId()))
+                                {
+                                    runCatching {
+                                        additionalQueue.cleanup()
+                                    }.onFailure { failure ->
+                                        failure.printStackTrace()
+                                    }
+
+                                    additionalQueue.start()
+                                    queues[additionalQueue.queueId()] = additionalQueue
+                                }
+                            }
+                        }
+                    }
+            }
+
+        val rankedSkyWarsQueue = KitDataSync.cached().kits[SkyWarsConstants.KitID]
+        if (rankedSkyWarsQueue != null)
+        {
+            if (queues[SkyWarsConstants.QID] == null)
+            {
+                val queue = BetaRankedSkyWarsGameQueue(rankedSkyWarsQueue)
+                queue.cleanup()
+                queue.start()
+                queues[SkyWarsConstants.QID] = queue
+            }
+        } else
+        {
+            queues.remove(SkyWarsConstants.QID)?.destroy()
+        }
+
+        // cleanup queues for kits that no longer exist
+        queues.toMap().forEach { (key, queue) ->
+            val existingKit = KitDataSync
+                .cached().kits[queue.kit.id]
+
+            if (existingKit == null)
+            {
+                queues.remove(key)?.destroy()
+            }
+        }
+    }
+}
