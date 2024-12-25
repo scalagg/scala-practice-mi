@@ -87,22 +87,6 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
                 "${CC.WHITE}Current view:",
             )
             .apply {
-                for (type in ReferenceLeaderboardType.entries)
-                {
-                    if (menuState == type)
-                    {
-                        addToLore("${CC.GREEN}► ${type.displayName}")
-                    } else
-                    {
-                        addToLore("${CC.GRAY}${type.displayName}")
-                    }
-                }
-            }
-            .addToLore(
-                "",
-                "${CC.GREEN}Click to scroll through!"
-            )
-            .apply {
                 for (type in ReferenceLeaderboardType.entries) {
                     if ((!Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots") && (type == ReferenceLeaderboardType.UnrankedBotWins || type == ReferenceLeaderboardType.UnrankedBotStreak))) {
                         continue
