@@ -1,19 +1,16 @@
 package gg.scala.practice
 
-import org.bukkit.Bukkit
-
 /**
  * @author GrowlyX
  * @since 2/10/2024
  */
 var devProvider: () -> Boolean = { false }
-var isSmartBotsEnabled = Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")
 
 fun isDev() = devProvider()
 fun isProd() = !devProvider()
 
 fun namespace() = "scalapractice"
-fun namespaceShortened() = "sp"
+fun namespaceShortened() = "tp"
 
 fun practiceGroup() = "mip"
 fun gameGroup() = "mipgame"

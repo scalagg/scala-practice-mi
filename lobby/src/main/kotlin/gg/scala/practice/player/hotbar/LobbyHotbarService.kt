@@ -16,7 +16,6 @@ import gg.scala.practice.Globals
 import gg.scala.practice.PracticeLobby
 import gg.scala.practice.commands.TournamentCommand
 import gg.scala.practice.configuration.PracticeConfigurationService
-import gg.scala.practice.isSmartBotsEnabled
 import gg.scala.practice.kit.KitService
 import gg.scala.practice.menu.JoinQueueMenu
 import gg.scala.practice.menu.LeaderboardsMenu
@@ -246,7 +245,7 @@ object LobbyHotbarService
             }
         )
 
-        if (isSmartBotsEnabled)
+        if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots"))
         {
             idlePreset.addSlot(
                 2,

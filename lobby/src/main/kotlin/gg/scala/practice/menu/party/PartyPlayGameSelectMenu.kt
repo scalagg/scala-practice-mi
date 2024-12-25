@@ -1,12 +1,11 @@
 package gg.scala.practice.menu.party
 
-import gg.scala.practice.isSmartBotsEnabled
-import gg.scala.practice.party.WParty
 import gg.scala.practice.player.LobbyPlayerService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
@@ -58,7 +57,7 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
                         }
                 }
         )
-        if (isSmartBotsEnabled)
+        if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots"))
         {
             buttons[5] = ItemBuilder
                 .of(Material.ENDER_PORTAL_FRAME)

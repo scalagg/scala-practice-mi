@@ -1,6 +1,5 @@
 package gg.scala.practice.menu
 
-import gg.scala.practice.isSmartBotsEnabled
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.leaderboards.Reference
@@ -13,6 +12,7 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.math.Numbers
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -104,7 +104,7 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
             )
             .apply {
                 for (type in ReferenceLeaderboardType.entries) {
-                    if ((!isSmartBotsEnabled && (type == ReferenceLeaderboardType.UnrankedBotWins || type == ReferenceLeaderboardType.UnrankedBotStreak))) {
+                    if ((!Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots") && (type == ReferenceLeaderboardType.UnrankedBotWins || type == ReferenceLeaderboardType.UnrankedBotStreak))) {
                         continue
                     }
 
@@ -121,7 +121,7 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
             )
             .toButton { _, type ->
                 val validEntries = ReferenceLeaderboardType.entries.filter {
-                    !(it == ReferenceLeaderboardType.UnrankedBotWins || it == ReferenceLeaderboardType.UnrankedBotStreak) || isSmartBotsEnabled
+                    !(it == ReferenceLeaderboardType.UnrankedBotWins || it == ReferenceLeaderboardType.UnrankedBotStreak) || Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")
                 }
                 val currentIndex = validEntries.indexOf(menuState)
                 menuState = if (type!!.isRightClick)

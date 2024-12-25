@@ -1,7 +1,6 @@
 package gg.scala.practice.menu
 
 import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.practice.isSmartBotsEnabled
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.profile.PracticeProfile
@@ -10,6 +9,7 @@ import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -131,7 +131,7 @@ class StatisticsMenu(
             )
             .toButton()
 
-        if (isSmartBotsEnabled) {
+        if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")) {
             buttons[38] = ItemBuilder
                 .of(
                     if (state == StatisticMenuState.UnrankedBot)
