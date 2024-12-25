@@ -1,7 +1,9 @@
 package gg.scala.practice.menu.party
 
+import gg.scala.practice.isSmartBotsEnabled
 import gg.scala.practice.party.WParty
 import gg.scala.practice.player.LobbyPlayerService
+import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -19,62 +21,67 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
         placeholder = true
     }
 
-    override fun getButtons(player: Player) = mapOf(
-        4 to ItemBuilder
-            .of(Material.GOLD_SWORD)
-            .name("${CC.AQUA}Team vs. Team Fights")
-            .addToLore(
-                "${CC.GRAY}Create two teams with your",
-                "${CC.GRAY}party members and fight",
-                "${CC.GRAY}against one another!",
-                "",
-                "${CC.GREEN}Click to play!"
-            )
-            .toButton { _, _ ->
-                val lobbyPlayer = LobbyPlayerService.find(player)
-                    ?: return@toButton
+    override fun getButtons(player: Player): Map<Int, Button>
+    {
+        val buttons = mutableMapOf(
+            4 to ItemBuilder
+                .of(Material.GOLD_SWORD)
+                .name("${CC.AQUA}Team vs. Team Fights")
+                .addToLore(
+                    "${CC.GRAY}Create two teams with your",
+                    "${CC.GRAY}party members and fight",
+                    "${CC.GRAY}against one another!",
+                    "",
+                    "${CC.GREEN}Click to play!"
+                )
+                .toButton { _, _ ->
+                    val lobbyPlayer = LobbyPlayerService.find(player)
+                        ?: return@toButton
 
-                player.closeInventory()
-                if (!lobbyPlayer.isInParty())
-                {
-                    player.sendMessage("${CC.RED}You are no longer in a party!")
-                    return@toButton
-                }
-
-                lobbyPlayer.partyOf()
-                    .onlinePracticePlayersInLobby()
-                    .thenAccept {
-                        if (it.keys.size < 2)
-                        {
-                            player.sendMessage("${CC.RED}You must have at least two players in your party to start a Team vs. Team fight!")
-                            return@thenAccept
-                        }
-
-                        PartyPlayTVTFights(it.keys.toList()).openMenu(player)
+                    player.closeInventory()
+                    if (!lobbyPlayer.isInParty())
+                    {
+                        player.sendMessage("${CC.RED}You are no longer in a party!")
+                        return@toButton
                     }
-            },
-        5 to ItemBuilder
-            .of(Material.ENDER_PORTAL_FRAME)
-            .name("${CC.GOLD}Robot Fights")
-            .addToLore(
-                "${CC.GRAY}Your team versus bots!",
-                "",
-                "${CC.GREEN}Click to prepare!"
-            )
-            .toButton { _, _ ->
-                val lobbyPlayer = LobbyPlayerService.find(player)
-                    ?: return@toButton
 
-                player.closeInventory()
-                if (!lobbyPlayer.isInParty())
-                {
-                    player.sendMessage("${CC.RED}You are no longer in a party!")
-                    return@toButton
+                    lobbyPlayer.partyOf()
+                        .onlinePracticePlayersInLobby()
+                        .thenAccept {
+                            if (it.keys.size < 2)
+                            {
+                                player.sendMessage("${CC.RED}You must have at least two players in your party to start a Team vs. Team fight!")
+                                return@thenAccept
+                            }
+
+                            PartyPlayTVTFights(it.keys.toList()).openMenu(player)
+                        }
                 }
+        )
+        if (isSmartBotsEnabled)
+        {
+            buttons[5] = ItemBuilder
+                .of(Material.ENDER_PORTAL_FRAME)
+                .name("${CC.GOLD}Robot Fights")
+                .addToLore(
+                    "${CC.GRAY}Your team versus bots!",
+                    "",
+                    "${CC.GREEN}Click to prepare!"
+                )
+                .toButton { _, _ ->
+                    val lobbyPlayer = LobbyPlayerService.find(player)
+                        ?: return@toButton
 
-                player.sendMessage("${CC.RED}This feature is currently disabled!")
+                    player.closeInventory()
+                    if (!lobbyPlayer.isInParty())
+                    {
+                        player.sendMessage("${CC.RED}You are no longer in a party!")
+                        return@toButton
+                    }
 
-                /*lobbyPlayer.partyOf()
+                    player.sendMessage("${CC.RED}This feature is currently disabled!")
+
+                    /*lobbyPlayer.partyOf()
                     .onlinePracticePlayersInLobby()
                     .thenAccept {
                         if (it.keys.size < 2)
@@ -85,6 +92,9 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
 
                         PartyPlayBotsIntegration.createBotsWith(player, it.keys)
                     }*/
-            }
-    )
+                }
+        }
+
+        return buttons
+    }
 }

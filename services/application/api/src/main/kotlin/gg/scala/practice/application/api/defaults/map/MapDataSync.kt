@@ -15,7 +15,7 @@ import net.kyori.adventure.key.Key
  * @author GrowlyX
  * @since 9/24/2023
  */
-object MapDataSync : DPSDataSync<gg.scala.practice.application.api.defaults.map.ImmutableMapContainer>()
+object MapDataSync : DPSDataSync<ImmutableMapContainer>()
 {
     object DPSMapKeys : DPSDataSyncKeys
     {
@@ -27,28 +27,28 @@ object MapDataSync : DPSDataSync<gg.scala.practice.application.api.defaults.map.
 
     override fun locatedIn() = DPSDataSyncSource.Mongo
 
-    override fun keys()  = MapDataSync.DPSMapKeys
+    override fun keys()  = DPSMapKeys
     override fun type()  = ImmutableMapContainer::class.java
 
-    fun selectMapIfCompatible(kit: ImmutableKit, mapID: String?): gg.scala.practice.application.api.defaults.map.ImmutableMap?
+    fun selectMapIfCompatible(kit: ImmutableKit, mapID: String?): ImmutableMap?
     {
         val groups = KitGroupDataSync.groupsOf(kit)
             .map(ImmutableKitGroup::id)
 
         return cached().maps.values
-            .filterNot(gg.scala.practice.application.api.defaults.map.ImmutableMap::locked)
+            .filterNot(ImmutableMap::locked)
             .filter { groups.intersect(it.associatedKitGroups).isNotEmpty() }
             .shuffled()
             .firstOrNull { if (mapID == null) true else it.name == mapID }
     }
 
-    fun selectRandomMapCompatibleWith(kit: ImmutableKit): gg.scala.practice.application.api.defaults.map.ImmutableMap?
+    fun selectRandomMapCompatibleWith(kit: ImmutableKit): ImmutableMap?
     {
         val groups = KitGroupDataSync.groupsOf(kit)
             .map(ImmutableKitGroup::id)
 
         return cached().maps.values
-            .filterNot(gg.scala.practice.application.api.defaults.map.ImmutableMap::locked)
+            .filterNot(ImmutableMap::locked)
             .shuffled()
             .firstOrNull {
                 groups.intersect(it.associatedKitGroups).isNotEmpty()

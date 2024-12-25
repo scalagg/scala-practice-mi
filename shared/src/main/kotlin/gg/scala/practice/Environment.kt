@@ -1,10 +1,13 @@
 package gg.scala.practice
 
+import org.bukkit.Bukkit
+
 /**
  * @author GrowlyX
  * @since 2/10/2024
  */
 var devProvider: () -> Boolean = { false }
+var isSmartBotsEnabled = Bukkit.getPluginManager().isPluginEnabled("Practice-SmartBots")
 
 fun isDev() = devProvider()
 fun isProd() = !devProvider()

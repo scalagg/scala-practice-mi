@@ -1,5 +1,6 @@
 package gg.scala.practice.menu
 
+import gg.scala.practice.isSmartBotsEnabled
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.leaderboards.Reference
@@ -101,10 +102,32 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
                 "",
                 "${CC.GREEN}Click to scroll through!"
             )
+            .apply {
+                for (type in ReferenceLeaderboardType.entries) {
+                    if ((!isSmartBotsEnabled && (type == ReferenceLeaderboardType.UnrankedBotWins || type == ReferenceLeaderboardType.UnrankedBotStreak))) {
+                        continue
+                    }
+
+                    if (menuState == type) {
+                        addToLore("${CC.GREEN}► ${type.displayName}")
+                    } else {
+                        addToLore("${CC.GRAY}${type.displayName}")
+                    }
+                }
+            }
+            .addToLore(
+                "",
+                "${CC.GREEN}Click to scroll through!"
+            )
             .toButton { _, type ->
+                val validEntries = ReferenceLeaderboardType.entries.filter {
+                    !(it == ReferenceLeaderboardType.UnrankedBotWins || it == ReferenceLeaderboardType.UnrankedBotStreak) || isSmartBotsEnabled
+                }
+                val currentIndex = validEntries.indexOf(menuState)
                 menuState = if (type!!.isRightClick)
-                    menuState.previous() else
-                    menuState.next()
+                    validEntries.getOrElse(currentIndex - 1) { validEntries.last() }
+                else
+                    validEntries.getOrElse(currentIndex + 1) { validEntries.first() }
 
                 openMenu(player)
                 player.playSound(player.location, Sound.NOTE_STICKS, 1.0f, 1.0f)

@@ -1,6 +1,7 @@
 package gg.scala.practice.menu
 
 import gg.scala.lemon.util.QuickAccess.username
+import gg.scala.practice.isSmartBotsEnabled
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.profile.PracticeProfile
@@ -130,33 +131,35 @@ class StatisticsMenu(
             )
             .toButton()
 
-        buttons[38] = ItemBuilder
-            .of(
-                if (state == StatisticMenuState.UnrankedBot)
-                    Material.WOOL else Material.CARPET
-            )
-            .apply {
-                if (state == StatisticMenuState.UnrankedBot)
-                    glow()
-            }
-            .name("${CC.B_YELLOW}Unranked Bot Statistics")
-            .data(4)
-            .addToLore(
-                " ",
-                "${CC.GREEN}Click to view!"
-            )
-            .toButton { _, _ ->
-                if (state == StatisticMenuState.UnrankedBot)
-                    return@toButton
+        if (isSmartBotsEnabled) {
+            buttons[38] = ItemBuilder
+                .of(
+                    if (state == StatisticMenuState.UnrankedBot)
+                        Material.WOOL else Material.CARPET
+                )
+                .apply {
+                    if (state == StatisticMenuState.UnrankedBot)
+                        glow()
+                }
+                .name("${CC.B_YELLOW}Unranked Bot Statistics")
+                .data(4)
+                .addToLore(
+                    " ",
+                    "${CC.GREEN}Click to view!"
+                )
+                .toButton { _, _ ->
+                    if (state == StatisticMenuState.UnrankedBot)
+                        return@toButton
 
-                Button.playNeutral(player)
+                    Button.playNeutral(player)
 
-                StatisticsMenu(
-                    player,
-                    profile,
-                    StatisticMenuState.UnrankedBot
-                ).openMenu(player)
-            }
+                    StatisticsMenu(
+                        player,
+                        profile,
+                        StatisticMenuState.UnrankedBot
+                    ).openMenu(player)
+                }
+        }
 
         buttons[39] = ItemBuilder
             .of(
