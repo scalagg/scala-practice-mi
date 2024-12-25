@@ -27,7 +27,7 @@ public class ChunkDumpCommand extends ScalaCommand
     public PracticeGame plugin;
 
     @CommandAlias("chunkdump")
-    @CommandPermission("uhc.command.chunkdump")
+    @CommandPermission("practice.command.chunkdump")
     public void onChunkDump(ScalaPlayer player, World world)
     {
         Location loc = player.bukkit().getLocation();
