@@ -8,7 +8,7 @@ import gg.scala.commons.core.plugin.*
  * @since 8/24/2024
  */
 @Plugin(
-    name = "Practice-MiniGame-SkyWars",
+    name = "ScalaPractice-MiniGame-SkyWars",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthorComposite(

@@ -16,7 +16,7 @@ import gg.scala.practice.services.GameManagerService
  * @since 8/5/2022
  */
 @Plugin(
-    name = "Practice",
+    name = "ScalaPractice",
     version = "%remote%/%branch%/%id%"
 )
  @PluginAuthor("Scala")

@@ -7,7 +7,7 @@ import org.bukkit.Bukkit
  * @since 2/10/2024
  */
 var devProvider: () -> Boolean = { false }
-var isSmartBotsEnabled = Bukkit.getPluginManager().isPluginEnabled("Practice-SmartBots")
+var isSmartBotsEnabled = Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")
 
 fun isDev() = devProvider()
 fun isProd() = !devProvider()

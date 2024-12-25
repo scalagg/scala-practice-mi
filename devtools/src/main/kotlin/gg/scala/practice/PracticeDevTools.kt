@@ -18,7 +18,7 @@ import kotlin.properties.Delegates
  * @since 9/22/2023
  */
 @Plugin(
-    name = "Practice-DevTools",
+    name = "ScalaPractice-DevTools",
     version = "%remote%/%branch%/%id%"
 )
  @PluginAuthor("Scala")

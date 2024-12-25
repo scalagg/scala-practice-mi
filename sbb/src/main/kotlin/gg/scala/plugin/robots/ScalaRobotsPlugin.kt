@@ -27,7 +27,7 @@ import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
 import org.bukkit.Bukkit
 
 @Plugin(
-    name = "Practice-SmartBots",
+    name = "ScalaPractice-SmartBots",
     version = "%remote%/%branch%/%id%"
 )
 @PluginAuthorComposite(
