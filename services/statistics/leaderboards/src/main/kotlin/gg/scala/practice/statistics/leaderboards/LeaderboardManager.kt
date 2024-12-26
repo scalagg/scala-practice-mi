@@ -100,13 +100,6 @@ object LeaderboardManager : () -> Unit
     override fun invoke()
     {
         val start = System.currentTimeMillis()
-        val futures = leaderboards.map {
-            connection.async()
-                .del(
-                    "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:staging"
-                )
-        }
-
         rebuildLeaderboardIndexes()
 
         val updatedReferences = Serializers.gson.toJson(
@@ -128,15 +121,6 @@ object LeaderboardManager : () -> Unit
         )
 
         connection.flushCommands()
-        LettuceFutures.awaitAll(
-            5, TimeUnit.SECONDS,
-            *futures.toTypedArray()
-        )
-
-        Logger.getGlobal()
-            .info(
-                "[leaderboards] removed staging leaderboards in ${System.currentTimeMillis() - start}ms"
-            )
 
         practiceProfileCollection.find().forEach { document ->
             val profile = Serializers.gson.fromJson(
@@ -164,29 +148,15 @@ object LeaderboardManager : () -> Unit
                 if (value != null)
                 {
                     connection.async().zadd(
-                        "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:staging",
+                        "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:final",
                         value.toDouble(),
                         profile.identifier.toString()
                     )
                 }
             }
-
-            connection.flushCommands()
-        }
-
-        val renameFutures = leaderboards.map {
-            connection.async().rename(
-                "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:staging",
-                "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:final"
-            )
         }
 
         connection.flushCommands()
-
-        LettuceFutures.awaitAll(
-            30, TimeUnit.SECONDS,
-            *renameFutures.toTypedArray()
-        )
 
         Logger.getGlobal()
             .info(
