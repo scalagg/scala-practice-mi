@@ -156,16 +156,16 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                                 "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
 
                             val basicsProfile = BasicsProfileService.find(player)
-                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
 
                             if (basicsProfile != null)
                             {
-                                board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Spec: ${
+                                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Spec: ${
                                     if (player.isASilentSpectator()) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
                                 }"
                             }
 
-                            board += "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
                         }
 
                         LobbyScoreboardView.None ->

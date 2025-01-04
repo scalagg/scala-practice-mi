@@ -37,7 +37,7 @@ import org.bukkit.Bukkit
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
-    PluginDependency("Practice")
+    PluginDependency("ScalaPractice")
 )
 class ScalaRobotsPlugin : ExtendedScalaPlugin()
 {
@@ -49,7 +49,7 @@ class ScalaRobotsPlugin : ExtendedScalaPlugin()
 
     lateinit var botManager: BotManager
     lateinit var eventManager: EventManager
-    lateinit var featureManager: _root_ide_package_.gg.scala.plugin.robots.features.FeatureManager
+    lateinit var featureManager: FeatureManager
     lateinit var dataManager: DataManager
 
     @ContainerEnable

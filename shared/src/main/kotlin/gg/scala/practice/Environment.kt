@@ -10,7 +10,7 @@ fun isDev() = devProvider()
 fun isProd() = !devProvider()
 
 fun namespace() = "scalapractice"
-fun namespaceShortened() = "tp"
+fun namespaceShortened() = "sp"
 
 fun practiceGroup() = "mip"
 fun gameGroup() = "mipgame"
