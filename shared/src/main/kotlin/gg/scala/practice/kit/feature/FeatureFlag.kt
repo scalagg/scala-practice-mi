@@ -198,6 +198,13 @@ enum class FeatureFlag(
             "throwing.",
         )
     ),
+    ArrowCooldown(
+        schema = mutableMapOf("duration" to "3"),
+        description = listOf(
+            "Adds a cooldown to shooting an",
+            "arrow.",
+        )
+    ),
     FrozenOnGameStart(
         description = listOf(
             "Prevents players from moving",

@@ -1,6 +1,7 @@
 package gg.scala.practice.player.hotbar
 
 import com.cryptomorin.xseries.XMaterial
+import gg.scala.basics.plugin.commands.admin.AlertCommand.hasPermission
 import gg.scala.basics.plugin.settings.SettingMenu
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
@@ -20,6 +21,7 @@ import gg.scala.practice.kit.KitService
 import gg.scala.practice.menu.JoinQueueMenu
 import gg.scala.practice.menu.LeaderboardsMenu
 import gg.scala.practice.menu.PlayerMainMenu
+import gg.scala.practice.menu.PracticeManagementMenu
 import gg.scala.practice.menu.editor.EditorKitSelectionMenu
 import gg.scala.practice.menu.party.PartyPlayGameSelectMenu
 import gg.scala.practice.player.LobbyPlayerService

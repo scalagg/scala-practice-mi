@@ -20,7 +20,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
-import kotlin.math.round
 import kotlin.math.roundToInt
 
 /**

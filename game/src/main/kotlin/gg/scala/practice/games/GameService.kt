@@ -10,10 +10,6 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
-import gg.scala.lemon.util.QuickAccess
-import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.staff.anticheat.AnticheatFeature
 import gg.scala.game.extensions.cosmetics.CosmeticLocalConfig
 import gg.scala.game.extensions.cosmetics.CosmeticRegistry
 import gg.scala.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
@@ -21,6 +17,9 @@ import gg.scala.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
 import gg.scala.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEffect
 import gg.scala.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.scala.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
+import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
+import gg.scala.lemon.util.QuickAccess
+import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.practice.PracticeGame
 import gg.scala.practice.games.features.FireballFeature
 import gg.scala.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
@@ -30,12 +29,12 @@ import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.kit.feature.GameLifecycle
 import gg.scala.practice.listeners.BlockFormListener
 import gg.scala.practice.minigame.AbstractMiniGameGameImpl
-import gg.scala.practice.minigame.event.PlayerMiniGameQuitWhileStartingEvent
 import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.services.GameManagerService
 import gg.scala.practice.settings.DuelsSettingCategory
 import gg.scala.practice.suffixWhenDev
 import gg.scala.practice.utilities.toRBTeamSide
+import gg.scala.staff.anticheat.AnticheatFeature
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -575,7 +574,6 @@ object GameService
                         return
                     }
 
-                    player.sendMessage("${CC.GREEN}Respawning...")
                     Tasks.delayed(1L) {
                         game.prepareForNewLife(player)
                     }
@@ -724,9 +722,9 @@ object GameService
                 it.item.hasItemMeta() && it.item.itemMeta.displayName.contains("Golden Head")
             }
             .handler {
-                it.player.playSound(
-                    it.player.location, Sound.EAT, 10f, 1f
-                )
+//                it.player.playSound(
+//                    it.player.location, Sound.EAT, 10f, 1f
+//                )
 
                 it.player.removePotionEffect(PotionEffectType.ABSORPTION)
                 it.player.addPotionEffect(
@@ -740,17 +738,17 @@ object GameService
                 it.player.addPotionEffect(
                     PotionEffect(
                         PotionEffectType.REGENERATION,
-                        5 * 20, 2, false, true
+                        10 * 20, 1, false, true
                     )
                 )
 
-                it.player.removePotionEffect(PotionEffectType.SPEED)
-                it.player.addPotionEffect(
-                    PotionEffect(
-                        PotionEffectType.SPEED,
-                        10 * 20, 0, false, true
-                    )
-                )
+//                it.player.removePotionEffect(PotionEffectType.SPEED)
+//                it.player.addPotionEffect(
+//                    PotionEffect(
+//                        PotionEffectType.SPEED,
+//                        10 * 20, 0, false, true
+//                    )
+//                )
 
                 if (it.item.amount == 1)
                 {
@@ -767,8 +765,31 @@ object GameService
             .filter { it.item.type == Material.GOLDEN_APPLE }
             .handler {
                 overridePotionEffect(
-                    it.player, PotionEffect(PotionEffectType.REGENERATION, 5 * 20, 2)
+                    it.player, PotionEffect(PotionEffectType.REGENERATION, 5 * 20, 1)
                 )
+
+                overridePotionEffect(
+                    it.player, PotionEffect(PotionEffectType.ABSORPTION, 120 * 20, 0)
+                )
+            }
+            .bindWith(plugin)
+
+        Events.subscribe(ProjectileHitEvent::class.java)
+            .filter { it.entity.shooter is Player }
+            .handler {
+                    if (it.entityType == EntityType.ARROW) {
+                        it.entity.remove()
+                    }
+                }
+            .bindWith(plugin)
+
+
+        Events.subscribe(PlayerItemConsumeEvent::class.java)
+            .filter {
+                it.item.hasItemMeta() && it.item.itemMeta.displayName.contains("Heal Apple")
+            }
+            .handler {
+                it.player.health = it.player.maxHealth
 
                 overridePotionEffect(
                     it.player, PotionEffect(PotionEffectType.ABSORPTION, 120 * 20, 0)

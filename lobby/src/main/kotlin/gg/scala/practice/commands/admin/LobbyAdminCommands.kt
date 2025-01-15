@@ -24,6 +24,7 @@ import gg.scala.practice.kit.group.KitGroup
 import gg.scala.practice.kit.group.KitGroupService
 import gg.scala.practice.map.MapService
 import gg.scala.practice.map.metadata.anonymous.toPosition
+import gg.scala.practice.menu.PracticeManagementMenu
 import gg.scala.practice.player.LobbyPlayerService
 import gg.scala.practice.practiceGroup
 import gg.scala.practice.region.Region
@@ -249,6 +250,14 @@ object LobbyAdminCommands : ScalaCommand()
         player.sendMessage(
             "${CC.GREEN}Global Blocked Hits limit has been set to: ${CC.PRI}$blockedhits"
         )
+    }
+
+    @AssignPermission
+    @Subcommand("menu")
+    @Description("Open the Practice Management Menu.")
+    fun onAdmin(player: ScalaPlayer)
+    {
+        PracticeManagementMenu().openMenu(player.bukkit())
     }
 
     @Subcommand("toggle-ranked-queue")

@@ -10,12 +10,15 @@ import gg.scala.commons.acf.annotation.Description
 import gg.scala.commons.acf.annotation.HelpCommand
 import gg.scala.commons.acf.annotation.Single
 import gg.scala.commons.acf.annotation.Subcommand
+import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.practice.kit.KitService
+import gg.scala.practice.kit.administration.KitAdminMenu
 import gg.scala.practice.kit.category.KitCategory
 import gg.scala.practice.kit.category.KitCategoryService
+import gg.scala.practice.kit.category.administration.KitCategoryAdminMenu
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
 import org.bukkit.Material
@@ -48,6 +51,14 @@ object KitCategoryCommand : ScalaCommand()
         {
             player.sendMessage(category.id)
         }
+    }
+
+    @Subcommand("admin")
+    @Description("Enter the kit category administration menu.")
+    @AssignPermission
+    fun onAdmin(player: ScalaPlayer)
+    {
+        KitCategoryAdminMenu().openMenu(player.bukkit())
     }
 
     @Subcommand("show")
