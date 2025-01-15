@@ -4,6 +4,8 @@ import gg.scala.practice.kit.Kit
 import gg.scala.practice.profile.loadout.Loadout
 import gg.scala.practice.utilities.deepClone
 import org.bukkit.entity.Player
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 /**
  * @author GrowlyX
@@ -17,8 +19,29 @@ class CustomLoadout(
     override fun displayName() = loadout.name
     override fun apply(player: Player)
     {
-        kit.populate(player)
+        player.inventory.clear()
+        player.inventory.armorContents = kit.armorContents
         player.inventory.contents = loadout.inventoryContents.deepClone()
+
+        if (player.activePotionEffects.isNotEmpty())
+        {
+            player.activePotionEffects
+                .forEach { effect ->
+                    player.removePotionEffect(effect.type)
+                }
+        }
+
+        if (kit.potionEffects.isNotEmpty())
+        {
+            kit.potionEffects.forEach { (t, u) ->
+                player.addPotionEffect(
+                    PotionEffect(
+                        PotionEffectType.getByName(t), Int.MAX_VALUE, u
+                    )
+                )
+            }
+        }
+
         player.fixInventoryBasedOnRBTeamColor()
         player.updateInventory()
     }

@@ -18,6 +18,8 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.scoreboard.DisplaySlot
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 /**
  * @author GrowlyX
