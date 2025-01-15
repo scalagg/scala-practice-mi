@@ -77,7 +77,23 @@ class RoundStartTask(
             .forEach {
                 game.prepareForNewLife(it, true)
             }
-        
+
+        game.toBukkitPlayers().filterNotNull()
+            .forEach { player ->
+                // enter a "light" spectator mode, where they can't interact with anything yet
+                game.prepareForNewLife(player, true)
+
+                player.setMetadata(
+                    "spectator",
+                    FixedMetadataValue(plugin, "light")
+                )
+
+                player.setMetadata(
+                    "light-spectator",
+                    FixedMetadataValue(plugin, "true")
+                )
+            }
+
         val winnerDisplay = if (winner.players.size == 1)
             winner.toBukkitPlayers().firstOrNull()?.name else rbTeamSide.display
 

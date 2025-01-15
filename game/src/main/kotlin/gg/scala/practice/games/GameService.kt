@@ -568,13 +568,17 @@ object GameService
                     }
 
                     game.sendMessage(deathMessage)
+
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
                         game.startDelayedRespawn(player)
                         return
                     }
 
-                    game.prepareForNewLife(player)
+                    player.sendMessage("${CC.GREEN}Respawning...")
+                    Tasks.delayed(1L) {
+                        game.prepareForNewLife(player)
+                    }
                 }
 
                 GameLifecycle.ObjectiveBound ->
