@@ -1,6 +1,7 @@
 package gg.scala.practice.resources
 
 import gg.scala.flavor.service.Service
+import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.practice.Globals
 import gg.scala.practice.games.GameService
@@ -543,7 +544,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         }
 
         board += ""
-        board += "${CC.GRAY}potpvp.com${CC.GRAY}      ${CC.YELLOW}"
+        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
     }
 
     override fun getTitle(player: Player): String
