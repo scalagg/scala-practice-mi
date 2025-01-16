@@ -247,32 +247,34 @@ object LobbyHotbarService
             }
         )
 
-        if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots"))
-        {
-            idlePreset.addSlot(
-                2,
-                StaticHotbarPresetEntry(
-                    ItemBuilder(Material.GOLD_SWORD)
-                        .name("${CC.AQUA}Play Robot ${CC.GRAY}(Right Click)")
-                        .setUnbreakable(true)
-                ).also {
-                    it.onClick = context@{ player ->
-                        if (player.hasMetadata("frozen"))
-                        {
-                            player.sendMessage("${CC.RED}You cannot join queues while frozen!")
-                            return@context
-                        }
+        Schedulers.async().runRepeating({ task ->
+            if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")) {
+                task.stop()
 
-                        val menu = buildBotSelectorMenu(player)
-                            ?: return@context run {
-                                player.sendMessage("${CC.RED}This feature is coming soon!")
+                idlePreset.addSlot(
+                    2,
+                    StaticHotbarPresetEntry(
+                        ItemBuilder(Material.GOLD_SWORD)
+                            .name("${CC.AQUA}Play Robot ${CC.GRAY}(Right Click)")
+                            .setUnbreakable(true)
+                    ).also {
+                        it.onClick = context@{ player ->
+                            if (player.hasMetadata("frozen")) {
+                                player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                                return@context
                             }
 
-                        menu.openMenu(player)
+                            val menu = buildBotSelectorMenu(player)
+                                ?: return@context run {
+                                    player.sendMessage("${CC.RED}This feature is coming soon!")
+                                }
+
+                            menu.openMenu(player)
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
+        }, 0L, 20L)
 
         idlePreset.addSlot(
             1,
