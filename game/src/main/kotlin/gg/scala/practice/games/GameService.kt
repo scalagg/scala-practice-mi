@@ -811,6 +811,12 @@ object GameService
                     return@handler
                 }
 
+                if (game.flag(FeatureFlag.DisallowItemDrops))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
                 if (it.itemDrop.itemStack.type.name.contains("SWORD"))
                 {
                     val amountOfSwordsInInventory = it.player.inventory

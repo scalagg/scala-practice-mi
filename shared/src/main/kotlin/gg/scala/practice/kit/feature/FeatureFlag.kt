@@ -205,6 +205,12 @@ enum class FeatureFlag(
             "arrow.",
         )
     ),
+    DisallowItemDrops(
+        description = listOf(
+            "Disable players in the match",
+            "to drop items.",
+        )
+    ),
     FrozenOnGameStart(
         description = listOf(
             "Prevents players from moving",

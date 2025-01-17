@@ -21,7 +21,7 @@ object CloudSyncFeature
     {
         CloudSyncDiscoveryService
             .discoverable.assets.add(
-                "gg.scala.practicemi:lobby:ScalaPractice-lobby${
+                "gg.scala.practice.mi:lobby:ScalaPractice-lobby${
                     if ("mipdev" in ServerSync.getLocalGameServer().groups) ":gradle-dev" else ""
                 }"
             )
