@@ -42,7 +42,7 @@ class MapEditor(private val player: Player, private val loader: SlimeLoader)
     private val editorID = "editor-${player.uniqueId}"
 
     private var visiting: MapEditorInstance? = null
-    private val schematics = loader.listWorlds()
+    val schematics = loader.listWorlds()
 
     val terminable = CompositeTerminable.create()
 

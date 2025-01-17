@@ -43,8 +43,8 @@ class Editor(private val player: Player)
     private val containers = Containers()
     private val editorID = "editor-${player.uniqueId}"
 
-    private var visiting: EditorInstance? = null
-    private val schematics = containers.schematicsDirectory.listFiles()
+    var visiting: EditorInstance? = null
+    val schematics = containers.schematicsDirectory.listFiles()
         ?.toList()?.filterNotNull() ?: emptyList()
 
     val terminable = CompositeTerminable.create()

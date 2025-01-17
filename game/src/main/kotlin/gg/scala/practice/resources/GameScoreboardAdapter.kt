@@ -507,8 +507,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.WHITE}Loser:"
                             board += " ${CC.RED}${report.losers.toReport()}"
                             board += ""
-                            board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
                             board += "${CC.WHITE}Kit: ${CC.PRI}${report.kit}"
+                            board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
                         } else
                         {
                             board += "${CC.D_GRAY}Loading report..."
