@@ -66,7 +66,13 @@ object DevToolsScoreboardAdapter : ScoreboardAdapter()
                     MapEditor.instances[player.uniqueId]!!.schematics.size
                 }
             }"
-            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Visiting: ${CC.PRI}${Editor.instances[player.uniqueId]!!.visiting?.associatedElement?.nameWithoutExtension ?: "N/A"}"
+            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Visiting: ${CC.PRI}${
+                if (Editor.instances[player.uniqueId]?.visiting?.associatedElement != null) {
+                    Editor.instances[player.uniqueId]!!.visiting!!.associatedElement.nameWithoutExtension
+                } else {
+                    "N/A"
+                }
+            }"
         }
 
         board += ""
