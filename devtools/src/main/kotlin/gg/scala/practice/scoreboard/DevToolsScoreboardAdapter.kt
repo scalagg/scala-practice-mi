@@ -53,19 +53,21 @@ object DevToolsScoreboardAdapter : ScoreboardAdapter()
             Numbers.format(MapService.maps().size)
         }"
 
-        board += ""
-
-        if (Editor.instances[player.uniqueId] != null || MapEditor.instances[player.uniqueId] != null) {
+        if (Editor.instances[player.uniqueId] != null || MapEditor.instances[player.uniqueId] != null)
+        {
+            board += ""
             board += "${CC.GOLD}Dev Tools:"
             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Schematics: ${CC.GREEN}${
-                if (MapEditor.instances[player.uniqueId] == null) {
+                if (MapEditor.instances[player.uniqueId] == null)
+                {
                     Editor.instances[player.uniqueId]!!.schematics.size
-                } else {
+                } else
+                {
                     MapEditor.instances[player.uniqueId]!!.schematics.size
                 }
             }"
             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Visiting: ${CC.PRI}${Editor.instances[player.uniqueId]!!.visiting?.associatedElement?.nameWithoutExtension ?: "N/A"}"
-    }
+        }
 
         board += ""
         board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
