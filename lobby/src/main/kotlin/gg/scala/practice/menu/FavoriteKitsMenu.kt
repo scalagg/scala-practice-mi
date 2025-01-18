@@ -26,7 +26,7 @@ class FavoriteKitsMenu(
         updateAfterClick = true
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "${CC.GOLD}Favorite Kits"
+    override fun getPrePaginatedTitle(player: Player) = "Favorite Kits"
 
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes
         .any {
