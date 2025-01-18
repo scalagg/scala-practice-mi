@@ -68,6 +68,7 @@ class EditLoadoutContentsMenu(
                 val deepClone = kit.contents.deepClone()
                 player.inventory.contents = deepClone
                 player.updateInventory()
+                player.itemOnCursor = null
 
                 // then handle saving
                 for (int in 0 until 36)

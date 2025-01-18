@@ -20,7 +20,7 @@ object BotMessages
     private fun formatMessage(type: MessageType, botName: String): String
     {
         val randomMessage = messages[type]?.random() ?: "Whoops, I forgot what to say!"
-        return PREFIX + randomMessage.replace("<bot>", botName)
+        return PREFIX.replace("<bot>", botName) + randomMessage
     }
 
     private val messages = mapOf(

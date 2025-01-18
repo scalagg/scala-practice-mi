@@ -4,12 +4,14 @@ import com.cryptomorin.xseries.XMaterial
 import gg.scala.staff.ScalaStaffPlugin
 import gg.scala.staff.profile.StaffProfileService
 import gg.scala.practice.kit.Kit
+import gg.scala.practice.kit.KitService
 import gg.scala.practice.kit.category.KitCategoryService
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.leaderboards.Reference
 import gg.scala.practice.leaderboards.ReferenceLeaderboardType
 import gg.scala.practice.player.LobbyPlayerService
 import gg.scala.practice.player.PlayerState
+import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.queue.QueueService
 import gg.scala.practice.queue.QueueType
 import gg.scala.practice.services.GameManagerService
@@ -85,6 +87,72 @@ class JoinQueueMenu(
                 .toButton()
         }
 
+        val favoriteSlots = listOf(47, 48, 49, 50, 51)
+
+        favoriteSlots.forEachIndexed { index, slot ->
+            val favoriteKit = PracticeProfileService.find(player)?.favoriteKits?.getOrNull(index)
+
+            val kit = KitService.cached().kits[favoriteKit]
+
+            buttons[slot] = ItemBuilder
+                .copyOf(
+                    kit?.displayIcon ?: ItemBuilder.of(Material.STAINED_GLASS_PANE).build()
+                )
+                .data(
+                    kit?.displayIcon?.data?.data?.toShort() ?: 14.toShort()
+                )
+                .name(
+                    if (kit == null) {
+                        "${CC.RED}No Favorite Kit"
+                    } else {
+                        "${CC.PRI}${kit.displayName}"
+                    }
+                )
+                .addFlags(
+                    ItemFlag.HIDE_ATTRIBUTES,
+                    ItemFlag.HIDE_ENCHANTS,
+                    ItemFlag.HIDE_POTION_EFFECTS
+                )
+                .addToLore(
+                    *if (kit == null) {
+                        arrayOf("${CC.GRAY}Click to add a favorite kit.")
+                    } else {
+                        arrayOf(
+                            "${CC.GRAY}Queue for this kit.",
+                            "",
+                            "${CC.RED}Note: ${CC.YELLOW}Middle Click to modify & Right Click to remove.",
+                            "",
+                            "${CC.YELLOW}Click to queue for ${kit.displayName}${CC.YELLOW}!"
+                        )
+                    }
+                )
+                .toButton { _, type ->
+                    if (kit == null) {
+                        FavoriteKitsMenu(player, queueType, teamSize).openMenu(player)
+                        return@toButton
+                    }
+
+                    if (type == ClickType.LEFT)
+                    {
+                        itemClicked(player, kit, type)
+                        return@toButton
+                    }
+
+                    if (type == ClickType.RIGHT)
+                    {
+                        PracticeProfileService.find(player)?.favoriteKits?.remove(kit.id)
+                        player.sendMessage("${CC.RED}You have removed ${kit.displayName} from your favorite kits.")
+                        openMenu(player)
+                        return@toButton
+                    }
+
+                    if (type == ClickType.MIDDLE)
+                    {
+                        FavoriteKitsMenu(player, queueType, teamSize).openMenu(player)
+                    }
+                }
+        }
+
         buttons[i] = ItemBuilder
             .of(Material.EMERALD)
             .name("${CC.YELLOW}All Kits")
@@ -109,10 +177,10 @@ class JoinQueueMenu(
 
         KitCategoryService.cached()
             .categories
-            .forEach {
+            .forEach { kitCategory ->
                 i++
 
-                if (category == it)
+                if (category == kitCategory)
                 {
                     buttons[i + 9] = ItemBuilder
                         .of(XMaterial.LIME_STAINED_GLASS_PANE)
@@ -120,30 +188,43 @@ class JoinQueueMenu(
                         .toButton()
                 }
 
+                var totalPlayersInCategory = 0
+
+                // Calculate total players playing in kits of this category
+                KitService.cached().kits.values
+                    .filter { it.kitCategory == kitCategory.id }
+                    .forEach { kit ->
+                        val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
+                        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+                        totalPlayersInCategory += metadata.inGame
+                    }
+
                 buttons[i] = ItemBuilder
-                    .of(it.item)
+                    .of(kitCategory.item)
                     .addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                    .data(if (it.item == Material.POTION) 16421 else 0)
-                    .name("${CC.YELLOW}${it.name}${
-                        if (it.newCategory) " ${CC.B_AQUA}NEW!" else ""
+                    .data(if (kitCategory.item == Material.POTION) 16421 else 0)
+                    .name("${CC.YELLOW}${kitCategory.name}${
+                        if (kitCategory.newCategory) " ${CC.B_AQUA}NEW!" else ""
                     }")
                     .addFlags(
                         ItemFlag.HIDE_ATTRIBUTES,
                         ItemFlag.HIDE_ENCHANTS,
                         ItemFlag.HIDE_POTION_EFFECTS
                     )
-                    .setLore(it.description.map { "${CC.GRAY}$it" })
+                    .setLore(kitCategory.description.map { "${CC.GRAY}$it" })
                     .addToLore(
+                        "",
+                        "${CC.WHITE}Playing: ${CC.SEC}$totalPlayersInCategory",
                         "",
                         "${CC.GREEN}Click to view!"
                     )
                     .toButton { _, _ ->
-                        if (category == it)
+                        if (category == kitCategory)
                         {
                             return@toButton
                         }
 
-                        category = it
+                        category = kitCategory
                         openMenu(player)
 
                         player.playSound(

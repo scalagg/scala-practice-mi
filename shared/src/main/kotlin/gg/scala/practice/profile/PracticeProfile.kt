@@ -26,7 +26,7 @@ data class PracticeProfile(
 ) : IDataStoreObject
 {
     private var rankedBan: RankedBan? = null
-    private var favoriteKits = mutableListOf<Kit>()
+    var favoriteKits: MutableList<String> = mutableListOf()
 
     var globalStatistics = GlobalStatistics()
     val unrankedStatistics = ConcurrentHashMap<

@@ -6,6 +6,7 @@ import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
 import gg.scala.plugin.robots.bot.profile.RobotSettingProfile
 import gg.scala.plugin.robots.bot.profile.UnrankedBotsService
+import gg.scala.plugin.robots.bot.setting.setting.RootAccessor
 import gg.scala.plugin.robots.bot.setting.setting.persistence.SettingProfile
 import gg.scala.plugin.robots.bot.setting.setting.root
 import net.evilblock.cubed.menu.Button
@@ -76,7 +77,20 @@ class UnrankedBotManagementMenu : PaginatedMenu()
                             "${CC.GRAY}Id: ${CC.WHITE}${bot.settingProfile.id}",
                             "${CC.GRAY}Randomizer Enabled: ${CC.WHITE}${bot.settingProfile.randomizerEnabled ?: "N/A"}",
                             "",
-                            "${bot.settingProfile.describe().toTypedArray()}",
+                            "${CC.GRAY}CPS: ${CC.WHITE}${
+                                bot.settingProfile.value(RootAccessor.attackSettings.cps)
+                            } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Reach: ${CC.WHITE}${
+                                "%.2f".format(bot.settingProfile.value(RootAccessor.attackSettings.reach).toFloat())
+                            } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Ping: ${CC.WHITE}${
+                                bot.settingProfile.value(RootAccessor.connectionSettings.ping)
+                            }ms",
+                            "${CC.GRAY}W-Tap: ${CC.PRI}${
+                                if (bot.settingProfile.value(RootAccessor.wTapSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
+                            } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Rod: ${CC.PRI}${
+                                if (bot.settingProfile.value(RootAccessor.rodSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
+                            } ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Strafe: ${CC.PRI}${
+                                if (bot.settingProfile.value(RootAccessor.strafeSettings.enabled)) "${CC.D_GREEN}✔" else "${CC.D_RED}✘"
+                            }",
                             "",
                             "${CC.YELLOW}Left-Click to edit",
                             "${CC.RED}Right-Click to delete"

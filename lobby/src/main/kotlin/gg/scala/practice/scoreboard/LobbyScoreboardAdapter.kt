@@ -64,7 +64,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         {
             board += "${CC.WHITE}Reboot: ${CC.PRI}${
                 TimeUtil.formatIntoMMSS(
-                    (ShutdownService.shutdownRunnable!!.seconds / 1000)
+                    (ShutdownService.shutdownRunnable!!.seconds)
                 )
             }"
         }
