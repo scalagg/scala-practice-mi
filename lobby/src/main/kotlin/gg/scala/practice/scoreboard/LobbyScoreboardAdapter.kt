@@ -1,6 +1,7 @@
 package gg.scala.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.shutdown.ShutdownService
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
@@ -59,6 +60,14 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         board += "${CC.WHITE}Playing: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
         }"
+        if (ShutdownService.shutdownRunnable != null)
+        {
+            board += "${CC.WHITE}Reboot: ${CC.PRI}${
+                TimeUtil.formatIntoMMSS(
+                    (ShutdownService.shutdownRunnable!!.seconds / 1000)
+                )
+            }"
+        }
 
         val coreProfile = CorePlayerProfileService.find(player)
         if (profile.inQueue())

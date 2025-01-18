@@ -14,6 +14,7 @@ import gg.scala.plugin.robots.bot.setting.setting.root
 import gg.scala.plugin.robots.scala.freebotfridays.FreeBotFridays
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
+import net.evilblock.cubed.menu.menus.ConfirmMenu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -124,12 +125,23 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                         type == ClickType.SHIFT_LEFT
                     )
                     {
-                        Button.playSuccess(player)
-                        profile.profiles.remove(settings.id)
-                        profile.save()
-
-                        player.sendMessage("${CC.RED}Deleted profile!")
-                        openMenu(player)
+                        Button.playNeutral(player)
+                        ConfirmMenu(
+                            "Deletion of ${Constants.DOUBLE_ARROW_RIGHT} ${settings.id} ${Constants.DOUBLE_ARROW_RIGHT} Confirm",
+                            listOf(
+                                "${CC.WHITE}Delete the ${settings.id}'s${CC.WHITE} robot preset."
+                            ),
+                            true
+                        ) {
+                            if (it) {
+                                player.sendMessage("${CC.GREEN}You deleted the robot preset with the ID ${CC.YELLOW}${settings.id}${CC.GREEN}.")
+                                Button.playSuccess(player)
+                                profile.profiles.remove(settings.id)
+                                profile.save()
+                            } else {
+                                player.sendMessage("${CC.RED}You've cancelled the robot preset removal operation.")
+                            }
+                        }.openMenu(player)
                         return@toButton
                     }
 

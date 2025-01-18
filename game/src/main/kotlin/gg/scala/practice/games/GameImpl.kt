@@ -10,6 +10,7 @@ import gg.scala.practice.commands.networkTransaction
 import gg.scala.practice.expectation.ExpectationService
 import gg.scala.practice.expectation.GameExpectation
 import gg.scala.practice.feature.GameReportFeature
+import gg.scala.practice.games.GameService.byPlayer
 import gg.scala.practice.games.bots.BotGameMetadata
 import gg.scala.practice.games.elo.ELOUpdates
 import gg.scala.practice.games.loadout.CustomLoadout
@@ -774,6 +775,22 @@ open class GameImpl(
     }
 
     fun ensurePlaying() = this.state(GameState.Playing)
+
+    fun forfeit(player: Player)
+    {
+        val game = byPlayer(player)
+            ?: return
+
+        if (game.flag(FeatureFlag.Ranked))
+        {
+            player.sendMessage("${CC.RED}You cannot forfeit in a ranked game.")
+            return
+        }
+        game.complete(
+            game.getOpponent(player)
+        )
+        player.sendMessage("${CC.GREEN}You have forfeited the game.")
+    }
 
     fun state(state: GameState): Boolean
     {
