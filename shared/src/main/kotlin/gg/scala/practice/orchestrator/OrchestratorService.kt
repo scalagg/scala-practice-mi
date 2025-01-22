@@ -50,9 +50,9 @@ object OrchestratorService
             terminable = CompositeTerminable.create()
 
             QuickAccess.sendGlobalBroadcast(
-                "${CC.BLUE}[O] ${CC.AQUA}[${
+                "${CC.BLUE}[D] ${CC.D_AQUA}[${
                     ServerSync.getLocalGameServer().id
-                }] ${CC.D_AQUA}Update is being rolled out on this instance. Instance will reboot once empty.",
+                }] ${CC.AQUA}Update is being rolled out on this instance. Instance will reboot once empty.",
                 permission = "practice.admin"
             )
 
@@ -62,7 +62,7 @@ object OrchestratorService
                     if (Bukkit.getOnlinePlayers().isEmpty())
                     {
                         QuickAccess.sendGlobalBroadcast(
-                            "${CC.BLUE}[O] ${CC.AQUA}[${
+                            "${CC.BLUE}[D] ${CC.D_AQUA}[${
                                 ServerSync.getLocalGameServer().id
                             }] ${CC.RED}Rollout requires a reboot. Server is rebooting!",
                             permission = "practice.admin"
@@ -86,9 +86,9 @@ object OrchestratorService
             terminable = null
 
             QuickAccess.sendGlobalBroadcast(
-                "${CC.BLUE}[O] ${CC.AQUA}[${
+                "${CC.BLUE}[D] ${CC.D_AQUA}[${
                     ServerSync.getLocalGameServer().id
-                }] ${CC.D_AQUA}Update was cancelled on this instance. Instance will no longer reboot",
+                }] ${CC.AQUA}Update was cancelled on this instance. Instance will no longer reboot",
                 permission = "practice.admin"
             )
         }

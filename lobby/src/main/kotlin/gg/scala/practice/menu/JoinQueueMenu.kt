@@ -14,6 +14,7 @@ import gg.scala.practice.player.PlayerState
 import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.queue.QueueService
 import gg.scala.practice.queue.QueueType
+import gg.scala.practice.queue.queueId
 import gg.scala.practice.services.GameManagerService
 import gg.scala.practice.services.LeaderboardManagerService
 import gg.scala.practice.utilities.MenuConstants
@@ -42,7 +43,7 @@ class JoinQueueMenu(
         async = true
         autoUpdate = true
     }
-/*
+
     override fun getItemAmount(player: Player, kit: Kit): Int
     {
         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId {
@@ -52,7 +53,7 @@ class JoinQueueMenu(
         })
 
         return metadata.inGame.coerceIn(1..64)
-    }*/
+    }
 
     override fun getAutoUpdateTicks() = 500L
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes
@@ -62,9 +63,9 @@ class JoinQueueMenu(
 
     override fun size(buttons: Map<Int, Button>) = 54
 
-    override fun getMaxItemsPerPage(player: Player) = MenuConstants.SLOTS_TRIPLE.size
+    override fun getMaxItemsPerPage(player: Player) = 14
 
-    override fun getAllPagesButtonSlots() = MenuConstants.SLOTS_TRIPLE.map { it + 9 }
+    override fun getAllPagesButtonSlots() = MenuConstants.SLOTS_TRIPLE.take(14).map { it + 9 }
 
     override fun getGlobalButtons(player: Player): Map<Int, Button>
     {
@@ -93,6 +94,8 @@ class JoinQueueMenu(
             val favoriteKit = PracticeProfileService.find(player)?.favoriteKits?.getOrNull(index)
 
             val kit = KitService.cached().kits[favoriteKit]
+            val queueId = "${kit?.id}:${queueType.name}:${teamSize}v${teamSize}"
+            val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
 
             buttons[slot] = ItemBuilder
                 .copyOf(
@@ -114,17 +117,7 @@ class JoinQueueMenu(
                     ItemFlag.HIDE_POTION_EFFECTS
                 )
                 .addToLore(
-                    *if (kit == null) {
-                        arrayOf("${CC.GRAY}Click to add a favorite kit.")
-                    } else {
-                        arrayOf(
-                            "${CC.GRAY}Queue for this kit.",
-                            "",
-                            "${CC.RED}Note: ${CC.YELLOW}Middle Click to modify & Right Click to remove.",
-                            "",
-                            "${CC.YELLOW}Click to queue for ${kit.displayName}${CC.YELLOW}!"
-                        )
-                    }
+                    *buildLore(kit, player, queueType, metadata)
                 )
                 .toButton { _, type ->
                     if (kit == null) {
@@ -260,6 +253,37 @@ class JoinQueueMenu(
         )
     }
 
+    private fun buildLore(kit: Kit?, player: Player, queueType: QueueType, metadata: GameManagerService. QueueIDMetadataTracker): Array<String> {
+        return if (kit == null) {
+            arrayOf("${CC.GRAY}Click to add a favorite kit.")
+        } else {
+            val isRanked = queueType == QueueType.Ranked
+            val leaderboardType = if (isRanked) ReferenceLeaderboardType.ELO else ReferenceLeaderboardType.UnrankedWinStreak
+            val scoreType = if (isRanked) "ELO" else "Daily Streak"
+
+            val kitLore = mutableListOf<String>()
+
+            if (isRanked && !kit.features.contains(FeatureFlag.Ranked)) {
+                kitLore.add("")
+                kitLore.add("${CC.RED}This kit does not support ranked.")
+            } else {
+                kitLore.add("${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}")
+                kitLore.add("${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}")
+                kitLore.add("")
+                kitLore.addAll(
+                    local3ScoreDescriptionOf(player, Reference(leaderboardType, kit.id), scoreType)
+                )
+            }
+
+            kitLore.add("")
+            kitLore.add("${CC.GREEN}Left-Click to queue")
+            kitLore.add("${CC.YELLOW}Middle-Click to modify")
+            kitLore.add("${CC.RED}Right-Click to remove")
+
+            kitLore.toTypedArray()
+        }
+    }
+
     override fun asyncLoadResources(player: Player, callback: (Boolean) -> Unit)
     {
         callback(true)
@@ -304,6 +328,13 @@ class JoinQueueMenu(
         if (player.hasMetadata("vanished"))
         {
             player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to join a queue.")
+            return
+        }
+
+        if (queueType == QueueType.Ranked && !kit.features.contains(FeatureFlag.Ranked))
+        {
+            player.closeInventory()
+            player.sendMessage("${CC.RED}This kit does not support ranked queues!")
             return
         }
 

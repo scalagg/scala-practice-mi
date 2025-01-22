@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
 public class TargetLocate extends Manager {
     private Location target;
     private boolean overwriteLocation;
-    private @Nullable Player targetEntity;
+    private Player targetEntity;
 
     private boolean delayedPlayerLocation = true;
     private Location aStarTarget = null;

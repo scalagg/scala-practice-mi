@@ -77,12 +77,12 @@ class FavoriteKitsMenu(
         buttons[2] = ItemBuilder
             .of(Material.INK_SACK)
             .data(10)
-            .name("${CC.GREEN}${CC.BOLD}Save")
+            .name("${CC.GREEN}Save")
             .addToLore(
                 "${CC.GRAY}Save your selected kits you've selected",
                 "${CC.GRAY}as your favorite kits.",
                 "",
-                "${CC.YELLOW}Click here to save."
+                "${CC.GREEN}Click here to save."
             )
             .toButton { _, _ ->
                 Schedulers.async().run {
@@ -92,9 +92,8 @@ class FavoriteKitsMenu(
             }
 
         buttons[4] = ItemBuilder
-            .of(Material.INK_SACK)
-            .data(10)
-            .name("${CC.GOLD}${CC.BOLD}Favorite Kits")
+            .of(Material.NETHER_STAR)
+            .name("${CC.YELLOW}Favorite Kits")
             .addToLore(
                 "${CC.GRAY}Your favorite kits,",
                 "${CC.GRAY}that appear in the favorited section",
@@ -104,31 +103,30 @@ class FavoriteKitsMenu(
             )
             .apply {
                 if (profile.favoriteKits.isEmpty()) {
-                    addToLore("${CC.GRAY} * ${CC.RED}None Selected")
+                    addToLore("${CC.GRAY} - ${CC.RED}None")
                 } else {
                     profile.favoriteKits.forEach { kitId ->
                         val kit = KitService.cached().kits[kitId]
-                        addToLore("${CC.GRAY} * ${CC.YELLOW}${kit?.displayName ?: "Unknown Kit"}")
+                        addToLore("${CC.GRAY} - ${CC.YELLOW}${kit?.displayName ?: "Unknown Kit"}")
                     }
                 }
             }
             .addToLore(
                 "",
-                "${CC.YELLOW}Click on the kits",
-                "${CC.YELLOW}you wish to add or remove",
-                "${CC.YELLOW}from your favorited kit slots."
+                "${CC.GREEN}Click on the kits",
+                "${CC.GREEN}you wish to add/remove."
             )
             .toButton()
 
         buttons[6] = ItemBuilder
             .of(Material.INK_SACK)
-            .data(10)
-            .name("${CC.RED}${CC.BOLD}Cancel")
+            .data(1)
+            .name("${CC.RED}Cancel")
             .addToLore(
                 "${CC.GRAY}Cancel updating ",
                 "${CC.GRAY}your Favorite Kits.",
                 "",
-                "${CC.YELLOW}Click here to cancel"
+                "${CC.GREEN}Click here to cancel"
             )
             .toButton { _, _ ->
                 JoinQueueMenu(player, queueType, 1).openMenu(player)
