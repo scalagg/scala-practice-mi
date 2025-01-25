@@ -108,7 +108,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             ballID += "${CC.GRAY}⬤"
                         }
 
-                        teamSection += "${CC.B_BLUE}R ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
+                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
                             if (blue.teamIdentifier == self.teamIdentifier && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
                     } else
@@ -186,10 +186,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }"
                     } else
                     {
-                        teamSection += "${CC.GRAY}You: $selfColor${
+                        teamSection += "${CC.WHITE}You: $selfColor${
                             if (game.gameLifecycleObjectiveMet(them)) "${self.nonSpectators().size}" else "✔"
                         }"
-                        teamSection += "${CC.GRAY}Them: $theirColor${
+                        teamSection += "${CC.WHITE}Them: $theirColor${
                             if (game.gameLifecycleObjectiveMet(self)) "${them.nonSpectators().size}" else "✔"
                         }"
                     }
@@ -237,9 +237,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 board += ""
             }
 
-            board += "${CC.GRAY}Map: ${CC.PRI}${game.map.displayName}"
-            board += "${CC.GRAY}Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
-            board += "${CC.GRAY}Duration: ${CC.PRI}${game.getDuration()}"
+            board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
+            board += "${CC.WHITE}Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
+            board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
 
             if (!(game.lifecycle() == GameLifecycle.SoulBound || game.lifecycle() == GameLifecycle.MiniGame))
             {
