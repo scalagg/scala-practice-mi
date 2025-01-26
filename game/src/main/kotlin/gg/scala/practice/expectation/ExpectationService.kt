@@ -8,12 +8,10 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.practice.PracticeGame
 import gg.scala.practice.games.GameService
-import gg.scala.practice.games.GameState
 import gg.scala.practice.games.event.AsyncPlayerPreJoinGameEvent
 import gg.scala.practice.games.event.PlayerJoinGameEvent
 import gg.scala.practice.games.event.PlayerSelectSpawnLocationEvent
 import gg.scala.practice.resetAttributes
-import gg.scala.practice.settings.DuelsSettingCategory
 import gg.scala.practice.settings.isASilentSpectator
 import me.lucko.helper.Events
 import net.evilblock.cubed.nametag.NametagHandler

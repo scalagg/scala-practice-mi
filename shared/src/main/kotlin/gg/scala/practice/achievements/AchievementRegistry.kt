@@ -40,13 +40,13 @@ object AchievementRegistry
     }
 
     val firstBlood = Achievement(
-        id = "duels:first-blood",
+        id = "practice:first-blood",
         name = "First Blood",
         category = AchievementCategory.GameSpecific,
         stages = linkedSetOf(
             AchievementStage(
                 description = listOf(
-                    "Kill a player in any Duels game!"
+                    "Kill a player in any Practice game!"
                 ),
                 goals = listOf(1.killsGoal()),
                 rewards = listOf(100.coinsReward())

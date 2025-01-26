@@ -9,7 +9,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.scala.practice.serializable.Message
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import gg.scala.practice.suffixWhenDev
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.serializers.Serializers
@@ -112,7 +112,7 @@ object PracticePlayerCommsService
                 val profile = BasicsProfileService.find(this)
                     ?: return@usePlayer
 
-                if (profile.setting("${DuelsSettingCategory.DUEL_SETTING_PREFIX}$setting", StateSettingValue.DISABLED) == StateSettingValue.ENABLED)
+                if (profile.setting("${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}$setting", StateSettingValue.DISABLED) == StateSettingValue.ENABLED)
                 {
                     playSound(
                         location,

@@ -7,7 +7,7 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.practice.friendship.FriendshipStateSetting
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import net.evilblock.cubed.util.CC
 import java.util.concurrent.CompletableFuture
 
@@ -28,7 +28,7 @@ object DuelRequestsCommand : ScalaCommand()
                 "Sorry, your profile did not load properly."
             )
 
-        val allowDuelRequests = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests-fr"]!!
+        val allowDuelRequests = profile.settings["${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:duel-requests-fr"]!!
 
         player.sendMessage(
             "${CC.GREEN}You have set your duel request settings to: ${

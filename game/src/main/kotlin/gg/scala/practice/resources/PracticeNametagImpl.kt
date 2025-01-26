@@ -16,7 +16,7 @@ import org.bukkit.entity.Player
  * @since 8/9/2022
  */
 @NametagProviderRegister
-object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
+object PracticeNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 {
     private val RED_TEAM_NAME_TAG = createNametag("${CC.B_RED}R${CC.RED} ", "")
     private val GREEN_TEAM_NAME_TAG = createNametag("${CC.B_GREEN}G${CC.GREEN} ", "")

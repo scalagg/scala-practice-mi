@@ -2,7 +2,6 @@ package gg.scala.practice.player
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
-import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -14,7 +13,7 @@ import gg.scala.practice.configuration.PracticeConfigurationService
 import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.queue.QueueService
 import gg.scala.practice.queue.QueueType
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import gg.scala.practice.settings.particles.FlightEffectSetting
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -28,7 +27,6 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
-import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -134,7 +132,7 @@ object LobbyPlayerService
             return BasicsProfileService
                 .find(player)
                 ?.setting(
-                    "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:flight-effect",
+                    "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:flight-effect",
                     FlightEffectSetting.None
                 )
                 ?: FlightEffectSetting.None
@@ -222,7 +220,7 @@ object LobbyPlayerService
                     .find(event.player)
                     ?: return@handler
                 Tasks.delayed(2L) {
-                    if (event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished") && basicsProfile.setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:join-message") == StateSettingValue.ENABLED)
+                    if (event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished") && basicsProfile.setting<StateSettingValue>("${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:join-message") == StateSettingValue.ENABLED)
                     {
                         val lemonPlayer = PlayerHandler
                             .find(player.uniqueId)

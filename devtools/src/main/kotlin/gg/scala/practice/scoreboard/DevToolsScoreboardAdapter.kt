@@ -1,23 +1,14 @@
 package gg.scala.practice.scoreboard
 
-import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
-import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.parties.model.PartyStatus
-import gg.scala.practice.PracticeShared
-import gg.scala.practice.editor.Containers
 import gg.scala.practice.editor.Editor
 import gg.scala.practice.editor.mapeditor.MapEditor
 import gg.scala.practice.map.MapService
-import gg.scala.practice.queue.QueueType
 import gg.scala.practice.region.PlayerRegionFromRedisProxy
 import gg.scala.practice.services.ScoreboardTitleService
-import gg.scala.practice.settings.DuelsSettingCategory
-import gg.scala.practice.settings.isASilentSpectator
 import gg.scala.practice.settings.layout
-import gg.scala.practice.settings.scoreboard.LobbyScoreboardView
 import gg.scala.practice.settings.scoreboard.ScoreboardStyle
 import me.lucko.helper.Events
 import me.lucko.helper.Helper
@@ -26,8 +17,6 @@ import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.math.Numbers
-import net.evilblock.cubed.util.nms.MinecraftProtocol
-import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent

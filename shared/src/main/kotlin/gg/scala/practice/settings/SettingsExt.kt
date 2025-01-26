@@ -15,7 +15,7 @@ fun Player.isASilentSpectator(): Boolean
         ?: return false
 
     return basicsProfile
-        .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
+        .setting<StateSettingValue>("${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
         && hasPermission("practice.silent-spectator")
 }
 
@@ -24,7 +24,7 @@ fun layout(player: Player): ScoreboardStyle
     return BasicsProfileService
         .find(player)
         ?.setting(
-            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:scoreboard-style",
+            "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:scoreboard-style",
             ScoreboardStyle.Default
         )
         ?: ScoreboardStyle.Default

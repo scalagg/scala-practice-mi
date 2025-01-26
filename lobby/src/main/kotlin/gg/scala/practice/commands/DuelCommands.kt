@@ -1,6 +1,5 @@
 package gg.scala.practice.commands
 
-import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandCompletion
@@ -23,11 +22,9 @@ import gg.scala.practice.player.LobbyPlayerService
 import gg.scala.practice.player.PlayerState
 import gg.scala.practice.queue.QueueService
 import gg.scala.practice.region.PlayerRegionFromRedisProxy
-import gg.scala.practice.region.Region
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import gg.scala.practice.suffixWhenDev
 import net.evilblock.cubed.util.CC
-import java.util.*
 
 /**
  * @author GrowlyX
@@ -136,7 +133,7 @@ object DuelCommands : ScalaCommand()
 
         val duelRequests = basicsProfile
             .setting<FriendshipStateSetting>(
-                "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests-fr"
+                "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:duel-requests-fr"
             )
 
         if (duelRequests == FriendshipStateSetting.Disabled)

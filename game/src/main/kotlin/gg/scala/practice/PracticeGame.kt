@@ -14,7 +14,7 @@ import gg.scala.practice.games.GameService
 import gg.scala.practice.lifecycle.NightlyRebootScheduler
 import gg.scala.practice.minigame.*
 import gg.scala.practice.settings.ChatVisibility
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import org.bukkit.Bukkit
 
 /**
@@ -64,7 +64,7 @@ class PracticeGame : ExtendedScalaPlugin()
             .displayToPlayer { player, other ->
                 val chatVisibility = BasicsProfileService.find(other)
                     ?.setting(
-                        "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:chat-visibility",
+                        "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:chat-visibility",
                         ChatVisibility.Global
                     )
                     ?: ChatVisibility.Global

@@ -7,7 +7,7 @@ import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.visibility.VisibilityHandler
 
@@ -28,7 +28,7 @@ object TogglePlayerVisibilityCommand : ScalaCommand()
                 "Sorry, your profile did not load properly."
             )
 
-        val spawnVisibility = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility-def"]!!
+        val spawnVisibility = profile.settings["${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:spawn-visibility-def"]!!
         val mapped = spawnVisibility.map<StateSettingValue>()
 
         if (mapped == StateSettingValue.ENABLED)

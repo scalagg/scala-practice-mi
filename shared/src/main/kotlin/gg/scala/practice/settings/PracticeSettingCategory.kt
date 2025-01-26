@@ -12,8 +12,6 @@ import gg.scala.practice.settings.particles.FlightEffectSetting
 import gg.scala.practice.settings.restriction.RangeRestriction
 import gg.scala.practice.settings.scoreboard.LobbyScoreboardView
 import gg.scala.practice.settings.scoreboard.ScoreboardStyle
-import net.evilblock.cubed.scoreboard.Scoreboard
-import net.evilblock.cubed.scoreboard.ScoreboardHandler
 import net.evilblock.cubed.scoreboard.ScoreboardListeners
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -31,13 +29,13 @@ import org.bukkit.scoreboard.DisplaySlot
 @Service
 @IgnoreAutoScan
 @SoftDependency("ScBasics")
-object DuelsSettingCategory : SettingCategory
+object PracticeSettingCategory : SettingCategory
 {
-    const val DUEL_SETTING_PREFIX = "scalaprac"
+    const val PRACTICE_SETTING_PREFIX = "scalaprac"
 
     override val items = listOf(
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:duel-requests-fr"
+            id = "$PRACTICE_SETTING_PREFIX:duel-requests-fr"
             displayName = "Duel requests"
 
             clazz = FriendshipStateSetting::class.java
@@ -49,7 +47,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.DIAMOND_SWORD)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:duel-sounds"
+            id = "$PRACTICE_SETTING_PREFIX:duel-sounds"
             displayName = "Duel sounds"
 
             clazz = StateSettingValue::class.java
@@ -62,7 +60,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.NOTE_BLOCK)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:allow-spectators"
+            id = "$PRACTICE_SETTING_PREFIX:allow-spectators"
             displayName = "Allow spectators"
 
             clazz = StateSettingValue::class.java
@@ -75,7 +73,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.GLASS_BOTTLE)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:lobby-scoreboard-view"
+            id = "$PRACTICE_SETTING_PREFIX:lobby-scoreboard-view"
             displayName = "Lobby scoreboard view"
 
             clazz = LobbyScoreboardView::class.java
@@ -92,7 +90,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.BOOK)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:spawn-visibility-def"
+            id = "$PRACTICE_SETTING_PREFIX:spawn-visibility-def"
             displayName = "Player visibility"
 
             clazz = StateSettingValue::class.java
@@ -112,7 +110,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.EYE_OF_ENDER)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:join-message"
+            id = "$PRACTICE_SETTING_PREFIX:join-message"
             displayName = "Lobby Join Message"
 
             clazz = StateSettingValue::class.java
@@ -128,7 +126,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(XMaterial.SLIME_BALL)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:chat-visibility"
+            id = "$PRACTICE_SETTING_PREFIX:chat-visibility"
             displayName = "Chat visibility"
 
             clazz = ChatVisibility::class.java
@@ -140,7 +138,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.PAPER)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:restriction-ping"
+            id = "$PRACTICE_SETTING_PREFIX:restriction-ping"
             displayName = "Ping range"
 
             clazz = RangeRestriction::class.java
@@ -159,7 +157,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.EXP_BOTTLE)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:flight-effect"
+            id = "$PRACTICE_SETTING_PREFIX:flight-effect"
             displayName = "Flight Effects"
 
             clazz = FlightEffectSetting::class.java
@@ -176,7 +174,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.SUGAR)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:silent-spectator"
+            id = "$PRACTICE_SETTING_PREFIX:silent-spectator"
             displayName = "Silent Spectator"
 
             clazz = StateSettingValue::class.java
@@ -192,7 +190,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(XMaterial.POTION)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:scoreboard-style"
+            id = "$PRACTICE_SETTING_PREFIX:scoreboard-style"
             displayName = "Scoreboard Style"
 
             clazz = ScoreboardStyle::class.java

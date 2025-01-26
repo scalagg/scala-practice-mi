@@ -22,11 +22,11 @@ object PracticeAchievementService
     fun configure()
     {
         ScalaAchievementsPlugin.gamemode = GameMode(
-            "Duels", XMaterial.LIME_DYE
+            "Practice", XMaterial.LIME_DYE
         )
 
-        /*AchievementService.registerAchievement(
+        AchievementService.registerAchievement(
             AchievementRegistry.firstBlood
-        )*/
+        )
     }
 }

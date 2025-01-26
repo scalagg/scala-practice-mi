@@ -2,7 +2,7 @@ package gg.scala.practice.category.visibility
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import net.evilblock.cubed.visibility.VisibilityAction
 import net.evilblock.cubed.visibility.VisibilityAdapter
 import net.evilblock.cubed.visibility.VisibilityAdapterRegister
@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
  * @author Elb1to
  * @since 10/18/2023
  */
-@VisibilityAdapterRegister("duels-visibility-adapter")
+@VisibilityAdapterRegister("practice-visibility-adapter")
 object SpawnPlayerVisibility : VisibilityAdapter
 {
     override fun getAction(
@@ -22,7 +22,7 @@ object SpawnPlayerVisibility : VisibilityAdapter
         val profile = BasicsProfileService.find(refreshFor)
             ?: return VisibilityAction.NEUTRAL
 
-        val messagesRef = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility-def"]!!
+        val messagesRef = profile.settings["${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:spawn-visibility-def"]!!
         val visible = messagesRef.map<StateSettingValue>()
 
         return if (visible == StateSettingValue.DISABLED)

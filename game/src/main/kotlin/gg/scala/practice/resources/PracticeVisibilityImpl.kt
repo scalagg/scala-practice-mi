@@ -11,8 +11,8 @@ import org.bukkit.entity.Player
  * @author GrowlyX
  * @since 8/9/2022
  */
-@VisibilityAdapterRegister("duels")
-object DuelsVisibilityImpl : VisibilityAdapter
+@VisibilityAdapterRegister("practice")
+object PracticeVisibilityImpl : VisibilityAdapter
 {
     override fun getAction(
         toRefresh: Player, refreshFor: Player

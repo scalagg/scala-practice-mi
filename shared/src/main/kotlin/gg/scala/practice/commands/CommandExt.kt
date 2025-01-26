@@ -23,7 +23,7 @@ val UUID.offlineProfile: PracticeProfile
             .load(this, DataStoreStorageType.MONGO)
             .join()
         ?: throw ConditionFailedException(
-            "${CC.YELLOW}${username()}${CC.RED} has not logged onto our duels server."
+            "${CC.YELLOW}${username()}${CC.RED} has not logged onto our practice server."
         )
 
 fun UUID.networkTransaction(block: PracticeProfile.() -> Unit): CompletableFuture<Void>

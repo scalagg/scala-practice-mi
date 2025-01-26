@@ -2,7 +2,7 @@ package gg.scala.practice.category
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.practice.settings.restriction.RangeRestriction
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import org.bukkit.entity.Player
 
 /**
@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
 val Player.pingRange: RangeRestriction
     get() = BasicsProfileService.find(this)
         ?.setting<RangeRestriction>(
-            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:restriction-ping",
+            "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:restriction-ping",
             RangeRestriction.None
         )
         ?: RangeRestriction.None

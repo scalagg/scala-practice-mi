@@ -31,7 +31,7 @@ import gg.scala.practice.listeners.BlockFormListener
 import gg.scala.practice.minigame.AbstractMiniGameGameImpl
 import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.services.GameManagerService
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import gg.scala.practice.suffixWhenDev
 import gg.scala.practice.utilities.toRBTeamSide
 import gg.scala.staff.anticheat.AnticheatFeature
@@ -170,7 +170,7 @@ object GameService
                             .mapNotNull(BasicsProfileService::find)
                             .count { profile ->
                                 profile.setting(
-                                    "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:allow-spectators",
+                                    "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:allow-spectators",
                                     StateSettingValue.ENABLED
                                 ) == StateSettingValue.ENABLED
                             }

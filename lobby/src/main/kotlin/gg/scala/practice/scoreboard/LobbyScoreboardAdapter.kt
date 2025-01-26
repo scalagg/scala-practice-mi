@@ -10,11 +10,10 @@ import gg.scala.parties.model.PartyStatus
 import gg.scala.game.extensions.profile.CorePlayerProfileService
 import gg.scala.practice.player.LobbyPlayerService
 import gg.scala.practice.player.formattedDomain
-import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.queue.QueueType
 import gg.scala.practice.region.PlayerRegionFromRedisProxy
 import gg.scala.practice.services.ScoreboardTitleService
-import gg.scala.practice.settings.DuelsSettingCategory
+import gg.scala.practice.settings.PracticeSettingCategory
 import gg.scala.practice.settings.isASilentSpectator
 import gg.scala.practice.settings.layout
 import gg.scala.practice.settings.scoreboard.LobbyScoreboardView
@@ -123,7 +122,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             BasicsProfileService.find(player)
                 ?.apply {
                     val scoreboardView = setting(
-                        "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:lobby-scoreboard-view",
+                        "${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:lobby-scoreboard-view",
                         LobbyScoreboardView.None
                     )
 
