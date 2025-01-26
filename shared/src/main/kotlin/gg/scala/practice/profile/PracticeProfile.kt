@@ -8,7 +8,7 @@ import gg.scala.practice.profile.loadout.Loadout
 import gg.scala.practice.profile.ranked.RankedBan
 import gg.scala.practice.statistics.GlobalStatistics
 import gg.scala.practice.statistics.KitStatistics
-import gg.scala.practice.statistics.UnrankedBotKitStatistics
+import gg.scala.practice.statistics.bot.BotKitStatistics
 import gg.scala.practice.statistics.ranked.RankedKitStatistics
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.Duration
@@ -41,7 +41,7 @@ data class PracticeProfile(
 
     var botStatistics = ConcurrentHashMap<
         String,
-        UnrankedBotKitStatistics
+        BotKitStatistics
     >()
 
     val customLoadouts = mutableMapOf<
@@ -65,14 +65,14 @@ data class PracticeProfile(
         )
         ?: rankedStatistics[kit.id]!!
 
-    fun getUnrankedBotStatsFor(kit: Kit) : UnrankedBotKitStatistics
+    fun getUnrankedBotStatsFor(kit: Kit) : BotKitStatistics
     {
-        return botStatistics?.putIfAbsent(
-            kit.id, UnrankedBotKitStatistics(),
+        return botStatistics.putIfAbsent(
+            kit.id, BotKitStatistics(),
         )
-        ?: botStatistics?.get(kit.id) ?: run {
+        ?: botStatistics[kit.id] ?: run {
             botStatistics = ConcurrentHashMap()
-            botStatistics.putIfAbsent(kit.id, UnrankedBotKitStatistics())
+            botStatistics.putIfAbsent(kit.id, BotKitStatistics())
             save()
             botStatistics[kit.id]!!
         }

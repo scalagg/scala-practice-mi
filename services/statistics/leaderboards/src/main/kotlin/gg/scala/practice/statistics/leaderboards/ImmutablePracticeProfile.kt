@@ -3,7 +3,7 @@ package gg.scala.practice.statistics.leaderboards
 import gg.scala.store.storage.storable.IDataStoreObject
 import gg.scala.practice.statistics.GlobalStatistics
 import gg.scala.practice.statistics.KitStatistics
-import gg.scala.practice.statistics.UnrankedBotKitStatistics
+import gg.scala.practice.statistics.bot.BotKitStatistics
 import gg.scala.practice.statistics.ranked.RankedKitStatistics
 import java.util.*
 
@@ -19,5 +19,5 @@ data class ImmutablePracticeProfile(
 
     val unrankedStatistics: Map<String, KitStatistics> = mapOf()
     val rankedStatistics: Map<String, RankedKitStatistics> = mapOf()
-    val unrankedBotStatistics: Map<String, UnrankedBotKitStatistics> = mapOf()
+    val unrankedBotStatistics: Map<String, BotKitStatistics> = mapOf()
 }

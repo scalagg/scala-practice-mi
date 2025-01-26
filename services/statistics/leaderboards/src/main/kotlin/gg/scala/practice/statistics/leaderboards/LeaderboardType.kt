@@ -2,6 +2,7 @@ package gg.scala.practice.statistics.leaderboards
 
 import gg.scala.practice.application.api.defaults.kit.ImmutableKit
 import gg.scala.practice.statistics.KitStatistics
+import gg.scala.practice.statistics.bot.BotKitStatistics
 import gg.scala.practice.statistics.ranked.RankedKitStatistics
 
 /**
@@ -90,7 +91,7 @@ enum class LeaderboardType(
         },
         fromGlobal = {
             unrankedBotStatistics.values
-                .sumOf(KitStatistics::wins)
+                .sumOf(BotKitStatistics::wins)
                 .toLong()
         }
     ),

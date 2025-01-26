@@ -51,17 +51,17 @@ object LobbyPlayerService
     @Configure
     fun configure()
     {
-        Events
-            .subscribe(PlayerCommandPreprocessEvent::class.java)
-            .filter {
-                (it.message.startsWith("/playsound") || it.message.startsWith("/minecraft:playsound")) && it.player.isOp
-            }
-            .handler {
-                Bukkit.dispatchCommand(
-                    Bukkit.getConsoleSender(),
-                    "blacklist ${it.player.name} Playing Stupid Sounds -s"
-                )
-            }
+//        Events
+//            .subscribe(PlayerCommandPreprocessEvent::class.java)
+//            .filter {
+//                (it.message.startsWith("/playsound") || it.message.startsWith("/minecraft:playsound")) && it.player.isOp
+//            }
+//            .handler {
+//                Bukkit.dispatchCommand(
+//                    Bukkit.getConsoleSender(),
+//                    "blacklist ${it.player.name} Playing Stupid Sounds"
+//                )
+//            }
 
         Schedulers
             .async()

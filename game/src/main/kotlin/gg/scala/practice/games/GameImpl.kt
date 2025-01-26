@@ -781,7 +781,7 @@ open class GameImpl(
         val game = byPlayer(player)
             ?: return
 
-        if (game.flag(FeatureFlag.Ranked))
+        if (game.expectationModel.queueType == QueueType.Ranked)
         {
             player.sendMessage("${CC.RED}You cannot forfeit in a ranked game.")
             return

@@ -12,7 +12,7 @@ import gg.scala.practice.kit.Kit
 import gg.scala.practice.profile.PracticeProfile
 import gg.scala.practice.statistics.GlobalStatistics
 import gg.scala.practice.statistics.KitStatistics
-import gg.scala.practice.statistics.UnrankedBotKitStatistics
+import gg.scala.practice.statistics.bot.BotKitStatistics
 import gg.scala.practice.statistics.ranked.RankedKitStatistics
 import net.evilblock.cubed.util.CC
 import org.bukkit.command.CommandSender
@@ -56,7 +56,7 @@ object ResetStatsCommand : ScalaCommand()
             profile.botStatistics.toMap().forEach { (kitID, _) ->
                 if (kit == null || kit.id == kitID)
                 {
-                    profile.botStatistics[kitID] = UnrankedBotKitStatistics()
+                    profile.botStatistics[kitID] = BotKitStatistics()
                 }
             }
         }),
