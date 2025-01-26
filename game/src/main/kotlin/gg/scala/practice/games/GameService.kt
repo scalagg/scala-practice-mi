@@ -35,6 +35,7 @@ import gg.scala.practice.settings.DuelsSettingCategory
 import gg.scala.practice.suffixWhenDev
 import gg.scala.practice.utilities.toRBTeamSide
 import gg.scala.staff.anticheat.AnticheatFeature
+import gg.scala.staff.moderation.frozen.event.PostFreezeEvent
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -247,6 +248,24 @@ object GameService
         val tntJumpBarycenterAlterationInY = 0.5
         val tntJumpStrengthReductionConstant = 5
         val tntJumpYAxisReductionConstant = 2
+
+        Events.
+            subscribe(PostFreezeEvent::class.java)
+            .handler {
+                val player = it.player
+                val game = byPlayer(player)
+                    ?: return@handler
+
+                if (!game.ensurePlaying())
+                {
+                    return@handler
+                }
+
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    "terminatematch ${player.name} Player was frozen."
+                )
+            }
 
         Events
             .subscribe(EntityDamageByEntityEvent::class.java)
