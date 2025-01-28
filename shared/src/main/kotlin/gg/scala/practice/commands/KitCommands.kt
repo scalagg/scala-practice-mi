@@ -552,6 +552,12 @@ object KitCommands : ScalaCommand()
     @Description("Modify the item durability.")
     fun onItemDurability(player: ScalaPlayer, durability: Int)
     {
+        if (player.bukkit().itemInHand == null)
+        {
+            throw ConditionFailedException(
+                "You must be holding an item in your hand to modify its durability."
+            )
+        }
         player.bukkit().itemInHand.apply {
             this.durability = durability.toShort()
         }
