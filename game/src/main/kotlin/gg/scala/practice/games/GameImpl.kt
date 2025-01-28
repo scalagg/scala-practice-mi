@@ -786,10 +786,10 @@ open class GameImpl(
             player.sendMessage("${CC.RED}You cannot forfeit in a ranked game.")
             return
         }
+        game.sendMessage("${CC.PRI}${player.name} ${CC.SEC}has forfeited.")
         game.complete(
             game.getOpponent(player)
         )
-        player.sendMessage("${CC.GREEN}You have forfeited the game.")
     }
 
     fun state(state: GameState): Boolean
