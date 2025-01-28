@@ -548,6 +548,7 @@ object KitCommands : ScalaCommand()
 
     @AssignPermission
     @Subcommand("inventory item-durability")
+    @Syntax("<durability>")
     @Description("Modify the item durability.")
     fun onItemDurability(player: ScalaPlayer, durability: Int)
     {
