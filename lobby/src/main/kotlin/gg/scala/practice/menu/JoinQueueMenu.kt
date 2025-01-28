@@ -207,7 +207,7 @@ class JoinQueueMenu(
                     .setLore(kitCategory.description.map { "${CC.GRAY}$it" })
                     .addToLore(
                         "",
-                        "${CC.WHITE}Playing: ${CC.SEC}$totalPlayersInCategory",
+                        "${CC.WHITE}Playing: ${CC.PRI}$totalPlayersInCategory",
                         "",
                         "${CC.GREEN}Click to view!"
                     )

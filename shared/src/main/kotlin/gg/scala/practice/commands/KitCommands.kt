@@ -547,6 +547,17 @@ object KitCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("inventory item-durability")
+    @Description("Modify the item durability.")
+    fun onItemDurability(player: ScalaPlayer, durability: Int)
+    {
+        player.bukkit().itemInHand.apply {
+            this.durability = durability.toShort()
+        }
+        player.sendMessage("${CC.GREEN}You have set the item durability to ${CC.YELLOW}$durability${CC.GREEN}.")
+    }
+
+    @AssignPermission
     @Subcommand("inventory effects add")
     @CommandCompletion("@kits @effects")
     @Description("Add effects to this kit.")
