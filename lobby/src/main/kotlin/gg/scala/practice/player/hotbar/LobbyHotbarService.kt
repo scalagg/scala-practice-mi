@@ -23,6 +23,7 @@ import gg.scala.practice.menu.LeaderboardsMenu
 import gg.scala.practice.menu.PlayerMainMenu
 import gg.scala.practice.menu.PracticeManagementMenu
 import gg.scala.practice.menu.editor.EditorKitSelectionMenu
+import gg.scala.practice.menu.party.OtherPartiesMenu
 import gg.scala.practice.menu.party.PartyPlayGameSelectMenu
 import gg.scala.practice.player.LobbyPlayerService
 import gg.scala.practice.player.PlayerState
@@ -327,6 +328,32 @@ object LobbyHotbarService
         )
 
         idlePreset.addSlot(
+            5,
+            DynamicHotbarPresetEntry().also {
+                it.onBuild = scope@{ player ->
+                    if (!player.hasPermission("practice.admin"))
+                    {
+                        return@scope ItemStack(Material.AIR)
+                    }
+
+                    return@scope ItemBuilder
+                        .of(Material.ANVIL)
+                        .name("${CC.RED}Manage Practice ${CC.GRAY}(Right Click)")
+                        .build()
+                }
+
+                it.onClick = scope@{ player ->
+                    if (!player.hasPermission("practice.admin"))
+                    {
+                        return@scope
+                    }
+
+                    player.performCommand("practicelobbyadmin menu")
+                }
+            }
+        )
+
+        idlePreset.addSlot(
             4,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.NAME_TAG)
@@ -455,6 +482,32 @@ object LobbyHotbarService
                     }
 
                     player.performCommand("party manage")
+                }
+            }
+        )
+
+        inPartyPreset.addSlot(
+            1,
+            DynamicHotbarPresetEntry().also {
+                it.onBuild = scope@{ player ->
+                    if (!playerIsLeader(player))
+                    {
+                        return@scope ItemStack(Material.AIR)
+                    }
+
+                    return@scope ItemBuilder
+                        .of(Material.EYE_OF_ENDER)
+                        .name("${CC.GOLD}Other Parties ${CC.GRAY}(Right Click)")
+                        .build()
+                }
+
+                it.onClick = scope@{ player ->
+                    if (!playerIsLeader(player))
+                    {
+                        return@scope
+                    }
+
+                    OtherPartiesMenu().openMenu(player)
                 }
             }
         )

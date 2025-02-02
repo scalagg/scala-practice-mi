@@ -1311,7 +1311,7 @@ object GameService
                     val team = game
                         .getTeamOf(event.entity as Player)
 
-                    if (damagerTeam.teamIdentifier == team.teamIdentifier)
+                    if (damagerTeam.teamIdentifier == team.teamIdentifier && !game.flag(FeatureFlag.BowBoosting))
                     {
                         event.isCancelled = true
                         return@handler

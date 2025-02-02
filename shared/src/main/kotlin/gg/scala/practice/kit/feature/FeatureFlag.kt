@@ -89,6 +89,12 @@ enum class FeatureFlag(
             "hunger in a match.",
         )
     ),
+    BowBoosting(
+        description = listOf(
+            "Allows you to boost yourself",
+            "with a bow.",
+        )
+    ),
     MiniGameType(
         schema = mutableMapOf(
             "id" to "skywars"

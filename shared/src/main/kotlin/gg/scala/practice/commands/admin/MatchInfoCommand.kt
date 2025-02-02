@@ -56,7 +56,7 @@ object MatchInfoCommand : ScalaCommand()
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Server: ${CC.GREEN}${reference.server}",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} State: ${CC.GREEN}${reference.state.name}",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Queue: ${CC.GREEN}${
-                            if (reference.queueId == null) "${CC.RED}Private" else reference.queueId
+                            reference.queueId ?: "${CC.RED}Private"
                         }",
                         "",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Map: ${CC.GREEN}${reference.mapID}",
