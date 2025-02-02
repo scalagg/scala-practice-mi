@@ -85,7 +85,7 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
                 "Your profile has not loaded in properly, log out and try again."
             )
 
-        buttons[39] = ItemBuilder(Material.SKULL_ITEM)
+        buttons[40] = ItemBuilder(Material.SKULL_ITEM)
             .data(3)
             .owner(player.name)
             .name("${CC.PRI}Statistics")
