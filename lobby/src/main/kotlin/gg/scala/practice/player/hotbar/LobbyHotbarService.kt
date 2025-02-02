@@ -386,7 +386,7 @@ object LobbyHotbarService
         idlePreset.addSlot(
             6,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.EMERALD)
+                ItemBuilder(Material.ITEM_FRAME)
                     .name("${CC.YELLOW}View Leaderboards ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
@@ -496,7 +496,7 @@ object LobbyHotbarService
                     }
 
                     return@scope ItemBuilder
-                        .of(Material.EYE_OF_ENDER)
+                        .of(Material.EMERALD)
                         .name("${CC.GOLD}Other Parties ${CC.GRAY}(Right Click)")
                         .build()
                 }

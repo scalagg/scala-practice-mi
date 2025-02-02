@@ -107,7 +107,7 @@ class OtherPartiesMenu : PaginatedMenu()
 
                 try
                 {
-                    player.performCommand("duel ${find(leader.uniqueId)}")
+                    player.performCommand("duel ${leader.name}")
                 } catch (exception: ConditionFailedException)
                 {
                     player.sendMessage(CC.RED + exception.message)

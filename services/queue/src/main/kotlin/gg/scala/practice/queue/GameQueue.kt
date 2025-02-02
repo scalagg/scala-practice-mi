@@ -248,12 +248,12 @@ open class GameQueue(
                     entry = value
                 )
 
-                DPSRedisShared.sendMessage(
-                    value.players,
-                    listOf(
-                        "&c&lDue to a reboot of one of our systems, you have been removed from the queue you were in."
-                    )
-                )
+//                DPSRedisShared.sendMessage(
+//                    value.players,
+//                    listOf(
+//                        "&c&lDue to a reboot of one of our systems, you have been removed from the queue you were in."
+//                    )
+//                )
             }
 
         Logger.getGlobal()

@@ -17,7 +17,7 @@ if (currentBranch != "master") {
 
 allprojects {
     group = "gg.scala.practice.mi"
-    version = "1.0.5${
+    version = "1.0.6${
         if (currentBranch != "master") "-dev" else ""
     }"
 
@@ -51,6 +51,7 @@ subprojects {
         compileOnly("gg.scala.staff:scala-scstaff-plugin:1.0.9")
         compileOnly("gg.scala.friends:scala-friends:2.1.0")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
+        compileOnly("gg.scala.achievements:scala-achievements-plugin:1.0.5")
 
         compileOnly("gg.scala.spigot:server:1.1.3")
         compileOnly("com.lunarclient:apollo-api:1.1.6")

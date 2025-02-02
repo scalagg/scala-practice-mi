@@ -1,10 +1,12 @@
 package gg.scala.practice.menu
 
+import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.leaderboards.Reference
 import gg.scala.practice.leaderboards.ReferenceLeaderboardType
 import gg.scala.practice.menu.TemplateKitMenu
+import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
@@ -33,6 +35,9 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
         async = true
         updateAfterClick = true
     }
+
+
+    override fun size(buttons: Map<Int, Button>) = 45
 
     private val scoreCache = mutableMapOf<Reference, Pair<Long?, Long?>>()
 
@@ -75,6 +80,28 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
     {
         val buttons = super.getGlobalButtons(player)
             ?.toMutableMap() ?: mutableMapOf()
+        val profile = PracticeProfileService.find(player)
+            ?: throw ConditionFailedException(
+                "Your profile has not loaded in properly, log out and try again."
+            )
+
+        buttons[39] = ItemBuilder(Material.SKULL_ITEM)
+            .data(3)
+            .owner(player.name)
+            .name("${CC.PRI}Statistics")
+            .addToLore(
+                CC.GRAY + "View statistics for your",
+                CC.GRAY + "account.",
+                "",
+                "${CC.WHITE}Statistics are different",
+                "${CC.WHITE}depending on the region",
+                "${CC.WHITE}you're playing.",
+                "",
+                CC.GREEN + "Click to open!"
+            )
+            .toButton { _, _ ->
+                StatisticsMenu(player, profile, StatisticsMenu.StatisticMenuState.Unranked).openMenu(player)
+            }
 
         buttons[5] = ItemBuilder
             .of(Material.ENDER_PORTAL_FRAME)

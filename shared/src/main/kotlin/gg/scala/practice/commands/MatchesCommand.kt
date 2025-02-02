@@ -7,6 +7,7 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.practice.commands.admin.matchlist.MatchListPlayerMenu
 import gg.scala.practice.services.GameManagerService
+import net.evilblock.cubed.util.CC
 
 /**
  * @author Topu

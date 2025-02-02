@@ -1,10 +1,12 @@
 package gg.scala.practice.games
 
 import com.cryptomorin.xseries.XSound
+import gg.scala.achievements.plugin.profile.AchievementProfileOrchestrator
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.game.extensions.profile.CorePlayerProfileService
+import gg.scala.practice.achievements.ttl.TTLWinDataCollector
 import gg.scala.practice.commands.acquireProfileImmutable
 import gg.scala.practice.commands.networkTransaction
 import gg.scala.practice.expectation.ExpectationService
@@ -240,14 +242,44 @@ open class GameImpl(
                     }
                 }
 
+            if (Bukkit.getPluginManager().isPluginEnabled("Achievements"))
+            {
+
+                this.toBukkitPlayers()
+                    .filterNotNull()
+                    .onEach {
+                        val profile = AchievementProfileOrchestrator.find(it)!!
+                        val userIsWinner = winner.players.contains(it.uniqueId)
+
+                        listOf(
+                            profile
+                                .dataCollector<TTLWinDataCollector>(
+                                    id = "dailywins"
+                                ),
+                        )
+                            .filterNotNull()
+                            .forEach { dataCollector ->
+                                if (userIsWinner)
+                                {
+                                    dataCollector.value += 1
+                                }
+
+                                profile.save()
+                            }
+                    }
+            }
+
+
             val opponents = getAllOpponents(winner)
             opponents.forEach {
                 sendInfoToTournamentService(losers = it.players.toList())
             }
 
             val allOpponentPlayers = opponents.flatMap(GameTeam::players)
-            if (robot()) {
-                val kitStatisticsUpdates = if (winner.players.size < 1) {
+            if (robot())
+            {
+                val kitStatisticsUpdates = if (winner.players.size < 1)
+                {
                     allOpponentPlayers.map {
                         it.networkTransaction {
                             useKitStatistics(this@GameImpl) {
@@ -258,8 +290,8 @@ open class GameImpl(
                             }
                         }
                     }
-                }
-                else {
+                } else
+                {
                     winner.players.map { player ->
                         player.networkTransaction {
                             useKitStatistics(this@GameImpl) {
@@ -277,7 +309,8 @@ open class GameImpl(
                 }
 
                 val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
-            } else {
+            } else
+            {
                 val kitStatisticsUpdates = allOpponentPlayers.map {
                     it.networkTransaction {
                         useKitStatistics(this@GameImpl) {
@@ -415,7 +448,9 @@ open class GameImpl(
                                 if (winner.players.contains(it.uniqueId))
                                 {
                                     it.sendMessage(BotMessages.getBotLose(robot.name()))
-                                    if (robot.level().equals("unranked", ignoreCase = true)) it.uniqueId.acquireProfileImmutable().join()?.onUnrankedBotWin()
+                                    if (robot.level()
+                                            .equals("unranked", ignoreCase = true)
+                                    ) it.uniqueId.acquireProfileImmutable().join()?.onUnrankedBotWin()
                                 } else
                                 {
                                     if (it.uniqueId in allOpponentPlayers)

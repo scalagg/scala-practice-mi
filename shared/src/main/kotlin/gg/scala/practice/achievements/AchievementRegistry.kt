@@ -7,6 +7,7 @@ import gg.scala.achievements.plugin.model.AchievementStage
 import gg.scala.achievements.plugin.model.goals.AchievementGoal
 import gg.scala.achievements.plugin.profile.AchievementProfile
 import gg.scala.game.extensions.profile.CorePlayerProfileService
+import gg.scala.practice.achievements.ttl.TTLWinDataCollector
 import org.bukkit.entity.Player
 
 /**
@@ -39,20 +40,47 @@ object AchievementRegistry
         override fun createDataCollector(profile: AchievementProfile) = PDC("kills")
     }
 
-    val firstBlood = Achievement(
-        id = "practice:first-blood",
-        name = "First Blood",
-        category = AchievementCategory.GameSpecific,
+    fun Int.buildStageForWins() = AchievementStage(
+        description = listOf(
+            "Get ${this@buildStageForWins} daily wins."
+        ),
+        goals = listOf(
+            object : AchievementGoal<Int>
+            {
+                override val description = "Get ${this@buildStageForWins} daily wins."
+                override val id = "dailywins"
+                override val requirement = this@buildStageForWins
+
+                override fun createDataCollector(profile: AchievementProfile) =
+                    TTLWinDataCollector(id)
+
+                override fun matchesRequirement(value: Any?) =
+                    ((value as Int?) ?: 0) >= this@buildStageForWins
+            }
+        ),
+        rewards = listOf(
+            object : AchievementReward
+            {
+                override val description = "100 coins"
+
+                override fun applyTo(player: Player) {
+                    CorePlayerProfileService.find(player)!!.addCoins(100)
+                }
+            }
+        )
+    )
+
+    val matchWinner = Achievement(
+        id = "practice:daily:wins",
+        name = "Match Winner",
         stages = linkedSetOf(
-            AchievementStage(
-                description = listOf(
-                    "Kill a player in any Practice game!"
-                ),
-                goals = listOf(1.killsGoal()),
-                rewards = listOf(100.coinsReward())
-            )
+            15.buildStageForWins(),
+            50.buildStageForWins(),
+            100.buildStageForWins(),
+            150.buildStageForWins()
         ),
         rewardsPlayer = true,
-        visibleWithinMenu = true
+        visibleWithinMenu = true,
+        category = AchievementCategory.GameSpecific
     )
 }

@@ -10,8 +10,9 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.scala.lemon.util.QuickAccess
-import gg.scala.staff.ScalaStaffPlugin
-import gg.scala.staff.profile.StaffProfileService
+import gg.scala.parties.model.Party
+import gg.scala.parties.service.PartyService
+import gg.scala.parties.service.PartyService.findPartyByUniqueId
 import gg.scala.practice.duel.DuelRequestUtilities
 import gg.scala.practice.friendship.FriendshipStateSetting
 import gg.scala.practice.friendship.Friendships
@@ -24,6 +25,8 @@ import gg.scala.practice.queue.QueueService
 import gg.scala.practice.region.PlayerRegionFromRedisProxy
 import gg.scala.practice.settings.PracticeSettingCategory
 import gg.scala.practice.suffixWhenDev
+import gg.scala.staff.ScalaStaffPlugin
+import gg.scala.staff.profile.StaffProfileService
 import net.evilblock.cubed.util.CC
 
 /**
@@ -80,6 +83,20 @@ object DuelCommands : ScalaCommand()
             throw ConditionFailedException(
                 "You cannot accept this duel as you are frozen!"
             )
+        }
+
+        val party: Party? = findPartyByUniqueId(player.bukkit().uniqueId)
+
+        val targetParty: Party? = findPartyByUniqueId(player.bukkit().uniqueId)
+
+        if (targetParty != null && party != null && party.identifier == targetParty.identifier)
+        {
+            throw ConditionFailedException(CC.RED + "You cannot send duel requests to yourself.")
+        }
+
+        if (party != null && party.leader.uniqueId != player.uniqueId)
+        {
+            throw ConditionFailedException(CC.RED + "You're not the leader of your party.")
         }
 
         val profile = LobbyPlayerService.find(player.bukkit())
