@@ -38,9 +38,6 @@ class MatchListPlayerMenu(
                     )
                     .addToLore(
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} State: ${CC.PRI}${reference.state.name}",
-                        "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Queue: ${CC.PRI}${
-                            QueueType.valueOf(reference.queueId ?: "${CC.RED}Private").name
-                        }",
                         "",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Map: ${CC.PRI}${MapService.cached().maps[reference.mapID]?.displayName}",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Kit: ${CC.PRI}${KitService.cached().kits[reference.kitID]?.displayName}",
