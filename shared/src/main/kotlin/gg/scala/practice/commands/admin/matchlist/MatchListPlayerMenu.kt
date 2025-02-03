@@ -1,5 +1,6 @@
 package gg.scala.practice.commands.admin.matchlist
 
+import gg.scala.lemon.util.QuickAccess
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.lemon.util.SplitUtil
 import gg.scala.practice.games.GameReference
@@ -34,7 +35,7 @@ class MatchListPlayerMenu(
                 ItemBuilder
                     .copyOf(KitService.cached().kits[reference.kitID]?.displayIcon ?: ItemStack(Material.BARRIER))
                     .name(
-                        "${CC.PRI}${reference.players.first().username()} vs ${reference.players.last().username()}"
+                        "${CC.PRI}${QuickAccess.nameOrConsole(reference.players.first())} vs ${QuickAccess.nameOrConsole(reference.players.first())}"
                     )
                     .addToLore(
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} State: ${CC.PRI}${reference.state.name}",

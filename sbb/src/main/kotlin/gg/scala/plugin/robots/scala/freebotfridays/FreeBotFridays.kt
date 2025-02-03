@@ -52,6 +52,45 @@ object FreeBotFridays
         return result
     }
 
+    @JvmStatic
+    fun formatIntoAbbreviatedString(secs: Int): String {
+        if (secs == 0) {
+            return "0s"
+        }
+
+        val remainder = secs % 86400
+        val days = secs / 86400
+        val hours = remainder / 3600
+        val minutes = remainder / 60 - hours * 60
+        val seconds = remainder % 3600 - minutes * 60
+
+        val fDays = if (days > 0) {
+            " " + days + "d"
+        } else {
+            ""
+        }
+
+        val fHours = if (hours > 0) {
+            " " + hours + "h"
+        } else {
+            ""
+        }
+
+        val fMinutes = if (minutes > 0) {
+            " " + minutes + "m"
+        } else {
+            ""
+        }
+
+        val fSeconds = if (seconds > 0) {
+            " " + seconds + "s"
+        } else {
+            ""
+        }
+
+        return (fDays + fHours + fMinutes + fSeconds).trim { it <= ' ' }
+    }
+
     fun fancyStatus(): String
     {
         if (isFreeBotFriday())
@@ -59,7 +98,7 @@ object FreeBotFridays
             return "${CC.GOLD}NOW!"
         }
 
-        return "${CC.GREEN}${TimeUtil.formatIntoAbbreviatedString(
+        return "${CC.GREEN}${formatIntoAbbreviatedString(
             timeUntilNextFreeBotFriday()
                 .toSeconds()
                 .toInt()
