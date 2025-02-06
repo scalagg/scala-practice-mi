@@ -29,14 +29,14 @@ class CrystalFeature : Listener
     }
 
     @EventHandler
-    fun onPlayerInteract(event: PlayerInteractEvent) {
+    fun onPlayerInteract(event: PlayerInteractEvent)
+    {
         val player = event.player
         val item = event.item ?: return
-        if (item.type != Material.SKULL_ITEM) return
-
         val game = GameService.byPlayer(player) ?: return
+
         if (event.action !in listOf(Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR)) return
-        if (item.type != Material.FIREBALL) return
+        if (item.type != Material.SKULL_ITEM) return
 
         if (!game.state(GameState.Playing)) {
             player.sendMessage("${CC.RED}You cannot place crystals right now!")
