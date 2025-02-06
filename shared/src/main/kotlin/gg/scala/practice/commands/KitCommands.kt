@@ -722,6 +722,22 @@ object KitCommands : ScalaCommand()
         )
     }
 
+    @Subcommand("tools crystal")
+    @Description("Get a crystal.")
+    fun onCrystal(player: ScalaPlayer)
+    {
+        player.bukkit().inventory.addItem(
+            ItemBuilder
+                .of(Material.SKULL_ITEM)
+                .data(3)
+                .name("${CC.B_AQUA}Crystal ${CC.GRAY}(Right Click)")
+                .setBase64Head(
+                    "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHBzOi8vdGV4dHVyZXMubWluZWNyYWZ0L" +
+                    "m5ldC90ZXh0dXJlL2Y3NDgxMzllZTZjZmY3NDRjN2U4OTU5M2Y2YjkwZDQ2MDQ0ZDA3ZWU1ZTYzODI4ZmJlOTUzMWZiNjZkZjliOGYifX19")
+                .build()
+        )
+    }
+
     @AssignPermission
     @Subcommand("groups add")
     @CommandCompletion("@kits @stranger-kit-groups-to-kit")

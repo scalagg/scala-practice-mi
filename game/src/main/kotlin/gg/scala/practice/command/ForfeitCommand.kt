@@ -14,7 +14,7 @@ import gg.scala.practice.games.GameService
 object ForfeitCommand : ScalaCommand()
 {
 
-    @CommandAlias("forfeit|f")
+    @CommandAlias("forfeit|f|l|leave")
     fun onForfeit(player: ScalaPlayer)
     {
         val game = GameService.byPlayer(player.bukkit()) ?: return
