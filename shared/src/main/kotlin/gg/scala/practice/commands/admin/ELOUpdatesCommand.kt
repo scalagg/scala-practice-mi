@@ -1,11 +1,7 @@
 package gg.scala.practice.commands.admin
 
-import gg.scala.commons.acf.annotation.CommandAlias
-import gg.scala.commons.acf.annotation.CommandCompletion
-import gg.scala.commons.acf.annotation.CommandPermission
-import gg.scala.commons.acf.annotation.Description
-import gg.scala.commons.acf.annotation.Optional
-import gg.scala.commons.acf.annotation.Subcommand
+import gg.scala.commons.acf.CommandHelp
+import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
@@ -27,6 +23,13 @@ import org.bukkit.command.CommandSender
 @CommandPermission("practice.command.eloupdates")
 object ELOUpdatesCommand : ScalaCommand()
 {
+    @Default
+    @HelpCommand
+    fun onDefault(help: CommandHelp)
+    {
+        help.showHelp()
+    }
+
     @Subcommand("add")
     @Description("Add a specific amount of ELO to a player's profile.")
     @CommandCompletion("@mip-players @kits")

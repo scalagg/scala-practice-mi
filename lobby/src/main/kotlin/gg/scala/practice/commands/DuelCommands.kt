@@ -71,7 +71,7 @@ object DuelCommands : ScalaCommand()
             }
         }
 
-        if (it.bukkitPlayer!!.hasMetadata("vanished"))
+        if (it.bukkitPlayer?.hasMetadata("vanished") == true)
         {
             throw ConditionFailedException(
                 "${CC.YELLOW}${it.name}${CC.RED} is not logged onto the network!"
@@ -174,7 +174,7 @@ object DuelCommands : ScalaCommand()
             }
         }
 
-        if (it.bukkitPlayer!!.hasMetadata("vanished"))
+        if (it.bukkitPlayer?.hasMetadata("vanished") == true)
         {
             throw ConditionFailedException(
                 "${CC.YELLOW}${it.name}${CC.RED} is not logged onto the network!"

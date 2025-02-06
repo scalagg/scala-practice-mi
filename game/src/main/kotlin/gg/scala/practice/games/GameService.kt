@@ -23,6 +23,7 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.practice.PracticeGame
 import gg.scala.practice.games.features.CrystalFeature
 import gg.scala.practice.games.features.FireballFeature
+import gg.scala.practice.games.features.TotemFeature
 import gg.scala.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.scala.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
 import gg.scala.practice.games.team.TeamIdentifier
@@ -118,6 +119,7 @@ object GameService
         plugin.registerListener(BlockFormListener())
         plugin.registerListener(FireballFeature())
         plugin.registerListener(CrystalFeature())
+        plugin.registerListener(TotemFeature())
 
         AnticheatFeature.proxiedPlayerAllowAC = context@{
             val game = byPlayer(it)

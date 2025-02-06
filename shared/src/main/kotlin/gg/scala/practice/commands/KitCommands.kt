@@ -761,6 +761,19 @@ object KitCommands : ScalaCommand()
         )
     }
 
+    @Subcommand("tools totem")
+    @Description("Get a totem of undying.")
+    fun onTotem(player: ScalaPlayer)
+    {
+        player.bukkit().inventory.addItem(
+            ItemBuilder
+                .of(Material.GOLD_INGOT)
+                .name("${CC.GOLD}Totem Of Undying")
+                .addToLore("${CC.GRAY}Grants a second life!")
+                .build()
+        )
+    }
+
     @Subcommand("tools crystal")
     @Description("Get a crystal.")
     fun onCrystal(player: ScalaPlayer)
