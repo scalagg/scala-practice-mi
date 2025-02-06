@@ -24,6 +24,8 @@ import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
+import org.bukkit.inventory.meta.PotionMeta
+import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -393,7 +395,11 @@ object KitCommands : ScalaCommand()
         if (key !in feature.schema.keys)
         {
             throw ConditionFailedException(
-                "The feature flag ${CC.YELLOW}${feature.name}${CC.RED} does not have a schema key with the name ${CC.YELLOW}$key${CC.RED}. The available schema keys are ${CC.YELLOW}${feature.schema.keys.joinToString(", ")}${CC.RED}."
+                "The feature flag ${CC.YELLOW}${feature.name}${CC.RED} does not have a schema key with the name ${CC.YELLOW}$key${CC.RED}. The available schema keys are ${CC.YELLOW}${
+                    feature.schema.keys.joinToString(
+                        ", "
+                    )
+                }${CC.RED}."
             )
         }
 
@@ -580,7 +586,7 @@ object KitCommands : ScalaCommand()
         player.sendMessage("${CC.GREEN}You have added the potion effect ${CC.YELLOW}${
             potionEffectType.name.lowercase()
                 .replaceFirstChar {
-                    it.titlecase(Locale.getDefault()) 
+                    it.titlecase(Locale.getDefault())
                 }
         } ${CC.GREEN}with an amplifier of ${CC.YELLOW}$amplifier${CC.GREEN}.")
     }
@@ -604,8 +610,8 @@ object KitCommands : ScalaCommand()
                 val listComponents = FancyMessage()
                     .withMessage(
                         "${CC.GRAY}${
-                            entry.key.lowercase().replaceFirstChar { 
-                                it.titlecase(Locale.getDefault()) 
+                            entry.key.lowercase().replaceFirstChar {
+                                it.titlecase(Locale.getDefault())
                             }
                         } (Amplifier ${entry.value})${
                             if (index != effects.size - 1) ", " else ""
@@ -644,7 +650,7 @@ object KitCommands : ScalaCommand()
 
         kit.potionEffects.remove(potionEffectType.name)
 
-        with (KitService.cached()) {
+        with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit
             KitService.sync(this)
         }
@@ -710,6 +716,39 @@ object KitCommands : ScalaCommand()
         )
     }
 
+    @Subcommand("tools potion-modify")
+    @Syntax("<effect> <seconds> <amplifier>")
+    @Description("Modify potion effects")
+    fun onPotionModify(
+        player: ScalaPlayer,
+        effect: String,
+        seconds: Int,
+        amplifier: Int
+    )
+    {
+        val effectType = PotionEffectType.getByName(effect.uppercase())
+        val hand = player.bukkit().inventory.itemInHand
+
+        if (hand.type != Material.POTION)
+        {
+            player.sendMessage("${CC.RED}Please hold a potion.")
+            return
+        }
+
+        if (effectType == null)
+        {
+            player.sendMessage("${CC.RED}Could not parse $effect")
+            return
+        }
+
+        val meta = hand.itemMeta as? PotionMeta ?: return
+        meta.addCustomEffect(PotionEffect(effectType, seconds * 20, amplifier), true)
+        hand.itemMeta = meta
+
+        player.sendMessage("${CC.GREEN}Modified effect ${effectType.name}: Level $amplifier for $seconds seconds.")
+        player.bukkit().updateInventory()
+    }
+
     @Subcommand("tools fireball")
     @Description("Get a fireball.")
     fun onFireball(player: ScalaPlayer)
@@ -733,7 +772,8 @@ object KitCommands : ScalaCommand()
                 .name("${CC.B_AQUA}Crystal ${CC.GRAY}(Right Click)")
                 .setBase64Head(
                     "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHBzOi8vdGV4dHVyZXMubWluZWNyYWZ0L" +
-                    "m5ldC90ZXh0dXJlL2Y3NDgxMzllZTZjZmY3NDRjN2U4OTU5M2Y2YjkwZDQ2MDQ0ZDA3ZWU1ZTYzODI4ZmJlOTUzMWZiNjZkZjliOGYifX19")
+                        "m5ldC90ZXh0dXJlL2Y3NDgxMzllZTZjZmY3NDRjN2U4OTU5M2Y2YjkwZDQ2MDQ0ZDA3ZWU1ZTYzODI4ZmJlOTUzMWZiNjZkZjliOGYifX19"
+                )
                 .build()
         )
     }
