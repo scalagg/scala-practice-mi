@@ -248,12 +248,12 @@ open class GameQueue(
                     entry = value
                 )
 
-//                DPSRedisShared.sendMessage(
-//                    value.players,
-//                    listOf(
-//                        "&c&lDue to a reboot of one of our systems, you have been removed from the queue you were in."
-//                    )
-//                )
+                DPSRedisShared.sendMessage(
+                    value.players,
+                    listOf(
+                        "&c&lDue to a reboot of one of our systems, you have been removed from the queue you were in."
+                    )
+                )
             }
 
         Logger.getGlobal()
@@ -376,7 +376,7 @@ open class GameQueue(
         first = group.take(teamSize)
         second = group.takeLast(teamSize)
 
-        val cleanup = {
+        val internalCleanup = {
             for (queueEntry in first + second)
             {
                 GameQueueManager
@@ -388,7 +388,7 @@ open class GameQueue(
 
         if (first.size != teamSize || second.size != teamSize)
         {
-            cleanup()
+            internalCleanup()
             Thread.sleep(200)
             return
         }
@@ -404,7 +404,7 @@ open class GameQueue(
         val map  = MapDataSync
             .selectRandomMapCompatibleWith(kit)
             ?: return run {
-                cleanup()
+                internalCleanup()
                 DPSRedisShared.sendMessage(
                     users,
                     listOf(
@@ -438,7 +438,7 @@ open class GameQueue(
             expectation = expectation,
             // prefer NA servers if queuing globally
             region = if (region == Region.Both) Region.NA else region,
-            cleanup = ::cleanup
+            cleanup = internalCleanup
         ).exceptionally {
             it.printStackTrace()
             return@exceptionally null
