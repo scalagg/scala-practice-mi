@@ -51,13 +51,15 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         {
             return
         }
-
         board += ""
         board += "${CC.WHITE}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
         board += "${CC.WHITE}Playing: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
+        }"
+        board += "${CC.WHITE}Waiting: ${CC.PRI}${
+            Numbers.format(ScoreboardInfoService.scoreboardInfo.queued)
         }"
         if (ShutdownService.shutdownRunnable != null)
         {
