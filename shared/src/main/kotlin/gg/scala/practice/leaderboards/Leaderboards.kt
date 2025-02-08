@@ -15,9 +15,7 @@ enum class ReferenceLeaderboardType(
     UnrankedWins("Unranked Wins"),
     RankedWins("Ranked Wins", true),
     UnrankedWinStreak("Unranked Daily Win Streak"),
-    RankedWinStreak("Ranked Daily Win Streak", true),
-    UnrankedBotWins("Unranked Bot Wins"),
-    UnrankedBotStreak("Unranked Bot Streak");
+    RankedWinStreak("Ranked Daily Win Streak", true);
 
     fun previous(): ReferenceLeaderboardType
     {

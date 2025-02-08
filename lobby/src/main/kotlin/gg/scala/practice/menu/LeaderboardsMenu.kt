@@ -114,14 +114,13 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
                 "${CC.WHITE}Current view:",
             )
             .apply {
-                for (type in ReferenceLeaderboardType.entries) {
-                    if ((!Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots") && (type == ReferenceLeaderboardType.UnrankedBotWins || type == ReferenceLeaderboardType.UnrankedBotStreak))) {
-                        continue
-                    }
-
-                    if (menuState == type) {
+                for (type in ReferenceLeaderboardType.entries)
+                {
+                    if (menuState == type)
+                    {
                         addToLore("${CC.GREEN}► ${type.displayName}")
-                    } else {
+                    } else
+                    {
                         addToLore("${CC.GRAY}${type.displayName}")
                     }
                 }
@@ -131,14 +130,9 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
                 "${CC.GREEN}Click to scroll through!"
             )
             .toButton { _, type ->
-                val validEntries = ReferenceLeaderboardType.entries.filter {
-                    !(it == ReferenceLeaderboardType.UnrankedBotWins || it == ReferenceLeaderboardType.UnrankedBotStreak) || Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")
-                }
-                val currentIndex = validEntries.indexOf(menuState)
                 menuState = if (type!!.isRightClick)
-                    validEntries.getOrElse(currentIndex - 1) { validEntries.last() }
-                else
-                    validEntries.getOrElse(currentIndex + 1) { validEntries.first() }
+                    menuState.previous() else
+                    menuState.next()
 
                 openMenu(player)
                 player.playSound(player.location, Sound.NOTE_STICKS, 1.0f, 1.0f)
