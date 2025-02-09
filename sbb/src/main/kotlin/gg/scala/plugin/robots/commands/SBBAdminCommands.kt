@@ -1,8 +1,7 @@
 package gg.scala.plugin.robots.commands
 
-import gg.scala.commons.acf.annotation.CommandAlias
-import gg.scala.commons.acf.annotation.CommandPermission
-import gg.scala.commons.acf.annotation.Subcommand
+import gg.scala.commons.acf.CommandHelp
+import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
@@ -25,6 +24,13 @@ import net.evilblock.cubed.util.CC
 @CommandPermission("sbb.admin")
 object SBBAdminCommands : ScalaCommand()
 {
+    @Default
+    @HelpCommand
+    fun onHelp(help: CommandHelp)
+    {
+        help.showHelp()
+    }
+
     @Subcommand("difficulties")
     fun onDifficulties(player: ScalaPlayer)
     {
