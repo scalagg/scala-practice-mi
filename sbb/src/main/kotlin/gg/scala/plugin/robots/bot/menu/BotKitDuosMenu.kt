@@ -56,7 +56,7 @@ class BotKitDuosMenu(player: Player, private val difficultyProfile: SettingProfi
         })
 
         return listOf(
-            "${CC.GRAY}Playing: ${CC.WHITE}${metadata.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Queuing: ${CC.WHITE}${metadata.inQueue}",
+            "${CC.GRAY}Playing: ${CC.WHITE}${metadata.inGame} ${CC.D_GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GRAY}Waiting: ${CC.WHITE}${metadata.inQueue}",
             "",
             "${CC.GREEN}Click to join queue!"
         )

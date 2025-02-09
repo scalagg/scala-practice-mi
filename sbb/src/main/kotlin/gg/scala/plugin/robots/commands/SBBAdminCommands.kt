@@ -4,6 +4,7 @@ import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AutoRegister
+import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.plugin.robots.bot.menu.management.UnrankedBotManagementMenu
 import gg.scala.plugin.robots.bot.menu.profiles.GenericDescribeProfilesMenu
@@ -22,7 +23,7 @@ import net.evilblock.cubed.util.CC
 @AutoRegister
 @CommandAlias("sbbadmin|scala-smart-botsadmin")
 @CommandPermission("sbb.admin")
-object SBBAdminCommands
+object SBBAdminCommands : ScalaCommand()
 {
     @Subcommand("difficulties")
     fun onDifficulties(player: ScalaPlayer)

@@ -181,7 +181,8 @@ class JoinQueueMenu(
                         .toButton()
                 }
 
-                var totalPlayersInCategory = 0
+                var totalPlayersPlayingInCategory = 0
+                var totalPlayersQueuedInCategory = 0
 
                 // Calculate total players playing in kits of this category
                 KitService.cached().kits.values
@@ -189,7 +190,8 @@ class JoinQueueMenu(
                     .forEach { kit ->
                         val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
                         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
-                        totalPlayersInCategory += metadata.inGame
+                        totalPlayersPlayingInCategory += metadata.inGame
+                        totalPlayersQueuedInCategory += metadata.inQueue
                     }
 
                 buttons[i] = ItemBuilder
@@ -207,7 +209,8 @@ class JoinQueueMenu(
                     .setLore(kitCategory.description.map { "${CC.GRAY}$it" })
                     .addToLore(
                         "",
-                        "${CC.WHITE}Playing: ${CC.PRI}$totalPlayersInCategory",
+                        "${CC.WHITE}Playing: ${CC.PRI}$totalPlayersPlayingInCategory",
+                        "${CC.WHITE}Waiting: ${CC.PRI}$totalPlayersQueuedInCategory",
                         "",
                         "${CC.GREEN}Click to view!"
                     )
@@ -241,7 +244,7 @@ class JoinQueueMenu(
 
         return listOf(
             "${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}",
-            "${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}",
+            "${CC.WHITE}Waiting: ${CC.PRI}${metadata.inQueue}",
             "",
             *local3ScoreDescriptionOf(
                 player,
@@ -268,7 +271,7 @@ class JoinQueueMenu(
                 kitLore.add("${CC.RED}This kit does not support ranked.")
             } else {
                 kitLore.add("${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}")
-                kitLore.add("${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}")
+                kitLore.add("${CC.WHITE}Waiting: ${CC.PRI}${metadata.inQueue}")
                 kitLore.add("")
                 kitLore.addAll(
                     local3ScoreDescriptionOf(player, Reference(leaderboardType, kit.id), scoreType)
