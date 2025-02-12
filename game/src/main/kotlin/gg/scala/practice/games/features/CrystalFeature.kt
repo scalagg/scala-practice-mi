@@ -36,7 +36,7 @@ class CrystalFeature : Listener
         val game = GameService.byPlayer(player) ?: return
 
         if (event.action !in listOf(Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR)) return
-        if (item.type != Material.SKULL_ITEM) return
+        if (item.type != Material.NETHER_STAR) return
 
         if (!game.state(GameState.Playing)) {
             player.sendMessage("${CC.RED}You cannot place crystals right now!")
