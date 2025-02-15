@@ -35,7 +35,7 @@ class MatchListPlayerMenu(
                 ItemBuilder
                     .copyOf(KitService.cached().kits[reference.kitID]?.displayIcon ?: ItemStack(Material.BARRIER))
                     .name(
-                        "${CC.PRI}${QuickAccess.nameOrConsole(reference.players.first())} vs ${QuickAccess.nameOrConsole(reference.players.first())}"
+                        "${CC.PRI}${QuickAccess.nameOrConsole(reference.players.first())} vs ${QuickAccess.nameOrConsole(reference.players.last())}"
                     )
                     .addToLore(
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} State: ${CC.PRI}${reference.state.name}",

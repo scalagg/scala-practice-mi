@@ -464,7 +464,7 @@ object GameQueueManager
                         // we need to do the check again, so why not
                         val map = if (request.mapID == null)
                         {
-                            gg.scala.practice.application.api.defaults.map.MapDataSync
+                            MapDataSync
                                 .selectRandomMapCompatibleWith(kit)
                         } else
                         {

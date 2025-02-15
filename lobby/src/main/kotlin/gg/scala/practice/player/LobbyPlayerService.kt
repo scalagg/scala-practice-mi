@@ -219,15 +219,18 @@ object LobbyPlayerService
                 val basicsProfile = BasicsProfileService
                     .find(event.player)
                     ?: return@handler
+                val lemonProfile = PlayerHandler
+                    .find(event.player.uniqueId)
+                    ?: return@handler
                 Tasks.delayed(2L) {
-                    if (event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished") && basicsProfile.setting<StateSettingValue>("${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:join-message") == StateSettingValue.ENABLED)
+                    if (lemonProfile.getMetadata("last-connected-server-group")?.asString() == "hub" && event.player.hasPermission("tangerine.join-notifs") && !event.player.hasMetadata("vanished") && basicsProfile.setting<StateSettingValue>("${PracticeSettingCategory.PRACTICE_SETTING_PREFIX}:join-message") == StateSettingValue.ENABLED)
                     {
                         val lemonPlayer = PlayerHandler
                             .find(player.uniqueId)
                             ?: return@delayed
 
                         Bukkit.broadcastMessage(
-                            "${CC.GRAY}[${CC.B_GOLD}⚡${CC.GRAY}] ${
+                            "${
                                 lemonPlayer
                                     .getColoredName(
                                         rank = lemonPlayer.disguiseRank() ?: QuickAccess.realRank(event.player),
