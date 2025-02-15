@@ -24,6 +24,7 @@ import gg.scala.practice.PracticeGame
 import gg.scala.practice.games.features.CrystalFeature
 import gg.scala.practice.games.features.FireballFeature
 import gg.scala.practice.games.features.TotemFeature
+import gg.scala.practice.games.robot.RobotInstance
 import gg.scala.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.scala.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
 import gg.scala.practice.games.team.TeamIdentifier
@@ -1211,6 +1212,10 @@ object GameService
                     game.sendMessage(
                         "${CC.RED}${it.player.name}${CC.GRAY} left the game."
                     )
+                    if (game.robot()) {
+                        game.robotInstance.forEach(RobotInstance::destroy)
+                        game.robotInstance.clear()
+                    }
 
                     if (noAlive)
                     {

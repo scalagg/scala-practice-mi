@@ -318,7 +318,7 @@ class PartyBotFightPrepareMenu(
                     player.sendMessage("${CC.B_GREEN}We're preparing your match...")
                 }.exceptionally {
                     it.printStackTrace()
-                    player.sendMessage("${CC.RED}We weren't able to create a bot fight for you. Please report this to an administrator!")
+                    player.sendMessage("${CC.RED}We weren't able to create a robot for you. Please report this to an administrator!")
                     return@exceptionally null
                 }
             }

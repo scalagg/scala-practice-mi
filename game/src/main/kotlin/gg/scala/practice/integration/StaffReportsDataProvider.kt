@@ -31,7 +31,7 @@ object StaffReportsDataProvider
 
             return@provideAdditionalServerData mapOf(
                 "Kit" to gameOfPlayer.kit.displayName,
-                "Bot Fight" to if (gameOfPlayer.robot())
+                "Robot" to if (gameOfPlayer.robot())
                     "${CC.GREEN}Yes" else "${CC.RED}No",
                 "Ranked" to if (gameOfPlayer.expectationModel.queueType == QueueType.Ranked)
                     "${CC.GREEN}Yes" else "${CC.RED}No"

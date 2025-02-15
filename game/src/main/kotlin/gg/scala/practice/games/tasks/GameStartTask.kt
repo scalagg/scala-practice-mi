@@ -77,7 +77,7 @@ class GameStartTask(
 
             val gameType = when (true)
             {
-                (game.expectationModel.queueType == QueueType.Robot) -> "Bot Fight"
+                (game.expectationModel.queueType == QueueType.Robot) -> "Robot"
                 (game.expectationModel.queueType != null) -> game.expectationModel.queueType!!.name
                 (game.expectationModel.queueId == "tournament") -> "Tournament"
                 (game.expectationModel.queueId == "party") -> "Party"

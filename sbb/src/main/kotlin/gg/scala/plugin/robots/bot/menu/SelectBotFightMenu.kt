@@ -13,7 +13,7 @@ import org.bukkit.entity.Player
  * @author TastyCake
  * @date 9/7/2024
  */
-class SelectBotFightMenu : Menu("Select a bot fight...")
+class SelectBotFightMenu : Menu("Select a robot type...")
 {
     init
     {
