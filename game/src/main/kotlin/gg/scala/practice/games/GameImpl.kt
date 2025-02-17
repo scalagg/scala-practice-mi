@@ -186,6 +186,10 @@ open class GameImpl(
         {
             return
         }
+        if (robot())
+        {
+            robotInstance.forEach(RobotInstance::destroy)
+        }
 
         this.state = GameState.Completed
 
@@ -193,11 +197,6 @@ open class GameImpl(
         val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
         val playerFeedback = mutableMapOf<UUID, MutableList<String>>()
-
-        if (robot())
-        {
-            robotInstance.forEach(RobotInstance::destroy)
-        }
 
         toBukkitPlayers()
             .filterNotNull()
@@ -753,6 +752,8 @@ open class GameImpl(
 
             if (onlinePlayers.isNotEmpty())
             {
+                robotInstance.forEach(RobotInstance::destroy)
+                robotInstance.clear()
                 GameService.redirector.redirect(
                     ::generateRedirectMetadataFor,
                     *onlinePlayers

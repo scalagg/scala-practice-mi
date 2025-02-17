@@ -25,7 +25,7 @@ object MiniGameGlobalService
     fun configure()
     {
         Events
-            .subscribe(gg.scala.practice.minigame.event.PlayerMiniGameQuitWhileStartingEvent::class.java)
+            .subscribe(PlayerMiniGameQuitWhileStartingEvent::class.java)
             .handler {
                 it.game.preWaitRemove(it.player)
                 it.game.sendMessage("${QuickAccess.coloredName(it.player)}${CC.YELLOW} has left!")
