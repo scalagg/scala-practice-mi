@@ -1208,14 +1208,15 @@ object GameService
                     val noAlive = if (team.players.size > 1)
                         team.nonSpectators().isEmpty() else true
 
-                    game.takeSnapshot(it.player)
-                    game.sendMessage(
-                        "${CC.RED}${it.player.name}${CC.GRAY} left the game."
-                    )
                     if (game.robot()) {
                         game.robotInstance.forEach(RobotInstance::destroy)
                         game.robotInstance.clear()
                     }
+
+                    game.takeSnapshot(it.player)
+                    game.sendMessage(
+                        "${CC.RED}${it.player.name}${CC.GRAY} left the game."
+                    )
 
                     if (noAlive)
                     {
