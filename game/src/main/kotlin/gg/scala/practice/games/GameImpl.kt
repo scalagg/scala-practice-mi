@@ -242,7 +242,7 @@ open class GameImpl(
                     }
                 }
 
-            if (Bukkit.getPluginManager().isPluginEnabled("Achievements"))
+            if (Bukkit.getPluginManager().isPluginEnabled("Achievements") && !robot())
             {
 
                 this.toBukkitPlayers()
