@@ -9,7 +9,7 @@ import gg.scala.practice.games.resetPlayerForFight
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.queue.QueueType
-import gg.tropic.spa.SPABindings
+import gg.scala.spa.SPABindings
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Reflection

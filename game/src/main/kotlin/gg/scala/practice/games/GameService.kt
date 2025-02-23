@@ -1151,6 +1151,12 @@ object GameService
                         it.isCancelled = true
                     }
 
+                if (player.hasMetadata("spectator") || player.hasMetadata("light-spectator"))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
                 if (!game.state(GameState.Playing))
                 {
                     it.isCancelled = true
