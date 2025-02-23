@@ -248,23 +248,22 @@ open class GameImpl(
                 this.toBukkitPlayers()
                     .filterNotNull()
                     .onEach {
-                        val profile = AchievementProfileOrchestrator.find(it)!!
+                        val profile = AchievementProfileOrchestrator.find(it)
                         val userIsWinner = winner.players.contains(it.uniqueId)
 
-                        listOf(
+                        listOfNotNull(
                             profile
-                                .dataCollector<TTLWinDataCollector>(
+                                ?.dataCollector<TTLWinDataCollector>(
                                     id = "dailywins"
                                 ),
                         )
-                            .filterNotNull()
                             .forEach { dataCollector ->
                                 if (userIsWinner)
                                 {
                                     dataCollector.value += 1
                                 }
 
-                                profile.save()
+                                profile?.save()
                             }
                     }
             }
