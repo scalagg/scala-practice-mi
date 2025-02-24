@@ -16,21 +16,91 @@ import java.util.Arrays;
 public class PotionSettings extends Category {
 
     //Health potion
-    private Option<Integer> fleeHealth = new Option<>("Flee Health", Material.APPLE, this, 4, 1, 20);
-    private Option<Boolean> agroPotion = new Option<>("Agro Potion", Material.DIAMOND_SWORD, this, false, -1);
-    private Option<Integer> firstPotionTick = new Option<>("First Potion Tick", Material.WATCH, this, 9, 1, 60);
-    private Option<Integer> secondPotionTick = new Option<>("Second Potion Tick", Material.WATCH, this, 12, 1, 60);
-    private Option<Integer> finishPotionTick = new Option<>("Finish Potion Tick", Material.WATCH, this, 22, 1, 60);
-    private Option<Integer> tickOffset = new Option<>("Tick Offset", Material.DIODE, this, 1, 1, 20);
-    private Option<Boolean> secondPotion = new Option<>("Second Potion", Material.POTION, this, true, -1);
-    private Option<Double> cancelPotionDistance = new Option<>("Cancel Potion Distance", Material.HOPPER, this, 3.0, 0.1, 100);
+    private Option<Integer> fleeHealth = new Option<>(
+            "Flee Health",
+            Material.APPLE,
+            this,
+            4, 1, 20
+    ).addDescription(
+            CC.GRAY + "The health threshold at which",
+            CC.GRAY + "the bot will attempt to flee."
+    );
+
+    private Option<Boolean> agroPotion = new Option<>(
+            "Agro Potion",
+            Material.DIAMOND_SWORD,
+            this,
+            false, -1
+    ).addDescription(
+            CC.GRAY + "Determines whether the bot will",
+            CC.GRAY + "use an aggressive potion."
+    );
+
+    private Option<Integer> firstPotionTick = new Option<>(
+            "First Potion Tick",
+            Material.WATCH,
+            this,
+            9, 1, 60
+    ).addDescription(
+            CC.GRAY + "The game tick at which the bot",
+            CC.GRAY + "throws the first potion."
+    );
+
+    private Option<Integer> secondPotionTick = new Option<>(
+            "Second Potion Tick",
+            Material.WATCH,
+            this,
+            12, 1, 60
+    ).addDescription(
+            CC.GRAY + "The game tick at which the bot",
+            CC.GRAY + "throws the second potion."
+    );
+
+    private Option<Integer> finishPotionTick = new Option<>(
+            "Finish Potion Tick",
+            Material.WATCH,
+            this,
+            22, 1, 60
+    ).addDescription(
+            CC.GRAY + "The game tick at which the bot",
+            CC.GRAY + "throws the final potion."
+    );
+
+    private Option<Integer> tickOffset = new Option<>(
+            "Tick Offset",
+            Material.DIODE,
+            this,
+            1, 1, 20
+    ).addDescription(
+            CC.GRAY + "Offset in game ticks for potion",
+            CC.GRAY + "timing adjustments."
+    );
+
+    private Option<Boolean> secondPotion = new Option<>(
+            "Second Potion",
+            Material.POTION,
+            this,
+            true, -1
+    ).addDescription(
+            CC.GRAY + "Determines if the bot should",
+            CC.GRAY + "use a second potion."
+    );
+
+    private Option<Double> cancelPotionDistance = new Option<>(
+            "Cancel Potion Distance",
+            Material.HOPPER,
+            this,
+            3.0, 0.1, 100
+    ).addDescription(
+            CC.GRAY + "Distance in blocks at which the",
+            CC.GRAY + "bot cancels potion throwing."
+    );
 
     private Option<Boolean> hotbarRefillPausing = new Option<>(
             "Hotbar Refill Pausing",
             Material.CHEST,
             this,
-            true,
-            0.0
+            true, 0.0
     ).addDescription(
             CC.GRAY + "Should the bot pause to",
             CC.GRAY + "refill its hotbar?"
@@ -45,7 +115,7 @@ public class PotionSettings extends Category {
             this,
             2, 1, 4
     ).addDescription(
-            CC.GRAY + "The amount of time, in seconds",
+            CC.GRAY + "The amount of time, in seconds,",
             CC.GRAY + "it takes for the bot to refill",
             CC.GRAY + "its hotbar with health potions",
             CC.GRAY + "when empty."
