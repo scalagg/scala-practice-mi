@@ -18,11 +18,11 @@ import org.bukkit.entity.Player
 @NametagProviderRegister
 object PracticeNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 {
-    private val RED_TEAM_NAME_TAG = createNametag("${CC.RED} ", "")
-    private val GREEN_TEAM_NAME_TAG = createNametag("${CC.GREEN} ", "")
-    private val BLUE_TEAM_NAME_TAG = createNametag("${CC.BLUE} ", "")
+    private val RED_TEAM_NAME_TAG = createNametag(CC.RED, "")
+    private val GREEN_TEAM_NAME_TAG = createNametag(CC.GREEN, "")
+    private val BLUE_TEAM_NAME_TAG = createNametag(CC.BLUE, "")
 
-    private val SPECTATOR_NAME_TAG = createNametag("${CC.GRAY} ", "")
+    private val SPECTATOR_NAME_TAG = createNametag(CC.GRAY, "")
 
     override fun fetchNametag(
         viewed: Player, viewer: Player
