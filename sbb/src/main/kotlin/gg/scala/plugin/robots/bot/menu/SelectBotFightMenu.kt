@@ -5,6 +5,7 @@ import gg.scala.practice.player.hotbar.LobbyHotbarService.buildNewBotFightMenu
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -26,10 +27,23 @@ class SelectBotFightMenu : Menu("Select a robot type...")
             .of(Material.GOLD_SWORD)
             .name("${CC.GOLD}Practice")
             .addToLore(
-                "${CC.GRAY}• ${CC.GREEN}Face off against customizable bots",
-                "${CC.GRAY}• ${CC.AQUA}Hone your PvP skills with varied difficulty",
-                "${CC.GRAY}• ${CC.LIGHT_PURPLE}Perfect your strategies in controlled scenarios",
-                "${CC.GRAY}• ${CC.GOLD}Challenge yourself and become a PvP master"
+                "",
+                "${CC.B_PRI}Info:",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} Practice against a variety",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} of Bot Difficulties with",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} personalized selections.",
+                "",
+                "${CC.B_PRI}Difficulties:",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}Easy",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.YELLOW}Normal",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}Hard",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.DARK_RED}Expert",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.DARK_PURPLE}Nightmare",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.LIGHT_PURPLE}Clown",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GOLD}Martian",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.AQUA}Custom",
+                "",
+                "${CC.GREEN}Click to browse!"
             )
             .toButton { player, _ ->
                 Button.playNeutral(player!!)
@@ -52,10 +66,14 @@ class SelectBotFightMenu : Menu("Select a robot type...")
             .of(Material.IRON_SWORD)
             .name("${CC.YELLOW}Unranked")
             .addToLore(
-                "${CC.GRAY}• ${CC.RED}Battle against randomly generated bots",
-                "${CC.GRAY}• ${CC.YELLOW}Unlock new divisions and rank up as you win",
-                "${CC.GRAY}• ${CC.LIGHT_PURPLE}Enjoy a fresh challenge with each match",
-                "${CC.GRAY}• ${CC.DARK_AQUA}Perfect for testing your skills in unpredictable battles"
+                "",
+                "${CC.B_PRI}Info:",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} Practice against a variety",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} of Bots which are randomized",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} Unlock new divisions and rank up as you win",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.SEC} and have no loss penalty.",
+                "",
+                "${CC.GREEN}Click to browse!",
             )
             .toButton { player, _ ->
                 Button.playNeutral(player!!)
