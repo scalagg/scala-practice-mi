@@ -27,11 +27,11 @@ public class RotationSettings extends Category {
             CC.GRAY + "fast the bot moves around the environment."
     );
 
-    private Option<Double> jitterRotation = new Option<>(
+    private Option<Integer> jitterRotation = new Option<>(
             "Jitter Rotation",
             Material.FLINT,
             this,
-            1.0,
+            1,
             1,
             35
     ).addDescription(
@@ -40,11 +40,11 @@ public class RotationSettings extends Category {
             CC.GRAY + "making the bot's movement appear less predictable."
     );
 
-    private Option<Double> speedRandom = new Option<>(
+    private Option<Integer> speedRandom = new Option<>(
             "Speed Random",
             Material.FIREWORK,
             this,
-            1.0,
+            1,
             1,
             35
     ).addDescription(
