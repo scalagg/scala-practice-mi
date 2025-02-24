@@ -26,9 +26,10 @@ class SelectBotFightMenu : Menu("Select a robot type...")
             .of(Material.GOLD_SWORD)
             .name("${CC.GOLD}Practice")
             .addToLore(
-                "${CC.GRAY}Click to queue against",
-                "${CC.GRAY}a bot of your choice to practice",
-                "${CC.GRAY}your pvp!"
+                "${CC.GRAY}• ${CC.GREEN}Face off against customizable bots",
+                "${CC.GRAY}• ${CC.AQUA}Hone your PvP skills with varied difficulty",
+                "${CC.GRAY}• ${CC.LIGHT_PURPLE}Perfect your strategies in controlled scenarios",
+                "${CC.GRAY}• ${CC.GOLD}Challenge yourself and become a PvP master"
             )
             .toButton { player, _ ->
                 Button.playNeutral(player!!)
@@ -51,9 +52,10 @@ class SelectBotFightMenu : Menu("Select a robot type...")
             .of(Material.IRON_SWORD)
             .name("${CC.YELLOW}Unranked")
             .addToLore(
-                "${CC.GRAY}Click to queue against",
-                "${CC.GRAY}random premade bots and unlock",
-                "${CC.GRAY}divisions!"
+                "${CC.GRAY}• ${CC.RED}Battle against randomly generated bots",
+                "${CC.GRAY}• ${CC.YELLOW}Unlock new divisions and rank up as you win",
+                "${CC.GRAY}• ${CC.LIGHT_PURPLE}Enjoy a fresh challenge with each match",
+                "${CC.GRAY}• ${CC.DARK_AQUA}Perfect for testing your skills in unpredictable battles"
             )
             .toButton { player, _ ->
                 Button.playNeutral(player!!)
