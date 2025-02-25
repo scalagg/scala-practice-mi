@@ -7,7 +7,6 @@ import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.agnostic.sync.server.state.ServerState
-import gg.scala.practice.minigame.skywars.shared.SkyWarsConstants
 import gg.scala.practice.application.api.DPSRedisService
 import gg.scala.practice.application.api.DPSRedisShared
 import gg.scala.practice.application.api.defaults.kit.KitDataSync
@@ -29,7 +28,6 @@ import gg.scala.practice.namespace
 import gg.scala.practice.orchestrator.UpdateRolloutOrchestrator
 import gg.scala.practice.queue.robot.RobotDuoPlayerQueue
 import gg.scala.practice.queue.robot.RobotSinglePlayerQueue
-import gg.scala.practice.queue.skywars.BetaRankedSkyWarsGameQueue
 import gg.scala.practice.region.Region
 import gg.scala.practice.replication.ReplicationResultStatus
 import gg.scala.practice.replications.manager.ReplicationManager
@@ -796,21 +794,6 @@ object GameQueueManager
                         }
                     }
             }
-
-        val rankedSkyWarsQueue = KitDataSync.cached().kits[SkyWarsConstants.KitID]
-        if (rankedSkyWarsQueue != null)
-        {
-            if (queues[SkyWarsConstants.QID] == null)
-            {
-                val queue = BetaRankedSkyWarsGameQueue(rankedSkyWarsQueue)
-                queue.cleanup()
-                queue.start()
-                queues[SkyWarsConstants.QID] = queue
-            }
-        } else
-        {
-            queues.remove(SkyWarsConstants.QID)?.destroy()
-        }
 
         // cleanup queues for kits that no longer exist
         queues.toMap().forEach { (key, queue) ->

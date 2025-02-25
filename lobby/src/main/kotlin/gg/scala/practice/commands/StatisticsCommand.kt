@@ -35,7 +35,7 @@ object StatisticsCommand : ScalaCommand()
                 StatisticsMenu(
                     player.bukkit(),
                     it.identifier.offlineProfile,
-                    StatisticsMenu.StatisticMenuState.Unranked
+                    StatisticsMenu.StatisticMenuState.Ranked
                 ).openMenu(player.bukkit())
             }
         }
@@ -48,7 +48,7 @@ object StatisticsCommand : ScalaCommand()
         StatisticsMenu(
             player.bukkit(),
             profile,
-            StatisticsMenu.StatisticMenuState.Unranked
+            StatisticsMenu.StatisticMenuState.Ranked
         ).openMenu(player.bukkit())
 
         return CompletableFuture.completedFuture(null)

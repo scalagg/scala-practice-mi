@@ -100,7 +100,7 @@ class LeaderboardsMenu(player: Player) : TemplateKitMenu(player)
                 CC.GREEN + "Click to open!"
             )
             .toButton { _, _ ->
-                StatisticsMenu(player, profile, StatisticsMenu.StatisticMenuState.Unranked).openMenu(player)
+                StatisticsMenu(player, profile, StatisticsMenu.StatisticMenuState.Ranked).openMenu(player)
             }
 
         buttons[5] = ItemBuilder

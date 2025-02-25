@@ -169,7 +169,7 @@ class BotFightPrepareMenu(
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.YELLOW} Phoenix ${CC.GRAY}${Constants.ARROW_RIGHT} ${CC.WHITE}6",
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.GOLD} Dragon ${CC.GRAY}${Constants.ARROW_RIGHT} ${CC.WHITE}8",
                 "",
-                "${CC.GRAY}Current: ${CC.WHITE}$numberOfBots",
+                "${CC.WHITE}Current: ${CC.GOLD}$numberOfBots",
                 "",
                 "${CC.GREEN}Left-Click to add!",
                 "${CC.GREEN}Right-Click to remove!"

@@ -5,8 +5,6 @@ import gg.scala.commons.annotations.container.ContainerDisable
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.annotations.container.ContainerPreEnable
 import gg.scala.commons.core.plugin.*
-import gg.scala.practice.minigame.skywars.shared.cages.SchemaCageCommandCustomizers
-import gg.scala.practice.PracticeShared
 import me.lucko.helper.Events
 import org.bukkit.Bukkit
 import org.bukkit.entity.EntityType

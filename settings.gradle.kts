@@ -18,7 +18,4 @@ include(
     "services:replications:replication-manager",
     "services:replications:replication-models",
     "services:games:game-manager",
-    "minigames:skywars",
-    "minigames:skywars-shared",
-    "spigot-integration"
 )

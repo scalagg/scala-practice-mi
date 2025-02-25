@@ -10,8 +10,7 @@ enum class FeatureFlag(
     val requires: Set<FeatureFlag> = setOf(),
     val availableLifecycles: Set<GameLifecycle> = GameLifecycle.entries.toSet(),
     val description: List<String> = listOf()
-)
-{
+) {
     Ranked(
         description = listOf(
             "Enables ranked resources for",

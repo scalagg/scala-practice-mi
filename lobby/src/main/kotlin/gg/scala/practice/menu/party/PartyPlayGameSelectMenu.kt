@@ -78,9 +78,9 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
                         return@toButton
                     }
 
-                    player.sendMessage("${CC.RED}This feature is currently disabled!")
+//                    player.sendMessage("${CC.RED}This feature is currently disabled!")
 
-                    /*lobbyPlayer.partyOf()
+                    lobbyPlayer.partyOf()
                     .onlinePracticePlayersInLobby()
                     .thenAccept {
                         if (it.keys.size < 2)
@@ -90,7 +90,7 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
                         }
 
                         PartyPlayBotsIntegration.createBotsWith(player, it.keys)
-                    }*/
+                    }
                 }
         }
 

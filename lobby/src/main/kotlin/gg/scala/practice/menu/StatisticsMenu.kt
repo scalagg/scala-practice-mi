@@ -3,14 +3,12 @@ package gg.scala.practice.menu
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
-import gg.scala.practice.leaderboards.ReferenceLeaderboardType
 import gg.scala.practice.profile.PracticeProfile
 import gg.scala.practice.queue.QueueType
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -54,17 +52,17 @@ class StatisticsMenu(
             val unrankedBotStats = profile.getUnrankedBotStatsFor(kit)
 
             val unrankedLore = listOf(
-                "${CC.WHITE}Wins: ${CC.GREEN}${unrankedStats.wins}",
-                "${CC.WHITE}Losses: ${CC.GREEN}${unrankedStats.plays - unrankedStats.wins}",
-                "${CC.WHITE}Played: ${CC.GREEN}${unrankedStats.plays}",
+                "${CC.WHITE}Wins: ${CC.YELLOW}${unrankedStats.wins}",
+                "${CC.WHITE}Losses: ${CC.YELLOW}${unrankedStats.plays - unrankedStats.wins}",
+                "${CC.WHITE}Played: ${CC.YELLOW}${unrankedStats.plays}",
                 "",
-                "${CC.WHITE}Kills: ${CC.GREEN}${unrankedStats.kills}",
-                "${CC.WHITE}Deaths: ${CC.GREEN}${unrankedStats.deaths}",
+                "${CC.WHITE}Kills: ${CC.YELLOW}${unrankedStats.kills}",
+                "${CC.WHITE}Deaths: ${CC.YELLOW}${unrankedStats.deaths}",
                 "",
                 "${CC.GREEN}Streaks:",
-                "${CC.WHITE}Daily: ${CC.GREEN}${unrankedStats.dailyStreak()}",
-                "${CC.WHITE}Current: ${CC.GREEN}${unrankedStats.streak}",
-                "${CC.WHITE}Peak: ${CC.GREEN}${unrankedStats.longestStreak}"
+                "${CC.WHITE}Daily: ${CC.YELLOW}${unrankedStats.dailyStreak()}",
+                "${CC.WHITE}Current: ${CC.YELLOW}${unrankedStats.streak}",
+                "${CC.WHITE}Peak: ${CC.YELLOW}${unrankedStats.longestStreak}"
             )
 
             val rankedLore = listOf(
@@ -76,7 +74,7 @@ class StatisticsMenu(
                 "${CC.WHITE}Deaths: ${CC.GOLD}${rankedStats.deaths}",
                 "",
                 "${CC.WHITE}ELO: ${CC.GOLD}${rankedStats.elo}",
-                "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest: ${CC.GOLD}${
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest: ${CC.GOLD}${
                     rankedStats.highestElo
                 }",
                 "",
@@ -86,7 +84,7 @@ class StatisticsMenu(
                 "${CC.WHITE}Peak: ${CC.GOLD}${rankedStats.longestStreak}"
             )
 
-            val unrankedBotLore = listOf(
+            val robotLore = listOf(
                 "${CC.WHITE}Wins: ${CC.GREEN}${unrankedBotStats.wins}",
                 "${CC.WHITE}Losses: ${CC.GREEN}${unrankedBotStats.plays - unrankedBotStats.wins}",
                 "${CC.WHITE}Played: ${CC.GREEN}${unrankedBotStats.plays}",
@@ -104,7 +102,7 @@ class StatisticsMenu(
             {
                 StatisticMenuState.Unranked -> unrankedLore
                 StatisticMenuState.Ranked -> rankedLore
-                StatisticMenuState.Robot -> unrankedBotLore
+                StatisticMenuState.Robot -> robotLore
             }
         }
 
