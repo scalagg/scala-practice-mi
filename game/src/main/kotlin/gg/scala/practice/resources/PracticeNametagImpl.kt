@@ -45,15 +45,15 @@ object PracticeNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 
             if (viewedGame.flag(FeatureFlag.RedBlueTeams))
             {
-                val team = viewedGame.getNullableTeam(viewer)
+                val team = viewedGame.getNullableTeam(viewed)
                     ?: return SPECTATOR_NAME_TAG
 
                 val rbSide = team
                     .teamIdentifier
                     .toRBTeamSide()
 
-                return if (rbSide == RBTeamSide.Blue)
-                    BLUE_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
+                return if (team.teamIdentifier == TeamIdentifier.A)
+                    RED_TEAM_NAME_TAG else BLUE_TEAM_NAME_TAG
             }
 
             val team = viewedGame.getTeamOf(viewed)

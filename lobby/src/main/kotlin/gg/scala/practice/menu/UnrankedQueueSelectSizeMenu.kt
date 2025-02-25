@@ -40,7 +40,7 @@ class UnrankedQueueSelectSizeMenu : Menu("Unranked Queue")
             },
         14 to ItemBuilder
             .of(XMaterial.LIGHT_BLUE_DYE)
-            .name("${CC.B_AQUA}Duos")
+            .name("${CC.B_SEC}Duos")
             .addToLore(
                 "${CC.WHITE}Queue for a unranked",
                 "${CC.WHITE}duos game with no",

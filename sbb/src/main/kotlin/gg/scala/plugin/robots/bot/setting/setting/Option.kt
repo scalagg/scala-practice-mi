@@ -223,7 +223,7 @@ data class Option<T : Any>(
 
                 listOf(
                     "",
-                    "${CC.AQUA}Value: ${CC.WHITE}${
+                    "${CC.SEC}Value: ${CC.WHITE}${
                         when (true)
                         {
                             (value is Double) -> "%.2f".format(value.toFloat())

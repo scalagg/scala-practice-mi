@@ -256,7 +256,7 @@ object LobbyHotbarService
                     2,
                     StaticHotbarPresetEntry(
                         ItemBuilder(Material.GOLD_SWORD)
-                            .name("${CC.AQUA}Play Robot ${CC.GRAY}(Right Click)")
+                            .name("${CC.GREEN}Play Robot ${CC.GRAY}(Right Click)")
                             .setUnbreakable(true)
                     ).also {
                         it.onClick = context@{ player ->

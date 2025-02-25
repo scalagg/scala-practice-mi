@@ -69,7 +69,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
             .setLore(profile.describe())
             .addToLore(
                 "",
-                "${CC.AQUA}Duos Queue: ${CC.BD_AQUA}NEW!",
+                "${CC.SEC}Duos Queue: ${CC.B_PRI}NEW!",
                 "${CC.GRAY}Partner up with another",
                 "${CC.GRAY}player against two bots!",
                 "",
@@ -115,7 +115,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                     if (!player.hasPermissionForCustomBots())
                     {
                         Button.playFail(player)
-                        player.sendMessage("${CC.RED}You need ${CC.D_AQUA}VIP${CC.RED} rank to use this feature!")
+                        player.sendMessage("${CC.RED}You need ${CC.GREEN}Ember${CC.RED} rank to use this feature!")
                         player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                         return@toButton
                     }
@@ -227,7 +227,7 @@ class BotFightMenu(private val viewer: Player) : PaginatedMenu()
                     if (!(player.hasPermission("botgui.use") || FreeBotFridays.isFreeBotFriday()))
                     {
                         Button.playFail(player)
-                        player.sendMessage("${CC.RED}You need ${CC.D_AQUA}VIP${CC.RED} rank to use this feature!")
+                        player.sendMessage("${CC.RED}You need ${CC.GREEN}Ember${CC.RED} rank to use this feature!")
                         player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                         return@toButton
                     }

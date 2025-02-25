@@ -15,6 +15,7 @@ import gg.scala.practice.queue.QueueType
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
@@ -86,7 +87,7 @@ class BotFightPrepareMenu(
                 if (!player.hasPermission("bot.custom-map-selection"))
                 {
                     Button.playFail(player)
-                    player.sendMessage("${CC.RED}You need ${CC.D_AQUA}VIP${CC.RED} rank to use this feature!")
+                    player.sendMessage("${CC.RED}You need ${CC.GREEN}Ember${CC.RED} rank to use this feature!")
                     player.sendMessage("${CC.RED}Purchase a rank on our webstore: ${CC.YELLOW}${LemonConstants.STORE_LINK}")
                     return@toButton
                 }
@@ -163,10 +164,10 @@ class BotFightPrepareMenu(
                 "${CC.GRAY}Donators can add multiple bots",
                 "${CC.GRAY}to their bot matches!",
                 "",
-                "${CC.D_AQUA}VIP allows 2 bots",
-                "${CC.D_PURPLE}VIP${CC.WHITE}+${CC.D_PURPLE} allows 4 bots",
-                "${CC.AQUA}MVP allows 6 bots",
-                "${CC.GOLD}Solar allows 8 bots",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.GREEN} Ember ${CC.GRAY}${Constants.ARROW_RIGHT} ${CC.WHITE}2",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.L_PURPLE} Pyro ${CC.GRAY}${Constants.ARROW_RIGHT} ${CC.WHITE}4",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.YELLOW} Phoenix ${CC.GRAY}${Constants.ARROW_RIGHT} ${CC.WHITE}6",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.GOLD} Dragon ${CC.GRAY}${Constants.ARROW_RIGHT} ${CC.WHITE}8",
                 "",
                 "${CC.GRAY}Current: ${CC.WHITE}$numberOfBots",
                 "",
