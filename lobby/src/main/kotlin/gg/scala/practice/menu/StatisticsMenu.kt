@@ -59,7 +59,7 @@ class StatisticsMenu(
                 "${CC.WHITE}Kills: ${CC.YELLOW}${unrankedStats.kills}",
                 "${CC.WHITE}Deaths: ${CC.YELLOW}${unrankedStats.deaths}",
                 "",
-                "${CC.GREEN}Streaks:",
+                "${CC.YELLOW}Streaks:",
                 "${CC.WHITE}Daily: ${CC.YELLOW}${unrankedStats.dailyStreak()}",
                 "${CC.WHITE}Current: ${CC.YELLOW}${unrankedStats.streak}",
                 "${CC.WHITE}Peak: ${CC.YELLOW}${unrankedStats.longestStreak}"
