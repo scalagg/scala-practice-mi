@@ -17,6 +17,8 @@ import gg.scala.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
 import gg.scala.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEffect
 import gg.scala.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.scala.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
+import gg.scala.game.extensions.cosmetics.victorydances.VictoryDanceCosmeticCategory
+import gg.scala.game.extensions.cosmetics.victorydances.cosmetics.VictoryDance
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.util.QuickAccess
 import gg.scala.lemon.util.QuickAccess.username
@@ -369,6 +371,39 @@ object GameService
             }
         }
 
+        fun runVictoryDanceFor(
+            player: Player, target: Player, game: GameImpl
+        )
+        {
+            val killerCosmetic = CosmeticRegistry
+                .getAllEquipped(
+                    VictoryDanceCosmeticCategory,
+                    player
+                )
+                .randomOrNull()
+
+            val victoryDanceCosmetic = killerCosmetic as VictoryDance
+            victoryDanceCosmetic.applyTo(
+                game.toBukkitPlayers().filterNotNull(),
+                player, target
+            )
+
+            val configuration = victoryDanceCosmetic.serveConfiguration(player)
+            if (configuration.flight != false)
+            {
+                player.allowFlight = true
+                player.isFlying = true
+            }
+
+            if (configuration.clearInventory != false)
+            {
+                game.takeSnapshot(player)
+
+                player.inventory.clear()
+                player.updateInventory()
+            }
+        }
+
         fun getMessageBundlePhrase(player: Player): String
         {
             val bundle = CosmeticRegistry
@@ -561,6 +596,7 @@ object GameService
                     if (noAlive)
                     {
                         game.complete(killer)
+                        runVictoryDanceFor(killerPlayer as Player, this, game)
                     }
                 }
 
@@ -631,6 +667,7 @@ object GameService
                         if (noAlive)
                         {
                             game.complete(killer)
+                            runVictoryDanceFor(killerPlayer as Player, this, game)
                         }
                         return
                     }

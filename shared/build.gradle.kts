@@ -7,7 +7,7 @@ dependencies {
     implementation(project(":services:replications:replication-models"))
     api(project(":services:statistics"))
 
-    compileOnly("gg.scala.game.extensions:scala-core-game-extensions:1.3.0")
+    compileOnly("gg.scala.game.extensions:scala-core-game-extensions:1.3.5")
     compileOnly("gg.scala.achievements:scala-achievements-plugin:1.0.5")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
 
