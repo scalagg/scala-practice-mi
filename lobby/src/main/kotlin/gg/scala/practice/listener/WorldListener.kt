@@ -1,10 +1,13 @@
 package gg.scala.practice.listener
 
 import gg.scala.commons.annotations.Listeners
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.CreatureSpawnEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.ExplosionPrimeEvent
 import org.bukkit.event.hanging.HangingBreakEvent
@@ -21,6 +24,22 @@ class WorldListener : Listener
     fun onWeatherChange(event: WeatherChangeEvent)
     {
         if (event.toWeatherState()) {
+            event.isCancelled = true
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onDamage(event: EntityDamageEvent)
+    {
+        if (event.entity !is Player) return
+        if (event.cause in setOf(
+                EntityDamageEvent.DamageCause.FALL,
+                EntityDamageEvent.DamageCause.MAGIC,
+                EntityDamageEvent.DamageCause.FIRE_TICK,
+                EntityDamageEvent.DamageCause.POISON
+            )
+        )
+        {
             event.isCancelled = true
         }
     }
