@@ -16,7 +16,7 @@ import org.bukkit.entity.Player
  * @author Topu
  * @date 1/15/2025
  */
-class PracticeManagementMenu : Menu("Practice Management")
+class PracticeManagementMenu : Menu("Practice Administration")
 {
 
     init
@@ -25,100 +25,129 @@ class PracticeManagementMenu : Menu("Practice Management")
         placeholder = true
     }
 
-    override fun size(buttons: Map<Int, Button>) = 54
+    override fun size(buttons: Map<Int, Button>) = 27
 
 
     override fun getButtons(player: Player) = mapOf(
-        13 to ItemBuilder
-            .of(XMaterial.DIAMOND_SWORD)
-            .name(
-                "${CC.YELLOW}Kits"
-            )
-            .addToLore("${CC.GRAY}Click to manage...")
-            .toButton { _, _ ->
-                KitAdminMenu(player).openMenu(player)
-                Button.playNeutral(player)
-            },
-        11 to ItemBuilder
+        10 to ItemBuilder
             .of(XMaterial.MAP)
             .name(
-                "${CC.YELLOW}Maps"
+                "${CC.B_GREEN}Maps"
             )
-            .addToLore("${CC.GRAY}Click to manage...")
+            .addToLore(
+                "${CC.GRAY}Edit maps names, locations,",
+                "${CC.GRAY}icons, and more",
+                "",
+                "${CC.YELLOW}Click to open"
+            )
             .toButton { _, _ ->
                 MapAdminMenu().openMenu(player)
                 Button.playNeutral(player)
             },
 
-        15 to ItemBuilder
+        12 to ItemBuilder
+            .of(XMaterial.DIAMOND_SWORD)
+            .name(
+                "${CC.B_GREEN}Kits"
+            )
+            .addToLore(
+                "${CC.GRAY}Edit kits names, locations,",
+                "${CC.GRAY}icons, and more",
+                "",
+                "${CC.YELLOW}Click to open"
+            )
+            .toButton { _, _ ->
+                KitAdminMenu(player).openMenu(player)
+                Button.playNeutral(player)
+            },
+
+        14 to ItemBuilder
             .of(XMaterial.EMERALD)
-            .name("${CC.YELLOW}Kit Categories")
-            .addToLore("${CC.GRAY}Click to manage...")
+            .name("${CC.B_GREEN}Kit Categories")
+            .addToLore(
+                "${CC.GRAY}Edit kit categories names, locations,",
+                "${CC.GRAY}icons, and more",
+                "",
+                "${CC.YELLOW}Click to open"
+            )
             .toButton { _, _ ->
                 KitCategoryAdminMenu().openMenu(player)
                 Button.playNeutral(player)
             },
-        28 to ItemBuilder
-            .of(XMaterial.BOOK)
-            .name("${CC.YELLOW}Ranked: ${CC.WHITE}${PracticeConfigurationService.cached().rankedQueueEnabled}")
-            .addToLore("${CC.GRAY}Click to edit...")
+
+        16 to ItemBuilder
+            .of(XMaterial.COMPASS)
+            .name("${CC.B_GREEN}Practice Settings")
+            .addToLore(
+                "${CC.GRAY}Edit all practice settings",
+                "",
+                "${CC.YELLOW}Click to open"
+            )
             .toButton { _, _ ->
-                Button.playSuccess(player)
-                with(PracticeConfigurationService.cached()) {
-                    PracticeConfigurationService.cached().rankedQueueEnabled = !PracticeConfigurationService.cached().rankedQueueEnabled
-                    PracticeConfigurationService.sync(this)
-                }
-            },
-        29 to ItemBuilder
-            .of(XMaterial.BOOK)
-            .name("${CC.YELLOW}Synced Tablist: ${CC.WHITE}${PracticeConfigurationService.cached().enableMIPTabHandler}")
-            .addToLore("${CC.GRAY}Click to edit...")
-            .toButton { _, _ ->
-                Button.playSuccess(player)
-                with(PracticeConfigurationService.cached()) {
-                    PracticeConfigurationService.cached().enableMIPTabHandler = !PracticeConfigurationService.cached().enableMIPTabHandler!!
-                    PracticeConfigurationService.sync(this)
-                }
-            },
-        30 to ItemBuilder
-            .of(XMaterial.BOOK)
-            .name("${CC.YELLOW}Blocked Hits: ${CC.WHITE}${PracticeConfigurationService.cached().blockedHitCap}")
-            .addToLore("${CC.GRAY}Click to edit...")
-            .toButton { _, _ ->
-                player.closeInventory()
+                player.sendMessage("${CC.RED}Coming soon.")
                 Button.playNeutral(player)
-
-                InputPrompt()
-                    .withText("Enter a the blocked hit cap")
-                    .acceptInput { _, cap ->
-                        PracticeConfigurationService.cached().blockedHitCap = cap.toInt()
-                        PracticeConfigurationService.sync(PracticeConfigurationService.cached())
-
-                        Button.playSuccess(player)
-                        player.sendMessage("${CC.GREEN}Updated Blocked Hits cap to $cap!")
-                        PracticeManagementMenu().openMenu(player)
-                    }
-                    .start(player)
             },
-        31 to ItemBuilder
-            .of(XMaterial.BOOK)
-            .name("${CC.YELLOW}Minimum Wins for Ranked: ${CC.WHITE}${PracticeConfigurationService.cached().rankedMinimumWinRequirement}")
-            .addToLore("${CC.GRAY}Click to edit...")
-            .toButton { _, _ ->
-                player.closeInventory()
-                Button.playNeutral(player)
-
-                InputPrompt()
-                    .withText("Enter a new minimum wins requirement")
-                    .acceptInput { _, twitter ->
-                        PracticeConfigurationService.cached().rankedMinimumWinRequirement = twitter.toInt()
-                        PracticeConfigurationService.sync(PracticeConfigurationService.cached())
-
-                        Button.playSuccess(player)
-                        player.sendMessage("${CC.GREEN}Updated the minimum wins requirement to $twitter!")
-                        PracticeManagementMenu().openMenu(player)
-                    }
-                    .start(player)
-            },
+//        28 to ItemBuilder
+//            .of(XMaterial.BOOK)
+//            .name("${CC.YELLOW}Ranked: ${CC.WHITE}${PracticeConfigurationService.cached().rankedQueueEnabled}")
+//            .addToLore("${CC.GRAY}Click to edit...")
+//            .toButton { _, _ ->
+//                Button.playSuccess(player)
+//                with(PracticeConfigurationService.cached()) {
+//                    PracticeConfigurationService.cached().rankedQueueEnabled = !PracticeConfigurationService.cached().rankedQueueEnabled
+//                    PracticeConfigurationService.sync(this)
+//                }
+//            },
+//        29 to ItemBuilder
+//            .of(XMaterial.BOOK)
+//            .name("${CC.YELLOW}Synced Tablist: ${CC.WHITE}${PracticeConfigurationService.cached().enableMIPTabHandler}")
+//            .addToLore("${CC.GRAY}Click to edit...")
+//            .toButton { _, _ ->
+//                Button.playSuccess(player)
+//                with(PracticeConfigurationService.cached()) {
+//                    PracticeConfigurationService.cached().enableMIPTabHandler = !PracticeConfigurationService.cached().enableMIPTabHandler!!
+//                    PracticeConfigurationService.sync(this)
+//                }
+//            },
+//        30 to ItemBuilder
+//            .of(XMaterial.BOOK)
+//            .name("${CC.YELLOW}Blocked Hits: ${CC.WHITE}${PracticeConfigurationService.cached().blockedHitCap}")
+//            .addToLore("${CC.GRAY}Click to edit...")
+//            .toButton { _, _ ->
+//                player.closeInventory()
+//                Button.playNeutral(player)
+//
+//                InputPrompt()
+//                    .withText("Enter a the blocked hit cap")
+//                    .acceptInput { _, cap ->
+//                        PracticeConfigurationService.cached().blockedHitCap = cap.toInt()
+//                        PracticeConfigurationService.sync(PracticeConfigurationService.cached())
+//
+//                        Button.playSuccess(player)
+//                        player.sendMessage("${CC.GREEN}Updated Blocked Hits cap to $cap!")
+//                        PracticeManagementMenu().openMenu(player)
+//                    }
+//                    .start(player)
+//            },
+//        31 to ItemBuilder
+//            .of(XMaterial.BOOK)
+//            .name("${CC.YELLOW}Minimum Wins for Ranked: ${CC.WHITE}${PracticeConfigurationService.cached().rankedMinimumWinRequirement}")
+//            .addToLore("${CC.GRAY}Click to edit...")
+//            .toButton { _, _ ->
+//                player.closeInventory()
+//                Button.playNeutral(player)
+//
+//                InputPrompt()
+//                    .withText("Enter a new minimum wins requirement")
+//                    .acceptInput { _, twitter ->
+//                        PracticeConfigurationService.cached().rankedMinimumWinRequirement = twitter.toInt()
+//                        PracticeConfigurationService.sync(PracticeConfigurationService.cached())
+//
+//                        Button.playSuccess(player)
+//                        player.sendMessage("${CC.GREEN}Updated the minimum wins requirement to $twitter!")
+//                        PracticeManagementMenu().openMenu(player)
+//                    }
+//                    .start(player)
+//            },
     )
 }
