@@ -64,7 +64,7 @@ object OrchestratorService
                         QuickAccess.sendGlobalBroadcast(
                             "${CC.BLUE}[D] ${CC.D_AQUA}[${
                                 ServerSync.getLocalGameServer().id
-                            }] ${CC.RED}Rollout requires a reboot. Server is rebooting!",
+                            }] ${CC.RED}Rollout requires an update. Server is rebooting!",
                             permission = "practice.admin"
                         )
 
