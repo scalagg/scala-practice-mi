@@ -57,7 +57,7 @@ class PartyPlayGameSelectMenu() : Menu("Select a game")
                         }
                 }
         )
-        if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots"))
+        if (Bukkit.getPluginManager().isPluginEnabled("scala-robots"))
         {
             buttons[5] = ItemBuilder
                 .of(Material.ENDER_PORTAL_FRAME)

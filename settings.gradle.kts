@@ -11,7 +11,7 @@ plugins {
 
 rootProject.name = "scala-practice-mi"
 include(
-    "shared", "game", "lobby", "devtools", "sbb",
+    "shared", "game", "lobby", "devtools",
     "services:application", "services:queue", "services:statistics", "services:orchestrator", "services:tournaments",
     "services:statistics:leaderboards",
     "services:application:api",

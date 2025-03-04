@@ -182,7 +182,7 @@ class StatisticsMenu(
             )
             .toButton()
 
-//        if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")) {
+//        if (Bukkit.getPluginManager().isPluginEnabled("scala-robots")) {
 //            buttons[38] = ItemBuilder
 //                .of(
 //                    if (state == StatisticMenuState.Robot)

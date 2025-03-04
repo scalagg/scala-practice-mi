@@ -249,7 +249,7 @@ object LobbyHotbarService
         )
 
         Schedulers.async().runRepeating({ task ->
-            if (Bukkit.getPluginManager().isPluginEnabled("ScalaPractice-SmartBots")) {
+            if (Bukkit.getPluginManager().isPluginEnabled("scala-robots")) {
                 task.stop()
 
                 idlePreset.addSlot(
