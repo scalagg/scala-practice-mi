@@ -10,7 +10,8 @@ enum class FeatureFlag(
     val requires: Set<FeatureFlag> = setOf(),
     val availableLifecycles: Set<GameLifecycle> = GameLifecycle.entries.toSet(),
     val description: List<String> = listOf()
-) {
+)
+{
     Ranked(
         description = listOf(
             "Enables ranked resources for",
@@ -86,6 +87,12 @@ enum class FeatureFlag(
         description = listOf(
             "Prevents you from losing any",
             "hunger in a match.",
+        )
+    ),
+    NoHitDelay(
+        description = listOf(
+            "No hit delay when attacking",
+            "players in a match.",
         )
     ),
     BowBoosting(

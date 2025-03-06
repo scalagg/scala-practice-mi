@@ -194,6 +194,15 @@ class GameStartTask(
             this.game.completeLoadoutSelection()
             this.game.sendMessage("${CC.GREEN}The game has started!")
 
+            if (game.flag(FeatureFlag.NoHitDelay)) {
+                game.toBukkitPlayers()
+                    .filterNotNull()
+                    .forEach { player ->
+                        player.noDamageTicks = 1
+                        player.maximumNoDamageTicks = 1
+                    }
+            }
+
             if (
                 game.expectationModel.queueType == QueueType.Ranked ||
                 game.expectationModel.queueId == "tournament"
