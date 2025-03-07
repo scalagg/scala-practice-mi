@@ -17,7 +17,7 @@ if (currentBranch != "master") {
 
 allprojects {
     group = "gg.scala.practice.mi"
-    version = "1.3.2${
+    version = "1.3.3${
         if (currentBranch != "master") "-dev" else ""
     }"
 

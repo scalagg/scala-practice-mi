@@ -1,8 +1,8 @@
 package gg.scala.practice.player.hotbar
 
 import com.cryptomorin.xseries.XMaterial
-import gg.scala.basics.plugin.commands.admin.AlertCommand.hasPermission
 import gg.scala.basics.plugin.settings.SettingMenu
+import gg.scala.basics.plugin.shutdown.ShutdownService
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -21,7 +21,6 @@ import gg.scala.practice.kit.KitService
 import gg.scala.practice.menu.JoinQueueMenu
 import gg.scala.practice.menu.LeaderboardsMenu
 import gg.scala.practice.menu.PlayerMainMenu
-import gg.scala.practice.menu.PracticeManagementMenu
 import gg.scala.practice.menu.editor.EditorKitSelectionMenu
 import gg.scala.practice.menu.party.OtherPartiesMenu
 import gg.scala.practice.menu.party.PartyPlayGameSelectMenu
@@ -243,6 +242,12 @@ object LobbyHotbarService
                         return@context
                     }
 
+                    if (ShutdownService.shutdownRunnable != null)
+                    {
+                        player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
+                        return@context
+                    }
+
                     JoinQueueMenu(player, QueueType.Unranked, 1).openMenu(player)
                 }
             }
@@ -262,6 +267,12 @@ object LobbyHotbarService
                         it.onClick = context@{ player ->
                             if (player.hasMetadata("frozen")) {
                                 player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                                return@context
+                            }
+
+                            if (ShutdownService.shutdownRunnable != null)
+                            {
+                                player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
                                 return@context
                             }
 
@@ -298,6 +309,12 @@ object LobbyHotbarService
                     if (player.hasMetadata("frozen"))
                     {
                         player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                        return@context
+                    }
+
+                    if (ShutdownService.shutdownRunnable != null)
+                    {
+                        player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
                         return@context
                     }
 
@@ -530,6 +547,12 @@ object LobbyHotbarService
                 it.onClick = scope@{ player ->
                     if (!playerIsLeader(player))
                     {
+                        return@scope
+                    }
+
+                    if (ShutdownService.shutdownRunnable != null)
+                    {
+                        player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
                         return@scope
                     }
 

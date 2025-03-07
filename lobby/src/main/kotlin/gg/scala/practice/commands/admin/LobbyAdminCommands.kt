@@ -24,8 +24,7 @@ import gg.scala.practice.kit.group.KitGroup
 import gg.scala.practice.kit.group.KitGroupService
 import gg.scala.practice.map.MapService
 import gg.scala.practice.map.metadata.anonymous.toPosition
-import gg.scala.practice.menu.PracticeManagementMenu
-import gg.scala.practice.player.LobbyPlayerService
+import gg.scala.practice.menu.manage.PracticeManagementMenu
 import gg.scala.practice.practiceGroup
 import gg.scala.practice.region.Region
 import gg.scala.practice.suffixWhenDev
