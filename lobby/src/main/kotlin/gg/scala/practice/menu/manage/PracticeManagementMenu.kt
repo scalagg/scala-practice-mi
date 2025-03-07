@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XMaterial
 import gg.scala.practice.kit.administration.KitAdminMenu
 import gg.scala.practice.kit.category.administration.KitCategoryAdminMenu
 import gg.scala.practice.map.administration.MapAdminMenu
+import gg.scala.practice.menu.manage.settings.PracticeSettingsMenu
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
@@ -82,7 +83,7 @@ class PracticeManagementMenu : Menu("Practice Administration")
                 "${CC.YELLOW}Click to open"
             )
             .toButton { _, _ ->
-                player.sendMessage("${CC.RED}Coming soon.")
+                PracticeSettingsMenu().openMenu(player)
                 Button.playNeutral(player)
             },
     )
