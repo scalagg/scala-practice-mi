@@ -37,12 +37,16 @@ class PracticeSettingsMenu : Menu("Practice Settings") {
                 "${CC.GRAY}Enable or disable ranked queues,",
                 "${CC.GRAY}including maps and matchmaking.",
                 "",
-                "${CC.WHITE}Current: ${CC.YELLOW}${if (PracticeConfigurationService.cached().rankedQueueEnabled) "Enabled" else "Disabled"}",
+                "${CC.WHITE}Current: ${CC.YELLOW}${PracticeConfigurationService.cached().rankedQueueEnabled}",
                 "",
                 "${CC.YELLOW}Click to toggle"
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)
+                with(PracticeConfigurationService.cached()) {
+                    rankedQueueEnabled = !rankedQueueEnabled
+                    PracticeConfigurationService.sync(this)
+                }
             },
 
         12 to ItemBuilder
@@ -54,8 +58,8 @@ class PracticeSettingsMenu : Menu("Practice Settings") {
                 "",
                 "${CC.WHITE}Current: ${CC.YELLOW}${PracticeConfigurationService.cached().rankedMinimumWinRequirement}",
                 "",
-                "${CC.YELLOW}Left-Click to increase!",
-                "${CC.RED}Right-Click to decrease!"
+                "${CC.GREEN}Left-Click to increase!",
+                "${CC.YELLOW}Right-Click to decrease!"
             )
             .toButton { _, type ->
                 if (type!!.isRightClick)
