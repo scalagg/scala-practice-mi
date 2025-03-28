@@ -81,7 +81,6 @@ import java.time.Duration
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.max
 import kotlin.math.min
 
 
@@ -688,24 +687,27 @@ object GameService
                         .flagMetaData(FeatureFlag.Lives, "value")
                         ?.toIntOrNull() ?: 3
 
-                    val opponentWinner = game.getOpponent(team)
+                    val opponent = game.getOpponent(team)
                     game.sendMessage(deathMessage)
-                    if (opponentWinner.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredKills)
+                    if (opponent.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredKills)
                     {
-                        game.complete(opponentWinner)
+                        game.complete(opponent)
                         return
                     }
 
                     // Change kill objective for lives.
-                    opponentWinner.gameLifecycleArbitraryObjectiveProgress++
+                    opponent.gameLifecycleArbitraryObjectiveProgress++
 
                     // Update dead players lives in the health hud
-                    val health = ((requiredKills - opponentWinner.gameLifecycleArbitraryObjectiveProgress) * 2.0)
+                    val health = ((requiredKills - opponent.gameLifecycleArbitraryObjectiveProgress) * 2.0)
                     val maxHealth = (requiredKills * 2.0)
 
-                    player.health = health
                     player.maxHealth = maxHealth
                     player.healthScale = maxHealth
+
+                    // Update health now after we change
+                    // max health and health scale.
+                    player.health = health
 
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
