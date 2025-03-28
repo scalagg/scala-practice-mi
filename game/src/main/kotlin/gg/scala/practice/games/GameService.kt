@@ -81,6 +81,7 @@ import java.time.Duration
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 
 
@@ -700,10 +701,11 @@ object GameService
 
                     // Update dead players lives in the health hud
                     val health = ((requiredKills - opponentWinner.gameLifecycleArbitraryObjectiveProgress) * 2.0)
+                    val maxHealth = (requiredKills * 2.0)
 
                     player.health = health
-                    player.maxHealth = health
-                    player.healthScale = health
+                    player.maxHealth = maxHealth
+                    player.healthScale = maxHealth
 
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
@@ -1235,7 +1237,7 @@ object GameService
         Events
             .subscribe(EntityDamageEvent::class.java)
             .filter {
-                it.cause == DamageCause.FALL && it.entity is Player
+                (it.cause == DamageCause.FALL) && it.entity is Player
             }
             .handler {
                 val player = it.entity as Player
@@ -1245,6 +1247,25 @@ object GameService
                     }
 
                 if (game.flag(FeatureFlag.DoNotTakeFallDamage))
+                {
+                    it.isCancelled = true
+                }
+            }
+
+        // Should player take pearl damage in their Game?
+        Events
+            .subscribe(EntityDamageByEntityEvent::class.java)
+            .filter {
+                it.cause == DamageCause.FALL && it.entity is Player && it.damager is EnderPearl
+            }
+            .handler {
+                val player = it.entity as Player
+                val game = byPlayer(player)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (game.flag(FeatureFlag.DoNotTakePearlDamage))
                 {
                     it.isCancelled = true
                 }

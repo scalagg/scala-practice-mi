@@ -66,6 +66,12 @@ enum class FeatureFlag(
             "damage in a match.",
         )
     ),
+    DoNotTakePearlDamage(
+        description = listOf(
+            "Prevents you from taking pearl",
+            "damage in a match."
+        )
+    ),
     DoNotTakeDamage(
         schema = mutableMapOf("doDamageTick" to "false"),
         description = listOf(

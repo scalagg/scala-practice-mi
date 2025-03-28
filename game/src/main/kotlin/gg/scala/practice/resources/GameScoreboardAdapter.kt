@@ -148,8 +148,6 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                 GameLifecycle.LiveBound ->
                 {
-                    // TODO: Change this to support live based
-                    //      gamemodes.
                     if (game.flag(FeatureFlag.RedBlueTeams))
                     {
                         val startedLives = game
@@ -164,6 +162,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             ballID += "${CC.RED}${Constants.HEART_SYMBOL}"
                         }
 
+                        // Get the red teams missing lives.
+                        repeat(blue.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}${Constants.HEART_SYMBOL}"
+                        }
+
                         teamSection += "${CC.B_RED}R ${CC.WHITE}Red: ${CC.RED}$ballID${
                             if (red.teamIdentifier == self.teamIdentifier && firstPerson) " ${CC.GRAY}YOU" else ""
                         }"
@@ -172,6 +176,12 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         repeat(startedLives - red.gameLifecycleArbitraryObjectiveProgress)
                         {
                             ballID += "${CC.BLUE}${Constants.HEART_SYMBOL}"
+                        }
+
+                        // Get the blue teams missing lives.
+                        repeat(red.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}${Constants.HEART_SYMBOL}"
                         }
 
                         teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
@@ -191,10 +201,22 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             ballID += "$selfColor${Constants.HEART_SYMBOL}"
                         }
 
+                        // Get missing lives for self
+                        repeat(them.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "$selfColor${Constants.HEART_SYMBOL}"
+                        }
+
                         teamSection += "${CC.WHITE}${if (!firstPerson) self.teamIdentifier.format() else "You"}: $ballID"
 
                         ballID = ""
                         repeat(startedLives - self.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "$theirColor${Constants.HEART_SYMBOL}"
+                        }
+
+                        // Get missing lives for other player
+                        repeat(self.gameLifecycleArbitraryObjectiveProgress)
                         {
                             ballID += "$theirColor${Constants.HEART_SYMBOL}"
                         }
