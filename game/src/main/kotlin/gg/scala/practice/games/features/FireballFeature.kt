@@ -29,7 +29,7 @@ class FireballFeature : Listener
     {
         var fireballExplosionSize: Double = 3.0
         var fireballHorizontal: Double = -1.42
-        var fireballVertical: Double = 0.78
+        var fireballVertical: Double = 0.7
     }
 
     private val damageSelf: Double = 1.0

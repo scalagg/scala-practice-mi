@@ -138,7 +138,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     {
                         LobbyScoreboardView.Dev ->
                         {
-                            board += "${CC.WHITE}Game servers: ${CC.PRI}${
+                            board += "\"${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Game Servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Mean TPS: ${CC.GREEN}${
@@ -163,7 +163,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                         LobbyScoreboardView.Staff ->
                         {
                             fun metadataDisplay(metadata: String) = if (player.hasMetadata(metadata))
-                                "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+                                "${CC.GREEN}${Constants.CHECK_SYMBOL}" else "${CC.RED}${Constants.X_SYMBOL}"
 
                             val basicsProfile = BasicsProfileService.find(player)
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"

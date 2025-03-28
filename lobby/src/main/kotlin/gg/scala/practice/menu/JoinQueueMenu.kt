@@ -106,7 +106,7 @@ class JoinQueueMenu(
                 )
                 .name(
                     if (kit == null) {
-                        "${CC.RED}No Favorite Kit"
+                        "${CC.B_RED}Empty Slot"
                     } else {
                         "${CC.PRI}${kit.displayName}"
                     }
