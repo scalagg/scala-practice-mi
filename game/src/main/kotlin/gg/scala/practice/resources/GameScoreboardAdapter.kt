@@ -145,6 +145,77 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     }
                 }
 
+                GameLifecycle.LiveBound ->
+                {
+                    if (game.flag(FeatureFlag.RedBlueTeams))
+                    {
+                        val roundsRequiredForCompletion = game
+                            .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
+                            ?.toIntOrNull() ?: 2
+
+                        var ballID = ""
+                        repeat(red.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.RED}⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - red.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.B_RED}R ${CC.WHITE}Red: ${CC.RED}$ballID${
+                            if (red.teamIdentifier == self.teamIdentifier && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+
+                        ballID = ""
+                        repeat(blue.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.BLUE}⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - blue.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
+                            if (blue.teamIdentifier == self.teamIdentifier && firstPerson) " ${CC.GRAY}YOU" else ""
+                        }"
+                    } else
+                    {
+                        val roundsRequiredForCompletion = game
+                            .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
+                            ?.toIntOrNull() ?: 2
+
+                        var ballID = ""
+                        repeat(self.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "$selfColor⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - self.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.WHITE}${if (!firstPerson) self.teamIdentifier.format() else "You"}: $ballID"
+
+                        ballID = ""
+                        repeat(them.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "$theirColor⬤"
+                        }
+
+                        repeat(roundsRequiredForCompletion - them.gameLifecycleArbitraryObjectiveProgress)
+                        {
+                            ballID += "${CC.GRAY}⬤"
+                        }
+
+                        teamSection += "${CC.WHITE}${if (!firstPerson) them.teamIdentifier.format() else "Them"}: $ballID"
+                    }
+                }
+
                 GameLifecycle.ObjectiveBound ->
                 {
                     if (game.flag(FeatureFlag.RedBlueTeams))
