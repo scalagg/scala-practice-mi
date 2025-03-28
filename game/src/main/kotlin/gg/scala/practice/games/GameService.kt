@@ -681,6 +681,32 @@ object GameService
 
                     game.prepareForNewLife(player)
                 }
+
+                GameLifecycle.LiveBound -> {
+                    game.multiRoundGame.roundNumber += 1
+
+                    val requiredRounds = game
+                        .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
+                        ?.toIntOrNull() ?: 2
+
+                    val opponentWinner = game.getOpponent(team)
+                    game.sendMessage(deathMessage)
+                    if (opponentWinner.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
+                    {
+                        game.complete(opponentWinner)
+                        return
+                    }
+
+                    if (game.flag(FeatureFlag.SpectateAfterDeath))
+                    {
+                        game.startDelayedRespawn(player)
+                        return
+                    }
+                    game.prepareForNewLife(player)
+
+                    player.health = (requiredRounds * 10.0) - 1
+                    player.maxHealth = requiredRounds * 10.0
+                }
             }
         }
 
