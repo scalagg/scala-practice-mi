@@ -698,16 +698,8 @@ object GameService
                     // Change kill objective for lives.
                     opponent.gameLifecycleArbitraryObjectiveProgress++
 
-                    // Update dead players lives in the health hud
-                    val health = ((requiredKills - opponent.gameLifecycleArbitraryObjectiveProgress) * 2.0)
-                    val maxHealth = (requiredKills * 2.0)
-
-                    player.maxHealth = maxHealth
-                    player.healthScale = maxHealth
-
-                    // Update health now after we change
-                    // max health and health scale.
-                    player.health = health
+                    // Update player health to reflect changes
+                    player.health = ((requiredKills - opponent.gameLifecycleArbitraryObjectiveProgress) * 2.0)
 
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
