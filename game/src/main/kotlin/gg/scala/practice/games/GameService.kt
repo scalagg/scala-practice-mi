@@ -26,7 +26,6 @@ import gg.scala.practice.PracticeGame
 import gg.scala.practice.games.features.CrystalFeature
 import gg.scala.practice.games.features.FireballFeature
 import gg.scala.practice.games.features.TotemFeature
-import gg.scala.practice.games.robot.RobotInstance
 import gg.scala.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.scala.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
 import gg.scala.practice.games.team.TeamIdentifier
@@ -683,15 +682,14 @@ object GameService
                 }
 
                 GameLifecycle.LiveBound -> {
-                    game.multiRoundGame.roundNumber += 1
-
-                    val requiredRounds = game
-                        .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
-                        ?.toIntOrNull() ?: 2
+                    // Essentially gonna be somewhat "backwards" here...
+                    val requiredKills = game
+                        .flagMetaData(FeatureFlag.Lives, "value")
+                        ?.toIntOrNull() ?: 3
 
                     val opponentWinner = game.getOpponent(team)
                     game.sendMessage(deathMessage)
-                    if (opponentWinner.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredRounds)
+                    if (opponentWinner.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredKills)
                     {
                         game.complete(opponentWinner)
                         return
@@ -704,8 +702,11 @@ object GameService
                     }
                     game.prepareForNewLife(player)
 
-                    player.health = (requiredRounds * 10.0) - 1
-                    player.maxHealth = requiredRounds * 10.0
+                    val health = ((requiredKills - opponentWinner.gameLifecycleArbitraryObjectiveProgress) * 2.0)
+
+                    player.health = health
+                    player.maxHealth = health
+                    player.healthScale = health
                 }
             }
         }

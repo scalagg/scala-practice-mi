@@ -203,6 +203,23 @@ class GameStartTask(
                     }
             }
 
+            // Set player lives, in their health hud, half
+            // a heart is 1.0 full heart is 2.0 using doubles.
+            if (game.flag(FeatureFlag.Lives)) {
+                val healthScale = (game.flagMetaData(FeatureFlag.Lives, "value")?.toIntOrNull() ?: 3) * 2.0
+
+                // Find all players in the game and set their
+                // max health scale... to whatever the
+                // lives amount is.
+                game.toBukkitPlayers()
+                    .filterNotNull()
+                    .forEach { player ->
+                        player.healthScale = healthScale
+                        player.health = healthScale
+                        player.maxHealth = healthScale
+                }
+            }
+
             if (
                 game.expectationModel.queueType == QueueType.Ranked ||
                 game.expectationModel.queueId == "tournament"

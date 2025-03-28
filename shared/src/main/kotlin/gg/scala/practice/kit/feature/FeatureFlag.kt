@@ -283,6 +283,8 @@ enum class FeatureFlag(
         )
     ),
 
+
+
     // ImmediateRespawnOnDeath may be implied in game logic!
     ImmediateRespawnOnDeath(
         incompatibleWith = { setOf(StartNewRoundOnDeath) },
@@ -309,11 +311,22 @@ enum class FeatureFlag(
     RoundsRequiredToCompleteGame(
         schema = mutableMapOf("value" to "2"),
         availableLifecycles = setOf(
-            GameLifecycle.RoundBound
+            GameLifecycle.RoundBound,
+            GameLifecycle.LiveBound
         ),
         description = listOf(
             "Sets the number of rounds required",
             "to complete the game.",
+        )
+    ),
+    Lives(
+        schema = mutableMapOf("value" to "3"),
+        availableLifecycles = setOf(
+            GameLifecycle.LiveBound
+        ),
+        description = listOf(
+            "Change the amount of lives",
+            "players in a live bound game"
         )
     ),
 
@@ -321,6 +334,7 @@ enum class FeatureFlag(
         incompatibleWith = { setOf(ImmediateRespawnOnDeath) },
         availableLifecycles = setOf(
             GameLifecycle.RoundBound,
+            GameLifecycle.LiveBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
         ),
@@ -334,6 +348,7 @@ enum class FeatureFlag(
         incompatibleWith = { setOf(ImmediateRespawnOnDeath) },
         availableLifecycles = setOf(
             GameLifecycle.RoundBound,
+            GameLifecycle.LiveBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
         ),

@@ -18,6 +18,7 @@ import gg.scala.practice.utilities.toRBTeamSide
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -147,21 +148,20 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                 GameLifecycle.LiveBound ->
                 {
+                    // TODO: Change this to support live based
+                    //      gamemodes.
                     if (game.flag(FeatureFlag.RedBlueTeams))
                     {
-                        val roundsRequiredForCompletion = game
-                            .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
-                            ?.toIntOrNull() ?: 2
+                        val startedLives = game
+                            .flagMetaData(FeatureFlag.Lives, "value")
+                            ?.toIntOrNull() ?: 3
 
                         var ballID = ""
-                        repeat(red.gameLifecycleArbitraryObjectiveProgress)
-                        {
-                            ballID += "${CC.RED}⬤"
-                        }
 
-                        repeat(roundsRequiredForCompletion - red.gameLifecycleArbitraryObjectiveProgress)
+                        // Lives are based off opponents kills, count backwards.
+                        repeat(startedLives - blue.gameLifecycleArbitraryObjectiveProgress)
                         {
-                            ballID += "${CC.GRAY}⬤"
+                            ballID += "${CC.RED}${Constants.HEART_SYMBOL}"
                         }
 
                         teamSection += "${CC.B_RED}R ${CC.WHITE}Red: ${CC.RED}$ballID${
@@ -169,14 +169,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }"
 
                         ballID = ""
-                        repeat(blue.gameLifecycleArbitraryObjectiveProgress)
+                        repeat(startedLives - red.gameLifecycleArbitraryObjectiveProgress)
                         {
-                            ballID += "${CC.BLUE}⬤"
-                        }
-
-                        repeat(roundsRequiredForCompletion - blue.gameLifecycleArbitraryObjectiveProgress)
-                        {
-                            ballID += "${CC.GRAY}⬤"
+                            ballID += "${CC.BLUE}${Constants.HEART_SYMBOL}"
                         }
 
                         teamSection += "${CC.B_BLUE}B ${CC.WHITE}Blue: ${CC.BLUE}$ballID${
@@ -184,34 +179,25 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         }"
                     } else
                     {
-                        val roundsRequiredForCompletion = game
-                            .flagMetaData(FeatureFlag.RoundsRequiredToCompleteGame, "value")
-                            ?.toIntOrNull() ?: 2
+                        val startedLives = game
+                            .flagMetaData(FeatureFlag.Lives, "value")
+                            ?.toIntOrNull() ?: 3
 
                         var ballID = ""
-                        repeat(self.gameLifecycleArbitraryObjectiveProgress)
-                        {
-                            ballID += "$selfColor⬤"
-                        }
 
-                        repeat(roundsRequiredForCompletion - self.gameLifecycleArbitraryObjectiveProgress)
+                        // Lives are based off opponents kills, count backwards.
+                        repeat(startedLives - them.gameLifecycleArbitraryObjectiveProgress)
                         {
-                            ballID += "${CC.GRAY}⬤"
+                            ballID += "$selfColor${Constants.HEART_SYMBOL}"
                         }
 
                         teamSection += "${CC.WHITE}${if (!firstPerson) self.teamIdentifier.format() else "You"}: $ballID"
 
                         ballID = ""
-                        repeat(them.gameLifecycleArbitraryObjectiveProgress)
+                        repeat(startedLives - self.gameLifecycleArbitraryObjectiveProgress)
                         {
-                            ballID += "$theirColor⬤"
+                            ballID += "$theirColor${Constants.HEART_SYMBOL}"
                         }
-
-                        repeat(roundsRequiredForCompletion - them.gameLifecycleArbitraryObjectiveProgress)
-                        {
-                            ballID += "${CC.GRAY}⬤"
-                        }
-
                         teamSection += "${CC.WHITE}${if (!firstPerson) them.teamIdentifier.format() else "Them"}: $ballID"
                     }
                 }
