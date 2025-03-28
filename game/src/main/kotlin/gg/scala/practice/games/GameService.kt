@@ -26,7 +26,6 @@ import gg.scala.practice.PracticeGame
 import gg.scala.practice.games.features.CrystalFeature
 import gg.scala.practice.games.features.FireballFeature
 import gg.scala.practice.games.features.TotemFeature
-import gg.scala.practice.games.robot.RobotInstance
 import gg.scala.practice.games.tasks.lifecycle.PlayerRespawnTask.Companion.startDelayedRespawn
 import gg.scala.practice.games.tasks.lifecycle.RoundStartTask.Companion.startNewRound
 import gg.scala.practice.games.team.TeamIdentifier
@@ -681,6 +680,31 @@ object GameService
 
                     game.prepareForNewLife(player)
                 }
+
+                GameLifecycle.LiveBound -> {
+                    // Essentially gonna be somewhat "backwards" here...
+                    val requiredKills = game
+                        .flagMetaData(FeatureFlag.Lives, "value")
+                        ?.toIntOrNull() ?: 3
+
+                    val opponent = game.getOpponent(team)
+                    game.sendMessage(deathMessage)
+                    if (opponent.gameLifecycleArbitraryObjectiveProgress + 1 >= requiredKills)
+                    {
+                        game.complete(opponent)
+                        return
+                    }
+
+                    // Change kill objective for lives.
+                    opponent.gameLifecycleArbitraryObjectiveProgress++
+
+                    if (game.flag(FeatureFlag.SpectateAfterDeath))
+                    {
+                        game.startDelayedRespawn(player)
+                        return
+                    }
+                    game.prepareForNewLife(player)
+                }
             }
         }
 
@@ -1147,7 +1171,9 @@ object GameService
                 val player = it.entity as Player
                 val game = byPlayer(player) ?: return@handler
 
-                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN) {
+                // Check for regen or SATIATED for regen... prevents healing.
+                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN
+                    || it.regainReason == EntityRegainHealthEvent.RegainReason.SATIATED) {
                     if (game.flag(FeatureFlag.HardcoreHealing)) {
                         it.isCancelled = true
                     } else {
@@ -1204,7 +1230,7 @@ object GameService
         Events
             .subscribe(EntityDamageEvent::class.java)
             .filter {
-                it.cause == DamageCause.FALL && it.entity is Player
+                (it.cause == DamageCause.FALL) && it.entity is Player
             }
             .handler {
                 val player = it.entity as Player
@@ -1214,6 +1240,25 @@ object GameService
                     }
 
                 if (game.flag(FeatureFlag.DoNotTakeFallDamage))
+                {
+                    it.isCancelled = true
+                }
+            }
+
+        // Should player take pearl damage in their Game?
+        Events
+            .subscribe(EntityDamageByEntityEvent::class.java)
+            .filter {
+                it.cause == DamageCause.FALL && it.entity is Player && it.damager is EnderPearl
+            }
+            .handler {
+                val player = it.entity as Player
+                val game = byPlayer(player)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
+
+                if (game.flag(FeatureFlag.DoNotTakePearlDamage))
                 {
                     it.isCancelled = true
                 }

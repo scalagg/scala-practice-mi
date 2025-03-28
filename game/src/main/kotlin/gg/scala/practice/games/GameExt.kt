@@ -4,6 +4,7 @@ import dev.iiahmed.disguise.Disguise
 import gg.scala.basics.plugin.disguise.DisguiseService
 import gg.scala.practice.games.GameService.plugin
 import gg.scala.practice.kit.feature.FeatureFlag
+import gg.scala.practice.kit.feature.GameLifecycle
 import gg.scala.practice.profile.PracticeProfile
 import gg.scala.practice.queue.QueueType
 import gg.scala.practice.resetAttributes
@@ -56,6 +57,15 @@ fun GameImpl.resetPlayerForFight(player: Player, noUpdateVisibility: Boolean = f
         resetAttributes()
     }
 
+    // Set players health to the amount
+    // of lives they have left
+    if (flag(FeatureFlag.Lives)) {
+        val requiredKills = flagMetaData(FeatureFlag.Lives, "value")
+            ?.toIntOrNull() ?: 3
+
+        player.health = ((requiredKills - getOpponent(player).gameLifecycleArbitraryObjectiveProgress) * 2.0)
+    }
+
     if (flag(FeatureFlag.HeartsBelowNameTag))
     {
         val objective = player.scoreboard
@@ -102,6 +112,15 @@ fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
         }
 
         resetAttributes(editFlightAttributes = false)
+
+        // Update if we have lives in this match.
+        if (flag(FeatureFlag.Lives)) {
+            val requiredKills = flagMetaData(FeatureFlag.Lives, "value")
+                ?.toIntOrNull() ?: 3
+
+            player.health = ((requiredKills - getOpponent(player).gameLifecycleArbitraryObjectiveProgress) * 2.0)
+        }
+
         scoreboard
             .getObjective("commonsHealth")
             ?.apply {
