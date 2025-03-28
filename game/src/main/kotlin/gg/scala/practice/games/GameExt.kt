@@ -112,6 +112,15 @@ fun GameImpl.enterSpectatorAfterLifeEnd(player: Player)
         }
 
         resetAttributes(editFlightAttributes = false)
+
+        // Update if we have lives in this match.
+        if (flag(FeatureFlag.Lives)) {
+            val requiredKills = flagMetaData(FeatureFlag.Lives, "value")
+                ?.toIntOrNull() ?: 3
+
+            player.health = ((requiredKills - getOpponent(player).gameLifecycleArbitraryObjectiveProgress) * 2.0)
+        }
+
         scoreboard
             .getObjective("commonsHealth")
             ?.apply {

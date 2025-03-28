@@ -1172,7 +1172,7 @@ object GameService
                 val game = byPlayer(player) ?: return@handler
 
                 // Check for regen or SATIATED for regen... prevents healing.
-                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN 
+                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN
                     || it.regainReason == EntityRegainHealthEvent.RegainReason.SATIATED) {
                     if (game.flag(FeatureFlag.HardcoreHealing)) {
                         it.isCancelled = true
