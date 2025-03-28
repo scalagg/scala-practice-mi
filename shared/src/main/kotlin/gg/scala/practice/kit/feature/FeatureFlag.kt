@@ -363,6 +363,7 @@ enum class FeatureFlag(
         requires = setOf(SpectateAfterDeath),
         availableLifecycles = setOf(
             GameLifecycle.RoundBound,
+            GameLifecycle.LiveBound,
             GameLifecycle.ObjectivePlusSoulBound,
             GameLifecycle.ObjectiveBound
         ),

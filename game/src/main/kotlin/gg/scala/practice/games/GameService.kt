@@ -695,18 +695,22 @@ object GameService
                         return
                     }
 
+                    // Change kill objective for lives.
+                    opponentWinner.gameLifecycleArbitraryObjectiveProgress++
+
+                    // Update dead players lives in the health hud
+                    val health = ((requiredKills - opponentWinner.gameLifecycleArbitraryObjectiveProgress) * 2.0)
+
+                    player.health = health
+                    player.maxHealth = health
+                    player.healthScale = health
+
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
                         game.startDelayedRespawn(player)
                         return
                     }
                     game.prepareForNewLife(player)
-
-                    val health = ((requiredKills - opponentWinner.gameLifecycleArbitraryObjectiveProgress) * 2.0)
-
-                    player.health = health
-                    player.maxHealth = health
-                    player.healthScale = health
                 }
             }
         }
