@@ -698,9 +698,6 @@ object GameService
                     // Change kill objective for lives.
                     opponent.gameLifecycleArbitraryObjectiveProgress++
 
-                    // Update player health to reflect changes
-                    player.health = ((requiredKills - opponent.gameLifecycleArbitraryObjectiveProgress) * 2.0)
-
                     if (game.flag(FeatureFlag.SpectateAfterDeath))
                     {
                         game.startDelayedRespawn(player)
