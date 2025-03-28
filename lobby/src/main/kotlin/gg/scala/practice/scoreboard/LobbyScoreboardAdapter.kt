@@ -138,7 +138,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     {
                         LobbyScoreboardView.Dev ->
                         {
-                            board += "\"${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Game Servers: ${CC.PRI}${
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Game Servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Mean TPS: ${CC.GREEN}${
