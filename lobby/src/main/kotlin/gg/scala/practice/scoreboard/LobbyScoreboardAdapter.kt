@@ -171,7 +171,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             if (basicsProfile != null)
                             {
                                 board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Spec: ${
-                                    if (player.isASilentSpectator()) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+                                    if (player.isASilentSpectator()) "${CC.GREEN}${Constants.CHECK_SYMBOL}" else "${CC.RED}${Constants.X_SYMBOL}"
                                 }"
                             }
 
