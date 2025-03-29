@@ -121,7 +121,6 @@ object GameService
         plugin.registerListener(BlockFormListener())
         plugin.registerListener(FireballFeature())
         plugin.registerListener(CrystalFeature())
-        plugin.registerListener(TotemFeature())
 
         AnticheatFeature.proxiedPlayerAllowAC = context@{
             val game = byPlayer(it)

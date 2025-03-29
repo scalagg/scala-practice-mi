@@ -201,7 +201,10 @@ open class GameImpl(
 
         toBukkitPlayers()
             .filterNotNull()
-            .forEach(::takeSnapshotIfNotAlreadyExists)
+            .forEach {
+                takeSnapshotIfNotAlreadyExists(it)
+                teleportToSpawnLocation(it)
+            }
 
         endTimestamp = System.currentTimeMillis()
 
