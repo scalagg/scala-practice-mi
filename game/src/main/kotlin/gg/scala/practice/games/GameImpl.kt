@@ -26,6 +26,7 @@ import gg.scala.practice.games.team.GameTeam
 import gg.scala.practice.games.team.TeamIdentifier
 import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.feature.FeatureFlag
+import gg.scala.practice.kit.feature.GameLifecycle
 import gg.scala.practice.leaderboards.Reference
 import gg.scala.practice.leaderboards.ReferenceLeaderboardType
 import gg.scala.practice.leaderboards.ScoreUpdates
@@ -203,7 +204,10 @@ open class GameImpl(
             .filterNotNull()
             .forEach {
                 takeSnapshotIfNotAlreadyExists(it)
-                teleportToSpawnLocation(it)
+                if (flag(FeatureFlag.DeathBelowYAxis))
+                {
+                    teleportToSpawnLocation(it)
+                }
             }
 
         endTimestamp = System.currentTimeMillis()

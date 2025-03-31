@@ -3,7 +3,6 @@ package gg.scala.practice.resources
 import gg.scala.practice.games.GameService
 import gg.scala.practice.games.team.TeamIdentifier
 import gg.scala.practice.kit.feature.FeatureFlag
-import gg.scala.practice.utilities.RBTeamSide
 import gg.scala.practice.utilities.toRBTeamSide
 import net.evilblock.cubed.nametag.NametagInfo
 import net.evilblock.cubed.nametag.NametagProvider
@@ -25,27 +24,27 @@ object PracticeNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
     private val SPECTATOR_NAME_TAG = createNametag(CC.GRAY, "")
 
     override fun fetchNametag(
-        viewed: Player, viewer: Player
+        toRefresh: Player, refreshFor: Player
     ): NametagInfo?
     {
         val viewedGame = GameService
-            .byPlayerOrSpectator(viewed.uniqueId)
+            .byPlayerOrSpectator(toRefresh.uniqueId)
             ?: return null
 
         val viewerGame = GameService
-            .byPlayerOrSpectator(viewer.uniqueId)
+            .byPlayerOrSpectator(refreshFor.uniqueId)
             ?: return null
 
         if (viewerGame.expectation == viewedGame.expectation)
         {
-            if (viewed.hasMetadata("spectator"))
+            if (toRefresh.hasMetadata("spectator"))
             {
                 return SPECTATOR_NAME_TAG
             }
 
             if (viewedGame.flag(FeatureFlag.RedBlueTeams))
             {
-                val team = viewedGame.getNullableTeam(viewed)
+                val team = viewedGame.getNullableTeam(toRefresh)
                     ?: return SPECTATOR_NAME_TAG
 
                 val rbSide = team
@@ -56,9 +55,9 @@ object PracticeNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
                     RED_TEAM_NAME_TAG else BLUE_TEAM_NAME_TAG
             }
 
-            val team = viewedGame.getTeamOf(viewed)
-            // TODO: proper nametags for each team
-            return if (team.teamIdentifier == TeamIdentifier.A)
+            val team = viewedGame.getTeamOf(toRefresh)
+            val teamTarget = viewerGame.getTeamOf(refreshFor)
+            return if (team.teamIdentifier == teamTarget.teamIdentifier)
                 GREEN_TEAM_NAME_TAG else RED_TEAM_NAME_TAG
         }
 

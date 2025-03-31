@@ -21,7 +21,7 @@ abstract class TemplateKitCategoryMenu : PaginatedMenu()
         placeholder = true
     }
 
-    abstract fun filterDisplayOfCategory(map: KitCategory): Boolean
+    abstract fun filterDisplayOfCategory(kitCategory: KitCategory): Boolean
     abstract fun itemDescriptionOf(player: Player, kitCategory: KitCategory): List<String>
     abstract fun itemClicked(player: Player, kitCategory: KitCategory, type: ClickType)
 
