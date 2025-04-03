@@ -1,5 +1,6 @@
 package gg.scala.practice.tablist
 
+import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.lemon.player.nametag.DefaultNametagProvider
 import gg.scala.lemon.player.sorter.SortedRankCache
 import gg.scala.lemon.util.QuickAccess
@@ -38,7 +39,7 @@ class ImmutableTrackedPlayer(
         {
             val profile = (player as CraftPlayer).handle.profile
             val skinProperty = profile.properties.values().firstOrNull { it.name == "textures" }
-            val currentRank = QuickAccess.realRank(player)
+            val currentRank = QuickAccess.computeRank(player.uniqueId)
 
             val nametag = DefaultNametagProvider.fetchNametag(player, player)
 
@@ -48,8 +49,8 @@ class ImmutableTrackedPlayer(
                 latency = MinecraftReflection.getPing(player),
                 skin = skinProperty?.value,
                 skinSignature = skinProperty?.signature,
-                teamName = SortedRankCache.teamMappings[currentRank.uuid] ?: "Z",
-                displayName = "${nametag?.prefix ?: ""}${player.name}${nametag?.suffix ?: ""}"
+                teamName = SortedRankCache.teamMappings[currentRank.join()!!.uuid] ?: "Z",
+                displayName = "${nametag?.prefix ?: ""}${QuickAccess.computeColoredName(player.uniqueId, ScalaStoreUuidCache.username(player.uniqueId)!!).join()}${nametag?.suffix ?: ""}"
             )
         }
     }

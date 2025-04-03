@@ -11,6 +11,8 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.practice.hologram.ScrollingKitLeaderboardHologram
 import gg.scala.practice.hologram.ScrollingTypeLeaderboardHologram
 import gg.scala.practice.kit.Kit
+import gg.scala.practice.kit.KitService
+import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.leaderboards.ReferenceLeaderboardType
 import net.evilblock.cubed.util.CC
 
@@ -75,6 +77,37 @@ object SpawnHologramCommand : ScalaCommand()
     {
         val hologram = ScrollingKitLeaderboardHologram(
             kits = kits.split(","),
+            scrollTime = delay,
+            location = player.bukkit().location,
+            leaderboardType = leaderboardType
+        )
+
+        hologram.configure()
+        player.sendMessage("${CC.GREEN}Spawned the hologram!")
+    }
+
+    @AssignPermission
+    @Subcommand("scrolling-kits-preset")
+    @CommandCompletion("* @leaderboard-types")
+    @Description("Spawn a hologram that scrolls through a list of kits.")
+    fun onScrollingKitsPreset(
+        player: ScalaPlayer, delay: Int,
+        leaderboardType: ReferenceLeaderboardType
+    ) {
+        val rankedLeaderboards = setOf(
+            ReferenceLeaderboardType.ELO,
+            ReferenceLeaderboardType.RankedWins,
+            ReferenceLeaderboardType.RankedWinStreak
+        )
+
+        val kits = KitService.cached().kits.values
+            .filter { kit ->
+                leaderboardType !in rankedLeaderboards || kit.features(FeatureFlag.Ranked)
+            }
+            .map { it.id }
+
+        val hologram = ScrollingKitLeaderboardHologram(
+            kits = kits,
             scrollTime = delay,
             location = player.bukkit().location,
             leaderboardType = leaderboardType
