@@ -39,7 +39,7 @@ class ImmutableTrackedPlayer(
         {
             val profile = (player as CraftPlayer).handle.profile
             val skinProperty = profile.properties.values().firstOrNull { it.name == "textures" }
-            val currentRank = QuickAccess.computeRank(player.uniqueId)
+            val currentRank = QuickAccess.computeRank(player.uniqueId).join()!!
 
             val nametag = DefaultNametagProvider.fetchNametag(player, player)
 
@@ -49,7 +49,7 @@ class ImmutableTrackedPlayer(
                 latency = MinecraftReflection.getPing(player),
                 skin = skinProperty?.value,
                 skinSignature = skinProperty?.signature,
-                teamName = SortedRankCache.teamMappings[currentRank.join()!!.uuid] ?: "Z",
+                teamName = SortedRankCache.teamMappings[currentRank.uuid] ?: "Z",
                 displayName = "${nametag?.prefix ?: ""}${QuickAccess.computeColoredName(player.uniqueId, ScalaStoreUuidCache.username(player.uniqueId)!!).join()}${nametag?.suffix ?: ""}"
             )
         }
