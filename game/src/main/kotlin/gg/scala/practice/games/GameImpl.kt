@@ -181,10 +181,8 @@ open class GameImpl(
         team.players.minusAssign(player.uniqueId)
     }
 
-    fun complete(winner: GameTeam?, reason: String = "")
-    {
-        if (state == GameState.Completed)
-        {
+    fun complete(winner: GameTeam?, reason: String = "") {
+        if (state == GameState.Completed) {
             return
         }
 
@@ -195,8 +193,7 @@ open class GameImpl(
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
         val playerFeedback = mutableMapOf<UUID, MutableList<String>>()
 
-        if (robot())
-        {
+        if (robot()) {
             robotInstance.forEach(RobotInstance::destroy)
         }
 
@@ -204,16 +201,14 @@ open class GameImpl(
             .filterNotNull()
             .forEach {
                 takeSnapshotIfNotAlreadyExists(it)
-                if (flag(FeatureFlag.DeathBelowYAxis))
-                {
+                if (flag(FeatureFlag.DeathBelowYAxis)) {
                     teleportToSpawnLocation(it)
                 }
             }
 
         endTimestamp = System.currentTimeMillis()
 
-        if (winner == null)
-        {
+        if (winner == null) {
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
                 winners = listOf(), losers = listOf(),
@@ -226,18 +221,15 @@ open class GameImpl(
             )
 
             sendInfoToTournamentService(losers = listOf())
-        } else
-        {
+        } else {
             this.toBukkitPlayers()
                 .filterNotNull()
                 .onEach {
                     val profile = CorePlayerProfileService.find(it)
-                    if (profile != null && expectationModel.queueType != null)
-                    {
+                    if (profile != null && expectationModel.queueType != null) {
                         val userIsWinner = winner.players.contains(it.uniqueId)
                         val queueMultiplier = expectationModel.queueType!!.coinMultiplier
-                        if (queueMultiplier != 0.0)
-                        {
+                        if (queueMultiplier != 0.0) {
                             profile.addCoins(
                                 coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
                                 reason = if (userIsWinner) "Winning a game" else "Playing a game",
@@ -249,9 +241,7 @@ open class GameImpl(
                     }
                 }
 
-            if (Bukkit.getPluginManager().isPluginEnabled("Achievements") && !robot())
-            {
-
+            if (Bukkit.getPluginManager().isPluginEnabled("Achievements") && !robot()) {
                 this.toBukkitPlayers()
                     .filterNotNull()
                     .onEach {
@@ -259,22 +249,16 @@ open class GameImpl(
                         val userIsWinner = winner.players.contains(it.uniqueId)
 
                         listOfNotNull(
-                            profile
-                                ?.dataCollector<TTLWinDataCollector>(
-                                    id = "dailywins"
-                                ),
-                        )
-                            .forEach { dataCollector ->
-                                if (userIsWinner)
-                                {
-                                    dataCollector.value += 1
-                                }
-
-                                profile?.save()
+                            profile?.dataCollector<TTLWinDataCollector>(id = "dailywins"),
+                        ).forEach { dataCollector ->
+                            if (userIsWinner) {
+                                dataCollector.value += 1
                             }
+
+                            profile?.save()
+                        }
                     }
             }
-
 
             val opponents = getAllOpponents(winner)
             opponents.forEach {
@@ -282,46 +266,11 @@ open class GameImpl(
             }
 
             val allOpponentPlayers = opponents.flatMap(GameTeam::players)
-            if (robot())
-            {
-                val kitStatisticsUpdates = if (winner.players.size < 1)
-                {
-                    allOpponentPlayers.map {
-                        it.networkTransaction {
-                            useKitStatistics(this@GameImpl) {
-                                plays += 1
-                                deaths += 1
-
-                                streakUpdates().apply(false)
-                            }
-                        }
-                    }
-                } else
-                {
-                    winner.players.map { player ->
-                        player.networkTransaction {
-                            useKitStatistics(this@GameImpl) {
-                                wins += 1
-                                plays += 1
-                                kills += 1
-
-                                streakUpdates().apply(true)
-                            }
-
-                            globalStatistics.unrankedBotWin().apply()
-                            PracticeProfileService.find(player)?.save()
-                        }
-                    }
-                }
-
-                val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
-            } else
-            {
+            if (!robot()) {
                 val kitStatisticsUpdates = allOpponentPlayers.map {
                     it.networkTransaction {
                         useKitStatistics(this@GameImpl) {
                             plays += 1
-
                             streakUpdates().apply(false)
                         }
                         globalStatistics.userPlayedGameAndLost().apply()
@@ -331,7 +280,6 @@ open class GameImpl(
                         useKitStatistics(this@GameImpl) {
                             wins += 1
                             plays += 1
-
                             streakUpdates().apply(true)
                         }
                         globalStatistics.userPlayedGameAndWon().apply()
@@ -340,13 +288,11 @@ open class GameImpl(
 
                 val future = CompletableFuture.allOf(*kitStatisticsUpdates.toTypedArray())
                 val firstOpponent = opponents.first()
-                if (expectationModel.queueType == QueueType.Ranked && isTwoTeamGame() && firstOpponent.players.size == 1)
-                {
+                if (expectationModel.queueType == QueueType.Ranked && isTwoTeamGame() && firstOpponent.players.size == 1) {
                     val winnerProfileID = winner.players.firstOrNull()
                     val loserProfileID = firstOpponent.players.firstOrNull()
 
-                    if (winnerProfileID != null && loserProfileID != null)
-                    {
+                    if (winnerProfileID != null && loserProfileID != null) {
                         eloUpdates = CompletableFuture()
 
                         positionUpdates[winnerProfileID] = CompletableFuture()
@@ -442,8 +388,7 @@ open class GameImpl(
                 extraInformation = extraInformation
             )
 
-            if (robot())
-            {
+            if (robot()) {
                 val robot = robotInstance.firstOrNull() ?: return
                 Schedulers
                     .async()
@@ -451,16 +396,13 @@ open class GameImpl(
                         toBukkitPlayers()
                             .filterNotNull()
                             .forEach {
-                                if (winner.players.contains(it.uniqueId))
-                                {
+                                if (winner.players.contains(it.uniqueId)) {
                                     it.sendMessage(BotMessages.getBotLose(robot.name()))
                                     if (robot.level()
                                             .equals("unranked", ignoreCase = true)
                                     ) it.uniqueId.acquireProfileImmutable().join()?.onUnrankedBotWin()
-                                } else
-                                {
-                                    if (it.uniqueId in allOpponentPlayers)
-                                    {
+                                } else {
+                                    if (it.uniqueId in allOpponentPlayers) {
                                         it.sendMessage(
                                             BotMessages.getBotWin(robot.name())
                                         )
@@ -474,8 +416,7 @@ open class GameImpl(
                                         default = StateSettingValue.ENABLED
                                     )
 
-                                if (messagingSoundsSettingValue == StateSettingValue.ENABLED)
-                                {
+                                if (messagingSoundsSettingValue == StateSettingValue.ENABLED) {
                                     it.playSound(
                                         it.location,
                                         XSound.ENTITY_EXPERIENCE_ORB_PICKUP.parseSound(),
