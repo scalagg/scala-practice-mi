@@ -1,12 +1,8 @@
 package gg.scala.practice.kit.category.administration.specific
 
-import gg.scala.practice.kit.KitService
 import gg.scala.practice.kit.category.KitCategory
-import gg.scala.practice.kit.category.KitCategoryConfigModel
 import gg.scala.practice.kit.category.KitCategoryService
 import gg.scala.practice.kit.category.administration.KitCategoryAdminMenu
-import gg.scala.practice.map.MapService
-import gg.scala.practice.map.administration.MapAdminMenu
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC

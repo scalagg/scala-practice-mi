@@ -19,6 +19,13 @@ import org.bukkit.entity.Player
  */
 class KitGroupEditorMenu(val kit: Kit): PaginatedMenu()
 {
+
+    init
+    {
+        placeholder = true
+        updateAfterClick = true
+    }
+
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {
         return mutableMapOf<Int, Button>().also { map ->
@@ -41,13 +48,13 @@ class KitGroupEditorMenu(val kit: Kit): PaginatedMenu()
         }
     }
 
-    override fun onClose(player: Player, manualClose: Boolean)
-    {
-        if (manualClose)
-        {
-            SpecificKitEditorMenu(kit).openMenu(player)
-        }
-    }
+//    override fun onClose(player: Player, manualClose: Boolean)
+//    {
+//        if (manualClose)
+//        {
+//            SpecificKitEditorMenu(kit).openMenu(player)
+//        }
+//    }
 
     override fun getPrePaginatedTitle(player: Player): String
     {

@@ -18,7 +18,7 @@ class KitAdminMenu(player: Player) : TemplateKitMenu(player)
     override fun itemDescriptionOf(player: Player, kit: Kit) = listOf(
         "${CC.GRAY}ID: ${CC.WHITE}${kit.id}",
         "${CC.GRAY}Display: ${CC.WHITE}${kit.displayName}",
-        "${CC.GRAY}Category: ${CC.WHITE}${kit.kitCategory}",
+//        "${CC.GRAY}Category: ${CC.WHITE}${kit.kitCategory}",
         "${CC.GRAY}Lifecycle: ${CC.WHITE}${kit.lifecycleType ?: "*SoulBound"}",
         "",
         "${CC.GRAY}Locked: ${

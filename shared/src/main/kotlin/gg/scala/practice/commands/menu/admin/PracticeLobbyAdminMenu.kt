@@ -1,6 +1,7 @@
 package gg.scala.practice.commands.menu.admin
 
 import com.cryptomorin.xseries.XMaterial
+import gg.scala.practice.commands.menu.admin.category.KitCategorySelectionMenu
 import gg.scala.practice.commands.menu.admin.config.PracticeConfigurationMenu
 import gg.scala.practice.commands.menu.admin.kit.KitEditorSelectionMenu
 import gg.scala.practice.commands.menu.admin.map.MapEditorSelectionMenu
@@ -23,6 +24,19 @@ class PracticeLobbyAdminMenu: Menu()
     override fun getButtons(player: Player): Map<Int, Button>
     {
         return mutableMapOf<Int, Button>().also {
+
+            it[4] = ItemBuilder.of(XMaterial.COMPASS)
+                .name("${CC.B_RED}Practice Settings")
+                .addToLore(
+                    "${CC.GRAY}Edit all of the practice-specific",
+                    "${CC.GRAY}settings that are currently",
+                    "${CC.GRAY}available.",
+                    "",
+                    "${CC.GREEN}Click to configure!"
+                ).toButton { _, _ ->
+                    PracticeConfigurationMenu().openMenu(player)
+                }
+
             it[10] = ItemBuilder.of(XMaterial.DIAMOND_SWORD)
                 .name("${CC.B_GREEN}Edit Kits")
                 .addToLore(
@@ -45,16 +59,15 @@ class PracticeLobbyAdminMenu: Menu()
                     MapEditorSelectionMenu().openMenu(player)
                 }
 
-            it[14] = ItemBuilder.of(XMaterial.COMPASS)
-                .name("${CC.B_RED}Practice Settings")
+            it[14] = ItemBuilder.of(XMaterial.HOPPER)
+                .name("${CC.B_GREEN}Edit Kit Categories")
                 .addToLore(
-                    "${CC.GRAY}Edit all of the practice-specific",
-                    "${CC.GRAY}settings that are currently",
-                    "${CC.GRAY}available.",
+                    "${CC.GRAY}Edit all of the kit categories that",
+                    "${CC.GRAY}are currently on the server.",
                     "",
-                    "${CC.GREEN}Click to configure!"
+                    "${CC.GREEN}Click to edit!"
                 ).toButton { _, _ ->
-                    PracticeConfigurationMenu().openMenu(player)
+                    KitCategorySelectionMenu().openMenu(player)
                 }
 
             it[16] = ItemBuilder.of(XMaterial.MINECART)

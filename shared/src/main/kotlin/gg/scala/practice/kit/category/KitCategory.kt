@@ -1,25 +1,24 @@
 package gg.scala.practice.kit.category
 
+import gg.scala.practice.kit.KitService
 import org.bukkit.Material
 
 /**
- * @author GrowlyX
- * @since 10/12/2022
+ * @author Topu
+ * @date 4/7/2025
  */
-data class KitCategoryConfigModel(
-    val categories: MutableList<KitCategory> = mutableListOf()
-)
-{
-    fun findById(id: String) = categories
-        .firstOrNull {
-            it.id.equals(id, true)
-        }
-}
-
 data class KitCategory(
     val id: String,
+    val kits: MutableList<String> = mutableListOf(),
     var name: String = id.capitalize(),
     var item: Material = Material.PAPER,
     var newCategory: Boolean = true,
     var description: MutableList<String> = mutableListOf()
 )
+{
+
+fun kits() = kits
+    .mapNotNull {
+        KitService.cached().kits[it]
+    }
+}

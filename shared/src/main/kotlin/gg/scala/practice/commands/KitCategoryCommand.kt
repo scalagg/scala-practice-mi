@@ -15,12 +15,14 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.practice.kit.KitService
-import gg.scala.practice.kit.administration.KitAdminMenu
 import gg.scala.practice.kit.category.KitCategory
 import gg.scala.practice.kit.category.KitCategoryService
 import gg.scala.practice.kit.category.administration.KitCategoryAdminMenu
+import gg.scala.practice.kit.group.KitGroupService
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
@@ -45,11 +47,43 @@ object KitCategoryCommand : ScalaCommand()
     @Description("List all categories.")
     fun onList(player: ScalaPlayer)
     {
-        player.sendMessage("=== categories ===")
+        val kitCategories = KitCategoryService.cached().categories
 
-        for (category in KitCategoryService.cached().categories)
+        player.sendMessage(
+            "${CC.GREEN}All kit groups:",
+            "${CC.WHITE}[click a kit to view information]"
+        )
+
+        val listFancyMessage = FancyMessage()
+        for ((i, category) in kitCategories.withIndex())
         {
-            player.sendMessage(category.id)
+            val uniqueInfoComponent = FancyMessage()
+                .withMessage(
+                    "${CC.GRAY}${category.id}${CC.WHITE}${
+                        if (i != (kitCategories.size - 1)) ", " else "."
+                    }"
+                )
+                .andHoverOf(
+                    "${CC.GRAY}Click to view kit category information."
+                )
+                .andCommandOf(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/kitcategory info ${category.id}"
+                )
+
+            listFancyMessage.components.addAll(
+                uniqueInfoComponent.components
+            )
+        }
+
+        if (listFancyMessage.components.isNotEmpty())
+        {
+            listFancyMessage.sendToPlayer(player.bukkit())
+        } else
+        {
+            player.sendMessage(
+                "${CC.RED}None"
+            )
         }
     }
 
@@ -61,7 +95,7 @@ object KitCategoryCommand : ScalaCommand()
         KitCategoryAdminMenu().openMenu(player.bukkit())
     }
 
-    @Subcommand("show")
+    @Subcommand("info")
     @CommandCompletion("@categories")
     @Description("Show a category.")
     fun onMetaShow(
@@ -79,7 +113,7 @@ object KitCategoryCommand : ScalaCommand()
             "",
             "${CC.PRI}Kit bindings:",
             *KitService.cached().kits.values
-                .filter { it.kitCategory == category.id }
+                .filter { category.kits.contains(it.id) }
                 .map { " - " + it.displayName }
                 .toTypedArray()
         )

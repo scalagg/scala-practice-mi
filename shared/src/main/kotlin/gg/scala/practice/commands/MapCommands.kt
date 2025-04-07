@@ -7,17 +7,22 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.practice.commands.menu.admin.kit.display.EditKitDisplaysMenu
 import gg.scala.practice.commands.menu.rating.MapRatingOverviewMenu
+import gg.scala.practice.kit.Kit
+import gg.scala.practice.kit.KitService
 import gg.scala.practice.kit.group.KitGroup
 import gg.scala.practice.map.Map
 import gg.scala.practice.map.MapService
 import gg.scala.practice.map.administration.MapAdminMenu
 import gg.scala.practice.services.GameManagerService
+import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -118,6 +123,37 @@ object MapCommands : ScalaCommand()
         player.sendMessage(
             "${CC.GREEN}You have changed $oldDisplayName's name to ${CC.YELLOW}$name${CC.GREEN}."
         )
+    }
+
+    @AssignPermission
+    @Subcommand("description")
+    @CommandCompletion("@maps *")
+    @Description("Edit a map's description.")
+    fun onDescription(player: ScalaPlayer, map: Map)
+    {
+        object : TextEditorMenu(map.description)
+        {
+            override fun getPrePaginatedTitle(player: Player) =
+                "Editing: ${map.name} Description..."
+
+            override fun onClose(player: Player)
+            {
+
+            }
+
+            override fun onSave(player: Player, list: List<String>)
+            {
+                map.description.clear()
+                map.description.addAll(list)
+
+                with (MapService.cached())
+                {
+                    this.maps[map.name] = map
+                    MapService.sync(this)
+                }
+                player.sendMessage("${CC.GREEN}Saved ${map.name} description!")
+            }
+        }.openMenu(player.bukkit())
     }
 
     @Subcommand("setdisplayname")

@@ -26,6 +26,7 @@ data class Map(
     val bounds: Bounds,
     var metadata: MapMetadata,
     var displayName: String,
+    var description: MutableList<String> = mutableListOf(),
     var displayIcon: ItemStack = ItemBuilder
         .of(Material.MAP)
         .build(),

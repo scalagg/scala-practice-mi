@@ -79,10 +79,8 @@ class PracticeConfigurationMenu : Menu()
                     {
 
                         Button.playSuccess(player)
-                        with(PracticeConfigurationService.cached()) {
-                            rankedMinimumWinRequirement = rankedMinimumWinRequirement?.minus(1)
-                            PracticeConfigurationService.sync(this)
-                        }
+                        config.rankedMinimumWinRequirement = config.rankedMinimumWinRequirement?.minus(1)
+                        PracticeConfigurationService.sync(config)
                         openMenu(player)
                         return@toButton
                     }

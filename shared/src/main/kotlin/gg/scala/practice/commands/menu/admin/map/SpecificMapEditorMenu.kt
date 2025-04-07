@@ -2,6 +2,7 @@ package gg.scala.practice.commands.menu.admin.map
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.practice.commands.menu.admin.map.display.EditMapDisplaysMenu
+import gg.scala.practice.commands.menu.admin.map.groups.MapGroupEditorMenu
 import gg.scala.practice.commands.menu.rating.MapRatingOverviewMenu
 import gg.scala.practice.map.Map
 import gg.scala.practice.map.MapService
@@ -87,6 +88,7 @@ class SpecificMapEditorMenu(val map: Map): Menu()
                     "",
                     "${CC.GREEN}Click to edit!"
                 ).toButton { _, _ ->
+                    MapGroupEditorMenu(map).openMenu(player)
 
                 }
 

@@ -1,12 +1,15 @@
 package gg.scala.practice.commands.menu.admin.map.display
 
 import com.cryptomorin.xseries.XMaterial
+import gg.scala.practice.commands.menu.admin.kit.display.EditKitDisplaysMenu
 import gg.scala.practice.commands.menu.admin.map.MapEditorSelectionMenu
 import gg.scala.practice.commands.menu.admin.map.SpecificMapEditorMenu
+import gg.scala.practice.kit.KitService
 import gg.scala.practice.map.Map
 import gg.scala.practice.map.MapService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
+import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -35,13 +38,23 @@ class EditMapDisplaysMenu(val map: Map): Menu()
 
     override fun size(buttons: kotlin.collections.Map<Int, Button>): Int
     {
-        return 9
+        return 27
     }
 
     override fun getButtons(player: Player): kotlin.collections.Map<Int, Button>
     {
         return mutableMapOf<Int, Button>().also { mutableMap ->
-            mutableMap[2] = ItemBuilder.of(XMaterial.NAME_TAG)
+            mutableMap[4] = ItemBuilder.of(XMaterial.RED_BED)
+                .name("${CC.B_RED}Go Back")
+                .addToLore(
+                    "${CC.GRAY}Go back to the map editor",
+                    "",
+                    "${CC.GREEN}Click to go back!"
+                ).toButton { _, _ ->
+                    SpecificMapEditorMenu(map).openMenu(player)
+                }
+
+            mutableMap[11] = ItemBuilder.of(XMaterial.NAME_TAG)
                 .name("${CC.B_GREEN}Change Name")
                 .addToLore(
                     "${CC.GRAY}Change the name of this map",
@@ -65,17 +78,44 @@ class EditMapDisplaysMenu(val map: Map): Menu()
                         }.start(player)
                 }
 
-            mutableMap[4] = ItemBuilder.of(XMaterial.RED_BED)
-                .name("${CC.B_RED}Go Back")
+            mutableMap[13] = ItemBuilder.of(XMaterial.PAPER)
+                .name("${CC.B_GREEN}Change Description")
                 .addToLore(
-                    "${CC.GRAY}Go back to the map editor",
+                    "${CC.GRAY}Change the description of this map",
+                    "${CC.GRAY}that is seen when the player is",
+                    "${CC.GRAY}choosing the map or viewing areas",
+                    "${CC.GRAY}with the map in it.",
                     "",
-                    "${CC.GREEN}Click to go back!"
+                    "${CC.GREEN}Click to change!"
                 ).toButton { _, _ ->
-                    SpecificMapEditorMenu(map).openMenu(player)
+                    Button.playNeutral(player)
+                    object : TextEditorMenu(map.description)
+                    {
+                        override fun getPrePaginatedTitle(player: Player) =
+                            "Editing: ${map.name} Description..."
+
+                        override fun onClose(player: Player)
+                        {
+
+                        }
+
+                        override fun onSave(player: Player, list: List<String>)
+                        {
+                            map.description.clear()
+                            map.description.addAll(list)
+
+                            with (MapService.cached())
+                            {
+                                this.maps[map.name] = map
+                                MapService.sync(this)
+                            }
+                            player.sendMessage("${CC.GREEN}Saved ${map.name} description!")
+                            EditMapDisplaysMenu(map).openMenu(player)
+                        }
+                    }.openMenu(player)
                 }
 
-            mutableMap[6] = ItemBuilder.of(XMaterial.STICK)
+            mutableMap[15] = ItemBuilder.of(XMaterial.STICK)
                 .name("${CC.B_GREEN}Change Icon")
                 .addToLore(
                     "${CC.GRAY}Change the icon of this map",

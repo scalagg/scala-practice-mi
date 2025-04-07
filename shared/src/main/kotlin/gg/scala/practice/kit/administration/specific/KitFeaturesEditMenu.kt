@@ -160,13 +160,13 @@ class KitFeaturesEditMenu(private val kit: Kit) : PaginatedMenu()
     }
 
     override fun getPrePaginatedTitle(player: Player) = "Editing features of ${kit.id}..."
-    override fun onClose(player: Player, manualClose: Boolean)
-    {
-        if (manualClose)
-        {
-            Tasks.delayed(1L) {
-                SpecificKitAdminMenu(kit).openMenu(player)
-            }
-        }
-    }
+//    override fun onClose(player: Player, manualClose: Boolean)
+//    {
+//        if (manualClose)
+//        {
+//            Tasks.delayed(1L) {
+//                SpecificKitAdminMenu(kit).openMenu(player)
+//            }
+//        }
+//    }
 }

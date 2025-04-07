@@ -186,7 +186,7 @@ class JoinQueueMenu(
 
                 // Calculate total players playing in kits of this category
                 KitService.cached().kits.values
-                    .filter { it.kitCategory == kitCategory.id }
+                    .filter { kitCategory.kits.contains(it.id) }
                     .forEach { kit ->
                         val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
                         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)

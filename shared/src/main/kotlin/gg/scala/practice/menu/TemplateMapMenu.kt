@@ -24,6 +24,7 @@ abstract class TemplateMapMenu : PaginatedMenu()
         placeholder = true
     }
 
+    open fun shouldIncludeMapDescription(): Boolean = true
     abstract fun filterDisplayOfMap(map: gg.scala.practice.map.Map): Boolean
     abstract fun itemDescriptionOf(player: Player, map: gg.scala.practice.map.Map): List<String>
     abstract fun itemClicked(player: Player, map: gg.scala.practice.map.Map, type: ClickType)
@@ -61,21 +62,28 @@ abstract class TemplateMapMenu : PaginatedMenu()
     {
         val buttons = mutableMapOf<Int, Button>()
 
-        filteredMaps.forEach {
+        filteredMaps.forEach { map ->
             buttons[buttons.size] = ItemBuilder
-                .copyOf(it.displayIcon)
-                .name(itemTitleFor(player, it))
+                .copyOf(map.displayIcon)
+                .name(itemTitleFor(player, map))
+                .apply {
+                    if (map.description.isNotEmpty() && shouldIncludeMapDescription())
+                    {
+                        setLore(map.description.map { "${CC.GRAY}$it" })
+                        addToLore("")
+                    }
+                }
                 .addFlags(
                     ItemFlag.HIDE_ATTRIBUTES,
                     ItemFlag.HIDE_ENCHANTS,
                     ItemFlag.HIDE_POTION_EFFECTS
                 )
                 .addToLore(
-                    *itemDescriptionOf(player, it)
+                    *itemDescriptionOf(player, map)
                         .toTypedArray()
                 )
                 .toButton { _, type ->
-                    itemClicked(player, it, type!!)
+                    itemClicked(player, map, type!!)
                 }
         }
 

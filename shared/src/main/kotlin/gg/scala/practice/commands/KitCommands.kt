@@ -14,12 +14,11 @@ import gg.scala.practice.kit.Kit
 import gg.scala.practice.kit.KitService
 import gg.scala.practice.kit.administration.KitAdminMenu
 import gg.scala.practice.kit.category.KitCategory
+import gg.scala.practice.kit.category.KitCategoryService
 import gg.scala.practice.kit.feature.FeatureFlag
 import gg.scala.practice.kit.feature.GameLifecycle
 import gg.scala.practice.kit.group.KitGroup
 import gg.scala.practice.kit.group.KitGroupService
-import gg.scala.practice.map.MapService
-import gg.scala.practice.map.administration.MapAdminMenu
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
@@ -896,20 +895,89 @@ object KitCommands : ScalaCommand()
         )
     }
 
-    @Subcommand("setcategory")
+    @AssignPermission
+    @Subcommand("categories add")
     @CommandCompletion("@kits @categories")
-    @Description("Sets the category this kit will be in.")
-    fun onCategory(player: ScalaPlayer, kit: Kit, category: KitCategory)
+    @Description("Associate a kit with a kit category.")
+    fun onCategoriesAdd(player: ScalaPlayer, kit: Kit, category: KitCategory)
     {
-        kit.kitCategory = category.id
-
-        with(KitService.cached()) {
-            KitService.cached().kits[kit.id] = kit
-            KitService.sync(this)
+        if (kit.id in category.kits)
+        {
+            throw ConditionFailedException(
+                "The kit category ${CC.YELLOW}${category.id}${CC.RED} is already associated with kit ${CC.YELLOW}${kit.displayName}${CC.RED}."
+            )
         }
 
+        category.kits += kit.id
+        KitCategoryService.sync(KitCategoryService.cached())
+
         player.sendMessage(
-            "${CC.GREEN}Kit Category ${CC.YELLOW}${category.id}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+            "${CC.GREEN}Kit category ${CC.YELLOW}${category.id}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
+    @Subcommand("categories list")
+    @CommandCompletion("@kits @categories")
+    @Description("List all associated kit categories with a kit.")
+    fun onCategoriesList(player: ScalaPlayer, kit: Kit)
+    {
+        player.sendMessage(
+            "${CC.GREEN}All associated kit categories for kit ${CC.B_WHITE}${kit.displayName}${CC.GREEN}:",
+            "${CC.WHITE}[click a kit category to view information]"
+        )
+
+        val listFancyMessage = FancyMessage()
+        val associated = KitCategoryService.categoriesOf(kit)
+        for ((i, category) in associated.withIndex())
+        {
+            val uniqueInfoComponent = FancyMessage()
+                .withMessage(
+                    "${CC.GRAY}${category.id}${CC.WHITE}${
+                        if (i != (associated.size - 1)) ", " else "."
+                    }"
+                )
+                .andHoverOf(
+                    "${CC.GRAY}Click to view map information."
+                )
+                .andCommandOf(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/kitcategory info ${category.id}"
+                )
+
+            listFancyMessage.components.addAll(
+                uniqueInfoComponent.components
+            )
+        }
+
+        if (listFancyMessage.components.isNotEmpty())
+        {
+            listFancyMessage.sendToPlayer(player.bukkit())
+        } else
+        {
+            player.sendMessage(
+                "${CC.RED}None"
+            )
+        }
+    }
+
+    @AssignPermission
+    @Subcommand("categories remove")
+    @CommandCompletion("@kits @categories")
+    @Description("Remove an associated kit category from a kit.")
+    fun onCategoriesRemove(player: ScalaPlayer, kit: Kit, category: KitCategory)
+    {
+        if (kit.id !in category.kits)
+        {
+            throw ConditionFailedException(
+                "The kit category ${CC.YELLOW}${category.id}${CC.RED} is not associated with kit ${CC.YELLOW}${kit.displayName}${CC.RED}."
+            )
+        }
+
+        category.kits -= kit.id
+        KitCategoryService.sync(KitCategoryService.cached())
+
+        player.sendMessage(
+            "${CC.GREEN}Kit category ${CC.YELLOW}${category.id}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
         )
     }
 

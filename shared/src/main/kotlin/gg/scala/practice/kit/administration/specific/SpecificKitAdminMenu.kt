@@ -48,34 +48,34 @@ class SpecificKitAdminMenu(private val kit: Kit) : Menu(
                 }"
             )
             .toButton(),
-        7 to ItemBuilder
-            .of(Material.EMERALD)
-            .name("${CC.GREEN}Category")
-            .addToLore(
-                "${CC.WHITE}${
-                    kit.kitCategory
-                }"
-            )
-            .toButton { _, _ ->
-                Button.playNeutral(player)
-                player.closeInventory()
-
-                InputPrompt()
-                    .withText("${CC.YELLOW}What kit category do you want to associate this kit with?")
-                    .acceptInput { _, text ->
-
-                        kit.kitCategory = text
-                        with(KitService.cached()) {
-                            KitService.cached().kits[kit.id] = kit
-                            KitService.sync(this)
-                        }
-
-                        player.sendMessage(
-                            "${CC.GREEN}Kit Category ${CC.YELLOW}${text}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
-                        )
-                    }
-                    .start(player)
-            },
+//        7 to ItemBuilder
+//            .of(Material.EMERALD)
+//            .name("${CC.GREEN}Category")
+//            .addToLore(
+//                "${CC.WHITE}${
+//                    kit.kitCategory
+//                }"
+//            )
+//            .toButton { _, _ ->
+//                Button.playNeutral(player)
+//                player.closeInventory()
+//
+//                InputPrompt()
+//                    .withText("${CC.YELLOW}What kit category do you want to associate this kit with?")
+//                    .acceptInput { _, text ->
+//
+//                        kit.kitCategory = text
+//                        with(KitService.cached()) {
+//                            KitService.cached().kits[kit.id] = kit
+//                            KitService.sync(this)
+//                        }
+//
+//                        player.sendMessage(
+//                            "${CC.GREEN}Kit Category ${CC.YELLOW}${text}${CC.GREEN} is now associated with kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+//                        )
+//                    }
+//                    .start(player)
+//            },
         3 to ItemBuilder
             .of(Material.EXP_BOTTLE)
             .name("${CC.RED}Features")

@@ -82,7 +82,7 @@ abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: 
                 it.featureConfig(FeatureFlag.MenuOrderWeight, "weight")
                     .toInt()
             }.filter {
-                category == null || it.kitCategory == category!!.id
+                category == null || category!!.kits.contains(it.id)
             }
             .forEach { kit ->
                 buttons[buttons.size] = ItemBuilder

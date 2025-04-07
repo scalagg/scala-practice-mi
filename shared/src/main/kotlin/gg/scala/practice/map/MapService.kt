@@ -45,6 +45,21 @@ object MapService : DataSyncService<MapContainer>()
     var onPostReload = {}
     override fun postReload()
     {
+        // Auto-migrate missing description fields
+        var changed = false
+
+        cached().maps.values.forEach { map ->
+            if (map.description == null) {
+                map.description = mutableListOf()
+                changed = true
+            }
+        }
+
+        if (changed) {
+            sync(cached()) // Save the updated data back to Mongo
+            println("[MapService] Migrated maps with missing description field.")
+        }
+
         onPostReload()
     }
 }
