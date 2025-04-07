@@ -107,7 +107,7 @@ class PracticeSettingsMenu : Menu("Practice Settings") {
                 "${CC.GRAY}Restart the practice system to",
                 "${CC.GRAY}apply recent configuration changes.",
                 "",
-                "${CC.YELLOW}Click to reboot"
+                "${CC.GREEN}Click to reboot"
             )
             .toButton { _, _ ->
                 Button.playNeutral(player)

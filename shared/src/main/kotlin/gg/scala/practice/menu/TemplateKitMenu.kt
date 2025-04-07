@@ -84,22 +84,17 @@ abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: 
             }.filter {
                 category == null || it.kitCategory == category!!.id
             }
-            .forEach {
+            .forEach { kit ->
                 buttons[buttons.size] = ItemBuilder
-                    .copyOf(it.displayIcon)
-                    .amount(getItemAmount(player, it))
+                    .copyOf(kit.displayIcon)
+                    .amount(getItemAmount(player, kit))
                     .name(
-                        itemTitleFor(player, it)
+                        itemTitleFor(player, kit)
                     )
                     .apply {
-                        if (it.description.isNotBlank() && shouldIncludeKitDescription())
+                        if (kit.description.isNotEmpty() && shouldIncludeKitDescription())
                         {
-                            setLore(
-                                TextSplitter.split(
-                                    it.description,
-                                    CC.GRAY, " "
-                                )
-                            )
+                            setLore(kit.description.map { "${CC.GRAY}$it" })
                             addToLore("")
                         }
                     }
@@ -109,11 +104,11 @@ abstract class TemplateKitMenu(private val viewer: Player, private val dynamic: 
                         ItemFlag.HIDE_POTION_EFFECTS
                     )
                     .addToLore(
-                        *itemDescriptionOf(player, it)
+                        *itemDescriptionOf(player, kit)
                             .toTypedArray()
                     )
                     .toButton { _, type ->
-                        itemClicked(player, it, type!!)
+                        itemClicked(player, kit, type!!)
                     }
             }
 

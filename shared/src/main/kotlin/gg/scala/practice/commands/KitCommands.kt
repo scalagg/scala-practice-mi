@@ -7,6 +7,7 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.practice.commands.menu.admin.kit.display.EditKitDisplaysMenu
 import gg.scala.practice.utilities.deepClone
 import gg.scala.practice.services.GameManagerService
 import gg.scala.practice.kit.Kit
@@ -19,11 +20,13 @@ import gg.scala.practice.kit.group.KitGroup
 import gg.scala.practice.kit.group.KitGroupService
 import gg.scala.practice.map.MapService
 import gg.scala.practice.map.administration.MapAdminMenu
+import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -261,20 +264,33 @@ object KitCommands : ScalaCommand()
     @Subcommand("description")
     @CommandCompletion("@kits")
     @Description("Edit a kit's description.")
-    fun onDescription(player: ScalaPlayer, kit: Kit, description: String)
+    fun onDescription(player: ScalaPlayer, kit: Kit)
     {
-        kit.description = if (description == "none") "" else description
+        object : TextEditorMenu(kit.description)
+            {
+                override fun getPrePaginatedTitle(player: Player) =
+                    "Editing: ${kit.id} Description..."
 
-        with(KitService.cached()) {
-            KitService.cached().kits[kit.id] = kit
-            KitService.sync(this)
+                override fun onClose(player: Player)
+                {
+
+                }
+
+                override fun onSave(player: Player, list: List<String>)
+                {
+                    kit.description.clear()
+                    kit.description.addAll(list)
+
+                    with (KitService.cached())
+                    {
+                        this.kits[kit.id] = kit
+                        KitService.sync(this)
+                    }
+                    player.sendMessage("${CC.GREEN}Saved ${kit.id} description!")
+                    EditKitDisplaysMenu(kit).openMenu(player)
+                }
+            }.openMenu(player.bukkit())
         }
-
-        player.sendMessage(
-            "${CC.GREEN}You have set the description for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN} to:",
-            if (description == "none") "${CC.RED}None!" else description
-        )
-    }
 
     @AssignPermission
     @Subcommand("displayname")

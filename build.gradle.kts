@@ -17,7 +17,7 @@ if (currentBranch != "master") {
 
 allprojects {
     group = "gg.scala.practice.mi"
-    version = "1.4.4${
+    version = "1.4.5${
         if (currentBranch != "master") "-dev" else ""
     }"
 
@@ -43,8 +43,8 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        kapt("gg.scala.commons:bukkit:4.0.1")
-        compileOnly("gg.scala.commons:bukkit:4.0.1")
+        kapt("gg.scala.commons:bukkit:4.0.7")
+        compileOnly("gg.scala.commons:bukkit:4.0.7")
 
         compileOnly("gg.scala.cgs:parties:1.4.3")
         compileOnly("gg.scala.store:spigot:0.1.8")

@@ -1,4 +1,4 @@
-package gg.scala.practice.commands.menu
+package gg.scala.practice.commands.menu.rating
 
 import gg.scala.practice.map.MapService
 import gg.scala.practice.map.rating.MapRatingService

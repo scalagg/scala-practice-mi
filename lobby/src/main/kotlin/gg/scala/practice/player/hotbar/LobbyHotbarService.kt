@@ -365,7 +365,7 @@ object LobbyHotbarService
                         return@scope
                     }
 
-                    player.performCommand("practicelobbyadmin menu")
+                    player.performCommand("managepractice")
                 }
             }
         )

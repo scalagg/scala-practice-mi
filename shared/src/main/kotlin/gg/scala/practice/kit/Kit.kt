@@ -19,7 +19,7 @@ import java.util.*
 data class Kit(
     val id: String,
     var displayName: String,
-    var description: String = "",
+    var description: MutableList<String> = mutableListOf(),
     var displayIcon: ItemStack = ItemBuilder
         .of(Material.IRON_SWORD)
         .build(),

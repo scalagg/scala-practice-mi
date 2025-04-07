@@ -7,11 +7,10 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.scala.practice.commands.menu.MapRatingOverviewMenu
+import gg.scala.practice.commands.menu.rating.MapRatingOverviewMenu
 import gg.scala.practice.kit.group.KitGroup
 import gg.scala.practice.map.Map
 import gg.scala.practice.map.MapService
-import gg.scala.practice.kit.administration.KitAdminMenu
 import gg.scala.practice.map.administration.MapAdminMenu
 import gg.scala.practice.services.GameManagerService
 import net.evilblock.cubed.util.CC

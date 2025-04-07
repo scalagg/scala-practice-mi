@@ -39,4 +39,17 @@ object SpawnCommand : ScalaCommand()
                 }
         }
     }
+
+    @CommandAlias("get-lobby-items")
+    fun onLobby(
+        player: ScalaPlayer
+    )
+    {
+        LobbyPlayerService.find(player.bukkit())
+            ?.apply {
+                LobbyHotbarService
+                    .get(state)
+                    .applyToPlayer(player.bukkit())
+            }
+    }
 }
