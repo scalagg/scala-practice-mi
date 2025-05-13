@@ -1,0 +1,14 @@
+[Unit]
+Description=Practice Application Server
+After=network.target
+
+[Service]
+WorkingDirectory=/root/PracticeApp
+ExecStart=/bin/bash /root/PracticeApp/start.sh
+Restart=always
+RestartSec=5
+User=root
+Environment=JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+[Install]
+WantedBy=multi-user.target
