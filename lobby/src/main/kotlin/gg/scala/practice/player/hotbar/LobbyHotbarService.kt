@@ -371,7 +371,7 @@ object LobbyHotbarService
 //        )
 
         idlePreset.addSlot(
-            5,
+            6,
             DynamicHotbarPresetEntry().also {
                 it.onBuild = scope@{ player ->
                     if (!player.hasPermission("practice.admin"))
