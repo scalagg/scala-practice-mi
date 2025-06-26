@@ -221,7 +221,7 @@ object LobbyHotbarService
             7,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.WATCH)
-                    .name("${CC.D_PURPLE}Navigator ${CC.GRAY}(Right Click)")
+                    .name("${CC.YELLOW}Navigator ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
                     PlayerMainMenu().openMenu(player)
