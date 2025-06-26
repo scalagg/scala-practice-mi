@@ -33,8 +33,7 @@ data class Map(
     val associatedSlimeTemplate: String,
     val associatedKitGroups: MutableSet<String> =
         mutableSetOf("__default__")
-)
-{
+) {
     var locked = false
 
     fun findSpawnLocations() = metadata

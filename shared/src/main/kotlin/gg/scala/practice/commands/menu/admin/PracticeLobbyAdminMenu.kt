@@ -60,7 +60,7 @@ class PracticeLobbyAdminMenu: Menu()
                 }
 
             it[14] = ItemBuilder.of(XMaterial.HOPPER)
-                .name("${CC.B_GREEN}Edit Kit Categories")
+                .name("${CC.B_GOLD}Edit Kit Categories")
                 .addToLore(
                     "${CC.GRAY}Edit all of the kit categories that",
                     "${CC.GRAY}are currently on the server.",

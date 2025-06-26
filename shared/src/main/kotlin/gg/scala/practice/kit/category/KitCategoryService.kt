@@ -34,7 +34,7 @@ object KitCategoryService : DataSyncService<KitCategoryContainer>()
     override fun keys() = CategoryKeys
     override fun type() = KitCategoryContainer::class.java
 
-    fun categoriesOf(kit: Kit) = KitCategoryService.cached().categories
+    fun categoriesOf(kit: Kit) = cached().categories
         .filter {
             kit.id in it.kits
         }

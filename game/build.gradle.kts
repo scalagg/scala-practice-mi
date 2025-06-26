@@ -17,7 +17,7 @@ dependencies {
 
     compileOnly("gg.scala.game.extensions:scala-core-game-extensions:1.3.5")
 
-    compileOnly("com.lunarclient:apollo-api:1.0.6")
-    compileOnly("com.lunarclient:apollo-extra-adventure4:1.0.6")
+    compileOnly("com.lunarclient:apollo-api:1.1.8")
+    compileOnly("com.lunarclient:apollo-extra-adventure4:1.1.8")
 }
 

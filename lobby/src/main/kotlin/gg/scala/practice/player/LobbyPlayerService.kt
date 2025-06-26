@@ -2,6 +2,7 @@ package gg.scala.practice.player
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
+import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -9,6 +10,7 @@ import gg.scala.lemon.handler.PlayerHandler
 import gg.scala.lemon.util.QuickAccess
 import gg.scala.game.extensions.cosmetics.EquipOnLoginCosmeticService
 import gg.scala.practice.PracticeLobby
+import gg.scala.practice.commands.TournamentCommand
 import gg.scala.practice.configuration.PracticeConfigurationService
 import gg.scala.practice.profile.PracticeProfileService
 import gg.scala.practice.queue.QueueService
@@ -267,12 +269,12 @@ object LobbyPlayerService
                     QueueService.leaveQueue(event.player, true)
                 }
 
-                /*if (profile.state == PlayerState.InTournament)
+                if (profile.state == PlayerState.InTournament)
                 {
                     TournamentCommand.onLeave(
                         ScalaPlayer(event.player, audiences, plugin)
                     )
-                }*/
+                }
 
                 playerCache.remove(event.player.uniqueId)
 

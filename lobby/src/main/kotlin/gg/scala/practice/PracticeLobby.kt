@@ -19,7 +19,7 @@ import gg.scala.practice.services.GameManagerService
     name = "ScalaPractice",
     version = "%remote%/%branch%/%id%"
 )
- @PluginAuthor("Scala")
+@PluginAuthor("Scala")
 @PluginWebsite("https://scala.gg")
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),

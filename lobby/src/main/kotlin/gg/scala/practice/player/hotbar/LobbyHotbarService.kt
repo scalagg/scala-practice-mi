@@ -21,6 +21,7 @@ import gg.scala.practice.kit.KitService
 import gg.scala.practice.menu.JoinQueueMenu
 import gg.scala.practice.menu.LeaderboardsMenu
 import gg.scala.practice.menu.PlayerMainMenu
+import gg.scala.practice.menu.QueueSelectMenu
 import gg.scala.practice.menu.editor.EditorKitSelectionMenu
 import gg.scala.practice.menu.party.OtherPartiesMenu
 import gg.scala.practice.menu.party.PartyPlayGameSelectMenu
@@ -184,10 +185,10 @@ object LobbyHotbarService
                             .bindWith(terminable)
 
                         terminable.with {
-                            player.inventory.setItem(3, ItemStack(Material.AIR))
+                            player.inventory.setItem(2, ItemStack(Material.AIR))
                         }
 
-                        player.inventory.setItem(3, rematchItem)
+                        player.inventory.setItem(2, rematchItem)
                     }
                 }
             }
@@ -231,81 +232,11 @@ object LobbyHotbarService
         idlePreset.addSlot(
             0,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.IRON_SWORD)
-                    .name("${CC.YELLOW}Play Unranked ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
-            ).also {
-                it.onClick = context@{ player ->
-                    if (player.hasMetadata("frozen"))
-                    {
-                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
-                        return@context
-                    }
-
-                    if (ShutdownService.shutdownRunnable != null)
-                    {
-                        player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
-                        return@context
-                    }
-
-                    JoinQueueMenu(player, QueueType.Unranked, 1).openMenu(player)
-                }
-            }
-        )
-
-        Schedulers.async().runRepeating({ task ->
-            if (Bukkit.getPluginManager().isPluginEnabled("scala-robots")) {
-                task.stop()
-
-                idlePreset.addSlot(
-                    2,
-                    StaticHotbarPresetEntry(
-                        ItemBuilder(Material.GOLD_SWORD)
-                            .name("${CC.GREEN}Play Robot ${CC.GRAY}(Right Click)")
-                            .setUnbreakable(true)
-                    ).also {
-                        it.onClick = context@{ player ->
-                            if (player.hasMetadata("frozen")) {
-                                player.sendMessage("${CC.RED}You cannot join queues while frozen!")
-                                return@context
-                            }
-
-                            if (ShutdownService.shutdownRunnable != null)
-                            {
-                                player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
-                                return@context
-                            }
-
-                            val menu = buildBotSelectorMenu(player)
-                                ?: return@context run {
-                                    player.sendMessage("${CC.RED}This feature is coming soon!")
-                                }
-
-                            menu.openMenu(player)
-                        }
-                    }
-                )
-            }
-        }, 0L, 20L)
-
-        idlePreset.addSlot(
-            1,
-            StaticHotbarPresetEntry(
                 ItemBuilder(Material.DIAMOND_SWORD)
-                    .name("${CC.PRI}Play Ranked ${CC.GRAY}(Right Click)")
+                    .name("${CC.GREEN}Queue ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = context@{ player ->
-                    val profile = PracticeProfileService.find(player)
-                        ?: return@context
-
-                    val configuration = PracticeConfigurationService.cached()
-                    if (!player.isOp && !configuration.rankedQueueEnabled)
-                    {
-                        player.sendMessage("${CC.RED}Ranked queues are temporarily disabled. Please try again later.")
-                        return@context
-                    }
-
                     if (player.hasMetadata("frozen"))
                     {
                         player.sendMessage("${CC.RED}You cannot join queues while frozen!")
@@ -318,31 +249,126 @@ object LobbyHotbarService
                         return@context
                     }
 
-                    if (
-                        !player.hasPermission("practice.bypass-ranked-queue-requirements")
-                        && profile.globalStatistics.totalWins < configuration.minimumWinRequirement()
-                    )
-                    {
-                        player.sendMessage(
-                            "${CC.RED}You must have at least ${
-                                configuration.minimumWinRequirement()
-                            } wins to queue for a Ranked kit! You currently have ${CC.BOLD}${
-                                profile.globalStatistics.totalWins
-                            }${CC.RED} wins."
-                        )
-                        return@context
-                    }
-
-                    if (profile.hasActiveRankedBan())
-                    {
-                        profile.deliverRankedBanMessage(player)
-                        return@context
-                    }
-
-                    JoinQueueMenu(player, QueueType.Ranked, 1).openMenu(player)
+                    QueueSelectMenu().openMenu(player)
                 }
             }
         )
+
+//        idlePreset.addSlot(
+//            0,
+//            StaticHotbarPresetEntry(
+//                ItemBuilder(Material.IRON_SWORD)
+//                    .name("${CC.YELLOW}Play Unranked ${CC.GRAY}(Right Click)")
+//                    .setUnbreakable(true)
+//            ).also {
+//                it.onClick = context@{ player ->
+//                    if (player.hasMetadata("frozen"))
+//                    {
+//                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+//                        return@context
+//                    }
+//
+//                    if (ShutdownService.shutdownRunnable != null)
+//                    {
+//                        player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
+//                        return@context
+//                    }
+//
+//                    JoinQueueMenu(player, QueueType.Unranked, 1).openMenu(player)
+//                }
+//            }
+//        )
+//
+//        Schedulers.async().runRepeating({ task ->
+//            if (Bukkit.getPluginManager().isPluginEnabled("scala-robots")) {
+//                task.stop()
+//
+//                idlePreset.addSlot(
+//                    2,
+//                    StaticHotbarPresetEntry(
+//                        ItemBuilder(Material.GOLD_SWORD)
+//                            .name("${CC.GREEN}Play Robot ${CC.GRAY}(Right Click)")
+//                            .setUnbreakable(true)
+//                    ).also {
+//                        it.onClick = context@{ player ->
+//                            if (player.hasMetadata("frozen")) {
+//                                player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+//                                return@context
+//                            }
+//
+//                            if (ShutdownService.shutdownRunnable != null)
+//                            {
+//                                player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
+//                                return@context
+//                            }
+//
+//                            val menu = buildBotSelectorMenu(player)
+//                                ?: return@context run {
+//                                    player.sendMessage("${CC.RED}This feature is coming soon!")
+//                                }
+//
+//                            menu.openMenu(player)
+//                        }
+//                    }
+//                )
+//            }
+//        }, 0L, 20L)
+//
+//        idlePreset.addSlot(
+//            1,
+//            StaticHotbarPresetEntry(
+//                ItemBuilder(Material.DIAMOND_SWORD)
+//                    .name("${CC.PRI}Play Ranked ${CC.GRAY}(Right Click)")
+//                    .setUnbreakable(true)
+//            ).also {
+//                it.onClick = context@{ player ->
+//                    val profile = PracticeProfileService.find(player)
+//                        ?: return@context
+//
+//                    val configuration = PracticeConfigurationService.cached()
+//                    if (!player.isOp && !configuration.rankedQueueEnabled)
+//                    {
+//                        player.sendMessage("${CC.RED}Ranked queues are temporarily disabled. Please try again later.")
+//                        return@context
+//                    }
+//
+//                    if (player.hasMetadata("frozen"))
+//                    {
+//                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+//                        return@context
+//                    }
+//
+//                    if (ShutdownService.shutdownRunnable != null)
+//                    {
+//                        player.sendMessage("${CC.RED}You cannot join queues while the server is rebooting.")
+//                        return@context
+//                    }
+//
+//                    if (
+//                        !player.hasPermission("practice.bypass-ranked-queue-requirements")
+//                        && profile.globalStatistics.totalWins < configuration.minimumWinRequirement()
+//                    )
+//                    {
+//                        player.sendMessage(
+//                            "${CC.RED}You must have at least ${
+//                                configuration.minimumWinRequirement()
+//                            } wins to queue for a Ranked kit! You currently have ${CC.BOLD}${
+//                                profile.globalStatistics.totalWins
+//                            }${CC.RED} wins."
+//                        )
+//                        return@context
+//                    }
+//
+//                    if (profile.hasActiveRankedBan())
+//                    {
+//                        profile.deliverRankedBanMessage(player)
+//                        return@context
+//                    }
+//
+//                    JoinQueueMenu(player, QueueType.Ranked, 1).openMenu(player)
+//                }
+//            }
+//        )
 
         idlePreset.addSlot(
             5,
@@ -400,20 +426,20 @@ object LobbyHotbarService
             }
         )
 
-        idlePreset.addSlot(
-            6,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.ITEM_FRAME)
-                    .name("${CC.YELLOW}View Leaderboards ${CC.GRAY}(Right Click)")
-            ).also {
-                it.onClick = { player ->
-                    LeaderboardsMenu(player).openMenu(player)
-                    Button.playNeutral(player)
-                }
-            }
-        )
+//        idlePreset.addSlot(
+//            6,
+//            StaticHotbarPresetEntry(
+//                ItemBuilder(Material.ITEM_FRAME)
+//                    .name("${CC.YELLOW}View Leaderboards ${CC.GRAY}(Right Click)")
+//            ).also {
+//                it.onClick = { player ->
+//                    LeaderboardsMenu(player).openMenu(player)
+//                    Button.playNeutral(player)
+//                }
+//            }
+//        )
 
-        idlePreset.addSlot(7, kitEditor)
+        idlePreset.addSlot(1, kitEditor)
         idlePreset.addSlot(8, settings)
 
         HotbarPresetHandler.startTrackingHotbar("idle", idlePreset)

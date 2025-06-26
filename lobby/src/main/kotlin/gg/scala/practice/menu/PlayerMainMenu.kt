@@ -53,6 +53,7 @@ class PlayerMainMenu : Menu("Navigator")
                 "",
                 "${CC.GRAY}Events include:",
                 "${CC.WHITE}- Sumo",
+                "${CC.WHITE}- Wool Whuffle",
                 "",
                 "${CC.GREEN}Click to open!"
             )

@@ -533,11 +533,11 @@ object KitCommands : ScalaCommand()
     fun onSetContents(sender: ScalaPlayer, kit: Kit)
     {
         val player = sender.bukkit()
-        val inventory = player.inventory.contents
-        val armor = player.inventory.armorContents
+        val inventory = player.inventory.contents.deepClone()
+        val armor = player.inventory.armorContents.deepClone()
 
-        kit.contents = inventory.deepClone()
-        kit.armorContents = armor.deepClone()
+        kit.contents = inventory
+        kit.armorContents = armor
 
         with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit
@@ -565,6 +565,18 @@ object KitCommands : ScalaCommand()
         }
 
         sender.sendMessage("${CC.GREEN}You have saved additional contents for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}.")
+    }
+
+    @AssignPermission
+    @Subcommand("inventory getadditionalcontents")
+    @CommandCompletion("@kits")
+    @Description("Sets your inventory to the kit's additional contents.")
+    fun onGetAdditionalContents(sender: ScalaPlayer, kit: Kit)
+    {
+        val player = sender.bukkit()
+        player.inventory.contents = kit.additionalContents
+
+        sender.sendMessage("${CC.GREEN}You have received additional contents for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}.")
     }
 
     @AssignPermission
