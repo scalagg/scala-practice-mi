@@ -122,12 +122,12 @@ object GameService
         plugin.registerListener(FireballFeature())
         plugin.registerListener(CrystalFeature())
 
-        AnticheatFeature.proxiedPlayerAllowAC = context@{
-            val game = byPlayer(it)
-                ?: return@context false
-
-            !game.robot()
-        }
+//        AnticheatFeature.proxiedPlayerAllowAC = context@{
+//            val game = byPlayer(it)
+//                ?: return@context false
+//
+//            !game.robot()
+//        }
 
         Events
             .subscribe(ServerShutdownEvent::class.java)

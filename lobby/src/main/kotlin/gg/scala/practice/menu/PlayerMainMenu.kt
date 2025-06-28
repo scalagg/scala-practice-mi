@@ -20,7 +20,7 @@ class PlayerMainMenu : Menu("Navigator")
 
     override fun size(buttons: Map<Int, Button>) = 27
     override fun getButtons(player: Player) = mapOf(
-        11 to ItemBuilder
+        10 to ItemBuilder
             .of(Material.BLAZE_POWDER)
             .name("${CC.GOLD}Cosmetics")
             .addToLore(
@@ -33,7 +33,7 @@ class PlayerMainMenu : Menu("Navigator")
             .toButton { _, _ ->
                 player.performCommand("cosmetics")
             },
-        13 to ItemBuilder
+        12 to ItemBuilder
             .of(Material.FIREBALL)
             .name("${CC.GREEN}Statistics")
             .addToLore(
@@ -45,7 +45,19 @@ class PlayerMainMenu : Menu("Navigator")
             .toButton { _, _ ->
                 player.performCommand("statistics")
             },
-        15 to ItemBuilder
+        14 to ItemBuilder
+            .of(Material.ITEM_FRAME)
+            .name("${CC.GREEN}Leaderboards")
+            .addToLore(
+                "${CC.GRAY}View practice leaderboards",
+                "${CC.GRAY}in all categories!",
+                "",
+                "${CC.GREEN}Click to open!"
+            )
+            .toButton { _, _ ->
+                player.performCommand("leaderboards")
+            },
+        16 to ItemBuilder
             .of(Material.LEASH)
             .name("${CC.D_PURPLE}Events")
             .addToLore(
