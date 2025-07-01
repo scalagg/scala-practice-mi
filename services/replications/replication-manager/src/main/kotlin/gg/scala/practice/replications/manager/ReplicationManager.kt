@@ -66,7 +66,7 @@ object ReplicationManager
         val service = Executors.newSingleThreadScheduledExecutor()
         service.scheduleAtFixedRate({
             replicationCallbacks.entries.toList()
-                .filter { it.value.first + 5000L <= System.currentTimeMillis() }
+                .filter { it.value.first + 10000L <= System.currentTimeMillis() }
                 .forEach {
                     it.value.second.complete(
                         ReplicationResult(
